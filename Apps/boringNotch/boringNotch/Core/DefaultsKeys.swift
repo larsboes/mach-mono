@@ -1,0 +1,173 @@
+//
+//  DefaultsKeys.swift
+//  boringNotch
+//
+//  Extracted Defaults.Keys from Constants.swift.
+//
+
+import SwiftUI
+import Defaults
+
+extension Defaults.Keys {
+    // MARK: Bluetooth
+    static let bluetoothDeviceIconMappings = Key<[BluetoothDeviceIconMapping]>("bluetoothDeviceIconMappings", default: [])
+    static let enableBluetoothSneakPeek = Key<Bool>("enableBluetoothSneakPeek", default: false)
+    static let bluetoothSneakPeekStyle = Key<SneakPeekStyle>("bluetoothSneakPeekStyle", default: .standard)
+
+    // MARK: General
+    static let menubarIcon = Key<Bool>("menubarIcon", default: true)
+    static let showOnAllDisplays = Key<Bool>("showOnAllDisplays", default: false)
+    static let automaticallySwitchDisplay = Key<Bool>("automaticallySwitchDisplay", default: true)
+    static let preferredScreenUUID = Key<String?>("preferred_screen_uuid", default: nil)
+    static let releaseName = Key<String>("releaseName", default: "Flying Rabbit")
+    static let firstLaunch = Key<Bool>("firstLaunch", default: true)
+    static let showWhatsNew = Key<Bool>("showWhatsNew", default: true)
+    static let musicLiveActivityEnabled = Key<Bool>("musicLiveActivityEnabled", default: true)
+    static let currentMicStatus = Key<Bool>("currentMicStatus", default: true)
+
+    // MARK: Behavior
+    static let minimumHoverDuration = Key<TimeInterval>("minimumHoverDuration", default: 0.3)
+    static let enableHaptics = Key<Bool>("enableHaptics", default: true)
+    static let openNotchOnHover = Key<Bool>("openNotchOnHover", default: true)
+    static let extendHoverArea = Key<Bool>("extendHoverArea", default: false)
+    static let inactiveNotchHeight = Key<CGFloat>("inactiveNotchHeight", default: 32)
+    static let useInactiveNotchHeight = Key<Bool>("useInactiveNotchHeight", default: false)
+    static let notchHeightMode = Key<WindowHeightMode>("notchHeightMode", default: WindowHeightMode.matchRealNotchSize)
+    static let nonNotchHeightMode = Key<WindowHeightMode>("nonNotchHeightMode", default: WindowHeightMode.matchMenuBar)
+    static let nonNotchHeight = Key<CGFloat>("nonNotchHeight", default: 32)
+    static let notchHeight = Key<CGFloat>("notchHeight", default: 32)
+    static let showOnLockScreen = Key<Bool>("showOnLockScreen", default: false)
+    static let hideFromScreenRecording = Key<Bool>("hideFromScreenRecording", default: false)
+
+    // MARK: Appearance
+    static let alwaysShowTabs = Key<Bool>("alwaysShowTabs", default: true)
+    static let openLastTabByDefault = Key<Bool>("openLastTabByDefault", default: false)
+    static let showMirror = Key<Bool>("showMirror", default: false)
+    static let mirrorShape = Key<MirrorShapeEnum>("mirrorShape", default: MirrorShapeEnum.rectangle)
+    static let settingsIconInNotch = Key<Bool>("settingsIconInNotch", default: true)
+    static let lightingEffect = Key<Bool>("lightingEffect", default: true)
+    static let enableShadow = Key<Bool>("enableShadow", default: true)
+    static let cornerRadiusScaling = Key<Bool>("cornerRadiusScaling", default: true)
+    static let backgroundImageURL = Key<URL?>("backgroundImageURL", default: nil)
+
+    // MARK: Liquid Glass Effect
+    static let liquidGlassEffect = Key<Bool>("liquidGlassEffect", default: false)
+    static let liquidGlassStyle = Key<LiquidGlassStyle>("liquidGlassStyle", default: .default)
+    static let liquidGlassBlurRadius = Key<Double>("liquidGlassBlurRadius", default: 20.0)
+
+    static let showNotHumanFace = Key<Bool>("showNotHumanFace", default: false)
+    static let tileShowLabels = Key<Bool>("tileShowLabels", default: false)
+    static let showCalendar = Key<Bool>("showCalendar", default: true)
+    static let showWeather = Key<Bool>("showWeather", default: true)
+    static let showHabitTracker = Key<Bool>("showHabitTracker", default: true)
+    static let showPomodoro = Key<Bool>("showPomodoro", default: true)
+    static let showTeleprompter = Key<Bool>("showTeleprompter", default: true)
+    static let openWeatherMapApiKey = Key<String>("openWeatherMapApiKey", default: "")
+    static let hideCompletedReminders = Key<Bool>("hideCompletedReminders", default: true)
+    static let sliderColor = Key<SliderColorEnum>("sliderUseAlbumArtColor", default: SliderColorEnum.white)
+    static let playerColorTinting = Key<Bool>("playerColorTinting", default: true)
+
+    // MARK: Gestures
+    static let enableGestures = Key<Bool>("enableGestures", default: true)
+    static let closeGestureEnabled = Key<Bool>("closeGestureEnabled", default: true)
+    static let gestureSensitivity = Key<CGFloat>("gestureSensitivity", default: 200.0)
+
+    // MARK: Media playback
+    static let coloredSpectrogram = Key<Bool>("coloredSpectrogram", default: true)
+    static let enableSneakPeek = Key<Bool>("enableSneakPeek", default: false)
+    static let sneakPeekStyles = Key<SneakPeekStyle>("sneakPeekStyles", default: .standard)
+    static let sneakPeakDuration = Key<Double>("sneakPeakDuration", default: 1.5)
+    static let selectedMood = Key<Mood>("selectedMood", default: .neutral)
+    static let waitInterval = Key<Double>("waitInterval", default: 3)
+    static let showShuffleAndRepeat = Key<Bool>("showShuffleAndRepeat", default: false)
+    static let enableLyrics = Key<Bool>("enableLyrics", default: false)
+    static let musicControlSlots = Key<[MusicControlButton]>("musicControlSlots", default: MusicControlButton.defaultLayout)
+    static let musicControlSlotLimit = Key<Int>("musicControlSlotLimit", default: MusicControlButton.defaultLayout.count)
+
+    // MARK: Visualizer
+    static let selectedVisualizerURL = Key<URL?>("selectedVisualizerURL", default: nil)
+    static let selectedVisualizerSpeed = Key<Double>("selectedVisualizerSpeed", default: 1.0)
+    static let ambientVisualizerEnabled = Key<Bool>("ambientVisualizerEnabled", default: false)
+    static let ambientVisualizerHeight = Key<CGFloat>("ambientVisualizerHeight", default: 110)
+    static let ambientVisualizerMode = Key<AmbientVisualizerMode>("ambientVisualizerMode", default: .simulated)
+    static let visualizerSensitivity = Key<Double>("visualizerSensitivity", default: 0.5)
+    static let visualizerShowWhenPaused = Key<Bool>("visualizerShowWhenPaused", default: false)
+    static let visualizerBandCount = Key<VisualizerBandCount>("visualizerBandCount", default: .thirtyTwo)
+
+    // MARK: Battery
+    static let showPowerStatusNotifications = Key<Bool>("showPowerStatusNotifications", default: true)
+    static let showBatteryIndicator = Key<Bool>("showBatteryIndicator", default: true)
+    static let showBatteryPercentage = Key<Bool>("showBatteryPercentage", default: true)
+    static let showPowerStatusIcons = Key<Bool>("showPowerStatusIcons", default: true)
+    static let powerStatusNotificationSound = Key<String>("powerStatusNotificationSound", default: "Disabled")
+    static let lowBatteryNotificationLevel = Key<Int>("lowBatteryNotificationLevel", default: 0)
+    static let lowBatteryNotificationSound = Key<String>("lowBatteryNotificationSound", default: "Disabled")
+    static let highBatteryNotificationLevel = Key<Int>("highBatteryNotificationLevel", default: 0)
+    static let highBatteryNotificationSound = Key<String>("highBatteryNotificationSound", default: "Disabled")
+
+    // MARK: Notifications
+    static let showShelfNotifications = Key<Bool>("showShelfNotifications", default: true)
+    static let showSystemNotifications = Key<Bool>("showSystemNotifications", default: true)
+    static let showInfoNotifications = Key<Bool>("showInfoNotifications", default: true)
+    static let notificationDeliveryStyle = Key<NotificationDeliveryStyle>("notificationDeliveryStyle", default: .banner)
+    static let notificationSoundEnabled = Key<Bool>("notificationSoundEnabled", default: true)
+    static let respectDoNotDisturb = Key<Bool>("respectDoNotDisturb", default: true)
+    static let notificationRetentionDays = Key<Int>("notificationRetentionDays", default: 7)
+    static let storedNotifications = Key<[NotchNotification]>("storedNotifications", default: [])
+
+    // MARK: Downloads
+    static let enableDownloadListener = Key<Bool>("enableDownloadListener", default: true)
+    static let enableSafariDownloads = Key<Bool>("enableSafariDownloads", default: true)
+    static let selectedDownloadIndicatorStyle = Key<DownloadIndicatorStyle>("selectedDownloadIndicatorStyle", default: DownloadIndicatorStyle.progress)
+    static let selectedDownloadIconStyle = Key<DownloadIconStyle>("selectedDownloadIconStyle", default: DownloadIconStyle.onlyAppIcon)
+
+    // MARK: HUD
+    static let hudReplacement = Key<Bool>("hudReplacement", default: false)
+    static let inlineHUD = Key<Bool>("inlineHUD", default: false)
+    static let enableGradient = Key<Bool>("enableGradient", default: false)
+    static let systemEventIndicatorShadow = Key<Bool>("systemEventIndicatorShadow", default: false)
+    static let systemEventIndicatorUseAccent = Key<Bool>("systemEventIndicatorUseAccent", default: false)
+    static let showOpenNotchHUD = Key<Bool>("showOpenNotchHUD", default: true)
+    static let showOpenNotchHUDPercentage = Key<Bool>("showOpenNotchHUDPercentage", default: true)
+    static let showClosedNotchHUDPercentage = Key<Bool>("showClosedNotchHUDPercentage", default: false)
+    static let optionKeyAction = Key<OptionKeyAction>("optionKeyAction", default: OptionKeyAction.openSettings)
+
+    // MARK: Shelf
+    static let boringShelf = Key<Bool>("boringShelf", default: true)
+    static let openShelfByDefault = Key<Bool>("openShelfByDefault", default: false)
+    static let shelfTapToOpen = Key<Bool>("shelfTapToOpen", default: true)
+    static let quickShareProvider = Key<String>("quickShareProvider", default: "System Share Menu")
+    static let copyOnDrag = Key<Bool>("copyOnDrag", default: false)
+    static let autoRemoveShelfItems = Key<Bool>("autoRemoveShelfItems", default: false)
+    static let expandedDragDetection = Key<Bool>("expandedDragDetection", default: true)
+    static let shelfHoverDelay = Key<TimeInterval>("shelfHoverDelay", default: 4.0)
+
+    // MARK: Calendar
+    static let calendarSelectionState = Key<CalendarSelectionState>("calendarSelectionState", default: .all)
+    static let hideAllDayEvents = Key<Bool>("hideAllDayEvents", default: false)
+    static let showFullEventTitles = Key<Bool>("showFullEventTitles", default: false)
+    static let autoScrollToNextEvent = Key<Bool>("autoScrollToNextEvent", default: true)
+
+    // MARK: Fullscreen Media Detection
+    static let hideNotchOption = Key<HideNotchOption>("hideNotchOption", default: .nowPlayingOnly)
+
+    // MARK: Media Controller
+    static let mediaController = Key<MediaControllerType>("mediaController", default: defaultMediaController)
+
+    // MARK: Advanced Settings
+    static let useCustomAccentColor = Key<Bool>("useCustomAccentColor", default: false)
+    static let customAccentColorData = Key<Data?>("customAccentColorData", default: nil)
+    static let hideTitleBar = Key<Bool>("hideTitleBar", default: true)
+    static let hideNonNotchedFromMissionControl = Key<Bool>("hideNonNotchedFromMissionControl", default: true)
+
+    static let isNowPlayingDeprecated = Key<Bool>("isNowPlayingDeprecated", default: false)
+
+    static var defaultMediaController: MediaControllerType {
+        Defaults[.isNowPlayingDeprecated] ? .appleMusic : .nowPlaying
+    }
+
+    static let didClearLegacyURLCacheV1 = Key<Bool>("didClearLegacyURLCache_v1", default: false)
+
+    // MARK: AI
+    static let enableAI = Key<Bool>("enableAI", default: true)
+}

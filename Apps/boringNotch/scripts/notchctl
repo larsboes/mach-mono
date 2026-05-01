@@ -1,0 +1,106 @@
+#!/usr/bin/env swift
+import Foundation
+
+let baseURL = "http://127.0.0.1:19384/api/v1"
+
+func help() {
+    print("""
+    notchctl - Control boringNotch from the command line
+
+    Usage:
+      notchctl <command> [args]
+
+    Commands:
+      open          Open the notch
+      close         Close the notch
+      toggle        Toggle the notch
+      state         Get current notch state
+      plugins       List all plugins
+      music <cmd>   Control music (play-pause, next, previous, now-playing)
+    """)
+}
+
+guard CommandLine.arguments.count > 1 else {
+    help()
+    exit(0)
+}
+
+let command = CommandLine.arguments[1]
+
+func request(_ path: String, method: String = "GET", body: [String: Any]? = nil) {
+    guard let url = URL(string: "\(baseURL)\(path)") else { return }
+    var request = URLRequest(url: url)
+    request.httpMethod = method
+    
+    if let body = body {
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    }
+    
+    let semaphore = DispatchSemaphore(value: 0)
+    let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        if let error = error {
+            print("Error: \(error.localizedDescription)")
+        } else if let data = data {
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    if let ok = json["ok"] as? Bool, ok {
+                        if let payload = json["data"] {
+                            let options: JSONSerialization.WritingOptions = [.prettyPrinted]
+                            if let prettyData = try? JSONSerialization.data(withJSONObject: payload, options: options),
+                               let prettyString = String(data: prettyData, encoding: .utf8) {
+                                print(prettyString)
+                            } else {
+                                print(payload)
+                            }
+                        } else {
+                            print("Success")
+                        }
+                    } else {
+                        print("Failure: \(json["error"] ?? "Unknown error")")
+                    }
+                }
+            } catch {
+                if let raw = String(data: data, encoding: .utf8) {
+                    print(raw)
+                }
+            }
+        }
+        semaphore.signal()
+    }
+    task.resume()
+    semaphore.wait()
+}
+
+switch command {
+case "open":
+    request("/notch/open", method: "POST")
+case "close":
+    request("/notch/close", method: "POST")
+case "toggle":
+    request("/notch/toggle", method: "POST")
+case "state":
+    request("/notch/state")
+case "plugins":
+    request("/plugins")
+case "music":
+    guard CommandLine.arguments.count > 2 else {
+        print("Usage: notchctl music <play-pause|next|previous|now-playing>")
+        exit(1)
+    }
+    let sub = CommandLine.arguments[2]
+    switch sub {
+    case "play-pause": request("/music/play-pause", method: .post.rawValue)
+    case "next": request("/music/next", method: .post.rawValue)
+    case "previous": request("/music/previous", method: .post.rawValue)
+    case "now-playing": request("/music/now-playing")
+    default: print("Unknown music command: \(sub)")
+    }
+default:
+    print("Unknown command: \(command)")
+    help()
+}
+
+extension String {
+    static let post = "POST"
+}

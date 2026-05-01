@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "boringNotch Connector",
+  "version": "1.0",
+  "description": "Connects browser media playback to boringNotch",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tabs",
+    "background"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "all_frames": true
+    }
+  ],
+  "icons": {
+    "128": "icon128.png"
+  }
+}
