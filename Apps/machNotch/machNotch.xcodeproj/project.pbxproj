@@ -94,8 +94,8 @@
 		11DB267D2EDD0CDF001EA0CF /* MediaSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11DB266E2EDD0CDF001EA0CF /* MediaSettingsView.swift */; };
 		11EFCD702E8E92D600D0B974 /* ShelfItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11EFCD6F2E8E92D600D0B974 /* ShelfItemViewModel.swift */; };
 		11F747CE2EC75CEA00F841DB /* DragPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11F747CD2EC75CEA00F841DB /* DragPreviewView.swift */; };
-		11F7485B2EC9AABA00F841DB /* BoringNotchXPCHelper.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 11F7484F2EC9AABA00F841DB /* BoringNotchXPCHelper.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		11F748682EC9AC9600F841DB /* BoringNotchXPCHelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11F748652EC9AC9600F841DB /* BoringNotchXPCHelperProtocol.swift */; };
+		11F7485B2EC9AABA00F841DB /* MachNotchXPCHelper.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 11F7484F2EC9AABA00F841DB /* MachNotchXPCHelper.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		11F748682EC9AC9600F841DB /* MachNotchXPCHelperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11F748652EC9AC9600F841DB /* MachNotchXPCHelperProtocol.swift */; };
 		11F748692EC9AC9600F841DB /* XPCHelperClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11F748662EC9AC9600F841DB /* XPCHelperClient.swift */; };
 		11F748732EC9DA9300F841DB /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 11F748722EC9DA9300F841DB /* Lottie */; };
 		11F748822ECB07A400F841DB /* MusicControlButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11F748812ECB07A400F841DB /* MusicControlButton.swift */; };
@@ -369,7 +369,7 @@
 			containerPortal = 14CEF40A2C5CAED200855D72 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 11F7484E2EC9AABA00F841DB;
-			remoteInfo = BoringNotchXPCHelper;
+			remoteInfo = MachNotchXPCHelper;
 		};
 		B79D1D36E4749130E470796C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -387,7 +387,7 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/XPCServices";
 			dstSubfolderSpec = 16;
 			files = (
-				11F7485B2EC9AABA00F841DB /* BoringNotchXPCHelper.xpc in Embed XPC Services */,
+				11F7485B2EC9AABA00F841DB /* MachNotchXPCHelper.xpc in Embed XPC Services */,
 			);
 			name = "Embed XPC Services";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -496,8 +496,8 @@
 		11DB26712EDD0CDF001EA0CF /* ShortcutsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutsSettingsView.swift; sourceTree = "<group>"; };
 		11EFCD6F2E8E92D600D0B974 /* ShelfItemViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ShelfItemViewModel.swift; path = boringNotch/Plugins/BuiltIn/ShelfPlugin/ViewModels/ShelfItemViewModel.swift; sourceTree = "<group>"; };
 		11F747CD2EC75CEA00F841DB /* DragPreviewView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DragPreviewView.swift; path = boringNotch/Plugins/BuiltIn/ShelfPlugin/Views/DragPreviewView.swift; sourceTree = "<group>"; };
-		11F7484F2EC9AABA00F841DB /* BoringNotchXPCHelper.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = BoringNotchXPCHelper.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
-		11F748652EC9AC9600F841DB /* BoringNotchXPCHelperProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoringNotchXPCHelperProtocol.swift; sourceTree = "<group>"; };
+		11F7484F2EC9AABA00F841DB /* MachNotchXPCHelper.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = MachNotchXPCHelper.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
+		11F748652EC9AC9600F841DB /* MachNotchXPCHelperProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MachNotchXPCHelperProtocol.swift; sourceTree = "<group>"; };
 		11F748662EC9AC9600F841DB /* XPCHelperClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XPCHelperClient.swift; sourceTree = "<group>"; };
 		11F748812ECB07A400F841DB /* MusicControlButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicControlButton.swift; sourceTree = "<group>"; };
 		11F748832ECB27DC00F841DB /* MusicSlotConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicSlotConfigurationView.swift; sourceTree = "<group>"; };
@@ -767,13 +767,13 @@
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 11F7484E2EC9AABA00F841DB /* BoringNotchXPCHelper */;
+			target = 11F7484E2EC9AABA00F841DB /* MachNotchXPCHelper */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		112FB72F2CCF12CC0015238C /* boringNotch/private/LocalAPI */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = boringNotch/private/LocalAPI; sourceTree = "<group>"; };
-		11F748502EC9AABA00F841DB /* BoringNotchXPCHelper */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (11F7485C2EC9AABA00F841DB /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = BoringNotchXPCHelper; sourceTree = "<group>"; };
+		11F748502EC9AABA00F841DB /* MachNotchXPCHelper */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (11F7485C2EC9AABA00F841DB /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MachNotchXPCHelper; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -913,7 +913,7 @@
 		11F748672EC9AC9600F841DB /* XPCHelperClient */ = {
 			isa = PBXGroup;
 			children = (
-				11F748652EC9AC9600F841DB /* BoringNotchXPCHelperProtocol.swift */,
+				11F748652EC9AC9600F841DB /* MachNotchXPCHelperProtocol.swift */,
 				11F748662EC9AC9600F841DB /* XPCHelperClient.swift */,
 				8C4013DEB6ED977737000002 /* XPCHelperServiceProtocol.swift */,
 			);
@@ -997,7 +997,7 @@
 			children = (
 				112B0EB62E30DD0F00562D6C /* mediaremote-adapter */,
 				14CEF4142C5CAED300855D72 /* boringNotch */,
-				11F748502EC9AABA00F841DB /* BoringNotchXPCHelper */,
+				11F748502EC9AABA00F841DB /* MachNotchXPCHelper */,
 				14CEF4132C5CAED300855D72 /* Products */,
 				14D031EC2C689DB70096E6A1 /* Frameworks */,
 				116B481479F278AEAFE5C28D /* boringNotchTests */,
@@ -1016,7 +1016,7 @@
 			isa = PBXGroup;
 			children = (
 				14CEF4122C5CAED300855D72 /* boringNotch.app */,
-				11F7484F2EC9AABA00F841DB /* BoringNotchXPCHelper.xpc */,
+				11F7484F2EC9AABA00F841DB /* MachNotchXPCHelper.xpc */,
 				30F907D5C61FB27219A2F24B /* boringNotchTests.xctest */,
 			);
 			name = Products;
@@ -1762,9 +1762,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		11F7484E2EC9AABA00F841DB /* BoringNotchXPCHelper */ = {
+		11F7484E2EC9AABA00F841DB /* MachNotchXPCHelper */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 11F7485D2EC9AABA00F841DB /* Build configuration list for PBXNativeTarget "BoringNotchXPCHelper" */;
+			buildConfigurationList = 11F7485D2EC9AABA00F841DB /* Build configuration list for PBXNativeTarget "MachNotchXPCHelper" */;
 			buildPhases = (
 				11F7484B2EC9AABA00F841DB /* Sources */,
 				11F7484C2EC9AABA00F841DB /* Frameworks */,
@@ -1775,11 +1775,11 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				11F748502EC9AABA00F841DB /* BoringNotchXPCHelper */,
+				11F748502EC9AABA00F841DB /* MachNotchXPCHelper */,
 			);
-			name = BoringNotchXPCHelper;
-			productName = BoringNotchXPCHelper;
-			productReference = 11F7484F2EC9AABA00F841DB /* BoringNotchXPCHelper.xpc */;
+			name = MachNotchXPCHelper;
+			productName = MachNotchXPCHelper;
+			productReference = 11F7484F2EC9AABA00F841DB /* MachNotchXPCHelper.xpc */;
 			productType = "com.apple.product-type.xpc-service";
 		};
 		14CEF4112C5CAED300855D72 /* boringNotch */ = {
@@ -1882,7 +1882,7 @@
 			projectRoot = "";
 			targets = (
 				14CEF4112C5CAED300855D72 /* boringNotch */,
-				11F7484E2EC9AABA00F841DB /* BoringNotchXPCHelper */,
+				11F7484E2EC9AABA00F841DB /* MachNotchXPCHelper */,
 				68E8D2106DB3873496545B7F /* boringNotchTests */,
 			);
 		};
@@ -2113,7 +2113,7 @@
 				118D1FD12E98FF5F00A2FF63 /* SharingStateManager.swift in Sources */,
 				14D570C22C5EAFBF0011E668 /* EmptyState.swift in Sources */,
 				118EBE252E92DCCB00D54B5A /* AssociatedObject.swift in Sources */,
-				11F748682EC9AC9600F841DB /* BoringNotchXPCHelperProtocol.swift in Sources */,
+				11F748682EC9AC9600F841DB /* MachNotchXPCHelperProtocol.swift in Sources */,
 				11F748692EC9AC9600F841DB /* XPCHelperClient.swift in Sources */,
 				8C4013DEB6ED977737000001 /* XPCHelperServiceProtocol.swift in Sources */,
 				118EBE2D2E97165600D54B5A /* Bookmark.swift in Sources */,
@@ -2278,7 +2278,7 @@
 /* Begin PBXTargetDependency section */
 		11F7485A2EC9AABA00F841DB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 11F7484E2EC9AABA00F841DB /* BoringNotchXPCHelper */;
+			target = 11F7484E2EC9AABA00F841DB /* MachNotchXPCHelper */;
 			targetProxy = 11F748592EC9AABA00F841DB /* PBXContainerItemProxy */;
 		};
 		4A15A290231D3A5EBED5350D /* PBXTargetDependency */ = {
@@ -2298,7 +2298,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = boringNotchTests/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				PRODUCT_BUNDLE_IDENTIFIER = me.theboringteam.boringNotchTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.larsboes.machnotch.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 5.0;
@@ -2314,7 +2314,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = boringNotchTests/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				PRODUCT_BUNDLE_IDENTIFIER = me.theboringteam.boringNotchTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.larsboes.machnotch.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 5.0;
@@ -2325,7 +2325,7 @@
 		11F7485E2EC9AABA00F841DB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = BoringNotchXPCHelper/BoringNotchXPCHelper.entitlements;
+				CODE_SIGN_ENTITLEMENTS = MachNotchXPCHelper/MachNotchXPCHelper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -2333,12 +2333,12 @@
 				CURRENT_PROJECT_VERSION = 271;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = BoringNotchXPCHelper/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BoringNotchXPCHelper;
+				INFOPLIST_FILE = MachNotchXPCHelper/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MachNotchXPCHelper;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2.7.3;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.larsboes.boringnotch.xpc-helper";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.larsboes.machnotch.xpc-helper";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SKIP_INSTALL = YES;
@@ -2350,7 +2350,7 @@
 		11F7485F2EC9AABA00F841DB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = BoringNotchXPCHelper/BoringNotchXPCHelper.entitlements;
+				CODE_SIGN_ENTITLEMENTS = MachNotchXPCHelper/MachNotchXPCHelper.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -2358,12 +2358,12 @@
 				CURRENT_PROJECT_VERSION = 271;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = BoringNotchXPCHelper/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BoringNotchXPCHelper;
+				INFOPLIST_FILE = MachNotchXPCHelper/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MachNotchXPCHelper;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2.7.3;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.larsboes.boringnotch.xpc-helper";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.larsboes.machnotch.xpc-helper";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SKIP_INSTALL = YES;
@@ -2538,7 +2538,7 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = boringNotch/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = TheBoringNotch;
+				INFOPLIST_KEY_CFBundleDisplayName = mach.notch;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSBackgroundOnly = NO;
 				INFOPLIST_KEY_LSUIElement = YES;
@@ -2560,7 +2560,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2.7.3;
-				PRODUCT_BUNDLE_IDENTIFIER = com.larsboes.boringnotch;
+				PRODUCT_BUNDLE_IDENTIFIER = com.larsboes.machnotch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -2611,7 +2611,7 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = boringNotch/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = TheBoringNotch;
+				INFOPLIST_KEY_CFBundleDisplayName = mach.notch;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSBackgroundOnly = NO;
 				INFOPLIST_KEY_LSUIElement = YES;
@@ -2633,7 +2633,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2.7.3;
-				PRODUCT_BUNDLE_IDENTIFIER = com.larsboes.boringnotch;
+				PRODUCT_BUNDLE_IDENTIFIER = com.larsboes.machnotch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -2650,7 +2650,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		11F7485D2EC9AABA00F841DB /* Build configuration list for PBXNativeTarget "BoringNotchXPCHelper" */ = {
+		11F7485D2EC9AABA00F841DB /* Build configuration list for PBXNativeTarget "MachNotchXPCHelper" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				11F7485E2EC9AABA00F841DB /* Debug */,
