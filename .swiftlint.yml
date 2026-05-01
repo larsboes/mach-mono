@@ -1,0 +1,43 @@
+disabled_rules:
+  - trailing_whitespace
+  - todo
+  - identifier_name
+  - type_name
+  - function_body_length
+  - file_length
+  - line_length
+  - cyclomatic_complexity
+  - large_tuple
+  - force_cast
+  - force_try
+  - nesting
+  - function_parameter_count
+  - type_body_length
+  - legacy_hashing
+  - unused_closure_parameter
+  - multiple_closures_with_trailing_closure
+  - unneeded_break_in_switch
+
+opt_in_rules:
+  - empty_count
+  - empty_string
+  - legacy_random
+  - legacy_cggeometry_functions
+  - legacy_nsgeometry_functions
+
+excluded:
+  - Carthage
+  - Pods
+  - SwiftLint
+  - DerivedData
+  - .build
+  - .agent
+  - .claude
+
+# Configurable rules
+line_length: 180
+file_length: 1200
+function_body_length: 120
+type_body_length: 500
+
+reporter: "xcode"
