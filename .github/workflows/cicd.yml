@@ -31,7 +31,7 @@ jobs:
       with:
         xcode: ${{ matrix.xcode }}
         platform: macOS
-        scheme: boringNotch
+        scheme: machNotch
         action: build
         verbosity: xcpretty
         upload-logs: always
@@ -49,7 +49,7 @@ jobs:
       with:
         xcode: ${{ matrix.xcode }}
         platform: macOS
-        scheme: boringNotch
+        scheme: machNotch
         action: test
         verbosity: xcpretty
         upload-logs: always

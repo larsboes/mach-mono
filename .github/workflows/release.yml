@@ -8,7 +8,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PROJECT_NAME: boringNotch
+  PROJECT_NAME: machNotch
   BETA_CHANNEL_NAME: beta
   RELEASE_COMMAND: /release
   CODE_SIGN_IDENTITY: "Apple Development"
@@ -212,7 +212,7 @@ jobs:
       - name: Create embedded release notes
         env:
           RELEASE_NOTES: ${{ needs.preparation.outputs.release_notes }}
-        run: printf '%s' "$RELEASE_NOTES" > Release/boringNotch.html
+        run: printf '%s' "$RELEASE_NOTES" > Release/machNotch.html
 
       - name: Generate signed appcast
         env:
@@ -228,8 +228,8 @@ jobs:
           fi
           printf '%s' "$SPARKLE_PRIVATE_KEY" | ./Configuration/sparkle/generate_appcast \
             --ed-key-file - \
-            --link "https://github.com/TheBoredTeam/boring.notch/releases" \
-            --download-url-prefix "https://github.com/TheBoredTeam/boring.notch/releases/download/v${VERSION}/" \
+            --link "https://github.com/larsboes/mach-mono/releases" \
+            --download-url-prefix "https://github.com/larsboes/mach-mono/releases/download/v${VERSION}/" \
             --embed-release-notes \
             "${CHANNEL_ARGS[@]}" \
             -o updater/appcast.xml \
@@ -278,7 +278,7 @@ jobs:
           if [[ "${IS_BETA}" == "true" ]]; then
             RELEASE_FLAGS=(--prerelease)
           fi
-          gh release create "v${VERSION}" Release/boringNotch.dmg \
+          gh release create "v${VERSION}" Release/machNotch.dmg \
             --title "v${VERSION} - ${TITLE}" \
             --notes "$NOTES" \
             --target "${RELEASE_SHA}" \
@@ -295,7 +295,7 @@ jobs:
       - name: Generate cask files
         run: |
           set -euo pipefail
-          DMG_URL="https://github.com/TheBoredTeam/boring.notch/releases/download/v${VERSION}/boringNotch.dmg"
+          DMG_URL="https://github.com/larsboes/mach-mono/releases/download/v${VERSION}/machNotch.dmg"
 
           # Retry SHA calculation (release may need a moment to propagate)
           for attempt in 1 2 3; do
@@ -313,14 +313,14 @@ jobs:
             url "${DMG_URL}"
             name "${DISPLAY_NAME}"
             desc "${DESC}"
-            homepage "https://github.com/TheBoredTeam/boring.notch"
+            homepage "https://github.com/larsboes/mach-mono"
             livecheck do
               url :url
               strategy :github_latest
             end
             auto_updates true
             depends_on macos: ">= :sonoma"
-            app "boringNotch.app"
+            app "machNotch.app"
             zap trash: [
               "~/Library/Application Scripts/theboringteam.boringnotch/",
               "~/Library/Containers/theboringteam.boringnotch/",
@@ -344,7 +344,7 @@ jobs:
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          repository: TheBoredTeam/homebrew-boring-notch
+          repository: larsboes/mach-mono
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           path: homebrew-tap
 
@@ -430,9 +430,9 @@ jobs:
             BUILD_TYPE="stable"
           fi
           if [[ "${RELEASE_SUCCEEDED}" == "true" ]]; then
-            echo "✅ Released boringNotch v${VERSION} (${BUILD_TYPE} build ${BUILD_NUMBER})" >> "$GITHUB_STEP_SUMMARY"
+            echo "✅ Released machNotch v${VERSION} (${BUILD_TYPE} build ${BUILD_NUMBER})" >> "$GITHUB_STEP_SUMMARY"
             echo "🍺 Homebrew cask updated" >> "$GITHUB_STEP_SUMMARY"
             echo "📱 Sparkle appcast updated" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "❌ Release failed${VERSION:+ for boringNotch v${VERSION}}" >> "$GITHUB_STEP_SUMMARY"
+            echo "❌ Release failed${VERSION:+ for machNotch v${VERSION}}" >> "$GITHUB_STEP_SUMMARY"
           fi

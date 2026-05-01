@@ -1,13 +1,13 @@
-# boringNotch — PRD + Implementation Plan
+# mach.notch — PRD + Implementation Plan
 
-**Goal:** Transform boringNotch from a polished notch replacement into a **local-first ambient display platform** — beautiful UX, API-driven extensibility, and a plugin ecosystem.
+**Goal:** Transform mach.notch from a polished notch replacement into a **local-first ambient display platform** — beautiful UX, API-driven extensibility, and a plugin ecosystem. Part of the [mach-mono](https://github.com/larsboes/mach-mono) suite.
 
 **Architecture:** Plugin-first + DI via ServiceContainer + @Observable/@MainActor throughout. Every feature is a plugin. Views never construct services. All cross-plugin communication via PluginEventBus.
 
 **Tech Stack:** Swift 5.9+, SwiftUI/AppKit, Defaults (settings), Combine (publishers), XPC helper, Sparkle (updates), Lottie (animations), KeyboardShortcuts
 
-**Build:** `xcodebuild -scheme boringNotch -destination 'platform=macOS' build 2>&1 | tail -50`
-**Test:** `xcodebuild -scheme boringNotch -destination 'platform=macOS' test 2>&1 | tail -50`
+**Build:** `xcodebuild -scheme machNotch -destination 'platform=macOS' build 2>&1 | tail -50`
+**Test:** `xcodebuild -scheme machNotch -destination 'platform=macOS' test 2>&1 | tail -50`
 
 ### Key Constraints
 
@@ -1544,3 +1544,26 @@ Before committing to implementation, validate:
 | 12 | Real audio-reactive visualizer responds to actual system audio. Extended notch height configurable. Album art color extraction for theming. Idle: 3% CPU (✅). Active: ~11% CPU (⚠️ over target — SCK framework overhead; long-term fix: system audio tap API). Permission denial degrades gracefully to simulated animation. |
 | 13 | Video plays in notch viewport via AVPlayer. YouTube URLs load via yt-dlp. Hover reveals mini controls. Expanded panel has full controls + URL input. <5% CPU at 720p. Browser extension video integration validated or descoped. |
 | 15 | BUG-2 never reproduces. Zero concrete `MusicManager` refs outside infra layer. `AudioFFTProcessor` crash-free with `@MainActor`. All observer Tasks stored + cancellable. `PluginManager+ViewHelpers` has no plugin switch statements. DDD compliance at 90%+. |
+
+---
+
+## Feature Roadmap — Upcoming Plugins
+
+Inspired by Atoll, OneMenu, and DockDoor. All as `NotchPlugin` conformances, no PluginManager modifications.
+
+### Near-Term Plugins
+
+| # | Plugin | Inspiration | Reference | Notes |
+|---|--------|-------------|-----------|-------|
+| 1 | **SystemStats** | OneMenu + Atoll | [exelban/stats](https://github.com/exelban/stats) (GPL v3) | CPU/GPU/RAM/disk/network rings. Sneak peek HUD + expanded view. SMC via IOReport. |
+| 2 | **PreventSleep** | OneMenu | IOKit `IOPMAssertionCreateWithName` | Single toggle. Closed notch indicator dot. Zero complexity. |
+| 3 | **ExternalBrightness** | OneMenu | [MonitorControl](https://github.com/MonitorControl/MonitorControl) (GPL v3) | DDC control over external monitor brightness. Slider sneak peek. |
+| 4 | **ColorPicker** | Atoll | `NSColorSampler` | Screen color sampling → clipboard. History. |
+| 5 | **FocusMode** | Atoll live activities | `Focus` framework | Show active Focus mode in closed/expanded notch. Apple-native API. |
+| 6 | **Downloads** | Atoll | `FileManager` + browser integration | Watch `~/Downloads`, show active download progress. |
+
+### Medium-Term — New App
+
+| # | App | Inspiration | Notes |
+|---|-----|-------------|-------|
+| 7 | **mach.window** | DockDoor, Rectangle | New app at `Apps/machWindow/`. Window snapping + DockDoor-style hover peek. Own repo entry in mach-mono. GPL v3. |
