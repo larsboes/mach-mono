@@ -1,11 +1,12 @@
-# boring.notch — Project Instructions
+# mach.notch — Project Instructions
 
 ## Overview
-macOS SwiftUI app that replaces the MacBook notch with an interactive widget system. Plugin-first architecture — every feature (music, battery, calendar, weather, shelf, webcam, notifications, clipboard, pomodoro, teleprompter, habits) is a plugin.
+macOS SwiftUI app that replaces the MacBook notch with an interactive widget system. Plugin-first architecture — every feature (music, battery, calendar, weather, shelf, webcam, notifications, clipboard, pomodoro, teleprompter, habits) is a plugin. Part of the [mach-mono](https://github.com/larsboes/mach-mono) suite.
 
 ## Build & Test
 - **Build:** `xcodebuild -scheme boringNotch -destination 'platform=macOS' build 2>&1 | tail -50`
 - **Test:** `xcodebuild -scheme boringNotch -destination 'platform=macOS' test 2>&1 | tail -50`
+- Note: Xcode scheme/target is still named `boringNotch` internally — full target rename is a future task.
 - Always build after changes. Don't commit without a green build.
 
 ## Directory Structure
