@@ -6,8 +6,8 @@
 
 **Tech Stack:** Swift 5.9+, SwiftUI/AppKit, Defaults (settings), Combine (publishers), XPC helper, Sparkle (updates), Lottie (animations), KeyboardShortcuts
 
-**Build:** `xcodebuild -scheme machNotch -destination 'platform=macOS' build 2>&1 | tail -50`
-**Test:** `xcodebuild -scheme machNotch -destination 'platform=macOS' test 2>&1 | tail -50`
+**Build:** `xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch -destination 'platform=macOS' build 2>&1 | tail -50`
+**Test:** `xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch -destination 'platform=macOS' test 2>&1 | tail -50`
 
 ### Key Constraints
 
@@ -28,25 +28,27 @@
 - `Core/NotchStateMachine.swift` — pure and tested; only modify for state logic changes
 - `private/CGSSpace.swift` — private API wrapper
 - `mediaremote-adapter/` — pre-built framework, read-only
+- `XPCHelperClient/XPCHelperClient.swift` — stable XPC client, service name is `com.larsboes.machnotch.xpc-helper`
 
 ---
 
-## Current State (2026-03-21)
+## Current State (2026-05-02)
 
-**Working branch:** `developer`
-**Branch sync:** `developer` = `origin/developer`, `main` = stable
-**PR Status:** PR #1 Closed (Legacy). A new consolidated PR is pending architecture refinements.
+**Repo:** `larsboes/mach-mono` — monorepo, `main` branch only. App lives at `Apps/machNotch/`.
+**Build:** ✅ `BUILD SUCCEEDED` (verified 2026-05-02 via `xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch`)
+**Migration:** Complete. All `Boring*` classes/files renamed to `Notch*`/`Mach*`. Bundle ID `com.larsboes.machnotch`. Display name `mach.notch`.
 
 | Phase | Status | Summary |
 |-------|--------|---------|
 | 1, 1b, 2, 3, 5, 6, 6b, 7 | ✅ Shipped | Core plugins, API Hardening, AI Assist, Automation, Battery & Export |
-| 4 — Animation + Arch Debt | **Active** | 30+ items done. DDD directory restructure complete. Remaining: spring tuning, album art morph, gesture-driven open. |
-| 9 — Third-Party Distribution | Planned | .machplugin bundle format |
-| 10 — Teleprompter Pro | **Active** | 10.0/10.4/10.7/10.8 shipped. Remaining: script library, voice scrolling, enhanced editor, display customization, closed display polish, screen sharing, detachable mode |
+| 4 — Animation + Arch Debt | ✅ Shipped | All 28 tasks done. Phase 14 sub-phases (14.1–14.4) merged. |
+| 9 — Third-Party Distribution | Planned | `.machplugin` bundle format |
+| 10 — Teleprompter Pro | Active | 10.0/10.4/10.7/10.8 shipped. Remaining: script library, voice scrolling, enhanced editor, closed display polish, screen sharing, detachable mode |
 | 11 — Foundation Models | Planned | On-device AI via Apple FoundationModels (macOS 26+), streaming, structured generation |
-| 12 — Audio Visualizer | **Active** | 12.1–12.6 shipped. 12.7 (perf budget measured, 2026-03-16). BUG-1 (realAudio not reactive) ✅ fixed. Active CPU: ~11% (over 3% target — SCK overhead; long-term fix: system audio tap API). |
-| 13 — Notch Video Player | Planned (Long-term) | PiP-style video player as extended notch. AVPlayer + browser integration. |
-| 14 — Animation & UI Polish | In Progress | Velocity-dependent springs, gesture feel, content morphing. |
+| 12 — Audio Visualizer | Active | 12.1–12.6 shipped. Active CPU: ~11% (over 3% target — SCK overhead). |
+| 13 — Notch Video Player | Planned (Long-term) | PiP-style video player via AVPlayer + browser integration. |
+| 15 — Architecture Debt | Active | See debt triage section below. Quick wins available. |
+| 16 — New Plugins | Planned | SystemStats, PreventSleep, ExternalBrightness, ColorPicker, FocusMode, Downloads — see specs below. |
 
 ### Phase 14 Status
 
@@ -160,11 +162,22 @@
 
 ## Known Architecture Debt (Tracked)
 
-Issues identified during comprehensive review (2026-03-08). Documented here for future phases.
+Issues identified during comprehensive review (2026-03-08). Triaged 2026-05-02.
 
-### DIP: NotchViewModel → concrete NotchViewCoordinator
+**Priority legend:** P1 = blocks a planned phase | P2 = degrades quality, fix when touching | P3 = cosmetic, defer
 
-**Severity:** Medium | **Files:** 22 reference `NotchViewCoordinator` concretely | **Effort:** High
+### ⚡ Quick Wins (low effort, unblocked — do these first)
+
+| Item | Effort | Blocks |
+|------|--------|--------|
+| `MusicManager.isNowPlayingDeprecatedStatic` layer violation | Low | Nothing, quality |
+| `NotificationsPlugin` concrete `ServiceContainer` cast | Low | Nothing, quality |
+
+---
+
+### [P3] DIP: NotchViewModel → concrete NotchViewCoordinator
+
+**Severity:** Medium | **Blocks:** Nothing current | **Files:** 22 reference `NotchViewCoordinator` concretely | **Effort:** High
 
 `NotchViewModel.coordinator` is typed as `NotchViewCoordinator` (concrete), not a protocol. Same for `ContentView`, `NotchContentRouter`, and `NotchHeader` via `@Environment`. Abstracting requires a `@Bindable`-compatible protocol, which SwiftUI doesn't natively support for existentials. Would require either:
 - A `@Bindable`-aware wrapper type
@@ -172,9 +185,9 @@ Issues identified during comprehensive review (2026-03-08). Documented here for 
 
 **When to fix:** When `NotchViewCoordinator` needs to be testable in isolation, or if a second coordinator implementation is needed.
 
-### ISP: Fat NotchServiceProvider (28 properties)
+### [P1] ISP: Fat NotchServiceProvider (28 properties)
 
-**Severity:** Medium | **Files:** `NotchServiceProvider.swift`, all plugin `activate()` methods | **Effort:** High
+**Severity:** Medium | **Blocks:** Phase 9 (third-party plugins must not see internal services) | **Files:** `NotchServiceProvider.swift`, all plugin `activate()` methods | **Effort:** High
 
 A timer plugin needing only `sound` + `notifications` must depend on 28 services including `bluetooth`, `weather`, `brightness`. Should be split into focused sub-protocols:
 - `MediaServices` (music, lyrics, sound)
@@ -185,9 +198,9 @@ A timer plugin needing only `sound` + `notifications` must depend on 28 services
 
 **When to fix:** When adding third-party plugin support (Phase 9) — external plugins should not see internal services.
 
-### ISP: Fat CoordinatorSettings
+### [P3] ISP: Fat CoordinatorSettings
 
-**Severity:** Low | **Files:** `NotchSettingsSubProtocols.swift:182-186` | **Effort:** Medium
+**Severity:** Low | **Blocks:** Nothing | **Files:** `NotchSettingsSubProtocols.swift:182-186` | **Effort:** Medium
 
 `CoordinatorSettings` composes 6 sub-protocols (`GeneralAppSettings`, `HUDSettings`, `MediaSettings`, `AppearanceSettings`, `DisplaySettings`, `ShelfSettings`) but the coordinator only uses ~5 properties from them. Should be narrowed to actual usage.
 
@@ -197,7 +210,7 @@ A timer plugin needing only `sound` + `notifications` must depend on 28 services
 
 > The items below were added during the 2026-03-23 architecture audit (3 parallel agents, 333 files analyzed).
 
-### Layer Violation: MusicManager.isNowPlayingDeprecatedStatic Leaks Across Layers
+### [P2 — Quick Win] Layer Violation: MusicManager.isNowPlayingDeprecatedStatic Leaks Across Layers
 
 **Severity:** Medium | **Files:** 4 files outside `Plugins/Services/` | **Effort:** Low
 
@@ -210,7 +223,7 @@ All 4 use it to detect whether the NowPlaying API is deprecated (macOS version c
 
 **When to fix:** Phase 15 — low-effort, high-clarity win.
 
-### OCP Violation: NotificationsPlugin Casts to Concrete ServiceContainer
+### [P2 — Quick Win] OCP Violation: NotificationsPlugin Casts to Concrete ServiceContainer
 
 **Severity:** Medium | **Files:** `Plugins/BuiltIn/NotificationsPlugin/NotificationsPlugin.swift:51` | **Effort:** Low
 
@@ -222,7 +235,7 @@ Downcasts the protocol-typed `context.services` to the concrete `ServiceContaine
 
 **When to fix:** Phase 15 — 1-line fix, high DI cleanliness.
 
-### SRP: NotchViewModel is a God Object (704 lines, 8+ responsibilities)
+### [P2] SRP: NotchViewModel is a God Object (704 lines, 8+ responsibilities)
 
 **Severity:** Medium | **Files:** `ViewModel/NotchViewModel.swift` + 4 extension files | **Effort:** High
 
@@ -237,7 +250,7 @@ Total 704 lines across `NotchViewModel.swift` (269), `+Observers.swift` (171), `
 
 **When to fix:** When any single responsibility needs independent testability, or when complexity slows feature work. Not urgent — extension files keep it manageable today.
 
-### OCP Violation: PluginManager+ViewHelpers Requires Modifying for Every New Plugin
+### [P1] OCP Violation: PluginManager+ViewHelpers Requires Modifying for Every New Plugin
 
 **Severity:** Medium | **Files:** `Plugins/UI/PluginManager+ViewHelpers.swift` | **Effort:** Medium
 
@@ -253,7 +266,7 @@ Adding any new plugin requires modifying this switch in 3 places (closed, expand
 
 **When to fix:** Phase 9 (third-party plugins) requires this — external plugins cannot be added to a switch statement.
 
-### ISP: Service Contracts Not Enforced at Compile Time
+### [P1] ISP: Service Contracts Not Enforced at Compile Time
 
 **Severity:** Low | **Files:** All `activate()` methods | **Effort:** High
 
@@ -261,7 +274,7 @@ ISP sub-protocols (`MediaServiceProvider`, `SystemServiceProvider`, etc.) exist 
 
 **When to fix:** Phase 9 — external plugins must receive scoped service access.
 
-### Hard-Coded Plugin Registration in AppObjectGraph
+### [P1] Hard-Coded Plugin Registration in AppObjectGraph
 
 **Severity:** Low | **Files:** `AppObjectGraph.swift` | **Effort:** Medium
 
@@ -1538,7 +1551,7 @@ Before committing to implementation, validate:
 | 6 | ✅ **Done.** Teleprompter scrolls API-fed text. DisplaySurface renders arbitrary content from `curl`. |
 | 6b | ✅ **Done.** 3-tier AI architecture. Domain protocol with deterministic fallback. No singleton access. Prompt engineering encapsulated. *(Phase 11: Ollama demoted to opt-in, Foundation Models becomes primary.)* |
 | 7 | ✅ **Done.** App Intents in Shortcuts. URL scheme routes work (including toggle). |
-| 9 | External plugin loads from ~/Library/Application Support/machNotch/Plugins/. |
+| 9 | External plugin loads from `~/Library/Application Support/machNotch/Plugins/`. |
 | 10 | Expanded panel uses full 740px with two-column layout (editor + controls). Script library persists named scripts. Countdown timer works. Keyboard shortcuts for hands-free control. Closed display shows 2–3 lines with karaoke fade, progress bar, elapsed/remaining time. Voice-driven scrolling as optional Flow Mode. Screen sharing safety via `sharingType = .none`. Detachable floating window for external displays. Creator-daily-driver quality. |
 | 11 | `FoundationModelsProvider` is sole default provider on macOS 26+. AI features work with zero external dependencies. Ollama available as opt-in Advanced option only. Streaming AI responses in teleprompter UI. Structured generation via `@Generable`. On macOS <26: AI features cleanly absent (no broken states). |
 | 12 | Real audio-reactive visualizer responds to actual system audio. Extended notch height configurable. Album art color extraction for theming. Idle: 3% CPU (✅). Active: ~11% CPU (⚠️ over target — SCK framework overhead; long-term fix: system audio tap API). Permission denial degrades gracefully to simulated animation. |
@@ -1547,23 +1560,241 @@ Before committing to implementation, validate:
 
 ---
 
-## Feature Roadmap — Upcoming Plugins
+## Phase 16 — New Plugins
 
-Inspired by Atoll, OneMenu, and DockDoor. All as `NotchPlugin` conformances, no PluginManager modifications.
+All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin: new folder at `Plugins/BuiltIn/<Name>Plugin/`, register in `AppObjectGraph`, add `PluginID` constant.
 
-### Near-Term Plugins
+---
 
-| # | Plugin | Inspiration | Reference | Notes |
-|---|--------|-------------|-----------|-------|
-| 1 | **SystemStats** | OneMenu + Atoll | [exelban/stats](https://github.com/exelban/stats) (GPL v3) | CPU/GPU/RAM/disk/network rings. Sneak peek HUD + expanded view. SMC via IOReport. |
-| 2 | **PreventSleep** | OneMenu | IOKit `IOPMAssertionCreateWithName` | Single toggle. Closed notch indicator dot. Zero complexity. |
-| 3 | **ExternalBrightness** | OneMenu | [MonitorControl](https://github.com/MonitorControl/MonitorControl) (GPL v3) | DDC control over external monitor brightness. Slider sneak peek. |
-| 4 | **ColorPicker** | Atoll | `NSColorSampler` | Screen color sampling → clipboard. History. |
-| 5 | **FocusMode** | Atoll live activities | `Focus` framework | Show active Focus mode in closed/expanded notch. Apple-native API. |
-| 6 | **Downloads** | Atoll | `FileManager` + browser integration | Watch `~/Downloads`, show active download progress. |
+### Plugin 1: SystemStats
 
-### Medium-Term — New App
+**Inspiration:** OneMenu, Atoll | **Reference:** [exelban/stats](https://github.com/exelban/stats) (GPL v3)
 
-| # | App | Inspiration | Notes |
-|---|-----|-------------|-------|
-| 7 | **mach.window** | DockDoor, Rectangle | New app at `Apps/machWindow/`. Window snapping + DockDoor-style hover peek. Own repo entry in mach-mono. GPL v3. |
+**Goal:** Show CPU/GPU/RAM/disk/network usage as circular ring indicators in the notch. Most visually impactful addition — makes the notch a live system monitor.
+
+**View slots:**
+- `closedNotchContent` — Row of 3–5 compact ring indicators (CPU %, RAM %, disk %). Positioned right side. Yields to music plugin.
+- `expandedPanelContent` — Full panel: larger rings + numeric values + sparkline history (last 60s).
+- `settingsContent` — Toggle which metrics to show, refresh interval (1s/3s/5s), ring color scheme.
+
+**Services needed:**
+- New `SystemStatsServiceProtocol` + `SystemStatsService` in `Plugins/Services/`
+- CPU: `host_statistics64` via `mach/mach.h` — no special permissions
+- RAM: `host_statistics64(HOST_VM_INFO64)` — no special permissions
+- Disk: `FileManager.default.attributesOfFileSystem(forPath: "/")` — no special permissions
+- Network: `getifaddrs` or `SystemConfiguration` — no special permissions
+- GPU: `IOServiceGetMatchingServices` with `IOAccelerator` — no special permissions
+
+**Architecture decisions:**
+- Stats polled on a background `Task` at configurable interval, published via `@Published` on service
+- No SMC required for basic CPU/RAM/disk/network — SMC only needed for temperature (defer to later)
+- Ring views are pure `Shape`-based SwiftUI — no Metal, no SCK overhead
+- `displayRequest` = `.background` priority — never interrupts music or other content
+
+**Permissions:** None required.
+
+---
+
+### Plugin 2: PreventSleep
+
+**Inspiration:** OneMenu
+
+**Goal:** Toggle that prevents macOS from sleeping while active. Single-purpose, zero complexity. Good first plugin to validate the renamed scaffold.
+
+**View slots:**
+- `closedNotchContent` — Small moon icon with filled/unfilled state. Far-right position.
+- `menuBarView` — "Prevent Sleep: ON/OFF" toggle item.
+- `settingsContent` — Toggle + optional auto-disable timer (30min/1h/2h/never).
+
+**Services needed:**
+- No new service — IOKit called directly in plugin
+- `IOPMAssertionCreateWithName(kIOPMAssertionTypeNoDisplaySleep, kIOPMAssertionLevelOn, "mach.notch PreventSleep" as CFString, &assertionID)`
+- `IOPMAssertionRelease(assertionID)` on deactivate or toggle-off
+
+**Architecture decisions:**
+- `assertionID: IOPMAssertionID` stored as instance var — released in `deactivate()`
+- Auto-timer cancels assertion via `Task.sleep` + structured cancellation
+- `displayRequest` = nil — closed icon is enough, never requests sneak peek
+
+**Permissions:** None required.
+
+---
+
+### Plugin 3: ExternalBrightness
+
+**Inspiration:** OneMenu | **Reference:** [MonitorControl](https://github.com/MonitorControl/MonitorControl) (GPL v3)
+
+**Goal:** Control external monitor brightness via DDC (Display Data Channel) directly from the notch. No third-party app required.
+
+**View slots:**
+- `closedNotchContent` — Sun icon + current brightness % when external monitor detected.
+- `expandedPanelContent` — Slider per connected external monitor. Monitor name label.
+- `settingsContent` — Toggle DDC vs CoreDisplay fallback, step size.
+
+**Services needed:**
+- New `ExternalBrightnessServiceProtocol` + `ExternalBrightnessService`
+- DDC via `IOFramebufferConnectControl` / `IOAVServiceWriteI2C` (same approach as MonitorControl)
+- Or: `CoreDisplay` private framework (`DisplayServicesSetBrightness`) — simpler but private API
+- Recommend: DDC first (public IOKit), `CoreDisplay` as fallback
+- Monitor enumeration: `CGGetActiveDisplayList` + `IOServicePortFromCGDisplayID`
+
+**Architecture decisions:**
+- DDC I2C writes go through XPC helper (requires elevated IOKit access) — reuse `MachNotchXPCHelper`
+- Add `setExternalBrightness(_:forDisplay:)` to `MachNotchXPCHelperProtocol`
+- No external monitor = plugin shows nothing (empty closed content)
+- `displayRequest` = nil normally; `.normal` priority when slider is actively dragged
+
+**Permissions:** None required for DDC. Screen Recording NOT needed.
+
+---
+
+### Plugin 4: ColorPicker
+
+**Inspiration:** Atoll
+
+**Goal:** Pick any color from the screen, copy hex/RGB to clipboard, maintain a recent color history.
+
+**View slots:**
+- `closedNotchContent` — Small color swatch showing last picked color. Tap to re-copy.
+- `expandedPanelContent` — Color history grid (last 12 colors), each tappable to copy. "Pick New" button.
+- `settingsContent` — Copy format (hex, RGB, HSL, Swift Color), history size (12/24/48).
+
+**Services needed:**
+- No new service — `NSColorSampler` called directly in plugin
+- History persisted via `PluginSettings` (array of hex strings)
+- `NSColorSampler().show { color in ... }` — blocks until user clicks or cancels
+
+**Architecture decisions:**
+- `NSColorSampler` is synchronous/callback-based — wrap in `withCheckedContinuation`
+- Picking triggers a `SneakPeekRequestedEvent` to show the result after pick
+- Color history stored as `[String]` (hex) in `PluginSettings` — no external storage
+- `displayRequest` = `.normal` after successful pick (shows the new color briefly)
+
+**Permissions:** None required — `NSColorSampler` uses system picker with no screen recording entitlement needed.
+
+---
+
+### Plugin 5: FocusMode
+
+**Inspiration:** Atoll live activities
+
+**Goal:** Show the currently active Focus mode (Work, Personal, Sleep, Do Not Disturb) in the closed/expanded notch. Passive indicator — no controls.
+
+**View slots:**
+- `closedNotchContent` — Focus icon + short name (e.g., "Work") when a Focus is active. Hidden when no Focus active.
+- `expandedPanelContent` — Focus name + description + scheduled end time if available.
+- `settingsContent` — Toggle which Focus modes to show, icon style.
+
+**Services needed:**
+- New `FocusModeServiceProtocol` + `FocusModeService`
+- `FocusFilterAppContext` is not usable here — use `NEFilterManager` or notification center
+- Correct approach: `NSNotificationCenter` + `CFNotificationCenter` for Focus change notifications
+- Or: `CNContact`-adjacent private API — avoid
+- Best: `UserNotifications.UNUserNotificationCenter` + `currentNotificationSettings` polling — simple but polling
+- **Recommended:** `NSDistributedNotificationCenter` for `com.apple.springboard.focus-changed` — private but stable, used by many apps
+
+**Architecture decisions:**
+- Poll every 30s as fallback if distributed notification unavailable
+- Focus name derived from `NEFilterManager.shared().localizedDescription` — unreliable
+- Better: `com.apple.donotdisturb.state.current` UserDefaults key (private, stable)
+- `displayRequest` = `.normal` only when Focus just changed (show briefly); `.background` otherwise
+
+**Permissions:** None required for passive observation.
+
+---
+
+### Plugin 6: Downloads
+
+**Inspiration:** Atoll
+
+**Goal:** Show active file downloads in the notch — progress bars for in-flight downloads from browsers and system.
+
+**View slots:**
+- `closedNotchContent` — Download progress ring + filename truncated. Hidden when no active downloads.
+- `expandedPanelContent` — List of active downloads, each with progress bar + filename + speed + ETA.
+- `settingsContent` — Watch folder path (default `~/Downloads`), browser extension toggle.
+
+**Services needed:**
+- New `DownloadsServiceProtocol` + `DownloadsService`
+- FSEvents via `DispatchSource.makeFileSystemObjectSource` on `~/Downloads`
+- Detect in-progress downloads: `.download` partial files (`.crdownload`, `.part`, `.tmp`)
+- Progress: compare file size over time (poll every 500ms for active `.crdownload` files)
+- Speed: delta bytes / delta time
+- ETA: remaining bytes / current speed
+
+**Architecture decisions:**
+- `FSEventStream` watched on background actor — no main thread FS I/O
+- Only files modified in last 60s considered "active" — older ones are complete
+- Browser-specific patterns: `.crdownload` (Chrome/Brave), `.part` (Firefox), `.download` (Safari)
+- `displayRequest` = `.high` when download active (user wants to see progress); nil when idle
+
+**Permissions:** None required — `~/Downloads` is user-accessible without entitlements.
+
+---
+
+## mach.window — App Spec
+
+**Location:** `Apps/machWindow/` | **Bundle ID:** `com.larsboes.mach.window` | **License:** GPL v3
+
+### Why a separate app, not a plugin
+
+Window management requires persistent system-level presence independent of the notch:
+- Must intercept keyboard shortcuts globally even when machNotch is not focused
+- Window snapping requires `NSAccessibility` — a separate process is cleaner and safer
+- Hover peek requires screen capture of window thumbnails — separate process isolation
+- Users may want window management without the notch app running
+
+### MVP Scope (v0.1)
+
+1. **Window snap zones** — drag a window near screen edges/corners → snap to halves/quarters
+2. **Keyboard shortcuts** — customizable hotkeys for snap positions (left half, right half, maximize, restore)
+3. **Hover peek** — hover over Dock icon → thumbnail preview of all windows for that app
+
+### Out of scope for v0.1
+
+- Alt-tab replacement (complex, many edge cases)
+- Window history / undo snap
+- Multi-monitor span layouts
+- Integration with machNotch notch UI (Phase 2)
+
+### Tech decisions
+
+| Concern | Decision | Why |
+|---------|----------|-----|
+| Window enumeration | `CGWindowListCopyWindowInfo` | Public API, no entitlement |
+| Window moving/resizing | `AXUIElement` via `NSAccessibility` | Only way to move other apps' windows |
+| Drag detection for snapping | `NSEvent.addGlobalMonitorForEvents(.leftMouseDragged)` | No entitlement needed |
+| Hover thumbnails | `CGWindowListCreateImage` | Public API, no Screen Recording entitlement needed for window thumbnails |
+| Keyboard shortcuts | `KeyboardShortcuts` package (already in mach-mono) | Consistent with machNotch |
+| Settings | `Defaults` package (already in mach-mono) | Consistent with machNotch |
+| Menu bar presence | `NSStatusItem` | Standard macOS utility pattern |
+
+**Required permissions:**
+- `NSAccessibilityUsageDescription` — window move/resize via AXUIElement
+- No Screen Recording needed for thumbnail peek
+
+### Workspace integration
+
+Add to `mach-mono.xcworkspace/contents.xcworkspacedata`:
+```xml
+<FileRef location="group:Apps/machWindow/machWindow.xcodeproj" />
+```
+
+Shared packages (`KeyboardShortcuts`, `Defaults`) will be resolved once from workspace root — no duplicate SPM resolution.
+
+### Architecture
+
+```
+machWindow (menu bar app)
+├── Core/
+│   ├── WindowSnapEngine.swift      # AXUIElement snap logic
+│   ├── SnapZoneDetector.swift      # Edge/corner detection during drag
+│   └── ShortcutCoordinator.swift   # KeyboardShortcuts wiring
+├── HoverPeek/
+│   ├── DockHoverMonitor.swift      # NSEvent global monitor for Dock hover
+│   ├── WindowThumbnailService.swift # CGWindowListCreateImage per app
+│   └── HoverPeekWindow.swift       # Floating NSPanel showing thumbnails
+├── Settings/
+│   └── SettingsView.swift
+└── machWindowApp.swift
+```
