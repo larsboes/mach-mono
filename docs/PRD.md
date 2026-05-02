@@ -36,7 +36,14 @@
 
 **Repo:** `larsboes/mach-mono` — monorepo, `main` branch only. App lives at `Apps/machNotch/`.
 **Build:** ✅ `BUILD SUCCEEDED` (verified 2026-05-02 via `xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch`)
-**Migration:** Complete. All `Boring*` classes/files renamed to `Notch*`/`Mach*`. Bundle ID `com.larsboes.machnotch`. Display name `mach.notch`.
+**Tests:** ✅ 28/28 passing (APIRouterTests, NotchHoverControllerTests, NotchStateMachineTests)
+**Migration:** Complete. All `Boring*` classes/files renamed to `Notch*`/`Mach*`. Bundle ID `com.larsboes.machnotch`. Display name `mach.notch`. Plugin IDs `com.machnotch.*`. PluginSettings migration paths updated.
+**GitHub Pages:** Enabled (workflow source). Sparkle `SUFeedURL` → `https://larsboes.github.io/mach-mono/appcast.xml` will resolve once `static.yml` workflow runs.
+
+### Known Pre-Release TODOs
+- [ ] First `static.yml` workflow run must succeed to publish appcast.xml to GitHub Pages
+- [ ] Package.resolved synced between workspace and project (2026-05-02)
+- [ ] No user data migration needed from `com.larsboes.boringnotch` bundle ID — fork was never released, so old Defaults domain has no user data
 
 | Phase | Status | Summary |
 |-------|--------|---------|
