@@ -1,6 +1,6 @@
 //
 //  WebcamView.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Harsh Vardhan  Goswami  on 19/08/24.
 //
@@ -9,7 +9,7 @@ import AVFoundation
 import SwiftUI
 
 struct CameraPreviewView: View {
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.settings) var settings
     let webcamManager: any WebcamServiceProtocol
     

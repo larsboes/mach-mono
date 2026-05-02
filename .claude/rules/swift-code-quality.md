@@ -17,14 +17,14 @@ When a file approaches 300 lines:
 **BANNED patterns:**
 ```swift
 // DON'T - singleton access
-@Bindable var coordinator = BoringViewCoordinator.shared
+@Bindable var coordinator = NotchViewCoordinator.shared
 let manager = SomeManager.shared
 ```
 
 **REQUIRED patterns:**
 ```swift
 // DO - environment injection
-@Environment(BoringViewModel.self) private var viewModel
+@Environment(NotchViewModel.self) private var viewModel
 @Environment(\.pluginManager) private var pluginManager
 
 // DO - init injection

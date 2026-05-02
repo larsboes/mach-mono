@@ -1,6 +1,6 @@
 //
 //  NotchSizeCalculator.swift
-//  boringNotch
+//  machNotch
 //
 //  Single source of truth for all closed-notch sizing.
 //  Receives stable/debounced inputs — never reads services directly.
@@ -11,7 +11,7 @@ import SwiftUI
 // MARK: - Input
 
 /// All inputs needed to compute closed notch geometry.
-/// Constructed by BoringViewModel from debounced/stable state.
+/// Constructed by NotchViewModel from debounced/stable state.
 struct ClosedNotchInput {
     let screenUUID: String?
     let hideOnClosed: Bool

@@ -1,6 +1,6 @@
 //
 //  NotesManager.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2025-12-29.
 //
@@ -35,7 +35,7 @@ final class NotesManager {
     private func setupDatabase() {
         do {
             let path = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
-            let appSupport = URL(fileURLWithPath: path).appendingPathComponent("boringNotch", isDirectory: true)
+            let appSupport = URL(fileURLWithPath: path).appendingPathComponent("machNotch", isDirectory: true)
             try FileManager.default.createDirectory(at: appSupport, withIntermediateDirectories: true)
             
             db = try Connection(appSupport.appendingPathComponent("notes.sqlite3").path)

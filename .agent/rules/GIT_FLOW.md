@@ -29,4 +29,4 @@ To maintain the stability of `main` and the integrity of `developer`, follow the
 3. **Release:** Periodic merge from `developer` to `main` for public distribution.
 
 @/docs/PRD.md
-@/Users/larsboes/Developer/boring.notch/.agent/workflows/git-flow.md
+@/Users/larsboes/Developer/mach-mono/.agent/workflows/git-flow.md

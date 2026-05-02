@@ -1,6 +1,6 @@
 //
 //  NowPlayingController+UpdateHandling.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted from NowPlayingController — adapter update parsing.
 //

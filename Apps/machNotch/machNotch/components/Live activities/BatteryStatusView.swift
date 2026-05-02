@@ -165,7 +165,7 @@ struct BatteryMenuView: View {
 }
 
 /// A view that displays the battery status and allows interaction to show detailed information.
-struct BoringBatteryView: View {
+struct BatteryStatusView: View {
     
     @State var batteryWidth: CGFloat = 26
     var isCharging: Bool = false
@@ -182,7 +182,7 @@ struct BoringBatteryView: View {
     @State private var isHoveringPopover: Bool = false
     @State private var hideTask: Task<Void, Never>?
 
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.settings) var settings
 
     var body: some View {
@@ -255,7 +255,7 @@ struct BoringBatteryView: View {
 
 #Preview {
     Group {
-        BoringBatteryView(
+        BatteryStatusView(
             batteryWidth: 30,
             isCharging: false,
             isInLowPowerMode: false,
@@ -265,7 +265,7 @@ struct BoringBatteryView: View {
             timeToFullCharge: 10,
             isForNotification: false
         ).frame(width: 200, height: 200)
-        BoringBatteryView(
+        BatteryStatusView(
             batteryWidth: 30,
             isCharging: false,
             isInLowPowerMode: false,

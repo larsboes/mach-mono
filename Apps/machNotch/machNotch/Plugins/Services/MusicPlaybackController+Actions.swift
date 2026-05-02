@@ -1,6 +1,6 @@
 //
 //  MusicPlaybackController+Actions.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted from MusicPlaybackController — transport and app interaction actions.
 //

@@ -1,6 +1,6 @@
 //
 //  TipStore.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Richard Kunkli on 15/09/2024.
 //
@@ -18,7 +18,7 @@ struct HUDsTip: Tip {
     }
     
     var image: Image? {
-        AppIcon(for: "theboringteam.boringNotch")
+        AppIcon(for: "com.larsboes.machnotch")
     }
     
     var actions: [Action] {
@@ -38,7 +38,7 @@ struct CBTip: Tip {
     }
     
     var image: Image? {
-        AppIcon(for: "theboringteam.boringNotch")
+        AppIcon(for: "com.larsboes.machnotch")
     }
     
     var actions: [Action] {

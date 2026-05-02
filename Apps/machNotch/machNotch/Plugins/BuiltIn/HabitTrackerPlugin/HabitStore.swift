@@ -1,6 +1,6 @@
 //
 //  HabitStore.swift
-//  boringNotch
+//  machNotch
 //
 //  Manager for persisting and retrieving habit data.
 //
@@ -30,7 +30,7 @@ final class HabitStore {
     
     init() {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let appDir = appSupport.appendingPathComponent("boringNotch")
+        let appDir = appSupport.appendingPathComponent("machNotch")
         
         if !FileManager.default.fileExists(atPath: appDir.path) {
             try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true, attributes: nil)

@@ -1,6 +1,6 @@
 //
 //  DragDropServiceProtocol.swift
-//  boringNotch
+//  machNotch
 //
 //  Created as part of Phase 3 architectural refactoring.
 //

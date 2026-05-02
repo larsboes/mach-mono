@@ -1,17 +1,17 @@
 //
-//  BoringHeader.swift
-//  boringNotch
+//  NotchHeader.swift
+//  machNotch
 //
 //  Created by Harsh Vardhan  Goswami  on 04/08/24.
 //
 
 import SwiftUI
 
-struct BoringHeader: View {
-    @Environment(BoringViewModel.self) var vm
+struct NotchHeader: View {
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.settings) var settings
     @Environment(\.pluginManager) var pluginManager
-    @Environment(BoringViewCoordinator.self) var coordinator
+    @Environment(NotchViewCoordinator.self) var coordinator
     @Environment(\.showSettingsWindow) var showSettingsWindow
     @Environment(\.contentProgress) var contentProgress
 
@@ -41,7 +41,7 @@ struct BoringHeader: View {
 
     @ViewBuilder
     private var leadingContent: some View {
-        if let shelf = pluginManager?.services.shelf, (!shelf.isEmpty || coordinator.alwaysShowTabs) && settings.boringShelf {
+        if let shelf = pluginManager?.services.shelf, (!shelf.isEmpty || coordinator.alwaysShowTabs) && settings.shelfEnabled {
             TabSelectionView()
                 .padding(.leading, 8)
         } else if vm.phase.isVisible {
@@ -116,7 +116,7 @@ struct BoringHeader: View {
             }
         }
         if settings.showBatteryIndicator, let batteryService = pluginManager?.services.battery {
-            BoringBatteryView(
+            BatteryStatusView(
                 batteryWidth: 30,
                 isCharging: batteryService.isCharging,
                 isInLowPowerMode: batteryService.isInLowPowerMode,
@@ -132,5 +132,5 @@ struct BoringHeader: View {
 }
 
 #Preview {
-    BoringHeader().environment(BoringViewModel())
+    NotchHeader().environment(NotchViewModel())
 }

@@ -1,6 +1,6 @@
 //
 //  DefaultsNotchSettings+Music.swift
-//  boringNotch
+//  machNotch
 //
 
 import Foundation

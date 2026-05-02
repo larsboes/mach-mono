@@ -1,6 +1,6 @@
 //
 //  MusicArtworkService.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted from MusicManager — handles album art resolution,
 //  app icon fallback, color averaging, and flip animations.

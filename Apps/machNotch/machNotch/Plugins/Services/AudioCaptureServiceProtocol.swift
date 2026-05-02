@@ -1,6 +1,6 @@
 //
 //  AudioCaptureServiceProtocol.swift
-//  boringNotch
+//  machNotch
 //
 //  Protocol for capturing system audio output as PCM samples.
 //

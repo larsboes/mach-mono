@@ -1,6 +1,6 @@
 //
 //  VolumeManager+CoreAudio.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted CoreAudio helpers from VolumeManager.
 //

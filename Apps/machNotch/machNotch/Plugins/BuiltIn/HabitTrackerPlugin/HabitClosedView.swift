@@ -1,6 +1,6 @@
 //
 //  HabitClosedView.swift
-//  boringNotch
+//  machNotch
 //
 
 import SwiftUI

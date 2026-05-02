@@ -1,6 +1,6 @@
 //
 //  ExportCoordinator.swift
-//  boringNotch
+//  machNotch
 //
 //  Orchestrates data export from ExportablePlugin conformers.
 //  Presents NSSavePanel for user to choose save location.

@@ -5,7 +5,7 @@ import SwiftUI
 /// When "Present" is pressed, the notch closes and TeleprompterClosedView takes over.
 struct TeleprompterExpandedView: View {
     @Bindable var state: TeleprompterState
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
 
     var body: some View {
         VStack(spacing: 0) {

@@ -1,6 +1,6 @@
 //
 //  SettingsWindowController.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2025-06-14.
 //
@@ -12,7 +12,7 @@ import Sparkle
 
 class SettingsWindowController: NSWindowController {
     private var updaterController: SPUStandardUpdaterController?
-    private var coordinator: BoringViewCoordinator?
+    private var coordinator: NotchViewCoordinator?
     private var pluginManager: PluginManager?
     private var settings: DefaultsNotchSettings?
     private var hasSetupContent = false
@@ -41,7 +41,7 @@ class SettingsWindowController: NSWindowController {
         hasSetupContent = false
     }
 
-    func configure(coordinator: BoringViewCoordinator, pluginManager: PluginManager, settings: DefaultsNotchSettings) {
+    func configure(coordinator: NotchViewCoordinator, pluginManager: PluginManager, settings: DefaultsNotchSettings) {
         self.coordinator = coordinator
         self.pluginManager = pluginManager
         self.settings = settings
@@ -52,7 +52,7 @@ class SettingsWindowController: NSWindowController {
     private func setupWindowChrome() {
         guard let window = window else { return }
 
-        window.title = "Boring Notch Settings"
+        window.title = "machNotch Settings"
         window.titlebarAppearsTransparent = false
         window.titleVisibility = .visible
         window.toolbarStyle = .unified
@@ -67,7 +67,7 @@ class SettingsWindowController: NSWindowController {
 
         // Configure window to be a standard document-style window
         window.isRestorable = true
-        window.identifier = NSUserInterfaceItemIdentifier("BoringNotchSettingsWindow")
+        window.identifier = NSUserInterfaceItemIdentifier("MachNotchSettingsWindow")
 
         // Handle window closing
         window.delegate = self
@@ -91,7 +91,7 @@ class SettingsWindowController: NSWindowController {
         // Set app to regular mode first
         NSApp.setActivationPolicy(.regular)
 
-        // Create content view on first show (deferred to avoid early BoringViewModel access)
+        // Create content view on first show (deferred to avoid early NotchViewModel access)
         setupContentViewIfNeeded()
 
         // If window is already visible, bring it to front properly

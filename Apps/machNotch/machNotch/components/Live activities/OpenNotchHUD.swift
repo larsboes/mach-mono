@@ -1,6 +1,6 @@
 //
 //  OpenNotchHUD.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2024-11-23.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct OpenNotchHUD: View {
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Binding var type: SneakContentType
     @Binding var value: CGFloat
     @Binding var icon: String
@@ -100,7 +100,7 @@ struct OpenNotchHUD: View {
 
 #Preview {
     OpenNotchHUD(type: .constant(.volume), value: .constant(0.5), icon: .constant(""))
-        .environment(BoringViewModel())
+        .environment(NotchViewModel())
         .padding()
         .background(Color.gray)
 }

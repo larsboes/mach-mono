@@ -1,6 +1,6 @@
 //
 //  ShelfItemView.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2025-09-24.
 //
@@ -9,7 +9,7 @@ import SwiftUI
 import AppKit
 
 struct ShelfView: View {
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.pluginManager) var pluginManager
     
     private var selection: ShelfSelectionModel {

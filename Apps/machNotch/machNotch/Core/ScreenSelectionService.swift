@@ -1,6 +1,6 @@
 //
 //  ScreenSelectionService.swift
-//  boringNotch
+//  machNotch
 //
-//  Retired: screen selection ownership is kept in BoringViewCoordinator.
+//  Retired: screen selection ownership is kept in NotchViewCoordinator.
 //

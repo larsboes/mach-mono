@@ -1,6 +1,6 @@
 //
 //  XPCHelperServiceProtocol.swift
-//  boringNotch
+//  machNotch
 //
 //  Protocol for XPC helper operations. Decouples consumers from the concrete
 //  XPCHelperClient singleton, enabling dependency injection and testing.

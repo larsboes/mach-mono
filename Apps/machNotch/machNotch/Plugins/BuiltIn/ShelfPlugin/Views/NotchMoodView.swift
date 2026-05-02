@@ -1,6 +1,6 @@
 //
 //  NotchMoodView.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2025-12-29.
 //

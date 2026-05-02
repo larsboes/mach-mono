@@ -1,6 +1,6 @@
 //
 //  ShelfPlugin.swift
-//  boringNotch
+//  machNotch
 //
 //  Built-in shelf plugin.
 //  Provides a temporary storage area for files and links.
@@ -21,7 +21,7 @@ final class ShelfPlugin: NotchPlugin, ExportablePlugin {
         description: "Temporary storage for files and links",
         icon: "tray.full.fill",
         version: "1.0.0",
-        author: "boringNotch",
+        author: "machNotch",
         category: .productivity
     )
     
@@ -61,7 +61,7 @@ final class ShelfPlugin: NotchPlugin, ExportablePlugin {
     func expandedPanelContent() -> some View {
         if isEnabled, state.isActive {
             // ShelfView uses Environment(\.pluginManager) to access services
-            // It also needs BoringViewModel from environment, which NotchHomeView provides
+            // It also needs NotchViewModel from environment, which NotchHomeView provides
             ShelfView()
         }
     }

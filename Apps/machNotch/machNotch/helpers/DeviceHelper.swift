@@ -1,6 +1,6 @@
 //
 //  DeviceHelper.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Juan Garcia on 9/23/25.
 //

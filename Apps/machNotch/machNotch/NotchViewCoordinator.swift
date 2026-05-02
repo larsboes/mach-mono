@@ -1,6 +1,6 @@
 //
-//  BoringViewCoordinator.swift
-//  boringNotch
+//  NotchViewCoordinator.swift
+//  machNotch
 //
 //  Created by Alexander on 2024-11-20.
 //
@@ -11,7 +11,7 @@ import Defaults
 import SwiftUI
 
 @MainActor
-@Observable class BoringViewCoordinator: ViewCoordinating {
+@Observable class NotchViewCoordinator: ViewCoordinating {
     var currentView: NotchViews = .home
     var isScrollableViewPresented: Bool = false
     var helloAnimationRunning: Bool = false
@@ -148,7 +148,7 @@ import SwiftUI
             }
 
         // Observe changes to alwaysShowTabs (settings mutation only;
-        // currentView reset is now per-screen in BoringViewModel.setupTabResetObserver)
+        // currentView reset is now per-screen in NotchViewModel.setupTabResetObserver)
         Task { @MainActor in
             for await value in Defaults.updates(.alwaysShowTabs) {
                 if !value {
@@ -221,5 +221,5 @@ import SwiftUI
         set { settings.preferredScreenUUID = newValue }
     }
 
-    // showEmpty() removed — currentView is now per-screen on BoringViewModel
+    // showEmpty() removed — currentView is now per-screen on NotchViewModel
 }

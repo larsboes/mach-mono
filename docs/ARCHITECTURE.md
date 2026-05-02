@@ -2,13 +2,13 @@
 
 > **Note:** This document reflects the system architecture as of March 2026 (v1.0 Plugin System + SOLID/DDD hardening + DDD directory restructure).
 
-Boring Notch is a macOS application designed to transform the static camera notch into a dynamic, interactive utility hub. The architecture is built on a **modular, plugin-first** foundation, ensuring extensibility, testability, and separation of concerns.
+machNotch is a macOS application designed to transform the static camera notch into a dynamic, interactive utility hub. The architecture is built on a **modular, plugin-first** foundation, ensuring extensibility, testability, and separation of concerns.
 
 ---
 
 ## 🏗 System Context (C4 Level 1)
 
-At the highest level, boringNotch sits between the user, the macOS system, and external services.
+At the highest level, machNotch sits between the user, the macOS system, and external services.
 
 ```mermaid
 graph TD
@@ -19,7 +19,7 @@ graph TD
         SystemEvents[EventKit / Notifications]
         IOKit[IOKit / Battery]
         
-        BN[Boring Notch App]
+        BN[machNotch App]
     end
     
     User <-->|Clicks/Hovers| BN
@@ -205,9 +205,9 @@ Structured concurrency (`async/await`) and Actors are strictly used to ensure th
 Plugins are sandboxed. `UserDefaults.standard` is not accessed directly.
 
 *   **`PluginSettings`**: A wrapper around `Defaults` that namespaces keys.
-    *   Plugin ID: `com.boringnotch.weather`
+    *   Plugin ID: `com.machnotch.weather`
     *   Key: `showTemperature`
-    *   Actual UserDefaults Key: `plugin.com.boringnotch.weather.showTemperature`
+    *   Actual UserDefaults Key: `plugin.com.machnotch.weather.showTemperature`
 
 This prevents key collisions and facilitates resetting a specific plugin without wiping the entire app settings.
 
@@ -236,7 +236,7 @@ This prevents key collisions and facilitates resetting a specific plugin without
 ## 📂 Directory Structure
 
 ```
-boringNotch/
+machNotch/
 ├── Core/                          # Domain + Application Layer
 │   ├── NotchStateMachine.swift    #   Domain: pure state logic (no SwiftUI/AppKit)
 │   ├── NotchPhase.swift           #   Domain: phase enum
@@ -250,8 +250,8 @@ boringNotch/
 │   ├── Constants.swift            #   Infrastructure: paths, notification names
 │   └── SettingsTypes.swift        #   Infrastructure: Defaults.Serializable enums
 │
-├── ViewModel/                     # BoringViewModel + Extensions
-│   ├── BoringViewModel.swift      #   Per-screen orchestrator
+├── ViewModel/                     # NotchViewModel + Extensions
+│   ├── NotchViewModel.swift      #   Per-screen orchestrator
 │   ├── +Camera, +Hover, +Observers, +OpenClose
 │
 ├── models/                        # Pure Data Models Only
@@ -288,7 +288,7 @@ boringNotch/
 │   ├── Live activities/           #   HUD views (cross-plugin)
 │   └── Tabs/                      #   Tab navigation
 │
-├── BoringViewCoordinator.swift    # Shared cross-screen state
+├── NotchViewCoordinator.swift    # Shared cross-screen state
 ├── AppObjectGraph.swift           # DI root
 ├── ContentView.swift              # + Appearance, SubViews
 ├── MediaControllers/              # NowPlaying, Spotify, AppleMusic, YouTube, Browser
@@ -305,7 +305,7 @@ Last reviewed: 2026-03-21 (post DDD restructure).
 |-------|-----------|----------|-------|
 | `ShelfItem` referenced by `PluginEventBus` | Bounded Context | Medium | Event bus carries domain type from shelf context. Fix: type-erased event payload. |
 | `ShelfSelectionModel` in `ShelfServiceProtocol` | DDD Layers | Medium | ViewModel type exposed through service protocol. Fix: expose selection as ID set. |
-| `BoringViewModel` dependency in all plugin views | DIP | Medium | Plugin views use `@Environment(BoringViewModel.self)`. Not fully self-contained. |
+| `NotchViewModel` dependency in all plugin views | DIP | Medium | Plugin views use `@Environment(NotchViewModel.self)`. Not fully self-contained. |
 | `NotchContentRouter.openContent()` switches on `NotchViews` enum | OCP | Low | When adding plugin-provided views dynamically |
 | `Constants.swift` imports SwiftUI for `CGFloat` | Domain Purity | Low | Could extract `spacing` to avoid SwiftUI import in Core/ |
 

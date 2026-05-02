@@ -1,6 +1,6 @@
 //
 //  MusicPlaybackController.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted from MusicManager — handles media controller lifecycle,
 //  transport commands, and playback state observation.

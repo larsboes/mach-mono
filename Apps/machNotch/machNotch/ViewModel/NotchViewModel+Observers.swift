@@ -1,6 +1,6 @@
 //
-//  BoringViewModel+Observers.swift
-//  boringNotch
+//  NotchViewModel+Observers.swift
+//  machNotch
 //
 //  Observer setup, ears debounce, and sizing delegation.
 //
@@ -9,7 +9,7 @@ import Combine
 import Defaults
 import SwiftUI
 
-extension BoringViewModel {
+extension NotchViewModel {
 
     // MARK: - Observer Setup
 

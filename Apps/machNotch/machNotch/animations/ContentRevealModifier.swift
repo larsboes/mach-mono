@@ -1,6 +1,6 @@
 //
 //  ContentRevealModifier.swift
-//  boringNotch
+//  machNotch
 //
 //  Choreographed content reveal tied to continuous animation progress.
 //  Content grows out of the notch center with staggered timing.

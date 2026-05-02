@@ -1,6 +1,6 @@
 //
 //  SpectrumBarsView.swift
-//  boringNotch
+//  machNotch
 //
 //  CAGradientLayer-based spectrum bar renderer driven by FFT frequency bands.
 //  Uses Core Animation transforms for smooth, low-overhead bar scaling.

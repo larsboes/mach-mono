@@ -34,7 +34,7 @@
 ### `mach.notch` — Notch Utility
 > Transforms the MacBook notch into an interactive, plugin-driven command surface.
 
-A hardened fork of [boring.notch](https://github.com/TheBoredTeam/boring.notch) with a focus on architectural quality: DDD layer boundaries, SOLID plugin system, full dependency injection, and zero singletons in views or services. Every feature is a plugin — music, media controls, calendar, habits, pomodoro, shelf, teleprompter, battery, webcam, notifications, clipboard, weather, and more.
+machNotch is focused on architectural quality: DDD layer boundaries, a SOLID plugin system, full dependency injection, and zero singletons in views or services. Every feature is a plugin — music, media controls, calendar, habits, pomodoro, shelf, teleprompter, battery, webcam, notifications, clipboard, weather, and more.
 
 - **Location:** `Apps/machNotch/`
 - **Requires:** macOS 14.0+, MacBook with notch

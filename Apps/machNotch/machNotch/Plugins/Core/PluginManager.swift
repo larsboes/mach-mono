@@ -1,6 +1,6 @@
 //
 //  PluginManager.swift
-//  boringNotch
+//  machNotch
 //
 //  Central registry and lifecycle manager for all plugins.
 //

@@ -1,6 +1,6 @@
 //
 //  Sequence+Async.swift
-//  boringNotch
+//  machNotch
 //
 //  Async collection helpers extracted from ShelfMenuActionTarget.
 //

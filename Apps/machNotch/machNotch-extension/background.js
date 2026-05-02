@@ -10,7 +10,7 @@ function connectWebSocket() {
   socket = new WebSocket(WS_URL);
 
   socket.onopen = () => {
-    console.log("Connected to boringNotch WebSocket");
+    console.log("Connected to machNotch WebSocket");
     if (reconnectTimer) {
       clearTimeout(reconnectTimer);
       reconnectTimer = null;
@@ -32,7 +32,7 @@ function connectWebSocket() {
   };
 
   socket.onclose = () => {
-    console.log("Disconnected from boringNotch WebSocket, retrying in 2 seconds...");
+    console.log("Disconnected from machNotch WebSocket, retrying in 2 seconds...");
     scheduleReconnect();
   };
 

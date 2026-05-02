@@ -1,6 +1,6 @@
 //
 //  ShelfActionService.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2025-10-07.
 //

@@ -1,6 +1,6 @@
 //
 //  DefaultsKeys.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted Defaults.Keys from Constants.swift.
 //
@@ -133,7 +133,7 @@ extension Defaults.Keys {
     static let optionKeyAction = Key<OptionKeyAction>("optionKeyAction", default: OptionKeyAction.openSettings)
 
     // MARK: Shelf
-    static let boringShelf = Key<Bool>("boringShelf", default: true)
+    static let shelfEnabled = Key<Bool>("shelfEnabled", default: true)
     static let openShelfByDefault = Key<Bool>("openShelfByDefault", default: false)
     static let shelfTapToOpen = Key<Bool>("shelfTapToOpen", default: true)
     static let quickShareProvider = Key<String>("quickShareProvider", default: "System Share Menu")

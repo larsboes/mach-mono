@@ -1,8 +1,8 @@
 //
 //  NavigationState.swift
-//  boringNotch
+//  machNotch
 //
-//  Extracted from BoringViewCoordinator — handles navigation state and tab settings observers.
+//  Extracted from NotchViewCoordinator — handles navigation state and tab settings observers.
 //
 
 // NOTE: Defaults.updates() is required because DefaultsNotchSettings uses @Observable with

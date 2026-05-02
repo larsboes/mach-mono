@@ -8,7 +8,7 @@ final class XPCHelperClient: NSObject {
     
     private let serviceName = "com.larsboes.machnotch.xpc-helper"
     
-    private var remoteService: RemoteXPCService<BoringNotchXPCHelperProtocol>?
+    private var remoteService: RemoteXPCService<MachNotchXPCHelperProtocol>?
     private var connection: NSXPCConnection?
     private var lastKnownAuthorization: Bool?
     private var monitoringTask: Task<Void, Never>?
@@ -27,7 +27,7 @@ final class XPCHelperClient: NSObject {
     
     // MARK: - Connection Management
     
-    private func ensureRemoteService() -> RemoteXPCService<BoringNotchXPCHelperProtocol>? {
+    private func ensureRemoteService() -> RemoteXPCService<MachNotchXPCHelperProtocol>? {
         if let existing = remoteService {
             return existing
         }
@@ -53,9 +53,9 @@ final class XPCHelperClient: NSObject {
         
         conn.resume()
         
-        let service = RemoteXPCService<BoringNotchXPCHelperProtocol>(
+        let service = RemoteXPCService<MachNotchXPCHelperProtocol>(
             connection: conn,
-            remoteInterface: BoringNotchXPCHelperProtocol.self
+            remoteInterface: MachNotchXPCHelperProtocol.self
         )
         
         connection = conn
@@ -84,7 +84,7 @@ final class XPCHelperClient: NSObject {
         }
     }
     
-    private func getRemoteService() -> RemoteXPCService<BoringNotchXPCHelperProtocol>? {
+    private func getRemoteService() -> RemoteXPCService<MachNotchXPCHelperProtocol>? {
         remoteService
     }
     

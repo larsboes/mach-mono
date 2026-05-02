@@ -1,6 +1,6 @@
 //
 //  PluginEnvironment.swift
-//  boringNotch
+//  machNotch
 //
 //  Environment keys used by plugins to adapt to the notch layout.
 //
@@ -36,7 +36,7 @@ struct DisplayClosedNotchHeightKey: EnvironmentKey {
 
 struct ContentProgressKey: EnvironmentKey {
     /// Content animation progress (0 = closed, 1 = fully open).
-    /// Driven by BoringViewModel.contentRevealProgress with independent curves.
+    /// Driven by NotchViewModel.contentRevealProgress with independent curves.
     static let defaultValue: CGFloat = 0.0
 }
 

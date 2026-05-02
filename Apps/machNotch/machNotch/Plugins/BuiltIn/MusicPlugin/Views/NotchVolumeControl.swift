@@ -1,6 +1,6 @@
 //
 //  NotchVolumeControl.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Refactoring Agent on 2025-12-30.
 //

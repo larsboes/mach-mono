@@ -1,6 +1,6 @@
 //
 //  ShelfImageConversionDialog.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted from ShelfActionService.swift — image conversion dialog builder.
 //

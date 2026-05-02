@@ -1,6 +1,6 @@
 //
 //  NSScreen+UUID.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2025-11-21.
 //

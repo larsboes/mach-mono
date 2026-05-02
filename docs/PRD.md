@@ -41,7 +41,7 @@
 |-------|--------|---------|
 | 1, 1b, 2, 3, 5, 6, 6b, 7 | ✅ Shipped | Core plugins, API Hardening, AI Assist, Automation, Battery & Export |
 | 4 — Animation + Arch Debt | **Active** | 30+ items done. DDD directory restructure complete. Remaining: spring tuning, album art morph, gesture-driven open. |
-| 9 — Third-Party Distribution | Planned | .boringplugin bundle format |
+| 9 — Third-Party Distribution | Planned | .machplugin bundle format |
 | 10 — Teleprompter Pro | **Active** | 10.0/10.4/10.7/10.8 shipped. Remaining: script library, voice scrolling, enhanced editor, display customization, closed display polish, screen sharing, detachable mode |
 | 11 — Foundation Models | Planned | On-device AI via Apple FoundationModels (macOS 26+), streaming, structured generation |
 | 12 — Audio Visualizer | **Active** | 12.1–12.6 shipped. 12.7 (perf budget measured, 2026-03-16). BUG-1 (realAudio not reactive) ✅ fixed. Active CPU: ~11% (over 3% target — SCK overhead; long-term fix: system audio tap API). |
@@ -97,13 +97,13 @@
 | 4.25 | Arch Debt | Removed unused `SoundService.shared` singleton (dead code). |
 | 4.26 | Animation | HelloAnimation `Task.sleep(3.0)` replaced with `withAnimation` completion handler — eliminates timing drift on startup snake. |
 | 4.27 | Domain Purity | Removed `import SwiftUI` from 5 Core/ domain files (`NotchStateMachine`, `NotchSettingsSubProtocols`, `MockNotchSettings`, `DefaultsNotchSettings`, `NavigationState`) — now compile with only `Foundation`/`Observation`/`Defaults`. |
-| 4.28 | Docs | Fixed 5 doc discrepancies: ServiceContainer path in ARCHITECTURE.md, plugin registration location in PLUGIN_DEVELOPMENT.md, phantom Phase 8 in PRD, plugin count (8→12), BoringViewCoordinator status (legacy→active). Updated CLAUDE.md layer boundaries to distinguish domain vs coordinator files in Core/. |
+| 4.28 | Docs | Fixed 5 doc discrepancies: ServiceContainer path in ARCHITECTURE.md, plugin registration location in PLUGIN_DEVELOPMENT.md, phantom Phase 8 in PRD, plugin count (8→12), NotchViewCoordinator status (legacy→active). Updated CLAUDE.md layer boundaries to distinguish domain vs coordinator files in Core/. |
 | 4.29 | Sizing | `NotchSizeCalculator` restructured as single source of truth. `ClosedNotchInput` struct decouples calculator from services. `effectiveClosedNotchSize` moved from Observers to calculator. |
 | 4.30 | Domain | `NotchAnimationStateProviding` + `createInput()` extracted from `NotchStateMachine.swift` to `ViewCoordinating.swift` (application layer). State machine is now domain-pure. |
 | 4.31 | Safety | Force unwraps fixed in `Constants.swift`, `DownloadView.swift`, `BatteryService.swift`. |
-| 4.32 | Cleanup | `NSObject` removed from `BoringViewModel`. NotificationCenter observers migrated to Combine publishers. |
-| 4.33 | Cleanup | `BoringAnimations` collapsed from `@Observable` class to static enum. 29 unused `import Combine` removed. |
-| 4.34 | DDD | **Directory restructure:** controllers/settings moved from `models/` → `Core/`. `SharingStateManager` → `Plugins/Services/`. `BoringViewModel` + extensions → new `ViewModel/` directory. `models/` now contains only pure data models. |
+| 4.32 | Cleanup | `NSObject` removed from `NotchViewModel`. NotificationCenter observers migrated to Combine publishers. |
+| 4.33 | Cleanup | `NotchAnimations` collapsed from `@Observable` class to static enum. 29 unused `import Combine` removed. |
+| 4.34 | DDD | **Directory restructure:** controllers/settings moved from `models/` → `Core/`. `SharingStateManager` → `Plugins/Services/`. `NotchViewModel` + extensions → new `ViewModel/` directory. `models/` now contains only pure data models. |
 | 4.35 | Bounded Ctx | Plugin views consolidated: `components/Calendar/` → `CalendarPlugin/Views/`, `Weather` → `WeatherPlugin/Views/`, `Webcam` → `WebcamPlugin/Views/`, `Notifications` → `NotificationsPlugin/Views/`, `Music` → `MusicPlugin/Views/`. |
 | 4.36 | DDD | `managers/` eliminated — all 19 files moved to `Plugins/Services/`. Single infrastructure layer. |
 | 4.37 | Bounded Ctx | Shelf consolidated: 27 files from `components/Shelf/` → `ShelfPlugin/` (Models, Services, ViewModels, Views). General infrastructure services (ImageProcessing, QuickLook, etc.) → `Plugins/Services/`. |
@@ -128,9 +128,9 @@
 | 6b.6 | AI | **Teleprompter AI** — type-safe `TeleprompterAIAction` enum (refine/summarize/draft-intro). `DecodingError` returns 400 with valid options. |
 | 6b.7 | AI | **Settings DI** — `isAIEnabled` added to `GeneralAppSettings` protocol + `DefaultsKeys.enableAI` + `MockNotchSettings`. No singleton reads. |
 | 6b.8 | AI | **Service protocol** — `NotchServiceProvider.ai` typed as `any AITextGenerationService` (not concrete `AIManager`). `ServiceContainer` wires via `AIManager.textGeneration`. |
-| 7.1 | Automation | **App Intents** — `OpenNotchIntent` + `CloseNotchIntent` routed through `NotificationCenter` bridge to `BoringViewModel`. No singleton coupling. |
-| 7.2 | Automation | **URL scheme** — `boringnotch://` open/close/toggle/plugins. Toggle checks `vm.notchState` for correct dispatch. Registered via `NSAppleEventManager` in AppDelegate. |
-| 7.3 | Automation | **Intent bridge** — `BoringViewModel.setupIntentObservers()` observes `.openNotchIntent` / `.closeNotchIntent` on main queue with `[weak self]`. |
+| 7.1 | Automation | **App Intents** — `OpenNotchIntent` + `CloseNotchIntent` routed through `NotificationCenter` bridge to `NotchViewModel`. No singleton coupling. |
+| 7.2 | Automation | **URL scheme** — `machnotch://` open/close/toggle/plugins. Toggle checks `vm.notchState` for correct dispatch. Registered via `NSAppleEventManager` in AppDelegate. |
+| 7.3 | Automation | **Intent bridge** — `NotchViewModel.setupIntentObservers()` observes `.openNotchIntent` / `.closeNotchIntent` on main queue with `[weak self]`. |
 | 10.0 | Teleprompter | **Expanded panel redesign** — full-width two-column layout (editor left ~60%, control panel right ~40%). `TeleprompterControlPanel.swift` extracted. Speed controls, font size slider, 5 text color swatches (`PrompterColor` enum), AI actions, script info (word count, reading time, sections). Bottom action bar with Present CTA. |
 | 10.3 | Teleprompter | **Voice visual feedback (partial)** — `MicrophoneMonitor` + linear gradient beam in `TeleprompterClosedView`. Responds to RMS level with spring animation. Remaining: radial arc shape, configurable color/opacity. |
 | 10.4 | Teleprompter | **Countdown timer** — `CountdownState` (tick-based, configurable 0/3/5s) + `CountdownOverlayView` (cinematic scale+fade numbers, tap-to-cancel). Wired into `startPresentation()` flow. Overlay renders in closed view during countdown. |
@@ -139,10 +139,10 @@
 | 10.10 | Teleprompter | **Improved closed display (partial)** — text centered under camera, full-width reading zone, voice beam, smooth per-pixel scroll. Remaining: karaoke fade, progress bar, section title, elapsed/remaining time. |
 | 4.29 | Arch Debt | **SRP: TeleprompterTimerManager** — Extracted timer/mic lifecycle from `TeleprompterState` into dedicated `TeleprompterTimerManager`. State class now owns only scroll position, config, and domain logic. |
 | 4.30 | Arch Debt | **SRP: DisplayPrioritizer** — Extracted display arbitration from `PluginManager` into pure `DisplayPrioritizer` struct. PluginManager delegates via `DisplayPrioritizer.highestPriority(among:)`. |
-| 4.31 | Arch Debt | **SRP: HeaderButton** — Extracted `HeaderButton`/`HeaderActionButton` components from `BoringHeader`. Header reduced from 197→130 lines, eliminated 5x copy-paste button boilerplate. Sub-views: `leadingContent`, `notchOverlay`, `trailingControls`, `headerButtons`. |
+| 4.31 | Arch Debt | **SRP: HeaderButton** — Extracted `HeaderButton`/`HeaderActionButton` components from `NotchHeader`. Header reduced from 197→130 lines, eliminated 5x copy-paste button boilerplate. Sub-views: `leadingContent`, `notchOverlay`, `trailingControls`, `headerButtons`. |
 | 4.32 | Arch Debt | **Clean Code: ContentView sub-views** — Extracted `notchBackground`, `glassOverlay`, `topEdgeLine` from 175-line body into computed views. |
 | 4.33 | DDD | **PluginID enum** — Centralized all 30+ stringly-typed plugin identifiers into `PluginID` constants. All plugins, routers, event emitters, and settings views now use type-safe references. |
-| 4.34 | DDD | **SneakContentType.isHUD** — Moved HUD-type check from free function in BoringHeader to computed property on enum (domain logic on domain type). |
+| 4.34 | DDD | **SneakContentType.isHUD** — Moved HUD-type check from free function in NotchHeader to computed property on enum (domain logic on domain type). |
 | 4.35 | Clean Code | **DisplaySurfaceState** — Made `ttlTask` private, added `[weak self]` capture, added explicit `clear()` method. |
 | 4.36 | Clean Code | **Named constants** — `TeleprompterState` magic numbers extracted: `endBuffer` (40px), `speedStep` (10), `speedMin` (10), `speedMax` (150). |
 | 4.37 | Performance | **Background TimelineView gating** — `PluginMusicControlsView` `TimelineView(.animation)` now switches to static `HStack` when notch is closed. Eliminates 60fps background CPU burn. |
@@ -150,7 +150,7 @@
 | 4.39 | Performance | **Eliminate `AnyView`** — Plugin views migrated from `AnyView` to type-specific wrappers, restoring SwiftUI structural identity for diff-based updates. |
 | 4.40 | Performance | **Isolate high-frequency readers** — `elapsedTime` decoupled from `PluginMusicControlsView` into leaf `ScrubberPlayheadView`. Only playhead redraws at 60fps. |
 | 4.41 | Performance | **GPU/CoreAnimation backoff** — Heavy `.blur(radius: 35)` and `.blendMode(.screen)` gated behind `!vm.phase.isTransitioning`. |
-| 4.42 | Performance | **Background service suspension** — `BackgroundServiceRestartable` protocol + `BoringViewModel.phase` observer pauses `BatteryService`/`BluetoothManager` polling when notch closed. `NotchServiceProvider` consolidation. |
+| 4.42 | Performance | **Background service suspension** — `BackgroundServiceRestartable` protocol + `NotchViewModel.phase` observer pauses `BatteryService`/`BluetoothManager` polling when notch closed. `NotchServiceProvider` consolidation. |
 | 4.43 | Performance | **Teleprompter off-main parsing** — `TeleprompterState.text` `didSet` now parses sections via `Task.detached`, caching results instead of re-parsing 60× per second on MainActor. |
 | 4.44 | Performance | **Aggressive @Observable Invalidation** — Decoupled high-frequency progress updates (currentTime/duration) into isolated publishers (Phase 2 efficiency). |
 | 4.45 | Performance | **Window Coordinator Geometry** — Replaced 150ms polling loop with `CGDisplayRegisterReconfigurationCallback` hardware event handling. |
@@ -162,15 +162,15 @@
 
 Issues identified during comprehensive review (2026-03-08). Documented here for future phases.
 
-### DIP: BoringViewModel → concrete BoringViewCoordinator
+### DIP: NotchViewModel → concrete NotchViewCoordinator
 
-**Severity:** Medium | **Files:** 22 reference `BoringViewCoordinator` concretely | **Effort:** High
+**Severity:** Medium | **Files:** 22 reference `NotchViewCoordinator` concretely | **Effort:** High
 
-`BoringViewModel.coordinator` is typed as `BoringViewCoordinator` (concrete), not a protocol. Same for `ContentView`, `NotchContentRouter`, and `BoringHeader` via `@Environment`. Abstracting requires a `@Bindable`-compatible protocol, which SwiftUI doesn't natively support for existentials. Would require either:
+`NotchViewModel.coordinator` is typed as `NotchViewCoordinator` (concrete), not a protocol. Same for `ContentView`, `NotchContentRouter`, and `NotchHeader` via `@Environment`. Abstracting requires a `@Bindable`-compatible protocol, which SwiftUI doesn't natively support for existentials. Would require either:
 - A `@Bindable`-aware wrapper type
 - Or splitting coordinator into read-only protocol + mutation methods
 
-**When to fix:** When `BoringViewCoordinator` needs to be testable in isolation, or if a second coordinator implementation is needed.
+**When to fix:** When `NotchViewCoordinator` needs to be testable in isolation, or if a second coordinator implementation is needed.
 
 ### ISP: Fat NotchServiceProvider (28 properties)
 
@@ -222,18 +222,18 @@ Downcasts the protocol-typed `context.services` to the concrete `ServiceContaine
 
 **When to fix:** Phase 15 — 1-line fix, high DI cleanliness.
 
-### SRP: BoringViewModel is a God Object (704 lines, 8+ responsibilities)
+### SRP: NotchViewModel is a God Object (704 lines, 8+ responsibilities)
 
-**Severity:** Medium | **Files:** `ViewModel/BoringViewModel.swift` + 4 extension files | **Effort:** High
+**Severity:** Medium | **Files:** `ViewModel/NotchViewModel.swift` + 4 extension files | **Effort:** High
 
-Total 704 lines across `BoringViewModel.swift` (269), `+Observers.swift` (171), `+OpenClose.swift` (130), `+Hover.swift` (76), `+Camera.swift` (58). Responsibilities span: per-screen phase state, sizing delegation, hover detection, camera expansion, drop targeting, animation progress tracking, service dependencies, and observer lifecycle.
+Total 704 lines across `NotchViewModel.swift` (269), `+Observers.swift` (171), `+OpenClose.swift` (130), `+Hover.swift` (76), `+Camera.swift` (58). Responsibilities span: per-screen phase state, sizing delegation, hover detection, camera expansion, drop targeting, animation progress tracking, service dependencies, and observer lifecycle.
 
 **Decomposition path:**
 - `NotchPhaseCoordinator` — open/close logic, phase state, watchdog tasks
 - `NotchAnimationOrchestrator` — contentRevealProgress, shellAnimationProgress
 - `DropTargetingManager` — drag/drop state (`dragDetectorTargeting`, `generalDropTargeting`, `dropZoneTargeting`)
 - `CameraFaceManager` — `isCameraExpanded`, `isRequestingAuthorization`
-- `BoringViewModel` (residual, <150 lines) — sizing delegation, service access, wiring
+- `NotchViewModel` (residual, <150 lines) — sizing delegation, service access, wiring
 
 **When to fix:** When any single responsibility needs independent testability, or when complexity slows feature work. Not urgent — extension files keep it manageable today.
 
@@ -316,7 +316,7 @@ Built-in plugins are instantiated eagerly as a hardcoded array in `AppObjectGrap
 
 **Status:** Deferred — needs design
 
-Replace fire-and-forget animations with continuous gesture-driven expansion. Notch height/width maps 1:1 to gesture translation — interruptible and scrubbable. Substantial refactor of `BoringViewModel+OpenClose`. Defer until Tasks 16-20 shipped.
+Replace fire-and-forget animations with continuous gesture-driven expansion. Notch height/width maps 1:1 to gesture translation — interruptible and scrubbable. Substantial refactor of `NotchViewModel+OpenClose`. Defer until Tasks 16-20 shipped.
 
 ---
 
@@ -423,18 +423,18 @@ Plugins  →  AITextGenerationService (domain: rewrite/summarize/section/draftIn
 ## Phase 7 — Automation & Integrations ✅
 
 **App Intents:** `OpenNotchIntent`, `CloseNotchIntent` — Shortcuts-compatible, NotificationCenter bridge.
-**URL Scheme:** `boringnotch://open|close|toggle|plugins?id=...` — registered via `NSAppleEventManager`.
-**Bridge:** `BoringViewModel.setupIntentObservers()` on main queue with `[weak self]`.
+**URL Scheme:** `machnotch://open|close|toggle|plugins?id=...` — registered via `NSAppleEventManager`.
+**Bridge:** `NotchViewModel.setupIntentObservers()` on main queue with `[weak self]`.
 
 ---
 
 ## Phase 9 — Third-Party Plugin Distribution
 
-**Goal:** `.boringplugin` bundle format + plugin discovery UI.
+**Goal:** `.machplugin` bundle format + plugin discovery UI.
 
 **Separate design document when Phase 7 is complete.**
 
-Requirements: signed Swift package bundles, permission manifests, approval UI, plugin browser in Settings, `~/Library/Application Support/boringNotch/Plugins/` discovery.
+Requirements: signed Swift package bundles, permission manifests, approval UI, plugin browser in Settings, `~/Library/Application Support/machNotch/Plugins/` discovery.
 
 ---
 
@@ -1090,17 +1090,17 @@ POST /api/v1/visualizer/toggle
 
 **Symptom:** Notch randomly widens (horizontally) for ~3 seconds then returns to normal size.
 
-**Root cause (traced):** `KeyboardShortcutCoordinator` opens the notch and schedules a `Task.sleep(3s)` auto-close (`KeyboardShortcutCoordinator.swift:100`: `try? await Task.sleep(for: .seconds(3))`). During those 3 seconds, `NotchObserverSetup` fires a `hideOnClosed` change (triggered by `FullscreenMediaDetector.fullscreenStatus`). This causes `BoringViewModel.effectiveClosedNotchSize` to recalculate — and if `isMusicActive || isFaceActive` is true, extra width is added/removed with a `.smooth` animation. The 3s timer then fires `viewModel.close()` snapping it back.
+**Root cause (traced):** `KeyboardShortcutCoordinator` opens the notch and schedules a `Task.sleep(3s)` auto-close (`KeyboardShortcutCoordinator.swift:100`: `try? await Task.sleep(for: .seconds(3))`). During those 3 seconds, `NotchObserverSetup` fires a `hideOnClosed` change (triggered by `FullscreenMediaDetector.fullscreenStatus`). This causes `NotchViewModel.effectiveClosedNotchSize` to recalculate — and if `isMusicActive || isFaceActive` is true, extra width is added/removed with a `.smooth` animation. The 3s timer then fires `viewModel.close()` snapping it back.
 
 **Key files:**
 - `KeyboardShortcutCoordinator.swift:100` — `try? await Task.sleep(for: .seconds(3))` auto-close
-- `BoringViewModel+Observers.swift:16–36` — `hideOnClosed` setter triggers `.smooth` animation
-- `BoringViewModel+OpenClose.swift:65–68` — `effectiveClosedNotchSize` snapshot taken at close-start
+- `NotchViewModel+Observers.swift:16–36` — `hideOnClosed` setter triggers `.smooth` animation
+- `NotchViewModel+OpenClose.swift:65–68` — `effectiveClosedNotchSize` snapshot taken at close-start
 - `Core/NotchObserverSetup.swift:42–73` — hideOnClosed observer loop (unstructured Task, no cancellation)
 
 **Fix direction (two options, pick one):**
 1. **Suppress width recalculation during keyboard open:** Gate `effectiveClosedNotchSize` width additions on `phase == .closed` — don't add ear-width while notch is open/transitioning
-2. **Cancel hideOnClosed debounce on `.opening`:** `BoringViewModel+OpenClose.swift` already cancels `hideOnClosedDebounceTask` on `open()` — verify this fires before the fullscreen observer can race in
+2. **Cancel hideOnClosed debounce on `.opening`:** `NotchViewModel+OpenClose.swift` already cancels `hideOnClosedDebounceTask` on `open()` — verify this fires before the fullscreen observer can race in
 
 ---
 
@@ -1134,7 +1134,7 @@ Two `Task { @MainActor in }` blocks launched in `setupDetectorObserver()` are ne
 
 **Status:** ⚠️ Open
 
-**Location:** `ViewModel/BoringViewModel+Observers.swift:57–64`
+**Location:** `ViewModel/NotchViewModel+Observers.swift:57–64`
 
 `startEarsTracking()` sets up a new `withObservationTracking` block each time it's called, then calls itself recursively from the `onChange` handler. Every ears state change creates a new observation without cleaning up the previous one. Over time with frequent music state changes, observations accumulate.
 
@@ -1148,7 +1148,7 @@ Two `Task { @MainActor in }` blocks launched in `setupDetectorObserver()` are ne
 
 **Locations:**
 - `Core/KeyboardShortcutCoordinator.swift:100`: `try? await Task.sleep(for: .seconds(3))`
-- `ViewModel/BoringViewModel+OpenClose.swift:91`: `try? await Task.sleep(for: .milliseconds(300))`
+- `ViewModel/NotchViewModel+OpenClose.swift:91`: `try? await Task.sleep(for: .milliseconds(300))`
 
 `try?` on `Task.sleep()` silently swallows `CancellationError`, making it impossible to determine if the sleep completed normally or was cancelled. Correct pattern:
 ```swift
@@ -1199,7 +1199,7 @@ Full audit: 333 Swift files, ~36K LOC, 3 parallel analysis agents.
 | **Domain** | ✅ 9/10 | `Core/` domain files have zero SwiftUI/AppKit imports. `NotchStateMachine` is pure, testable, framework-free. `NotchPhase`, `SneakPeekTypes`, `NotchSettingsSubProtocols`, `MockNotchSettings` all compile on Foundation-only. |
 | **Application** | ⚠️ 7/10 | `PluginManager`, `PluginContext`, coordinators are clean. One violation: `DefaultsKeys.swift:164` accesses concrete `MusicManager.isNowPlayingDeprecatedStatic` from application layer. |
 | **Infrastructure** | ✅ 8/10 | Services are protocol-backed. `ServiceContainer` is the DI root. Main weakness: mixes container + factory responsibilities (constructs 40+ services inline). |
-| **Presentation** | ⚠️ 6.5/10 | `NotchContentRouter` is clean. `BoringViewModel` is a god object (704 lines, 8 responsibilities). `PluginManager+ViewHelpers` has OCP-violating switch. 3 view files access concrete `MusicManager`. |
+| **Presentation** | ⚠️ 6.5/10 | `NotchContentRouter` is clean. `NotchViewModel` is a god object (704 lines, 8 responsibilities). `PluginManager+ViewHelpers` has OCP-violating switch. 3 view files access concrete `MusicManager`. |
 
 ### Architecture Strengths
 
@@ -1219,7 +1219,7 @@ Ordered by effort/impact ratio:
 | **P1** | Replace `MusicManager.isNowPlayingDeprecatedStatic` calls with a protocol (4 files) | Low | Layer purity |
 | **P1** | Fix `NotificationsPlugin` concrete `ServiceContainer` cast | Low | DIP compliance |
 | **P2** | Type-erase `PluginManager+ViewHelpers` switch statements | Medium | OCP compliance; required for Phase 9 |
-| **P2** | Extract `NotchPhaseCoordinator` from `BoringViewModel` | Medium | SRP, testability |
+| **P2** | Extract `NotchPhaseCoordinator` from `NotchViewModel` | Medium | SRP, testability |
 | **P3** | Enforce ISP service contracts on `PluginContext` generics | High | Compile-time safety for Phase 9 |
 | **P3** | Separate plugin factory from `AppObjectGraph` | High | Enables Phase 9 dynamic loading |
 
@@ -1229,7 +1229,7 @@ Ordered by effort/impact ratio:
 |-----------|-------|------|
 | Plugin Isolation | 8.5/10 | Event bus prevents coupling; discovery is hardcoded |
 | DI Completeness | 7.5/10 | PluginContext solid; service access trust-based not enforced |
-| Presentation Clarity | 6.5/10 | ContentRouter excellent; BoringViewModel bloated |
+| Presentation Clarity | 6.5/10 | ContentRouter excellent; NotchViewModel bloated |
 | Service Architecture | 8/10 | ISP protocols good; ServiceContainer mixes factory concerns |
 | Lifecycle Management | 7/10 | Clean activate/deactivate; activation ordering not declarative |
 | Testability | 7/10 | StateMachine testable; integration tests hard via god objects |
@@ -1246,7 +1246,7 @@ Ordered by effort/impact ratio:
 
 ### 15.1 — Fix BUG-2: Notch Width Race
 
-**Priority:** P0 | **Effort:** Low | **Files:** `KeyboardShortcutCoordinator.swift`, `BoringViewModel+OpenClose.swift`
+**Priority:** P0 | **Effort:** Low | **Files:** `KeyboardShortcutCoordinator.swift`, `NotchViewModel+OpenClose.swift`
 
 Gate `effectiveClosedNotchSize` ear-width additions on `phase == .closed`. Width should not mutate while the notch is open or transitioning. See BUG-2 above for full root cause.
 
@@ -1272,11 +1272,11 @@ Add the required service property to the appropriate `ServiceProvider` sub-proto
 
 ### 15.5 — Fix Unstructured Observer Tasks
 
-**Priority:** P1 | **Effort:** Low | **Files:** `NotchObserverSetup.swift`, `BoringViewModel+Observers.swift`
+**Priority:** P1 | **Effort:** Low | **Files:** `NotchObserverSetup.swift`, `NotchViewModel+Observers.swift`
 
 - Store Task references in `NotchObserverManager`, cancel in `deinit`
 - Fix recursive `startEarsTracking()` with active-flag guard
-- Add `deinit` to `BoringViewModel` cancelling `hideOnClosedDebounceTask`, `earsDebounceTask`, `closeWatchdogTask`, `postCloseHoverTask`
+- Add `deinit` to `NotchViewModel` cancelling `hideOnClosedDebounceTask`, `earsDebounceTask`, `closeWatchdogTask`, `postCloseHoverTask`
 
 ### 15.6 — Type-Erase PluginManager+ViewHelpers Switch
 
@@ -1284,11 +1284,11 @@ Add the required service property to the appropriate `ServiceProvider` sub-proto
 
 Extend `AnyNotchPlugin` with type-erased `closedNotchContentView()`, `expandedPanelContentView()`, `settingsContentView()` → `AnyView`. Remove the `switch id { case PluginID.music: ... }` pattern. Required before Phase 9 (external plugins cannot be listed in a switch).
 
-### 15.7 — Extract NotchPhaseCoordinator from BoringViewModel
+### 15.7 — Extract NotchPhaseCoordinator from NotchViewModel
 
-**Priority:** P2 | **Effort:** Medium | **Files:** `BoringViewModel+OpenClose.swift` → `Core/NotchPhaseCoordinator.swift`
+**Priority:** P2 | **Effort:** Medium | **Files:** `NotchViewModel+OpenClose.swift` → `Core/NotchPhaseCoordinator.swift`
 
-Extract open/close state machine + watchdog tasks into a dedicated `@MainActor @Observable` class. `BoringViewModel` delegates to it. Reduces BoringViewModel responsibility count from 8 to 7, makes open/close independently testable.
+Extract open/close state machine + watchdog tasks into a dedicated `@MainActor @Observable` class. `NotchViewModel` delegates to it. Reduces NotchViewModel responsibility count from 8 to 7, makes open/close independently testable.
 
 ### Phase 15 Implementation Order
 
@@ -1300,7 +1300,7 @@ Extract open/close state machine + watchdog tasks into a dedicated `@MainActor @
 | **P1** | 15.4 AudioFFTProcessor safety | Low | Crash prevention |
 | **P1** | 15.5 Fix observer tasks | Low | Memory leak prevention |
 | **P2** | 15.6 Type-erase ViewHelpers switch | Medium | Phase 9 |
-| **P2** | 15.7 Extract NotchPhaseCoordinator | Medium | BoringViewModel SRP |
+| **P2** | 15.7 Extract NotchPhaseCoordinator | Medium | NotchViewModel SRP |
 
 ### Phase 15 Success Metrics
 
@@ -1538,7 +1538,7 @@ Before committing to implementation, validate:
 | 6 | ✅ **Done.** Teleprompter scrolls API-fed text. DisplaySurface renders arbitrary content from `curl`. |
 | 6b | ✅ **Done.** 3-tier AI architecture. Domain protocol with deterministic fallback. No singleton access. Prompt engineering encapsulated. *(Phase 11: Ollama demoted to opt-in, Foundation Models becomes primary.)* |
 | 7 | ✅ **Done.** App Intents in Shortcuts. URL scheme routes work (including toggle). |
-| 9 | External plugin loads from ~/Library/Application Support/boringNotch/Plugins/. |
+| 9 | External plugin loads from ~/Library/Application Support/machNotch/Plugins/. |
 | 10 | Expanded panel uses full 740px with two-column layout (editor + controls). Script library persists named scripts. Countdown timer works. Keyboard shortcuts for hands-free control. Closed display shows 2–3 lines with karaoke fade, progress bar, elapsed/remaining time. Voice-driven scrolling as optional Flow Mode. Screen sharing safety via `sharingType = .none`. Detachable floating window for external displays. Creator-daily-driver quality. |
 | 11 | `FoundationModelsProvider` is sole default provider on macOS 26+. AI features work with zero external dependencies. Ollama available as opt-in Advanced option only. Streaming AI responses in teleprompter UI. Structured generation via `@Generable`. On macOS <26: AI features cleanly absent (no broken states). |
 | 12 | Real audio-reactive visualizer responds to actual system audio. Extended notch height configurable. Album art color extraction for theming. Idle: 3% CPU (✅). Active: ~11% CPU (⚠️ over target — SCK framework overhead; long-term fix: system audio tap API). Permission denial degrades gracefully to simulated animation. |

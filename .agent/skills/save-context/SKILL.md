@@ -31,7 +31,7 @@ The summary should include:
 After saving, print this for the user to copy:
 
 ```
-Resuming work on boring.notch. Read these for context:
+Resuming work on machNotch. Read these for context:
 - CLAUDE.md
 - PLAN.md
 - .ai-docs/sessions/ (latest summary)

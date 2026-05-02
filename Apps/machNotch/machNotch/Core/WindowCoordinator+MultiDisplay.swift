@@ -1,6 +1,6 @@
 //
 //  WindowCoordinator+MultiDisplay.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted multi-display support from WindowCoordinator.
 //
@@ -27,7 +27,7 @@ extension WindowCoordinator {
             guard let uuid = screen.displayUUID else { continue }
 
             if windows[uuid] == nil {
-                let viewModel = BoringViewModel(
+                let viewModel = NotchViewModel(
                     screenUUID: uuid,
                     coordinator: coordinator,
                     detector: detector,
@@ -35,7 +35,7 @@ extension WindowCoordinator {
                     displaySettings: settings
                 )
                 let stateMachine = NotchStateMachine(settings: settings)
-                let window = createBoringNotchWindow(for: screen, with: viewModel, stateMachine: stateMachine)
+                let window = createNotchWindow(for: screen, with: viewModel, stateMachine: stateMachine)
 
                 windows[uuid] = window
                 viewModels[uuid] = viewModel
@@ -73,7 +73,7 @@ extension WindowCoordinator {
         primaryViewModel.notchSize = getClosedNotchSize(settings: settings, screenUUID: selectedScreen.displayUUID)
 
         if window == nil {
-            window = createBoringNotchWindow(for: selectedScreen, with: primaryViewModel, stateMachine: primaryStateMachine)
+            window = createNotchWindow(for: selectedScreen, with: primaryViewModel, stateMachine: primaryStateMachine)
         }
 
         if let window = window {
@@ -90,12 +90,12 @@ extension WindowCoordinator {
     func enableSkyLightOnAllWindows() {
         if settings.showOnAllDisplays {
             windows.values.forEach { window in
-                if let skyWindow = window as? BoringNotchSkyLightWindow {
+                if let skyWindow = window as? NotchSkyLightWindow {
                     skyWindow.enableSkyLight()
                 }
             }
         } else {
-            if let skyWindow = window as? BoringNotchSkyLightWindow {
+            if let skyWindow = window as? NotchSkyLightWindow {
                 skyWindow.enableSkyLight()
             }
         }
@@ -107,12 +107,12 @@ extension WindowCoordinator {
             await MainActor.run {
                 if self.settings.showOnAllDisplays {
                     self.windows.values.forEach { window in
-                        if let skyWindow = window as? BoringNotchSkyLightWindow {
+                        if let skyWindow = window as? NotchSkyLightWindow {
                             skyWindow.disableSkyLight()
                         }
                     }
                 } else {
-                    if let skyWindow = self.window as? BoringNotchSkyLightWindow {
+                    if let skyWindow = self.window as? NotchSkyLightWindow {
                         skyWindow.disableSkyLight()
                     }
                 }

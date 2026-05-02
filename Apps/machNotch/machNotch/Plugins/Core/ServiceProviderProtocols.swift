@@ -1,6 +1,6 @@
 //
 //  ServiceProviderProtocols.swift
-//  boringNotch
+//  machNotch
 //
 //  ISP-compliant sub-protocols for NotchServiceProvider.
 //  Plugins and views depend on the narrowest protocol they need.

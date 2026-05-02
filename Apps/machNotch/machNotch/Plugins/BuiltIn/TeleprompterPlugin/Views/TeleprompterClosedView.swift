@@ -6,7 +6,7 @@ import SwiftUI
 struct TeleprompterClosedView: View {
     let state: TeleprompterState
 
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.displayClosedNotchHeight) var displayClosedNotchHeight
 
     /// Real notch height (camera area) — keep text out of this zone

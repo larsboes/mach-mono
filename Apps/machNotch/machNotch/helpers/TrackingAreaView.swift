@@ -1,9 +1,9 @@
 //
 //  TrackingAreaView.swift
-//  boringNotch
+//  machNotch
 //
 //  Signal-based hover detection. Only emits signals, validation is done
-//  by HoverZoneManager in BoringViewModel.
+//  by HoverZoneManager in NotchViewModel.
 //
 
 import AppKit

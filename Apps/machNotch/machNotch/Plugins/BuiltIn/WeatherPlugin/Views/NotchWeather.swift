@@ -1,6 +1,6 @@
 //
-//  BoringWeather.swift
-//  boringNotch
+//  NotchWeather.swift
+//  machNotch
 //
 //  Created by Arsh Anwar on 26/12/25.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct WeatherView: View {
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.pluginManager) var pluginManager
     @Environment(\.settings) var settings
     
@@ -189,5 +189,5 @@ struct WeatherDetailItem: View {
     WeatherView()
         .frame(width: 215, height: 130)
         .background(.black)
-        .environment(BoringViewModel())
+        .environment(NotchViewModel())
 }

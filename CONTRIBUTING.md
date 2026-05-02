@@ -4,7 +4,7 @@ Thank you for taking the time to contribute! ❤️
 
 These guidelines help streamline the contribution process for everyone involved. By following them, you'll make it easier for maintainers to review your work and collaborate with you effectively.
 
-You can contribute in many ways: writing code, improving documentation, reporting bugs, requesting features, or creating tutorials and blog posts. Every contribution, large or small, helps make Boring Notch better.
+You can contribute in many ways: writing code, improving documentation, reporting bugs, requesting features, or creating tutorials and blog posts. Every contribution, large or small, helps make machNotch better.
 
 ## Table of Contents
 
@@ -21,7 +21,7 @@ You can contribute in many ways: writing code, improving documentation, reportin
 
 ## Localizations
 
-Please submit all translations to [Crowdin](https://crowdin.com/project/boring-notch). New strings added to the `dev` branch from code changes will sync automatically to Crowdin, and Crowdin will automatically open a new PR with translations to allow us to integrate them.
+Please submit all translations to [Crowdin](https://crowdin.com/project/mach-notch). New strings added to the `dev` branch from code changes will sync automatically to Crowdin, and Crowdin will automatically open a new PR with translations to allow us to integrate them.
 
 ## Contributing Code
 
@@ -39,8 +39,8 @@ Please submit all translations to [Crowdin](https://crowdin.com/project/boring-n
 
 2. **Clone your fork**:
    ```bash
-   git clone https://github.com/{your-username}/boring.notch.git
-   cd boring.notch
+   git clone https://github.com/{your-username}/mach-mono.git
+   cd mach-mono
    ```
    Replace `{your-username}` with your GitHub username.
 
@@ -77,7 +77,7 @@ Please submit all translations to [Crowdin](https://crowdin.com/project/boring-n
 
 ### Creating a New Plugin
 
-Boring Notch uses a plugin-first architecture. Adding a new feature usually means creating a new plugin.
+machNotch uses a plugin-first architecture. Adding a new feature usually means creating a new plugin.
 
 1.  **Create the Plugin File**: Add a new Swift file in `Plugins/BuiltIn/{YourFeature}Plugin/`.
 2.  **Implement `NotchPlugin`**:
@@ -87,7 +87,7 @@ Boring Notch uses a plugin-first architecture. Adding a new feature usually mean
             PluginMetadata(
                 name: "Your Feature",
                 icon: "star.fill",
-                id: "com.boringnotch.yourfeature"
+                id: "com.machnotch.yourfeature"
             )
         }
 
@@ -176,8 +176,8 @@ If you need help or have questions:
 - Check the project documentation
 - Search existing issues for similar questions
 - Open a new issue with the "question" label
-- Join our [community Discord server](https://discord.com/servers/boring-notch-1269588937320566815)
+- Join our [community Discord server](https://discord.com/servers/mach-notch-1269588937320566815)
 
 ---
 
-Thank you for contributing to Boring Notch! Your efforts help make this project better for everyone. 🎉
+Thank you for contributing to machNotch! Your efforts help make this project better for everyone. 🎉

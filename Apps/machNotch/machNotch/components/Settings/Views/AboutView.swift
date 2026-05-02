@@ -1,6 +1,6 @@
 //
 //  AboutView.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Richard Kunkli on 07/08/2024.
 //
@@ -48,7 +48,7 @@ struct About: View {
                 HStack(spacing: 30) {
                     Spacer(minLength: 0)
                     Button {
-                        if let url = URL(string: "https://github.com/TheBoredTeam/boring.notch") {
+                        if let url = URL(string: "https://github.com/larsboes/mach-mono") {
                             NSWorkspace.shared.open(url)
                         }
                     } label: {
@@ -67,7 +67,7 @@ struct About: View {
             }
             VStack(spacing: 0) {
                 Divider()
-                Text("Made with 🫶🏻 by not so boring not.people")
+                Text("Made with care for mach.notch")
                     .foregroundStyle(.secondary)
                     .padding(.top, 5)
                     .padding(.bottom, 7)

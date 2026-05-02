@@ -1,6 +1,6 @@
 //
 //  NotchHomeView.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Hugo Persson on 2024-08-18.
 //  Modified by Harsh Vardhan Goswami & Richard Kunkli & Mustafa Ramadan & Arsh Anwar
@@ -12,10 +12,10 @@ import SwiftUI
 // MARK: - Main View
 
 struct NotchHomeView: View {
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.settings) var settings
     @Environment(\.pluginManager) var pluginManager
-    @Environment(BoringViewCoordinator.self) var coordinator
+    @Environment(NotchViewCoordinator.self) var coordinator
     @Environment(\.contentProgress) var contentProgress
     let albumArtNamespace: Namespace.ID
 

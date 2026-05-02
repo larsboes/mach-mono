@@ -1,6 +1,6 @@
 //
 //  BrowserMediaController.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2025-06-16.
 //

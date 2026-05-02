@@ -324,25 +324,25 @@ jobs:
             depends_on macos: ">= :sonoma"
             app "machNotch.app"
             zap trash: [
-              "~/Library/Application Scripts/theboringteam.boringnotch/",
-              "~/Library/Containers/theboringteam.boringnotch/",
+              "~/Library/Application Scripts/com.larsboes.machnotch/",
+              "~/Library/Containers/com.larsboes.machnotch/",
             ]
           end
           CASK
           }
 
-          write_cask "boring-notch@rc" "Boring Notch RC" \
-            "Not so boring notch That Rocks (Release Candidate)" > boring-notch@rc.rb
+          write_cask "mach-notch@rc" "machNotch RC" \
+            "Native macOS notch utility (Release Candidate)" > mach-notch@rc.rb
           if [[ "${IS_BETA}" == "false" ]]; then
-            write_cask "boring-notch" "Boring Notch" \
-              "Not so boring notch That Rocks" > boring-notch.rb
+            write_cask "mach-notch" "machNotch" \
+              "Native macOS notch utility" > mach-notch.rb
           fi
 
       - name: Upload cask artifacts
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: homebrew-cask-${{ env.VERSION }}
-          path: boring-notch*.rb
+          path: mach-notch*.rb
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -353,11 +353,11 @@ jobs:
       - name: Update casks in tap
         run: |
           set -euo pipefail
-          cp boring-notch@rc.rb homebrew-tap/Casks/boring-notch@rc.rb
-          COMMIT_MSG="Update boring-notch@rc to v${VERSION}"
+          cp mach-notch@rc.rb homebrew-tap/Casks/mach-notch@rc.rb
+          COMMIT_MSG="Update mach-notch@rc to v${VERSION}"
           if [[ "${IS_BETA}" == "false" ]]; then
-            cp boring-notch.rb homebrew-tap/Casks/boring-notch.rb
-            COMMIT_MSG="Update boring-notch and boring-notch@rc to v${VERSION}"
+            cp mach-notch.rb homebrew-tap/Casks/mach-notch.rb
+            COMMIT_MSG="Update mach-notch and mach-notch@rc to v${VERSION}"
           fi
           cd homebrew-tap
           git config user.name "github-actions[bot]"

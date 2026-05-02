@@ -1,6 +1,6 @@
 //
 //  NotchDropDelegate.swift
-//  boringNotch
+//  machNotch
 //
 
 import SwiftUI

@@ -1,6 +1,6 @@
 //
 //  WeatherPlugin.swift
-//  boringNotch
+//  machNotch
 //
 //  Built-in weather plugin.
 //  Wraps WeatherService to provide weather updates.
@@ -21,7 +21,7 @@ final class WeatherPlugin: NotchPlugin, PositionedPlugin {
         description: "View current weather conditions",
         icon: "cloud.sun.fill",
         version: "1.0.0",
-        author: "boringNotch",
+        author: "machNotch",
         category: .utilities
     )
     

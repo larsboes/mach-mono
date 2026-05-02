@@ -1,6 +1,6 @@
 //
 //  MusicPlugin+AudioPipeline.swift
-//  boringNotch
+//  machNotch
 //
 //  Audio capture + FFT pipeline for MusicPlugin.
 //  Runs synchronously on MainActor — no extra dispatch hops.

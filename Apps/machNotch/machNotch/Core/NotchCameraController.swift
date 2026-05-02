@@ -1,8 +1,8 @@
 //
 //  NotchCameraController.swift
-//  boringNotch
+//  machNotch
 //
-//  Extracted from BoringViewModel - handles camera preview toggle
+//  Extracted from NotchViewModel - handles camera preview toggle
 //
 
 import SwiftUI

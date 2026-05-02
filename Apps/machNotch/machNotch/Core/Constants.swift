@@ -1,6 +1,6 @@
 //
 //  Constants.swift
-//  boringNotch
+//  machNotch
 //
 //  App infrastructure constants — paths, spacing, notification names, data types.
 //
@@ -11,7 +11,7 @@ import Defaults
 // MARK: - File System Paths
 let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
     ?? FileManager.default.temporaryDirectory
-let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.boringnotch.unknown"
+let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.machnotch.unknown"
 let appVersion = "\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""))"
 
 let temporaryDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
@@ -40,6 +40,6 @@ extension Notification.Name {
     static let automaticallySwitchDisplayChanged = Notification.Name("automaticallySwitchDisplayChanged")
     static let expandedDragDetectionChanged = Notification.Name("expandedDragDetectionChanged")
     static let accessibilityAuthorizationChanged = Notification.Name("accessibilityAuthorizationChanged")
-    static let sharingDidFinish = Notification.Name("com.boringNotch.sharingDidFinish")
+    static let sharingDidFinish = Notification.Name("com.machNotch.sharingDidFinish")
     static let accentColorChanged = Notification.Name("AccentColorChanged")
 }

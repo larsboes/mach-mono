@@ -1,6 +1,6 @@
 //
 //  InlineHUDs.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Richard Kunkli on 14/09/2024.
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct InlineHUD: View {
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Binding var type: SneakContentType
     @Binding var value: CGFloat
     @Binding var icon: String
@@ -160,5 +160,5 @@ struct InlineHUD: View {
         .padding(.horizontal, 8)
         .background(Color.black)
         .padding()
-        .environment(BoringViewModel())
+        .environment(NotchViewModel())
 }

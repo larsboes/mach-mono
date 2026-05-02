@@ -1,6 +1,6 @@
 //
 //  ClipboardPlugin.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Agent on 02/01/26.
 //
@@ -20,7 +20,7 @@ final class ClipboardPlugin: NotchPlugin {
         description: "View and manage clipboard history",
         icon: "doc.on.clipboard",
         version: "1.0.0",
-        author: "boringNotch",
+        author: "machNotch",
         category: .utilities
     )
     

@@ -1,14 +1,14 @@
 //
-//  BoringViewCoordinator+SneakPeek.swift
-//  boringNotch
+//  NotchViewCoordinator+SneakPeek.swift
+//  machNotch
 //
-//  Sneak peek and expanding view logic extracted from BoringViewCoordinator.
+//  Sneak peek and expanding view logic extracted from NotchViewCoordinator.
 //
 
 import AppKit
 import SwiftUI
 
-extension BoringViewCoordinator {
+extension NotchViewCoordinator {
 
     @objc func sneakPeekEvent(_ notification: Notification) {
         let decoder = JSONDecoder()

@@ -1,6 +1,6 @@
 //
 //  FullscreenMediaDetection.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Richard Kunkli on 06/09/2024.
 //

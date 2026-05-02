@@ -3693,202 +3693,202 @@
         }
       }
     },
-    "Boring Notch" : {
+    "machNotch" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch"
+            "value" : "machNotch"
           }
         },
         "cs" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch"
+            "value" : "machNotch"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch"
+            "value" : "machNotch"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Boring Notch"
+            "value" : "machNotch"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Boring Notch"
+            "value" : "machNotch"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch"
+            "value" : "machNotch"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch"
+            "value" : "machNotch"
           }
         },
         "hu" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch"
+            "value" : "machNotch"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch"
+            "value" : "machNotch"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch"
+            "value" : "machNotch"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch"
+            "value" : "machNotch"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch"
+            "value" : "machNotch"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch"
+            "value" : "machNotch"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch"
+            "value" : "machNotch"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch"
+            "value" : "machNotch"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch"
+            "value" : "machNotch"
           }
         }
       }
     },
-    "boring.notch" : {
+    "mach.notch" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "boring.notch"
+            "value" : "mach.notch"
           }
         },
         "cs" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "boring.notch"
+            "value" : "mach.notch"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "boring.notch"
+            "value" : "mach.notch"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "boring.notch"
+            "value" : "mach.notch"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "boring.notch"
+            "value" : "mach.notch"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "boring.notch"
+            "value" : "mach.notch"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "boring.notch"
+            "value" : "mach.notch"
           }
         },
         "hu" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "boring.notch"
+            "value" : "mach.notch"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "boring.notch"
+            "value" : "mach.notch"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "boring.notch"
+            "value" : "mach.notch"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "boring.notch"
+            "value" : "mach.notch"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "boring.notch"
+            "value" : "mach.notch"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "boring.notch"
+            "value" : "mach.notch"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "boring.notch"
+            "value" : "mach.notch"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "boring.notch"
+            "value" : "mach.notch"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "boring.notch"
+            "value" : "mach.notch"
           }
         }
       }
@@ -5620,7 +5620,7 @@
         }
       }
     },
-    "Closes the boringNotch panel." : {
+    "Closes the machNotch panel." : {
 
     },
     "Color" : {
@@ -8066,18 +8066,18 @@
         }
       }
     },
-    "Enable boring mirror" : {
+    "Enable notch mirror" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Enable boring mirror"
+            "value" : "Enable notch mirror"
           }
         },
         "cs" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Povolit boring zrcadlo"
+            "value" : "Povolit zrcadlo výřezu"
           }
         },
         "de" : {
@@ -8089,19 +8089,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enable boring mirror"
+            "value" : "Enable notch mirror"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enable boring mirror"
+            "value" : "Enable notch mirror"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Habilitar espejo boring"
+            "value" : "Habilitar espejo de la muesca"
           }
         },
         "fr" : {
@@ -8113,7 +8113,7 @@
         "hu" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Enable boring mirror"
+            "value" : "Enable notch mirror"
           }
         },
         "it" : {
@@ -8125,25 +8125,25 @@
         "ko" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring 거울 켜기"
+            "value" : "노치 미러 켜기"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Włącz boring mirror"
+            "value" : "Włącz lustro notcha"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Enable boring mirror"
+            "value" : "Enable notch mirror"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Enable boring mirror"
+            "value" : "Enable notch mirror"
           }
         },
         "tr" : {
@@ -8155,7 +8155,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Enable boring mirror"
+            "value" : "Enable notch mirror"
           }
         },
         "zh-Hans" : {
@@ -10009,7 +10009,7 @@
     "Glass Style" : {
 
     },
-    "Goes back to the previous track via boringNotch." : {
+    "Goes back to the previous track via machNotch." : {
 
     },
     "Got it!" : {
@@ -12171,12 +12171,12 @@
         }
       }
     },
-    "Made with 🫶🏻 by not so boring not.people" : {
+    "Made with care for mach.notch" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Made with 🫶🏻 by not so boring not.people"
+            "value" : "Made with care for mach.notch"
           }
         },
         "cs" : {
@@ -12188,19 +12188,19 @@
         "de" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Gemacht mit 🫶🏻 durch nicht so boring not.people"
+            "value" : "Mit Sorgfalt für mach.notch gemacht"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Made with 🫶🏻 by not so boring not.people"
+            "value" : "Made with care for mach.notch"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Made with 🫶🏻 by not so boring not.people"
+            "value" : "Made with care for mach.notch"
           }
         },
         "es" : {
@@ -12212,19 +12212,19 @@
         "fr" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Fait avec 🫶🏻 par des personnes pas si ennuyeuses - boring not.people"
+            "value" : "Créé avec soin pour mach.notch"
           }
         },
         "hu" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Made with 🫶🏻 by not so boring not.people"
+            "value" : "Made with care for mach.notch"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Realizzato col 🫶🏻 da not so boring not.people"
+            "value" : "Creato con cura per mach.notch"
           }
         },
         "ko" : {
@@ -12242,13 +12242,13 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Made with 🫶🏻 by not so boring not.people"
+            "value" : "Made with care for mach.notch"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Made with 🫶🏻 by not so boring not.people"
+            "value" : "Made with care for mach.notch"
           }
         },
         "tr" : {
@@ -12260,7 +12260,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Made with 🫶🏻 by not so boring not.people"
+            "value" : "Made with care for mach.notch"
           }
         },
         "zh-Hans" : {
@@ -15730,7 +15730,7 @@
         }
       }
     },
-    "Opens the boringNotch panel." : {
+    "Opens the machNotch panel." : {
 
     },
     "Opens the notch if closed, closes it if open." : {
@@ -17709,102 +17709,102 @@
         }
       }
     },
-    "Restart Boring Notch" : {
+    "Restart machNotch" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Restart Boring Notch"
+            "value" : "Restart machNotch"
           }
         },
         "cs" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Restartovat Boring Notch"
+            "value" : "Restartovat machNotch"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch neu starten"
+            "value" : "machNotch neu starten"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restart Boring Notch"
+            "value" : "Restart machNotch"
           }
         },
         "en-GB" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restart Boring Notch"
+            "value" : "Restart machNotch"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Reiniciar Boring Notch"
+            "value" : "Reiniciar machNotch"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Redémarrer Boring Notch"
+            "value" : "Redémarrer machNotch"
           }
         },
         "hu" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Restart Boring Notch"
+            "value" : "Restart machNotch"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Riavvia Boring Notch"
+            "value" : "Riavvia machNotch"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch 재시작"
+            "value" : "machNotch 재시작"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Uruchom ponownie Boring Notch"
+            "value" : "Uruchom ponownie machNotch"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Restart Boring Notch"
+            "value" : "Restart machNotch"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Restart Boring Notch"
+            "value" : "Restart machNotch"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Boring Notch'u yeniden başlat"
+            "value" : "machNotch'u yeniden başlat"
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "Restart Boring Notch"
+            "value" : "Restart machNotch"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "needs_review",
-            "value" : "重启 Boring Notch"
+            "value" : "重启 machNotch"
           }
         }
       }
@@ -20118,7 +20118,7 @@
     "Size" : {
 
     },
-    "Skips to the next track via boringNotch." : {
+    "Skips to the next track via machNotch." : {
 
     },
     "Slider color" : {
@@ -21458,7 +21458,7 @@
         }
       }
     },
-    "Toggles playback of the current track in boringNotch." : {
+    "Toggles playback of the current track in machNotch." : {
 
     },
     "Total Completions: %lld" : {

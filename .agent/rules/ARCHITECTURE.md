@@ -1,4 +1,4 @@
-# boringNotch Plugin Architecture
+# machNotch Plugin Architecture
 
 > A plugin-first architecture where every feature—including built-ins—is a plugin.
 >
@@ -92,7 +92,7 @@ All plugin data stays on device. Export in standard formats. Sync is opt-in and 
 
 ```
                               ┌─────────────────┐
-                              │  boringNotchApp │
+                              │  machNotchApp │
                               └────────┬────────┘
                                        │ creates
                               ┌────────▼────────┐
@@ -126,7 +126,7 @@ All plugin data stays on device. Export in standard formats. Sync is opt-in and 
 /// Defines identity, lifecycle, and UI slots.
 @MainActor
 protocol NotchPlugin: Identifiable, Observable {
-    /// Unique reverse-DNS identifier (e.g., "com.boringnotch.music")
+    /// Unique reverse-DNS identifier (e.g., "com.machnotch.music")
     var id: String { get }
 
     /// Display metadata for settings UI
@@ -438,7 +438,7 @@ final class ServiceContainer {
 ```swift
 // At app launch
 @main
-struct boringNotchApp: App {
+struct machNotchApp: App {
     @State private var pluginManager: PluginManager
 
     init() {
@@ -664,14 +664,14 @@ struct SettingsMigration {
         guard !Defaults[.hasMigratedToPluginSettings] else { return }
 
         // Music plugin settings
-        migrateKey(from: .showMusicLiveActivity, to: "plugin.com.boringnotch.music.showLiveActivity")
-        migrateKey(from: .enableSneakPeek, to: "plugin.com.boringnotch.music.enableSneakPeek")
+        migrateKey(from: .showMusicLiveActivity, to: "plugin.com.machnotch.music.showLiveActivity")
+        migrateKey(from: .enableSneakPeek, to: "plugin.com.machnotch.music.enableSneakPeek")
 
         // Calendar plugin settings
-        migrateKey(from: .showCalendar, to: "plugin.com.boringnotch.calendar.enabled")
+        migrateKey(from: .showCalendar, to: "plugin.com.machnotch.calendar.enabled")
 
         // Shelf plugin settings
-        migrateKey(from: .boringShelf, to: "plugin.com.boringnotch.shelf.enabled")
+        migrateKey(from: .shelfEnabled, to: "plugin.com.machnotch.shelf.enabled")
 
         Defaults[.hasMigratedToPluginSettings] = true
     }
@@ -721,21 +721,21 @@ protocol PluginEvent: Sendable {
 
 /// Concrete events
 struct MusicPlaybackChangedEvent: PluginEvent {
-    let sourcePluginId = "com.boringnotch.music"
+    let sourcePluginId = "com.machnotch.music"
     let timestamp = Date()
     let isPlaying: Bool
     let track: TrackInfo?
 }
 
 struct CalendarEventStartingSoonEvent: PluginEvent {
-    let sourcePluginId = "com.boringnotch.calendar"
+    let sourcePluginId = "com.machnotch.calendar"
     let timestamp = Date()
     let event: CalendarEvent
     let startsIn: TimeInterval
 }
 
 struct ShelfItemAddedEvent: PluginEvent {
-    let sourcePluginId = "com.boringnotch.shelf"
+    let sourcePluginId = "com.machnotch.shelf"
     let timestamp = Date()
     let item: ShelfItem
 }
@@ -816,7 +816,7 @@ With architecture in place, add new plugins:
 ## File Structure
 
 ```
-boringNotch/
+machNotch/
 ├── Plugins/
 │   ├── Core/
 │   │   ├── NotchPlugin.swift           # Core plugin protocol
@@ -942,4 +942,4 @@ enum PluginError: Error, LocalizedError {
 
 ---
 
-*This architecture enables boringNotch to evolve from a monolithic app to a plugin platform while maintaining stability during the transition.*
+*This architecture enables machNotch to evolve from a monolithic app to a plugin platform while maintaining stability during the transition.*

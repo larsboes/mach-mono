@@ -1,6 +1,6 @@
 //
 //  PluginOrderSettingsView.swift
-//  boringNotch
+//  machNotch
 //
 //  Settings view for reordering and enabling/disabling plugins.
 //

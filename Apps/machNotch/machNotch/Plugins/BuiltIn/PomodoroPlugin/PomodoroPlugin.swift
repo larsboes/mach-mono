@@ -1,6 +1,6 @@
 //
 //  PomodoroPlugin.swift
-//  boringNotch
+//  machNotch
 //
 //  Built-in Pomodoro plugin wrapper.
 //
@@ -21,7 +21,7 @@ final class PomodoroPlugin: NotchPlugin, ExportablePlugin {
         description: "Focus sessions right from the notch",
         icon: "timer",
         version: "1.0.0",
-        author: "boringNotch",
+        author: "machNotch",
         category: .productivity
     )
     

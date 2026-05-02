@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### 🧹 Repo Hygiene
-*   **Root README refresh**: Updated root documentation from stale `boringNotch` paths to the current `Apps/machNotch/` layout.
+*   **Root README refresh**: Updated root documentation from stale `machNotch` paths to the current `Apps/machNotch/` layout.
 *   **Build command clarity**: Documented the current root-relative build command using `Apps/machNotch/machNotch.xcodeproj` and noted that plain root `xcodebuild` is not available until a root workspace/project/package exists.
 *   **Rename status**: Verified the active Xcode scheme/targets are `machNotch`, `MachNotchXPCHelper`, and `machNotchTests`; stale docs now point to the renamed scheme.
 *   **Build/test repair**: Fixed stale Xcode project paths for entitlements, Info.plists, preview assets, and moved source files so root-relative build and test commands pass again.
@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🐛 Bug Fixes & Refinements
 *   **External display fix**: Fixed notch not appearing on external (non-notch) displays when "Show on all displays" is enabled. The `.transient` collection behavior caused macOS to hide windows on non-notch screens.
-*   **Duplicate init call**: Removed duplicate `configureWindow()` call in `BoringNotchSkyLightWindow` init.
+*   **Duplicate init call**: Removed duplicate `configureWindow()` call in `NotchSkyLightWindow` init.
 *   **Build regressions**: Fixed MusicService, SpotifyController, YouTubeMusicController, NowPlayingController, and PlaybackState regressions after efficiency refactor.
 *   **UI regressions**: Fixed clipping, shape integrity, and header alignment issues in open/closed notch states.
 *   **Centered layout**: Implemented centered 'hugging' layout with proper home tab visibility.
@@ -51,7 +51,7 @@ Completion of massive architectural refactoring ("Phase 5"). Monolithic singleto
 *   **Clipboard Plugin**: Clipboard history management from the notch.
 *   **AI Subsystem**: `AIManager` + `AIProvider` protocol with Ollama backend for text generation.
 *   **Local API Server**: HTTP + WebSocket server for external integrations (`notchctl` CLI, browser extension). Auth middleware, rate limiting, plugin API routes.
-*   **App Intents & URL Scheme**: Siri Shortcuts integration + `boringnotch://` URL scheme handler.
+*   **App Intents & URL Scheme**: Siri Shortcuts integration + `machnotch://` URL scheme handler.
 *   **Protocol-Based Services**: Clean APIs enabling easy provider swaps.
 
 ### 🐛 Bug Fixes
@@ -76,7 +76,7 @@ Comprehensive review and refactoring across 34+ files.
 *   **TeleprompterTimerManager**: Timer + mic monitor lifecycle extracted from `TeleprompterState`.
 *   **TeleprompterScrollEngine / ShortcutHandler / CountdownState**: Further SRP splits.
 *   **DisplayPrioritizer**: Display arbitration extracted from `PluginManager` into pure struct.
-*   **HeaderButton / HeaderActionButton**: Reusable components from `BoringHeader` (197→130 lines).
+*   **HeaderButton / HeaderActionButton**: Reusable components from `NotchHeader` (197→130 lines).
 *   **ContentView sub-views**: `notchBackground`, `glassOverlay`, `topEdgeLine` extracted.
 
 #### DDD Improvements
@@ -92,7 +92,7 @@ Comprehensive review and refactoring across 34+ files.
 ### ⚡ Performance
 *   **Phase 2 efficiency**: Isolated high-frequency progress updates into leaf reader views, event-driven geometry calculations replacing polling, XPC helper backoff strategy for reduced IPC overhead.
 *   **Background service backoff**: `BackgroundServiceRestartable` protocol pauses `BatteryService`/`BluetoothManager` polling when notch is closed.
-*   **NotchServiceProvider consolidation**: Single DI entry point replaces 8 individual service properties in `BoringViewModel`.
+*   **NotchServiceProvider consolidation**: Single DI entry point replaces 8 individual service properties in `NotchViewModel`.
 *   **TimelineView gating**: Music controls switch to static layout when notch is closed (no 60fps background burn).
 *   **AVAudioRecorder lifecycle**: Mic hardware released immediately when teleprompter is paused.
 *   **AnyView elimination**: Plugin views use type-specific wrappers, restoring SwiftUI structural identity.

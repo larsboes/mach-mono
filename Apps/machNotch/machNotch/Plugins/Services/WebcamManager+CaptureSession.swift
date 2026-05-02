@@ -1,6 +1,6 @@
 //
 //  WebcamManager+CaptureSession.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted capture session management from WebcamManager.
 //
@@ -44,7 +44,7 @@ extension WebcamManager {
 
                 let videoInput = try AVCaptureDeviceInput(device: videoDevice)
                 guard session.canAddInput(videoInput) else {
-                    throw NSError(domain: "BoringNotch.WebcamManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Cannot add video input"])
+                    throw NSError(domain: "MachNotch.WebcamManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Cannot add video input"])
                 }
 
                 session.beginConfiguration()

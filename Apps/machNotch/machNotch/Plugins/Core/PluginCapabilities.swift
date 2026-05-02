@@ -1,6 +1,6 @@
 //
 //  PluginCapabilities.swift
-//  boringNotch
+//  machNotch
 //
 //  Capability protocols that plugins can adopt for additional functionality.
 //  These are mix-ins: adopt what you need.

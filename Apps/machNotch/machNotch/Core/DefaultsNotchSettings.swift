@@ -1,6 +1,6 @@
 //
 //  DefaultsNotchSettings.swift
-//  boringNotch
+//  machNotch
 //
 //  Production implementation of NotchSettings wrapping Defaults (UserDefaults).
 //  Uses @Observable to support SwiftUI bindings via @Bindable.

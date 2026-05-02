@@ -1,6 +1,6 @@
 //
 //  LiquidGlass.swift
-//  boringNotch
+//  machNotch
 //
 //  Created for iOS 26-style liquid glass effect.
 //  Refactored to use SwiftGlass library.

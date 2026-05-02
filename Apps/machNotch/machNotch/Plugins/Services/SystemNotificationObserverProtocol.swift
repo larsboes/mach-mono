@@ -1,6 +1,6 @@
 //
 //  SystemNotificationObserverProtocol.swift
-//  boringNotch
+//  machNotch
 //
 //  Protocol for observing macOS system notifications from other apps.
 //

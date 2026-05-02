@@ -1,6 +1,6 @@
 //
 //  VolumeManager.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by JeanLouis on 22/08/2025.
 //

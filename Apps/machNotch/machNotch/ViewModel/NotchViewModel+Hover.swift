@@ -1,14 +1,14 @@
 //
-//  BoringViewModel+Hover.swift
-//  boringNotch
+//  NotchViewModel+Hover.swift
+//  machNotch
 //
-//  Hover zone management and heartbeat integration for BoringViewModel.
+//  Hover zone management and heartbeat integration for NotchViewModel.
 //
 
 import Foundation
 import AppKit
 
-extension BoringViewModel {
+extension NotchViewModel {
     // MARK: - Hover Zone Management
 
     func setHoverWindow(_ window: NSWindow?) {

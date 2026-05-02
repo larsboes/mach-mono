@@ -1,6 +1,6 @@
 //
 //  BatteryPlugin.swift
-//  boringNotch
+//  machNotch
 //
 //  Built-in battery plugin.
 //  Displays battery status in the notch.
@@ -21,7 +21,7 @@ final class BatteryPlugin: NotchPlugin, PositionedPlugin {
         description: "Monitor battery status and get notifications",
         icon: "battery.100",
         version: "1.0.0",
-        author: "boringNotch",
+        author: "machNotch",
         category: .system
     )
     
@@ -103,7 +103,7 @@ final class BatteryPlugin: NotchPlugin, PositionedPlugin {
 
 struct PluginBatteryView: View {
     let service: any BatteryServiceProtocol
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     
     var body: some View {
         HStack(spacing: 0) {
@@ -118,7 +118,7 @@ struct PluginBatteryView: View {
                 .frame(width: vm.closedNotchSize.width + 10)
 
             HStack {
-                BoringBatteryView(
+                BatteryStatusView(
                     batteryWidth: 30,
                     isCharging: service.isCharging,
                     isInLowPowerMode: service.isInLowPowerMode,

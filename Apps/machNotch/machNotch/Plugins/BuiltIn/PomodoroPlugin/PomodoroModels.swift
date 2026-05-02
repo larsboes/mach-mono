@@ -1,6 +1,6 @@
 //
 //  PomodoroModels.swift
-//  boringNotch
+//  machNotch
 //
 //  Data models for the Pomodoro plugin.
 //

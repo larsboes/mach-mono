@@ -1,6 +1,6 @@
 //
 //  AccentCircleButton.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted from AdvancedSettingsView.swift.
 //

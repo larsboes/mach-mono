@@ -1,6 +1,6 @@
 //
 //  SettingsTypes.swift
-//  boringNotch
+//  machNotch
 //
 //  Settings value types — all Defaults.Serializable enums used in user preferences.
 //

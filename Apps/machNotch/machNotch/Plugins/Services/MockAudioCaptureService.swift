@@ -1,6 +1,6 @@
 //
 //  MockAudioCaptureService.swift
-//  boringNotch
+//  machNotch
 //
 //  Fallback capture service for macOS <13 or denied screen recording permission.
 //  Generates composite sine waves to produce semi-realistic FFT output.

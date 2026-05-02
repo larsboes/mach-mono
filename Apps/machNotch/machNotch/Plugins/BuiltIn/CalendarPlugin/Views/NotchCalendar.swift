@@ -1,6 +1,6 @@
 //
-//  BoringCalendar.swift
-//  boringNotch
+//  NotchCalendar.swift
+//  machNotch
 //
 //  Created by Harsh Vardhan  Goswami  on 08/09/24.
 //
@@ -78,7 +78,7 @@ struct WeekDayPicker: View {
 }
 
 struct CalendarView: View {
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.settings) var settings
     @Environment(\.pluginManager) var pluginManager
     @State private var selectedDate = Date()
@@ -217,5 +217,5 @@ struct EmptyEventsView: View {
     CalendarView()
         .frame(width: 215, height: 130)
         .background(.black)
-        .environment(BoringViewModel())
+        .environment(NotchViewModel())
 }

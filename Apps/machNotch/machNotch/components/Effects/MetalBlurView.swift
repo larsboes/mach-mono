@@ -1,6 +1,6 @@
 //
 //  MetalBlurView.swift
-//  boringNotch
+//  machNotch
 //
 //  Deprecated. Replaced by SwiftGlass integration.
 //  Kept for file reference compatibility.

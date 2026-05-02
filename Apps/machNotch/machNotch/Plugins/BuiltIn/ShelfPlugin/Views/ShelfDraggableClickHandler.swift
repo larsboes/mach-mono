@@ -1,6 +1,6 @@
 //
 //  ShelfDraggableClickHandler.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted from ShelfItemView.swift — NSDraggingSource drag handler.
 //

@@ -1,6 +1,6 @@
 //
 //  TestView.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Richard Kunkli on 14/08/2024.
 //

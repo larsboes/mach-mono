@@ -1,6 +1,6 @@
 //
 //  ShelfMenuActionTarget.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted from ShelfActionService.swift — handles context menu action dispatch.
 //

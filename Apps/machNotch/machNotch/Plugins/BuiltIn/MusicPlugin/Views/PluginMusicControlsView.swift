@@ -1,6 +1,6 @@
 //
 //  PluginMusicControlsView.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted from PluginMusicPlayerView.swift.
 //
@@ -11,7 +11,7 @@ struct PluginMusicControlsView: View {
     let service: any MusicServiceProtocol
     let plugin: MusicPlugin
 
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.settings) var settings
     @Environment(\.bindableSettings) var bindableSettings
 

@@ -1,6 +1,6 @@
 //
 //  DefaultsNotchSettings+Plugins.swift
-//  boringNotch
+//  machNotch
 //
 
 import Foundation
@@ -30,9 +30,9 @@ import Defaults
     }
 
     // MARK: - Shelf Settings
-    var boringShelf: Bool {
-        get { Defaults[.boringShelf] }
-        set { Defaults[.boringShelf] = newValue }
+    var shelfEnabled: Bool {
+        get { Defaults[.shelfEnabled] }
+        set { Defaults[.shelfEnabled] = newValue }
     }
     var openShelfByDefault: Bool {
         get { Defaults[.openShelfByDefault] }

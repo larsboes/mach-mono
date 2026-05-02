@@ -1,6 +1,6 @@
 //
 //  PluginRegistry.swift
-//  boringNotch
+//  machNotch
 //
 //  Single place to declare built-in plugins.
 //  AppObjectGraph reads this list — add new plugins here without touching AppObjectGraph.

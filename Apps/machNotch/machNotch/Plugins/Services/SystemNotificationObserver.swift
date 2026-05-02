@@ -1,6 +1,6 @@
 //
 //  SystemNotificationObserver.swift
-//  boringNotch
+//  machNotch
 //
 //  Observes macOS system notifications from other apps via Accessibility API.
 //  Monitors UserNotificationCenter.app for notification banners and extracts content.

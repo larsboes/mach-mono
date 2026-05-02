@@ -1,6 +1,6 @@
 //
 //  NotchPhaseCoordinator.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted open/close lifecycle and phase state machine.
 //

@@ -1,6 +1,6 @@
 //
 //  FileShareView.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2025-09-24.
 //
@@ -10,7 +10,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct FileShareView: View {
-    @Environment(BoringViewModel.self) private var vm
+    @Environment(NotchViewModel.self) private var vm
     @Environment(\.settings) var settings
     @Environment(\.pluginManager) var pluginManager
 

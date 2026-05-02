@@ -1,6 +1,6 @@
 //
 //  NotchHoverController.swift
-//  boringNotch
+//  machNotch
 //
 //  Heartbeat-based hover controller. Polls NSEvent.mouseLocation every 16ms
 //  instead of trusting NSTrackingArea events (which fire spuriously during

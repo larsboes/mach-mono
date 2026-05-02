@@ -1,6 +1,6 @@
 //
 //  HUDSettingsView.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Richard Kunkli on 07/08/2024.
 //

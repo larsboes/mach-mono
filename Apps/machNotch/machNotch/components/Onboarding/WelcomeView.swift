@@ -1,6 +1,6 @@
 //
 //  WelcomeView.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Richard Kunkli on 2024. 09. 26..
 //
@@ -25,7 +25,7 @@ struct WelcomeView: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 100, height: 100)
                         .padding(.bottom, 8)
-                    Text("Boring Notch")
+                    Text("machNotch")
                         .font(.system(.largeTitle, design: .default))
                         .fontWeight(.semibold)
                     Text("Welcome")
@@ -60,7 +60,7 @@ struct WelcomeView: View {
                 .padding(.top)
             }
             
-            Image("theboringteam")
+            Image("machnotch")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(height: 22)

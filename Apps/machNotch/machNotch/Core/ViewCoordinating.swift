@@ -1,6 +1,6 @@
 //
 //  ViewCoordinating.swift
-//  boringNotch
+//  machNotch
 //
 //  Application-layer protocol for coordinator state.
 //  Views that need @Bindable use the concrete type; services use this protocol.
@@ -22,7 +22,7 @@ import Foundation
 // MARK: - View Coordinating Protocol
 
 /// Contract for coordinator state used by non-view consumers.
-/// BoringViewCoordinator conforms to this. Services and coordinators depend
+/// NotchViewCoordinator conforms to this. Services and coordinators depend
 /// on this protocol, never the concrete type.
 @MainActor
 protocol ViewCoordinating: AnyObject, NotchAnimationStateProviding {
@@ -31,7 +31,7 @@ protocol ViewCoordinating: AnyObject, NotchAnimationStateProviding {
     var sneakPeek: SneakPeekState { get set }
     var expandingView: ExpandedItem { get set }
 
-    // NOTE: currentView has moved to BoringViewModel (per-screen state for multi-display).
+    // NOTE: currentView has moved to NotchViewModel (per-screen state for multi-display).
     // The coordinator still owns shared state (sneakPeek, expandingView, helloAnimation).
     var isScrollableViewPresented: Bool { get }
     var selectedScreenUUID: String { get }

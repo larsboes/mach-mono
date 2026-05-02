@@ -1,6 +1,6 @@
 //
 //  KeyboardShortcutCoordinator.swift
-//  boringNotch
+//  machNotch
 //
 //  Created as part of Phase 3 architectural refactoring.
 //  Extracted from AppDelegate - handles keyboard shortcut registration and actions.

@@ -1,12 +1,12 @@
 //
 //  HabitExpandedView.swift
-//  boringNotch
+//  machNotch
 //
 
 import SwiftUI
 
 struct HabitExpandedView: View {
-    @Environment(BoringViewCoordinator.self) var coordinator
+    @Environment(NotchViewCoordinator.self) var coordinator
     let plugin: HabitTrackerPlugin
     private var store: HabitStore { plugin.store }
     

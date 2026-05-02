@@ -1,6 +1,6 @@
 //
 //  PluginSettings.swift
-//  boringNotch
+//  machNotch
 //
 //  Namespaced settings wrapper for plugins.
 //  Each plugin gets its own namespace in Defaults.
@@ -117,22 +117,22 @@ struct PluginSettingsMigration {
         guard !Defaults[migrationKey] else { return }
 
         // Music plugin
-        migrateIfExists(from: "showMusicLiveActivity", to: "plugin_com_boringnotch_music_showLiveActivity")
-        migrateIfExists(from: "enableSneakPeek", to: "plugin_com_boringnotch_music_enableSneakPeek")
-        migrateIfExists(from: "waitInterval", to: "plugin_com_boringnotch_music_waitInterval")
+        migrateIfExists(from: "showMusicLiveActivity", to: "plugin_com_machnotch_music_showLiveActivity")
+        migrateIfExists(from: "enableSneakPeek", to: "plugin_com_machnotch_music_enableSneakPeek")
+        migrateIfExists(from: "waitInterval", to: "plugin_com_machnotch_music_waitInterval")
 
         // Calendar plugin
-        migrateIfExists(from: "showCalendar", to: "plugin_com_boringnotch_calendar_enabled")
+        migrateIfExists(from: "showCalendar", to: "plugin_com_machnotch_calendar_enabled")
 
         // Shelf plugin
-        migrateIfExists(from: "boringShelf", to: "plugin_com_boringnotch_shelf_enabled")
+        migrateIfExists(from: "shelfEnabled", to: "plugin_com_machnotch_shelf_enabled")
 
         // Weather plugin
-        migrateIfExists(from: "showWeather", to: "plugin_com_boringnotch_weather_enabled")
+        migrateIfExists(from: "showWeather", to: "plugin_com_machnotch_weather_enabled")
 
         // Battery plugin
-        migrateIfExists(from: "showBattery", to: "plugin_com_boringnotch_battery_enabled")
-        migrateIfExists(from: "chargingInfoAllowed", to: "plugin_com_boringnotch_battery_showChargingInfo")
+        migrateIfExists(from: "showBattery", to: "plugin_com_machnotch_battery_enabled")
+        migrateIfExists(from: "chargingInfoAllowed", to: "plugin_com_machnotch_battery_showChargingInfo")
         
         // Migrate from v1 (dot-separated) to v2 (underscore-separated) if needed
         // This is a best-effort migration for users who might have used the broken version

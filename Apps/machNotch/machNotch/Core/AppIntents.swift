@@ -4,7 +4,7 @@ import AppIntents
 
 struct OpenNotchIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Notch"
-    static var description = IntentDescription("Opens the boringNotch panel.")
+    static var description = IntentDescription("Opens the machNotch panel.")
 
     @MainActor
     func perform() async throws -> some IntentResult {
@@ -15,7 +15,7 @@ struct OpenNotchIntent: AppIntent {
 
 struct CloseNotchIntent: AppIntent {
     static var title: LocalizedStringResource = "Close Notch"
-    static var description = IntentDescription("Closes the boringNotch panel.")
+    static var description = IntentDescription("Closes the machNotch panel.")
 
     @MainActor
     func perform() async throws -> some IntentResult {
@@ -39,7 +39,7 @@ struct ToggleNotchIntent: AppIntent {
 
 struct ToggleMusicPlaybackIntent: AppIntent {
     static var title: LocalizedStringResource = "Play / Pause Music"
-    static var description = IntentDescription("Toggles playback of the current track in boringNotch.")
+    static var description = IntentDescription("Toggles playback of the current track in machNotch.")
 
     @MainActor
     func perform() async throws -> some IntentResult {
@@ -50,7 +50,7 @@ struct ToggleMusicPlaybackIntent: AppIntent {
 
 struct NextTrackIntent: AppIntent {
     static var title: LocalizedStringResource = "Next Track"
-    static var description = IntentDescription("Skips to the next track via boringNotch.")
+    static var description = IntentDescription("Skips to the next track via machNotch.")
 
     @MainActor
     func perform() async throws -> some IntentResult {
@@ -61,7 +61,7 @@ struct NextTrackIntent: AppIntent {
 
 struct PreviousTrackIntent: AppIntent {
     static var title: LocalizedStringResource = "Previous Track"
-    static var description = IntentDescription("Goes back to the previous track via boringNotch.")
+    static var description = IntentDescription("Goes back to the previous track via machNotch.")
 
     @MainActor
     func perform() async throws -> some IntentResult {
@@ -72,7 +72,7 @@ struct PreviousTrackIntent: AppIntent {
 
 // MARK: - Shortcuts Provider
 
-struct BoringNotchShortcuts: AppShortcutsProvider {
+struct MachNotchShortcuts: AppShortcutsProvider {
     @AppShortcutsBuilder
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
@@ -117,10 +117,10 @@ struct BoringNotchShortcuts: AppShortcutsProvider {
 // MARK: - Notification Names
 
 extension NSNotification.Name {
-    static let openNotchIntent = NSNotification.Name("me.theboringteam.boringnotch.open")
-    static let closeNotchIntent = NSNotification.Name("me.theboringteam.boringnotch.close")
-    static let toggleNotchIntent = NSNotification.Name("me.theboringteam.boringnotch.toggle")
-    static let toggleMusicPlaybackIntent = NSNotification.Name("me.theboringteam.boringnotch.music.togglePlayback")
-    static let nextTrackIntent = NSNotification.Name("me.theboringteam.boringnotch.music.next")
-    static let previousTrackIntent = NSNotification.Name("me.theboringteam.boringnotch.music.previous")
+    static let openNotchIntent = NSNotification.Name("me.com.larsboes.machnotch.open")
+    static let closeNotchIntent = NSNotification.Name("me.com.larsboes.machnotch.close")
+    static let toggleNotchIntent = NSNotification.Name("me.com.larsboes.machnotch.toggle")
+    static let toggleMusicPlaybackIntent = NSNotification.Name("me.com.larsboes.machnotch.music.togglePlayback")
+    static let nextTrackIntent = NSNotification.Name("me.com.larsboes.machnotch.music.next")
+    static let previousTrackIntent = NSNotification.Name("me.com.larsboes.machnotch.music.previous")
 }

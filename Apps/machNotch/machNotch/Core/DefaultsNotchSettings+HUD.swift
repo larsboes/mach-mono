@@ -1,6 +1,6 @@
 //
 //  DefaultsNotchSettings+HUD.swift
-//  boringNotch
+//  machNotch
 //
 
 import Foundation

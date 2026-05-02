@@ -1,6 +1,6 @@
 //
 //  ShelfPersistenceService.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2025-09-24.
 //
@@ -18,7 +18,7 @@ final class ShelfPersistenceService {
     init() {
         let fm = FileManager.default
         let support = try? fm.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-        let dir = (support ?? fm.temporaryDirectory).appendingPathComponent("boringNotch", isDirectory: true).appendingPathComponent("Shelf", isDirectory: true)
+        let dir = (support ?? fm.temporaryDirectory).appendingPathComponent("machNotch", isDirectory: true).appendingPathComponent("Shelf", isDirectory: true)
         try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
         fileURL = dir.appendingPathComponent("items.json")
         encoder.outputFormatting = [.prettyPrinted]

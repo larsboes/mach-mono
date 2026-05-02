@@ -1,6 +1,6 @@
 //
 //  AssociatedObject.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2025-10-05.
 //

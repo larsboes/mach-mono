@@ -1,6 +1,6 @@
 //
-//  boringNotchApp.swift
-//  boringNotchApp
+//  machNotchApp.swift
+//  machNotchApp
 //
 //  Created by Harsh Vardhan  Goswami  on 02/08/24.
 //
@@ -68,7 +68,7 @@ struct DynamicNotchApp: App {
     }
 
     var body: some Scene {
-        MenuBarExtra("boring.notch", systemImage: "sparkle", isInserted: showMenuBarIconBinding) {
+        MenuBarExtra("mach.notch", systemImage: "sparkle", isInserted: showMenuBarIconBinding) {
             PluginMenuBarItems()
             Button("Settings") {
                 appDelegate.graph.settingsWindowController.showWindow()
@@ -76,7 +76,7 @@ struct DynamicNotchApp: App {
             .keyboardShortcut(KeyEquivalent(","), modifiers: .command)
             CheckForUpdatesView(updater: updaterController.updater)
             Divider()
-            Button("Restart Boring Notch") {
+            Button("Restart machNotch") {
                 ApplicationRelauncher.restart()
             }
             Button("Quit", role: .destructive) {
@@ -109,11 +109,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Legacy Accessors
 
     var pluginManager: PluginManager { graph.pluginManager }
-    var coordinator: BoringViewCoordinator { graph.coordinator }
-    var vm: BoringViewModel { graph.vm }
+    var coordinator: NotchViewCoordinator { graph.coordinator }
+    var vm: NotchViewModel { graph.vm }
     var window: NSWindow? { graph.window }
     var windows: [String: NSWindow] { graph.windows }
-    var viewModels: [String: BoringViewModel] { graph.viewModels }
+    var viewModels: [String: NotchViewModel] { graph.viewModels }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return false

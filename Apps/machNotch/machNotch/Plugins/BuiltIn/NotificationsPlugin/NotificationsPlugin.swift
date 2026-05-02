@@ -1,6 +1,6 @@
 //
 //  NotificationsPlugin.swift
-//  boringNotch
+//  machNotch
 //
 //  Built-in notifications plugin.
 //  Wraps NotificationCenterManager to provide notification history.
@@ -21,7 +21,7 @@ final class NotificationsPlugin: NotchPlugin {
         description: "View and manage notifications",
         icon: "bell.badge.fill",
         version: "1.0.0",
-        author: "boringNotch",
+        author: "machNotch",
         category: .system
     )
     

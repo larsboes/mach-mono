@@ -1,6 +1,6 @@
 //
 //  ShelfItemView.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2025-09-24.
 //
@@ -14,7 +14,7 @@ struct ShelfItemView: View {
     let shelfService: ShelfServiceProtocol
     let quickLookService: any QuickLookServiceProtocol
     let quickShareService: QuickShareService
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.settings) var settings
 
     private var selection: ShelfSelectionModel {

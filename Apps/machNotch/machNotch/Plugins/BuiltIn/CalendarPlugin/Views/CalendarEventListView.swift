@@ -1,8 +1,8 @@
 //
 //  CalendarEventListView.swift
-//  boringNotch
+//  machNotch
 //
-//  Extracted from BoringCalendar.swift - EventListView and ReminderToggle.
+//  Extracted from NotchCalendar.swift - EventListView and ReminderToggle.
 //
 
 import SwiftUI

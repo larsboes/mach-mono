@@ -1,6 +1,6 @@
 //
 //  ShelfImageProcessorProtocol.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Refactoring Agent on 2026-01-01.
 //

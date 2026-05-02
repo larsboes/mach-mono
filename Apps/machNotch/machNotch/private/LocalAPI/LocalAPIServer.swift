@@ -3,7 +3,7 @@ import Network
 
 final class LocalAPIServer {
     private let router: APIRouter
-    private let queue = DispatchQueue(label: "me.theboringteam.boringnotch.localapi", qos: .userInitiated)
+    private let queue = DispatchQueue(label: "me.com.larsboes.machnotch.localapi", qos: .userInitiated)
     private let port: UInt16
 
     private var listener: NWListener?

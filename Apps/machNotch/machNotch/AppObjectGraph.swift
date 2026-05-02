@@ -1,6 +1,6 @@
 //
 //  AppObjectGraph.swift
-//  boringNotch
+//  machNotch
 //
 //  Central DI root — constructs all services, coordinators, and wires dependencies.
 //
@@ -18,7 +18,7 @@ final class AppObjectGraph {
     let settings = DefaultsNotchSettings()
     let spaceManager = NotchSpaceManager()
     let settingsWindowController = SettingsWindowController()
-    lazy var coordinator = BoringViewCoordinator(settings: settings, xpcHelper: XPCHelperClient.shared)
+    lazy var coordinator = NotchViewCoordinator(settings: settings, xpcHelper: XPCHelperClient.shared)
     lazy var localAPIServerController = LocalAPIServerController(
         eventBus: eventBus,
         pluginManager: pluginManager,
@@ -56,7 +56,7 @@ final class AppObjectGraph {
         PluginManager(
             services: ServiceContainer(eventBus: eventBus, settings: settings, xpcHelper: XPCHelperClient.shared),
             eventBus: eventBus,
-            appState: BoringAppState(),
+            appState: NotchAppState(),
             mediaSettings: settings,
             coordinator: coordinator,
             builtInPlugins: PluginRegistry.makeBuiltInPlugins()
@@ -65,8 +65,8 @@ final class AppObjectGraph {
 
     // MARK: - View Model
 
-    lazy var vm: BoringViewModel = {
-        BoringViewModel(
+    lazy var vm: NotchViewModel = {
+        NotchViewModel(
             coordinator: coordinator,
             detector: fullscreenDetector,
             services: pluginManager.services,
@@ -122,7 +122,7 @@ final class AppObjectGraph {
 
     var window: NSWindow? { windowCoordinator.window }
     var windows: [String: NSWindow] { windowCoordinator.windows }
-    var viewModels: [String: BoringViewModel] { windowCoordinator.viewModels }
+    var viewModels: [String: NotchViewModel] { windowCoordinator.viewModels }
 
     var isScreenLocked: Bool {
         get { windowCoordinator.isScreenLocked }

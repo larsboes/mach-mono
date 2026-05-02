@@ -1,6 +1,6 @@
 //
 //  HabitModels.swift
-//  boringNotch
+//  machNotch
 //
 //  Data models for the Habit Tracker plugin.
 //

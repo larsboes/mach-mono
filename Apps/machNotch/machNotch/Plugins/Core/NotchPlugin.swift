@@ -1,6 +1,6 @@
 //
 //  NotchPlugin.swift
-//  boringNotch
+//  machNotch
 //
 //  Core plugin protocol that every plugin must implement.
 //
@@ -14,7 +14,7 @@ import Combine
 /// Defines identity, lifecycle, and UI slots.
 @MainActor
 protocol NotchPlugin: Identifiable, Observable, AnyObject {
-    /// Unique reverse-DNS identifier (e.g., "com.boringnotch.music")
+    /// Unique reverse-DNS identifier (e.g., "com.machnotch.music")
     var id: String { get }
 
     /// Display metadata for settings UI
@@ -135,7 +135,7 @@ struct PluginMetadata: Sendable, Hashable {
         description: String,
         icon: String,
         version: String = "1.0.0",
-        author: String = "boringNotch",
+        author: String = "machNotch",
         category: PluginCategory = .utilities
     ) {
         self.name = name

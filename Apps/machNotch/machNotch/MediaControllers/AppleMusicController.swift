@@ -1,6 +1,6 @@
 //
 //  AppleMusicController.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2025-03-29.
 //

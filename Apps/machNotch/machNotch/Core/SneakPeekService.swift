@@ -1,8 +1,8 @@
 //
 //  SneakPeekService.swift
-//  boringNotch
+//  machNotch
 //
-//  Extracted from BoringViewCoordinator — handles sneak peek and expanding view state.
+//  Extracted from NotchViewCoordinator — handles sneak peek and expanding view state.
 //
 
 import Combine
@@ -70,7 +70,7 @@ final class SneakPeekService: SneakPeekServiceProtocol {
         self.onMicStatusChange = onMicStatusChange
 
         // NOTE: Do NOT auto-subscribe here. The coordinator already subscribes
-        // to SneakPeekRequestedEvent in BoringViewCoordinator+Plugins.swift.
+        // to SneakPeekRequestedEvent in NotchViewCoordinator+Plugins.swift.
         // Call subscribeToSneakPeekEvents() only when this service replaces the
         // coordinator as the single source of truth for sneak peek state.
     }

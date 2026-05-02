@@ -1,6 +1,6 @@
 //
 //  PluginContext.swift
-//  boringNotch
+//  machNotch
 //
 //  Dependency injection context provided to plugins during activation.
 //  Uses existing types from the codebase - does NOT redefine them.

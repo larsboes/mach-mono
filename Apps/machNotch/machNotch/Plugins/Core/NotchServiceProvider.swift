@@ -1,6 +1,6 @@
 //
 //  NotchServiceProvider.swift
-//  boringNotch
+//  machNotch
 //
 
 import Foundation

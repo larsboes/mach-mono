@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  boringNotchApp
+//  machNotchApp
 //
 //  Created by Harsh Vardhan Goswami  on 02/08/24
 //  Modified by Richard Kunkli on 24/08/2024.
@@ -12,11 +12,11 @@ import SwiftUI
 
 @MainActor
 struct ContentView: View {
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.pluginManager) var pluginManager
     @Environment(\.settings) var settings
 
-    @Environment(BoringViewCoordinator.self) var coordinator
+    @Environment(NotchViewCoordinator.self) var coordinator
     @Environment(NotchStateMachine.self) var stateMachine
     @Environment(\.showSettingsWindow) var showSettingsWindow
 
@@ -208,7 +208,7 @@ struct ContentView: View {
     @ViewBuilder
     var dragDetector: some View {
         @Bindable var vm = vm
-        if settings.boringShelf && vm.notchState == .closed, let pluginManager {
+        if settings.shelfEnabled && vm.notchState == .closed, let pluginManager {
             Color.clear
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .contentShape(Rectangle())
@@ -228,7 +228,7 @@ struct ContentView: View {
 }
 
 #Preview {
-    let vm = BoringViewModel()
+    let vm = NotchViewModel()
     ContentView()
         .environment(vm)
         .environment(NotchStateMachine(settings: MockNotchSettings()))

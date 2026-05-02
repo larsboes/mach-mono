@@ -1,6 +1,6 @@
 //
 //  HoverZoneManager.swift
-//  boringNotch
+//  machNotch
 //
 //  Single source of truth for hover zone geometry.
 //  Uses fixed screen coordinates, decoupled from animated view bounds.

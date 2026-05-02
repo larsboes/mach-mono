@@ -1,6 +1,6 @@
 //
 //  ShelfMenuDialogs.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted from ShelfActionService.swift — Open With panel and Rename dialog.
 //

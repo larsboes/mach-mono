@@ -1,6 +1,6 @@
 //
 //  SoundService.swift
-//  boringNotch
+//  machNotch
 //
 //  Created as part of Polishing phase.
 //  Handles sound effects playback with safe error handling.
@@ -19,7 +19,7 @@ protocol SoundServiceProtocol: Sendable {
 // MARK: - Sound Effects
 
 enum SoundEffect: String, Sendable {
-    case welcome = "boring"
+    case welcome = "welcome"
     // Add more sounds here as needed
     // case click
     // case success

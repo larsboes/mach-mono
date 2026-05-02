@@ -1,6 +1,6 @@
 //
 //  ImageService.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2025-09-13.
 //

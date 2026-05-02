@@ -1,6 +1,6 @@
 //
 //  DragDetectionCoordinator.swift
-//  boringNotch
+//  machNotch
 //
 //  Created as part of Phase 3 architectural refactoring.
 //  Extracted from AppDelegate - handles drag detection for opening the notch.

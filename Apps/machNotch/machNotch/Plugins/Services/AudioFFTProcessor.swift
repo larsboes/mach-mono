@@ -1,6 +1,6 @@
 //
 //  AudioFFTProcessor.swift
-//  boringNotch
+//  machNotch
 //
 //  Converts raw PCM samples into normalized frequency band magnitudes.
 //  Uses Accelerate vDSP for real-time performance.

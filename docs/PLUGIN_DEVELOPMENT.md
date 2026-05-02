@@ -1,6 +1,6 @@
 # Plugin Development Guide
 
-This guide explains how to create a plugin for boringNotch, demonstrating how to build a first-class feature that integrates seamlessly with the notch.
+This guide explains how to create a plugin for machNotch, demonstrating how to build a first-class feature that integrates seamlessly with the notch.
 
 ## ⚡️ The Philosophy
 
@@ -21,7 +21,7 @@ import SwiftUI
 @Observable
 final class MyFeaturePlugin: NotchPlugin {
     // 1. Identity
-    let id = "com.boringnotch.myfeature"
+    let id = "com.machnotch.myfeature"
     
     let metadata = PluginMetadata(
         name: "My Feature",

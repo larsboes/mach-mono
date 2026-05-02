@@ -1,6 +1,6 @@
 //
 //  ScreenCaptureKitAudioService.swift
-//  boringNotch
+//  machNotch
 //
 //  Captures system audio via ScreenCaptureKit.
 //  Requires macOS 13+. Uses minimal dummy video to satisfy SCStream requirements.
@@ -49,7 +49,7 @@ final class ScreenCaptureKitAudioService: AudioCaptureServiceProtocol {
         let video = DummyVideoOutput()
 
         // Serial queue ensures AudioStreamOutput's batch accumulator is accessed safely.
-        let audioQueue = DispatchQueue(label: "com.boringnotch.sck.audio", qos: .userInteractive)
+        let audioQueue = DispatchQueue(label: "com.machnotch.sck.audio", qos: .userInteractive)
         let stream = SCStream(filter: filter, configuration: config, delegate: nil)
         try stream.addStreamOutput(audio, type: .audio, sampleHandlerQueue: audioQueue)
         try stream.addStreamOutput(video, type: .screen, sampleHandlerQueue: .global(qos: .background))

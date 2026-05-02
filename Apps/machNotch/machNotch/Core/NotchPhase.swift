@@ -1,6 +1,6 @@
 //
 //  NotchPhase.swift
-//  boringNotch
+//  machNotch
 //
 //  Represents the UI phase of the notch with explicit transition states.
 //  Using phases instead of binary open/closed enables proper animation coordination.

@@ -1,6 +1,6 @@
 //
 //  YouTubeMusicController+WebSocket.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted WebSocket handling from YouTubeMusicController.
 //

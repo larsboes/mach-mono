@@ -1,4 +1,4 @@
-# boringNotch Feature Ideas
+# machNotch Feature Ideas
 
 > **Design Principle:** Every feature is a plugin. No vendor lock-in. Data is exportable. APIs are local-first.
 > 
@@ -24,7 +24,7 @@ Every feature—including built-in ones like Music, Calendar, Shelf—should be 
 ### Integration Philosophy
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    boringNotch Core                             │
+│                    machNotch Core                             │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │
 │  │ Plugin Host │  │ Data Layer  │  │ Local API   │             │
 │  │             │  │ (Exportable)│  │ (REST/gRPC) │             │
@@ -148,15 +148,15 @@ protocol SyncProvider {
 ### Plugin Distribution
 ```
 Formats:
-├── .boringplugin        # Signed bundle (like .app)
+├── .machplugin          # Signed bundle (like .app)
 ├── Swift Package        # Source distribution via SPM
 ├── npm package          # For JS/WebView plugins
 └── GitHub release       # Direct download
 
 Discovery:
 ├── Built-in catalog     # Curated, reviewed plugins
-├── GitHub topics        # #boringnotch-plugin
-└── Local folder         # ~/Library/Application Support/boringNotch/Plugins/
+├── GitHub topics        # #machnotch-plugin
+└── Local folder         # ~/Library/Application Support/machNotch/Plugins/
 ```
 
 ---
@@ -164,7 +164,7 @@ Discovery:
 ## 2. Local API Server
 
 ### Purpose
-Expose boringNotch functionality to external apps, scripts, and automations.
+Expose machNotch functionality to external apps, scripts, and automations.
 
 ### Implementation
 ```swift
@@ -211,16 +211,16 @@ final class LocalAPIServer {
 ### CLI Tool
 ```bash
 # Ship a CLI for power users
-$ boringnotch status
+$ machnotch status
 Notch: closed
 Active plugins: music, calendar, shelf, habit-tracker
 
-$ boringnotch export --format csv --output ~/Desktop/
-Exported 4 plugins to ~/Desktop/boringnotch-export-2025-12-30/
+$ machnotch export --format csv --output ~/Desktop/
+Exported 4 plugins to ~/Desktop/machnotch-export-2025-12-30/
 
-$ boringnotch plugin install github:user/cool-plugin
+$ machnotch plugin install github:user/cool-plugin
 
-$ boringnotch api start --port 19384
+$ machnotch api start --port 19384
 Local API server running at http://localhost:19384
 ```
 
@@ -231,7 +231,7 @@ Local API server running at http://localhost:19384
 ### Music Plugin
 ```swift
 struct MusicPlugin: NotchPlugin {
-    let id = "com.boringnotch.music"
+    let id = "com.machnotch.music"
     
     // Data export
     func exportData(format: ExportFormat) async throws -> Data {
@@ -253,7 +253,7 @@ struct MusicPlugin: NotchPlugin {
 ### Calendar Plugin
 ```swift
 struct CalendarPlugin: NotchPlugin {
-    let id = "com.boringnotch.calendar"
+    let id = "com.machnotch.calendar"
     
     // Export: iCal format for portability
     func exportData(format: ExportFormat) async throws -> Data {
@@ -268,7 +268,7 @@ struct CalendarPlugin: NotchPlugin {
 ### Shelf Plugin
 ```swift
 struct ShelfPlugin: NotchPlugin {
-    let id = "com.boringnotch.shelf"
+    let id = "com.machnotch.shelf"
     
     // Export: File list, metadata
     func exportData(format: ExportFormat) async throws -> Data {
@@ -292,7 +292,7 @@ struct ShelfPlugin: NotchPlugin {
 
 ```swift
 struct HabitTrackerPlugin: NotchPlugin {
-    let id = "com.boringnotch.habits"
+    let id = "com.machnotch.habits"
     
     struct HabitData: Codable {
         var habits: [Habit]
@@ -356,7 +356,7 @@ struct HabitTrackerPlugin: NotchPlugin {
 
 ```swift
 struct PomodoroPlugin: NotchPlugin {
-    let id = "com.boringnotch.pomodoro"
+    let id = "com.machnotch.pomodoro"
     
     struct SessionData: Codable {
         var sessions: [PomodoroSession]
@@ -405,7 +405,7 @@ struct PomodoroPlugin: NotchPlugin {
 
 ```swift
 struct SystemStatsPlugin: NotchPlugin {
-    let id = "com.boringnotch.stats"
+    let id = "com.machnotch.stats"
     
     // Real-time metrics
     struct SystemMetrics: Codable {
@@ -442,7 +442,7 @@ struct SystemStatsPlugin: NotchPlugin {
 
 ```swift
 struct QuickNotesPlugin: NotchPlugin {
-    let id = "com.boringnotch.notes"
+    let id = "com.machnotch.notes"
     
     struct Note: Codable, Identifiable {
         let id: UUID
@@ -470,7 +470,7 @@ struct QuickNotesPlugin: NotchPlugin {
     // Sync: File-based for Obsidian/iA Writer/etc.
     var syncProviders: [SyncProvider] {
         [
-            FileSyncProvider(path: "~/Documents/boringNotch Notes"),
+            FileSyncProvider(path: "~/Documents/machNotch Notes"),
             ObsidianVaultProvider(vaultPath: userVaultPath),
             AppleNotesProvider(),  // Via Shortcuts
         ]
@@ -489,7 +489,7 @@ struct QuickNotesPlugin: NotchPlugin {
 
 ```swift
 struct ClipboardPlugin: NotchPlugin {
-    let id = "com.boringnotch.clipboard"
+    let id = "com.machnotch.clipboard"
     
     struct ClipboardEntry: Codable, Identifiable {
         let id: UUID
@@ -538,7 +538,7 @@ struct ClipboardPlugin: NotchPlugin {
 
 ```swift
 struct AudioVisualizerPlugin: NotchPlugin {
-    let id = "com.boringnotch.visualizer"
+    let id = "com.machnotch.visualizer"
     
     // Visualizer presets (extendable)
     var presets: [VisualizerPreset] = [
@@ -579,7 +579,7 @@ protocol VisualizerPreset {
 
 ```swift
 struct MeetingModePlugin: NotchPlugin {
-    let id = "com.boringnotch.meeting"
+    let id = "com.machnotch.meeting"
     
     struct MeetingSession: Codable {
         let id: UUID
@@ -610,7 +610,7 @@ struct MeetingModePlugin: NotchPlugin {
     // Integration with calendar
     func upcomingMeetings() async -> [CalendarEvent] {
         // Query calendar plugin
-        await pluginManager.send(.query("upcoming-events"), to: "com.boringnotch.calendar")
+        await pluginManager.send(.query("upcoming-events"), to: "com.machnotch.calendar")
     }
 }
 ```
@@ -743,7 +743,7 @@ struct SmartSummaries {
 ```swift
 struct OpenNotchIntent: AppIntent {
     static var title: LocalizedStringResource = "Open Notch"
-    static var description = IntentDescription("Opens the boringNotch panel")
+    static var description = IntentDescription("Opens the machNotch panel")
     
     @Parameter(title: "Tab")
     var tab: NotchTab?
@@ -755,7 +755,7 @@ struct OpenNotchIntent: AppIntent {
 }
 
 struct ExportDataIntent: AppIntent {
-    static var title: LocalizedStringResource = "Export boringNotch Data"
+    static var title: LocalizedStringResource = "Export machNotch Data"
     
     @Parameter(title: "Plugin")
     var plugin: String?
@@ -782,17 +782,17 @@ struct ExportDataIntent: AppIntent {
 ### 6.2 URL Scheme
 
 ```
-boringnotch://open                     # Open notch
-boringnotch://open?tab=calendar        # Open specific tab
-boringnotch://plugin/habits/complete?id=xxx
-boringnotch://export?format=json&plugin=all
-boringnotch://shelf/add?url=file:///path/to/file
+machnotch://open                     # Open notch
+machnotch://open?tab=calendar        # Open specific tab
+machnotch://plugin/habits/complete?id=xxx
+machnotch://export?format=json&plugin=all
+machnotch://shelf/add?url=file:///path/to/file
 ```
 
 ### 6.3 AppleScript/JXA Support
 
 ```applescript
-tell application "boringNotch"
+tell application "machNotch"
     open notch
     set current tab to "calendar"
     
@@ -826,7 +826,7 @@ export default async function Command() {
 // For "Send to Shelf" from browser
 browser.contextMenus.create({
   id: "send-to-shelf",
-  title: "Send to boringNotch Shelf",
+  title: "Send to machNotch Shelf",
   contexts: ["link", "image", "selection"]
 });
 
@@ -999,10 +999,10 @@ struct DataEncryption {
 
 ```bash
 # Install plugin development tools
-$ brew install boringnotch-sdk
+$ brew install machnotch-sdk
 
 # Create new plugin
-$ boringnotch-sdk create my-plugin
+$ machnotch-sdk create my-plugin
 Creating plugin at ./my-plugin...
 ├── Package.swift
 ├── Sources/
@@ -1013,15 +1013,15 @@ Creating plugin at ./my-plugin...
 └── README.md
 
 # Build and test
-$ boringnotch-sdk build
-$ boringnotch-sdk test
+$ machnotch-sdk build
+$ machnotch-sdk test
 
 # Run in dev mode (hot reload)
-$ boringnotch-sdk dev
+$ machnotch-sdk dev
 
 # Package for distribution
-$ boringnotch-sdk package
-Created: my-plugin.boringplugin
+$ machnotch-sdk package
+Created: my-plugin.machplugin
 ```
 
 ### Plugin Documentation Template
@@ -1062,4 +1062,4 @@ This plugin:
 4. **Open APIs** - Other apps can integrate freely
 5. **No lock-in** - Standard formats, easy migration
 
-This architecture ensures boringNotch remains a **platform** that respects user autonomy while enabling a rich ecosystem of extensions and integrations.
+This architecture ensures machNotch remains a **platform** that respects user autonomy while enabling a rich ecosystem of extensions and integrations.

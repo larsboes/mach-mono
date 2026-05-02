@@ -4,7 +4,7 @@ import Security
 /// Bearer token authentication middleware using the Keychain.
 /// Thread-safe — token loaded once at init, cached in memory.
 final class APIAuthMiddleware: @unchecked Sendable {
-    private let account = "me.theboringteam.boringnotch.api.token"
+    private let account = "me.com.larsboes.machnotch.api.token"
     private let lock = NSLock()
     private var cachedToken: String?
 

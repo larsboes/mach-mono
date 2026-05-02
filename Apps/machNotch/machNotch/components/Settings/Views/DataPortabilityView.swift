@@ -1,6 +1,6 @@
 //
 //  DataPortabilityView.swift
-//  boringNotch
+//  machNotch
 //
 //  Settings view for exporting plugin data.
 //

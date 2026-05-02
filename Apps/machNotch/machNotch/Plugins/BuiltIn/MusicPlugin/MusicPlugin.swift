@@ -1,6 +1,6 @@
 //
 //  MusicPlugin.swift
-//  boringNotch
+//  machNotch
 //
 //  Built-in music player plugin.
 //  Wraps MusicService to provide playback controls in the notch.
@@ -29,7 +29,7 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
         description: "Control music playback from the notch",
         icon: "music.note",
         version: "1.0.0",
-        author: "boringNotch",
+        author: "machNotch",
         category: .media
     )
 

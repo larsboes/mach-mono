@@ -1,5 +1,5 @@
 //  BrightnessManager.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by JeanLouis on 08/22/24.
 

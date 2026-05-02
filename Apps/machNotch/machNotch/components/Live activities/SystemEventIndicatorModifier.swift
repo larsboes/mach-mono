@@ -1,6 +1,6 @@
 //
     //  SystemEventIndicatorModifier.swift
-    //  boringNotch
+    //  machNotch
     //
     //  Created by Richard Kunkli on 12/08/2024.
     //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SystemEventIndicatorModifier: View {
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.settings) var settings
     @Binding var eventType: SneakContentType
     @Binding var value: CGFloat {
@@ -95,7 +95,7 @@ struct SystemEventIndicatorModifier: View {
 }
 
 struct DraggableProgressBar: View {
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.settings) var settings
     @Binding var value: CGFloat
     var onChange: ((CGFloat) -> Void)?

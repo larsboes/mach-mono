@@ -1,6 +1,6 @@
 //
 //  MockNotchSettings.swift
-//  boringNotch
+//  machNotch
 //
 //  Mock implementation of NotchSettings for unit testing.
 //  All properties are mutable with sensible defaults.
@@ -86,7 +86,7 @@ final class MockNotchSettings: NotchSettings {
     var minimumHoverDuration: TimeInterval = 0.3
 
     // MARK: - Shelf Settings
-    var boringShelf: Bool = true
+    var shelfEnabled: Bool = true
     var openShelfByDefault: Bool = false
     var shelfTapToOpen: Bool = true
     var expandedDragDetection: Bool = true
@@ -107,7 +107,7 @@ final class MockNotchSettings: NotchSettings {
     var hideNonNotchedFromMissionControl: Bool = true
     var useCustomAccentColor: Bool = false
     var customAccentColorData: Data?
-    var releaseName: String = "Boring Notch"
+    var releaseName: String = "machNotch"
     var nonNotchHeight: Double = 23.0
     var nonNotchHeightMode: WindowHeightMode = .matchMenuBar
     var notchHeight: Double = 38.0

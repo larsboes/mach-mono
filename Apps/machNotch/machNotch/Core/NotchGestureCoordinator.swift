@@ -1,6 +1,6 @@
 //
 //  NotchGestureCoordinator.swift
-//  boringNotch
+//  machNotch
 //
 
 import SwiftUI

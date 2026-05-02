@@ -1,6 +1,6 @@
 //
 //  TabSelectionView.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Hugo Persson on 2024-08-25.
 //
@@ -25,7 +25,7 @@ private let coreTabs = [
 private let weatherTab = TabModel(label: "Weather", icon: "cloud.sun.fill", view: .weather)
 
 struct TabSelectionView: View {
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.settings) var settings
     @Namespace var animation
 
@@ -67,5 +67,5 @@ struct TabSelectionView: View {
 }
 
 #Preview {
-    BoringHeader().environment(BoringViewModel())
+    NotchHeader().environment(NotchViewModel())
 }

@@ -1,6 +1,6 @@
 //
 //  TeleprompterShortcutHandler.swift
-//  boringNotch
+//  machNotch
 //
 //  Standalone keyboard shortcut handler for the Teleprompter plugin.
 //  All shortcuts are user-configurable — no default key combos.

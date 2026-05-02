@@ -14,7 +14,7 @@ Every plugin MUST:
 @Observable
 @MainActor
 final class MyPlugin: NotchPlugin {
-    let id = "com.boringnotch.myplugin"
+    let id = "com.machnotch.myplugin"
     let name = "My Plugin"
 
     private var services: ServiceContainer?

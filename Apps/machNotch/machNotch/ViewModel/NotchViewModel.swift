@@ -1,6 +1,6 @@
 //
-//  BoringViewModel.swift
-//  boringNotch
+//  NotchViewModel.swift
+//  machNotch
 //
 //  Created by Harsh Vardhan  Goswami  on 04/08/24.
 //  Refactored: Thin orchestrator using extracted controllers
@@ -11,7 +11,7 @@ import Defaults
 import SwiftUI
 
 @MainActor
-@Observable class BoringViewModel: NotchPhaseDelegate {
+@Observable class NotchViewModel: NotchPhaseDelegate {
     // MARK: - Dependencies
     let coordinator: any ViewCoordinating
     private let detector: FullscreenMediaDetector
@@ -22,11 +22,11 @@ import SwiftUI
     let observerSetup: NotchObserverManager
     let phaseCoordinator = NotchPhaseCoordinator()
 
-    let animation: Animation = BoringAnimations.animation
+    let animation: Animation = NotchAnimations.animation
 
     var gestureCoordinator = NotchGestureCoordinator()
 
-    /// Per-screen navigation state. Each BoringViewModel owns its own currentView,
+    /// Per-screen navigation state. Each NotchViewModel owns its own currentView,
     /// so multi-display mode has independent navigation per screen.
     var currentView: NotchViews = .home
 
@@ -206,7 +206,7 @@ import SwiftUI
         setupEarsObserver()
     }
 
-    // Defined in BoringViewModel+Observers.swift
+    // Defined in NotchViewModel+Observers.swift
 
     @MainActor
     convenience init() {
@@ -220,7 +220,7 @@ import SwiftUI
         )
         
         self.init(
-            coordinator: BoringViewCoordinator(settings: mockSettings, xpcHelper: XPCHelperClient.shared),
+            coordinator: NotchViewCoordinator(settings: mockSettings, xpcHelper: XPCHelperClient.shared),
             detector: FullscreenMediaDetector(musicService: musicService, settings: mockSettings),
             services: mockServices,
             displaySettings: mockSettings
@@ -248,9 +248,9 @@ import SwiftUI
     }
 
     func syncWindowState() {
-        if let boringWindow = window as? BoringNotchWindow {
-            boringWindow.isNotchOpen = phase.isInteractive
-        } else if let skyLightWindow = window as? BoringNotchSkyLightWindow {
+        if let machWindow = window as? NotchWindow {
+            machWindow.isNotchOpen = phase.isInteractive
+        } else if let skyLightWindow = window as? NotchSkyLightWindow {
             skyLightWindow.isNotchOpen = phase.isInteractive
         }
     }

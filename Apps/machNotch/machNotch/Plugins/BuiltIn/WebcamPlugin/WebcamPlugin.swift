@@ -1,6 +1,6 @@
 //
 //  WebcamPlugin.swift
-//  boringNotch
+//  machNotch
 //
 //  Built-in webcam plugin.
 //  Wraps WebcamManager to provide camera mirror.
@@ -21,7 +21,7 @@ final class WebcamPlugin: NotchPlugin {
         description: "Mirror your camera in the notch",
         icon: "camera.fill",
         version: "1.0.0",
-        author: "boringNotch",
+        author: "machNotch",
         category: .utilities
     )
     

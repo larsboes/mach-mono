@@ -1,6 +1,6 @@
 //
 //  PluginEventBus.swift
-//  boringNotch
+//  machNotch
 //
 //  Central event bus for inter-plugin communication.
 //  Enables loose coupling between plugins.

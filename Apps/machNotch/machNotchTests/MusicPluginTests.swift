@@ -1,6 +1,6 @@
 //
 //  MusicPluginTests.swift
-//  boringNotchTests
+//  machNotchTests
 //
 //  Created for Phase 6: Unit Tests
 //
@@ -46,7 +46,7 @@ final class MusicPluginTests: XCTestCase {
         let appState = MockAppState()
         
         context = PluginContext(
-            settings: PluginSettings(pluginId: "com.boringnotch.music"),
+            settings: PluginSettings(pluginId: "com.machnotch.music"),
             services: container,
             eventBus: eventBus,
             appState: appState

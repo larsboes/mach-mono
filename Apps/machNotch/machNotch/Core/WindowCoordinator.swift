@@ -1,6 +1,6 @@
 //
 //  WindowCoordinator.swift
-//  boringNotch
+//  machNotch
 //
 //  Created as part of Phase 3 architectural refactoring.
 //  Extracted from AppDelegate - handles window creation, positioning, and multi-display support.
@@ -16,11 +16,11 @@ final class WindowCoordinator {
     // MARK: - Properties
     var window: NSWindow?
     var windows: [String: NSWindow] = [:]
-    var viewModels: [String: BoringViewModel] = [:]
+    var viewModels: [String: NotchViewModel] = [:]
     var stateMachines: [String: NotchStateMachine] = [:]
-    let primaryViewModel: BoringViewModel
+    let primaryViewModel: NotchViewModel
     lazy var primaryStateMachine: NotchStateMachine = NotchStateMachine(settings: settings)
-    let coordinator: BoringViewCoordinator
+    let coordinator: NotchViewCoordinator
     let settings: NotchSettings
     let pluginManager: PluginManager
     let detector: FullscreenMediaDetector
@@ -48,8 +48,8 @@ final class WindowCoordinator {
 
     // MARK: - Initialization
     init(
-        primaryViewModel: BoringViewModel,
-        coordinator: BoringViewCoordinator,
+        primaryViewModel: NotchViewModel,
+        coordinator: NotchViewCoordinator,
         settings: NotchSettings,
         pluginManager: PluginManager,
         detector: FullscreenMediaDetector,
@@ -94,11 +94,11 @@ final class WindowCoordinator {
     }
 
     // MARK: - Window Creation
-    func createBoringNotchWindow(for screen: NSScreen, with viewModel: BoringViewModel, stateMachine: NotchStateMachine) -> NSWindow {
+    func createNotchWindow(for screen: NSScreen, with viewModel: NotchViewModel, stateMachine: NotchStateMachine) -> NSWindow {
         let rect = NSRect(x: 0, y: 0, width: windowSize.width, height: windowSize.height)
         let styleMask: NSWindow.StyleMask = [.borderless, .nonactivatingPanel, .utilityWindow, .hudWindow]
 
-        let window = BoringNotchSkyLightWindow(
+        let window = NotchSkyLightWindow(
             contentRect: rect,
             styleMask: styleMask,
             backing: .buffered,
@@ -166,7 +166,7 @@ final class WindowCoordinator {
     }
 
     // MARK: - ViewModel Access
-    func viewModel(for screenUUID: String) -> BoringViewModel? {
+    func viewModel(for screenUUID: String) -> NotchViewModel? {
         if settings.showOnAllDisplays {
             return viewModels[screenUUID]
         } else {
@@ -174,7 +174,7 @@ final class WindowCoordinator {
         }
     }
 
-    func viewModel(at point: NSPoint) -> BoringViewModel {
+    func viewModel(at point: NSPoint) -> NotchViewModel {
         if settings.showOnAllDisplays {
             for screen in NSScreen.screens {
                 if screen.frame.contains(point) {

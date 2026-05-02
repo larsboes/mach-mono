@@ -1,6 +1,6 @@
 //
 //  PluginMenuBarItems.swift
-//  boringNotch
+//  machNotch
 //
 //  Renders active plugin contributions inside the app's MenuBarExtra dropdown.
 //

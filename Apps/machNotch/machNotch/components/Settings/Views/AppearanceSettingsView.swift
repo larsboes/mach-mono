@@ -1,6 +1,6 @@
 //
 //  AppearanceSettingsView.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Richard Kunkli on 07/08/2024.
 //
@@ -127,7 +127,7 @@ struct Appearance: View {
                     panel.message = "Select Background Image"
                     
                     if panel.runModal() == .OK, let sourceURL = panel.url {
-                        if let copiedURL = BoringViewModel.copyBackgroundImageToAppStorage(sourceURL: sourceURL) {
+                        if let copiedURL = NotchViewModel.copyBackgroundImageToAppStorage(sourceURL: sourceURL) {
                             settings.backgroundImageURL = copiedURL
                         }
                     }
@@ -139,7 +139,7 @@ struct Appearance: View {
 
             Section {
                 Toggle(isOn: $settings.showMirror) {
-                    Text("Enable boring mirror")
+                    Text("Enable notch mirror")
                 }
                     .disabled(!checkVideoInput())
                 Picker("Mirror shape", selection: $settings.mirrorShape) {

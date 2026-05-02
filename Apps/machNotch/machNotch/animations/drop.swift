@@ -1,6 +1,6 @@
 //
 //  drop.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Harsh Vardhan  Goswami  on  04/08/24.
 //
@@ -83,7 +83,7 @@ enum StandardAnimations {
     }
 }
 
-enum BoringAnimations {
+enum NotchAnimations {
     static var animation: Animation {
         if #available(macOS 14.0, *) {
             StandardAnimations.bouncy

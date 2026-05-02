@@ -23,7 +23,7 @@ machNotch/
 │   │                        # SneakPeekService, KeyboardShortcutCoordinator
 │   └── Settings             # DefaultsNotchSettings (+extensions), NotchSettings,
 │                            # NotchViewModelSettings, Constants, DefaultsKeys, SettingsTypes
-├── ViewModel/               # BoringViewModel + extensions (Camera, Hover, Observers, OpenClose)
+├── ViewModel/               # NotchViewModel + extensions (Camera, Hover, Observers, OpenClose)
 ├── models/                  # Pure data models only (CalendarModel, EventModel, PlaybackState, etc.)
 ├── Plugins/
 │   ├── Core/                # PluginManager, NotchPlugin, PluginEventBus, PluginSettings
@@ -43,7 +43,7 @@ machNotch/
 │   ├── Effects/             # LiquidGlass, MetalBlurView
 │   ├── Live activities/     # HUD views (shared across plugins)
 │   └── Tabs/                # Tab navigation
-├── BoringViewCoordinator    # Shared cross-screen state (sneakPeek, expandingView)
+├── NotchViewCoordinator    # Shared cross-screen state (sneakPeek, expandingView)
 ├── AppObjectGraph           # DI root — constructs all services and coordinators
 ├── ContentView              # + Appearance, SubViews extensions
 ├── sizing/                  # matters.swift — pure sizing functions
@@ -83,15 +83,15 @@ machNotch/
 
 | Component | Owns | Does NOT own |
 |-----------|------|-------------|
-| **BoringViewModel** | Per-screen state, notch open/close, sizing delegation | Shared UI state |
-| **BoringViewCoordinator** | Shared cross-screen state (sneakPeek, expandingView, helloAnimation) | Per-screen state |
+| **NotchViewModel** | Per-screen state, notch open/close, sizing delegation | Shared UI state |
+| **NotchViewCoordinator** | Shared cross-screen state (sneakPeek, expandingView, helloAnimation) | Per-screen state |
 | **NotchSizeCalculator** | ALL closed-notch sizing via `ClosedNotchInput` struct | Service dependencies |
 | **NotchStateMachine** | Display state determination (pure domain) | UI, services |
 | **NotchContentRouter** | Which content to show for each display state | State determination |
 
 ## Sizing Subsystem
 
-`NotchSizeCalculator` is the single source of truth for closed notch geometry. It receives a `ClosedNotchInput` value type (no service deps) and computes `effectiveClosedNotchSize`, `effectiveClosedNotchHeight`, `chinHeight`. BoringViewModel constructs the input and delegates.
+`NotchSizeCalculator` is the single source of truth for closed notch geometry. It receives a `ClosedNotchInput` value type (no service deps) and computes `effectiveClosedNotchSize`, `effectiveClosedNotchHeight`, `chinHeight`. NotchViewModel constructs the input and delegates.
 
 ## Files to Not Touch
 - `Plugins/Core/NotchPlugin.swift` — stable protocol

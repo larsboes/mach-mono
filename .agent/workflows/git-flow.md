@@ -1,5 +1,5 @@
 ---
-description: Standardized development workflow for boring.notch
+description: Standardized development workflow for machNotch
 ---
 
 # /git-flow

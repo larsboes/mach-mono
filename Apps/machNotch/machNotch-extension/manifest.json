@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "boringNotch Connector",
+  "name": "machNotch Connector",
   "version": "1.0",
-  "description": "Connects browser media playback to boringNotch",
+  "description": "Connects browser media playback to machNotch",
   "permissions": [
     "activeTab",
     "scripting",

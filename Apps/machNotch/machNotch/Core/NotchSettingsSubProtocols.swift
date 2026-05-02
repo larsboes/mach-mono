@@ -1,6 +1,6 @@
 //
 //  NotchSettingsSubProtocols.swift
-//  boringNotch
+//  machNotch
 //
 //  ISP-compliant sub-protocols for NotchSettings.
 //  Each protocol groups a cohesive set of settings so consumers
@@ -103,7 +103,7 @@ protocol GestureSettings {
 
 @MainActor
 protocol ShelfSettings {
-    var boringShelf: Bool { get set }
+    var shelfEnabled: Bool { get set }
     var openShelfByDefault: Bool { get set }
     var shelfTapToOpen: Bool { get set }
     var expandedDragDetection: Bool { get set }
@@ -187,7 +187,7 @@ protocol GeneralAppSettings {
 
 // MARK: - Coordinator Settings
 
-/// Composed protocol for BoringViewCoordinator — unions the sub-protocols it actually needs.
+/// Composed protocol for NotchViewCoordinator — unions the sub-protocols it actually needs.
 /// Class-constrained so `let settings: any CoordinatorSettings` allows property mutation.
 @MainActor
 protocol CoordinatorSettings: AnyObject, GeneralAppSettings, HUDSettings, MediaSettings,

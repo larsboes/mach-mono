@@ -1,6 +1,6 @@
 //
 //  YouTubeMusicNetworking.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2025-09-14.
 //
@@ -28,7 +28,7 @@ final class YouTubeMusicHTTPClient {
     
     // MARK: - Authentication
     func authenticate() async throws -> String {
-        guard let url = URL(string: "\(baseURL)/auth/boringNotch") else {
+        guard let url = URL(string: "\(baseURL)/auth/machNotch") else {
             throw YouTubeMusicError.invalidURL
         }
 

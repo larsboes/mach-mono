@@ -1,6 +1,6 @@
 //
 //  YouTubeMusicController+PlaybackState.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted playback state updates from YouTubeMusicController.
 //

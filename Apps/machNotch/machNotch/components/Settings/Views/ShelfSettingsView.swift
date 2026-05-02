@@ -1,6 +1,6 @@
 //
 //  ShelfSettingsView.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Richard Kunkli on 07/08/2024.
 //
@@ -21,7 +21,7 @@ struct Shelf: View {
         @Bindable var settings = settings
         Form {
             Section {
-                Toggle(isOn: $settings.boringShelf) {
+                Toggle(isOn: $settings.shelfEnabled) {
                     Text("Enable shelf")
                 }
                 Toggle(isOn: $settings.openShelfByDefault) {

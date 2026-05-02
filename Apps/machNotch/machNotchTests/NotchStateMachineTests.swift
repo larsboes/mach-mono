@@ -1,6 +1,6 @@
 //
 //  NotchStateMachineTests.swift
-//  boringNotchTests
+//  machNotchTests
 //
 //  Unit tests for NotchStateMachine.
 //  Tests state computation logic extracted from ContentView.
@@ -48,7 +48,7 @@ final class NotchStateMachineTests: XCTestCase {
         // Enable everything else to ensure hello animation takes priority
         input.notchState = .open
         input.isPlaying = true
-        input.activePluginId = "com.boringnotch.music"
+        input.activePluginId = "com.machnotch.music"
         input.sneakPeek = SneakPeekState(show: true, type: .volume, value: 0.5, icon: "speaker")
         
         let state = stateMachine.computeDisplayState(from: input)
@@ -75,7 +75,7 @@ final class NotchStateMachineTests: XCTestCase {
 
         var input = makeDefaultInput()
         input.notchState = .open
-        input.activePluginId = "com.boringnotch.music"
+        input.activePluginId = "com.machnotch.music"
 
         let state = stateMachine.computeDisplayState(from: input)
 
@@ -114,14 +114,14 @@ final class NotchStateMachineTests: XCTestCase {
 
         var input = makeDefaultInput()
         input.notchState = .closed
-        input.activePluginId = "com.boringnotch.music"
+        input.activePluginId = "com.machnotch.music"
         input.hideOnClosed = false
 
         let state = stateMachine.computeDisplayState(from: input)
 
         if case .closed(let content) = state {
             if case .plugin(let id) = content {
-                XCTAssertEqual(id, "com.boringnotch.music")
+                XCTAssertEqual(id, "com.machnotch.music")
             } else {
                 XCTFail("Expected plugin content")
             }
@@ -135,13 +135,13 @@ final class NotchStateMachineTests: XCTestCase {
 
         var input = makeDefaultInput()
         input.notchState = .closed
-        input.activePluginId = "com.boringnotch.battery"
+        input.activePluginId = "com.machnotch.battery"
         
         let state = stateMachine.computeDisplayState(from: input)
 
         if case .closed(let content) = state {
             if case .plugin(let id) = content {
-                XCTAssertEqual(id, "com.boringnotch.battery")
+                XCTAssertEqual(id, "com.machnotch.battery")
             } else {
                 XCTFail("Expected plugin content")
             }
@@ -155,13 +155,13 @@ final class NotchStateMachineTests: XCTestCase {
 
         var input = makeDefaultInput()
         input.notchState = .closed
-        input.activePluginId = "com.boringnotch.music"
+        input.activePluginId = "com.machnotch.music"
         input.hideOnClosed = true
 
         let state = stateMachine.computeDisplayState(from: input)
 
         // Should fall through to idle or face
-        XCTAssertNotEqual(state, .closed(content: .plugin("com.boringnotch.music")))
+        XCTAssertNotEqual(state, .closed(content: .plugin("com.machnotch.music")))
     }
 
     // MARK: - Priority 5: Face Animation Tests
@@ -188,14 +188,14 @@ final class NotchStateMachineTests: XCTestCase {
         var input = makeDefaultInput()
         input.notchState = .closed
         input.showNotHumanFace = true
-        input.activePluginId = "com.boringnotch.music"
+        input.activePluginId = "com.machnotch.music"
 
         let state = stateMachine.computeDisplayState(from: input)
 
         // Plugin has higher priority than face
         if case .closed(let content) = state {
             if case .plugin(let id) = content {
-                XCTAssertEqual(id, "com.boringnotch.music")
+                XCTAssertEqual(id, "com.machnotch.music")
             } else {
                 XCTFail("Expected plugin content to override face")
             }
@@ -263,7 +263,7 @@ final class NotchStateMachineTests: XCTestCase {
     func testChinWidthForPlugin() {
         let stateMachine = makeStateMachine()
 
-        stateMachine.transition(to: .closed(content: .plugin("com.boringnotch.music")))
+        stateMachine.transition(to: .closed(content: .plugin("com.machnotch.music")))
 
         let baseWidth: CGFloat = 200
         let notchHeight: CGFloat = 32

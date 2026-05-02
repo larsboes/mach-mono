@@ -1,8 +1,8 @@
 //
 //  NotchObserverManager.swift
-//  boringNotch
+//  machNotch
 //
-//  Extracted from BoringViewModel - handles observer setup and background image management
+//  Extracted from NotchViewModel - handles observer setup and background image management
 //
 
 import Combine
@@ -138,7 +138,7 @@ class NotchObserverManager {
         }
 
         let targetDir = supportDir
-            .appendingPathComponent("boringNotch", isDirectory: true)
+            .appendingPathComponent("machNotch", isDirectory: true)
             .appendingPathComponent("Background", isDirectory: true)
 
         do {

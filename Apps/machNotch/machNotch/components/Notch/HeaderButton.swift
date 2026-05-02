@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Reusable header button component — eliminates copy-paste boilerplate in BoringHeader.
+/// Reusable header button component — eliminates copy-paste boilerplate in NotchHeader.
 struct HeaderButton: View {
     let icon: String
     let isActive: Bool

@@ -1,6 +1,6 @@
 //
 //  LyricsService+WebFetch.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted web fetching and LRC parsing from LyricsService.
 //

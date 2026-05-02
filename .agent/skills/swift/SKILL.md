@@ -11,7 +11,7 @@ Expert guidance for Swift development on Apple platforms, with focus on modern S
 ## When to Use
 
 - Building or refactoring macOS/iOS apps with SwiftUI
-- Working with plugin-based architectures (like boring.notch)
+- Working with plugin-based architectures (like machNotch)
 - Implementing dependency injection without singletons
 - Swift 6 migration and strict concurrency issues
 - Modern concurrency patterns (async/await, actors, Sendable)
@@ -69,7 +69,7 @@ protocol NotchPlugin: Identifiable, Observable, AnyObject {
 ```swift
 // ❌ Don't: Singleton access
 class MyView: View {
-    @StateObject private var vm = BoringViewModel.shared
+    @StateObject private var vm = NotchViewModel.shared
 }
 
 // ✅ Do: Injected via init or environment

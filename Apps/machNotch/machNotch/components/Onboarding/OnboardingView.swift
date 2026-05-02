@@ -1,6 +1,6 @@
 //
 //  OnboardingView.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2025-06-23.
 //  Modified by Arsh Anwar
@@ -24,7 +24,7 @@ private let calendarService = CalendarDataProvider()
 
 struct OnboardingView: View {
     @State var step: OnboardingStep = .welcome
-    @Environment(BoringViewCoordinator.self) var coordinator
+    @Environment(NotchViewCoordinator.self) var coordinator
     let onFinish: () -> Void
     let onOpenSettings: () -> Void
 
@@ -43,7 +43,7 @@ struct OnboardingView: View {
                 PermissionRequestView(
                     icon: Image(systemName: "camera.fill"),
                     title: "Enable Camera Access",
-                    description: "Boring Notch includes a mirror feature that lets you quickly check your appearance using your camera, right from the notch. Camera access is required only to show this live preview. You can turn the mirror feature on or off at any time in the app.",
+                    description: "machNotch includes a mirror feature that lets you quickly check your appearance using your camera, right from the notch. Camera access is required only to show this live preview. You can turn the mirror feature on or off at any time in the app.",
                     privacyNote: "Your camera is never used without your consent, and nothing is recorded or stored.",
                     onAllow: {
                         Task {
@@ -65,7 +65,7 @@ struct OnboardingView: View {
                 PermissionRequestView(
                     icon: Image(systemName: "calendar"),
                     title: "Enable Calendar Access",
-                    description: "Boring Notch can show all your upcoming events in one place. Access to your calendar is needed to display your schedule.",
+                    description: "machNotch can show all your upcoming events in one place. Access to your calendar is needed to display your schedule.",
                     privacyNote: "Your calendar data is only used to show your events and is never shared.",
                     onAllow: {
                         Task {
@@ -87,7 +87,7 @@ struct OnboardingView: View {
                     PermissionRequestView(
                         icon: Image(systemName: "checklist"),
                         title: "Enable Reminders Access",
-                        description: "Boring Notch can show your scheduled reminders alongside your calendar events. Access to Reminders is needed to display your reminders.",
+                        description: "machNotch can show your scheduled reminders alongside your calendar events. Access to Reminders is needed to display your reminders.",
                         privacyNote: "Your reminders data is only used to show your reminders and is never shared.",
                         onAllow: {
                             Task {
@@ -109,7 +109,7 @@ struct OnboardingView: View {
                     PermissionRequestView(
                         icon: Image(systemName: "cloud.sun.fill"),
                         title: "Enable Weather Access",
-                        description: "Boring Notch can display current weather conditions right in the notch. Location access is needed to show weather for your current location.",
+                        description: "machNotch can display current weather conditions right in the notch. Location access is needed to show weather for your current location.",
                         privacyNote: "Your location is only used to fetch weather data and is never shared or stored.",
                         onAllow: {
                             Task {
@@ -131,7 +131,7 @@ struct OnboardingView: View {
                 PermissionRequestView(
                     icon: Image(systemName: "hand.raised.fill"),
                     title: "Enable Accessibility Access",
-                    description: "Accessibility access is required to replace system notifications with the Boring Notch HUD. This allows the app to intercept media and brightness events to display custom HUD overlays.",
+                    description: "Accessibility access is required to replace system notifications with the machNotch HUD. This allows the app to intercept media and brightness events to display custom HUD overlays.",
                     privacyNote: "Accessibility access is used only to improve media and brightness notifications. No data is collected or shared.",
                     onAllow: {
                         Task {

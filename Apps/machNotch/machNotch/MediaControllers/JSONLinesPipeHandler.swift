@@ -1,6 +1,6 @@
 //
 //  JSONLinesPipeHandler.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted from NowPlayingController.swift.
 //

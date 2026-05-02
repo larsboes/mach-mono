@@ -1,6 +1,6 @@
 //
 //  PluginManager+ViewHelpers.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted view helpers and export support from PluginManager.
 //

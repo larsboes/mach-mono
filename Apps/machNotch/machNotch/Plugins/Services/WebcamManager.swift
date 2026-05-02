@@ -1,6 +1,6 @@
 //
 //  WebcamManager.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Harsh Vardhan  Goswami  on 19/08/24.
 //
@@ -24,7 +24,7 @@ import SwiftUI
     var isSessionRunning: Bool = false
     var authorizationStatus: AVAuthorizationStatus = .notDetermined
     var cameraAvailable: Bool = false
-    let sessionQueue = DispatchQueue(label: "BoringNotch.WebcamManager.SessionQueue", qos: .userInitiated)
+    let sessionQueue = DispatchQueue(label: "MachNotch.WebcamManager.SessionQueue", qos: .userInitiated)
     private var isCleaningUp: Bool = false
 
     enum WebcamError: Error, LocalizedError {

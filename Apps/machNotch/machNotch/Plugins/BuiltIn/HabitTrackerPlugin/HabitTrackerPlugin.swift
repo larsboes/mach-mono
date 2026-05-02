@@ -1,6 +1,6 @@
 //
 //  HabitTrackerPlugin.swift
-//  boringNotch
+//  machNotch
 //
 //  Built-in habit tracking plugin.
 //
@@ -22,7 +22,7 @@ final class HabitTrackerPlugin: NotchPlugin, ExportablePlugin {
         description: "Track your daily habits directly from the notch",
         icon: "checkmark.circle.fill", // Changed from checkmark.seal to checkmark.circle.fill which is standard
         version: "1.0.0",
-        author: "boringNotch",
+        author: "machNotch",
         category: .productivity
     )
     

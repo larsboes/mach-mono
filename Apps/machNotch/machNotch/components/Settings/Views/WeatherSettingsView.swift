@@ -1,6 +1,6 @@
 //
 //  WeatherSettingsView.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Lars Boes on 29/12/2024.
 //

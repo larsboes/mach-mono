@@ -1,13 +1,13 @@
 //
-//  BoringViewModel+Camera.swift
-//  boringNotch
+//  NotchViewModel+Camera.swift
+//  machNotch
 //
-//  Extracted camera-related methods from BoringViewModel.
+//  Extracted camera-related methods from NotchViewModel.
 //
 
 import AppKit
 
-extension BoringViewModel {
+extension NotchViewModel {
     func toggleCameraPreview() {
         if isRequestingAuthorization {
             return

@@ -1,6 +1,6 @@
 //
 //  NotchSettings.swift
-//  boringNotch
+//  machNotch
 //
 //  Created as part of Phase 1 architectural refactoring.
 //  Abstracts settings access for testability.

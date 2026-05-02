@@ -1,6 +1,6 @@
 //
 //  FaceService.swift
-//  boringNotch
+//  machNotch
 //
 //  Created by Alexander on 2025-12-29.
 //  Refactored by Agent on 2026-01-03.

@@ -1,6 +1,6 @@
 //
 //  ContentView+Appearance.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted from ContentView — appearance calculations and view builders.
 //

@@ -1,6 +1,6 @@
 //
 //  ImageProcessingModels.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted from ImageProcessingService.swift — value types and error types.
 //

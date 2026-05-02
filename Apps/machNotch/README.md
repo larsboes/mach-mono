@@ -1,17 +1,17 @@
 <h1 align="center">
   <br>
-  <a href="http://theboring.name"><img src="https://framerusercontent.com/images/RFK4vs0kn8pRMuOO58JeyoemXA.png?scale-down-to=256" alt="Boring Notch" width="150"></a>
+  <strong>mach.notch</strong>
   <br>
-  Boring Notch (Extended Fork)
+  machNotch
   <br>
 </h1>
 
 <p align="center">
-  <strong>A community-driven fork of <a href="https://github.com/TheBoredTeam/boring.notch">boring.notch</a> with a modern plugin architecture, integrated community PRs, and clean codebase.</strong>
+  <strong>A native macOS notch utility with a modern plugin architecture, clean dependency injection, and a growing suite of built-in productivity surfaces.</strong>
 </p>
 
 <p align="center">
-  <img src="https://github.com/TheBoredTeam/boring.notch/actions/workflows/cicd.yml/badge.svg" alt="Build & Test" />
+  <img src="https://github.com/larsboes/mach-mono/actions/workflows/cicd.yml/badge.svg" alt="Build & Test" />
 </p>
 
 <p align="center">
@@ -20,11 +20,11 @@
 
 ---
 
-## What is this fork?
+## What is machNotch?
 
-This is an extended fork of [TheBoredTeam/boring.notch](https://github.com/TheBoredTeam/boring.notch) — the macOS app that transforms your MacBook's notch into a dynamic control center with music playback, calendar, file shelf, HUD replacements, and more.
+machNotch transforms your MacBook's notch into a dynamic control center with music playback, calendar, file shelf, HUD replacements, and more.
 
-This fork takes the original and adds:
+The app focuses on:
 
 ### Architecture Overhaul
 - **Plugin-first architecture** — every feature is a `NotchPlugin`. Built-in features use the same API that future third-party plugins will use.
@@ -54,8 +54,8 @@ Cherry-picked and adapted the best community contributions that were pending on 
 ### AI & Integrations
 - **AI subsystem** — `AIManager` + `AIProvider` protocol with Ollama backend for on-device text generation
 - **Local API server** — HTTP + WebSocket server for external integrations. Auth middleware, rate limiting, plugin API routes
-- **`notchctl` CLI** — command-line control of boringNotch via the Local API
-- **App Intents & URL Scheme** — Siri Shortcuts integration + `boringnotch://` deep links
+- **`notchctl` CLI** — command-line control of machNotch via the Local API
+- **App Intents & URL Scheme** — Siri Shortcuts integration + `machnotch://` deep links
 
 ### Performance
 - **Background service backoff** — plugins and services automatically pause polling when the notch is closed (zero idle CPU)
@@ -130,9 +130,9 @@ To get perfect, sub-second scrubber and duration sync for browser media like You
 2. Navigate to `chrome://extensions/`.
 3. Toggle on **Developer Mode** in the top-right corner.
 4. Click **Load Unpacked** in the top-left corner.
-5. Select the `boringNotch-extension` folder located inside the repository directory.
+5. Select the `machNotch-extension` folder located inside the repository directory.
 
-The extension connects directly to boringNotch via a local WebSocket to transmit metadata and receive media commands without any additional config!
+The extension connects directly to machNotch via a local WebSocket to transmit metadata and receive media commands without any additional config!
 
 ---
 
@@ -146,17 +146,9 @@ Every feature is a plugin. Plugins communicate via `PluginEventBus`, never by im
 
 ---
 
-## Upstream
-
-This fork tracks [TheBoredTeam/boring.notch](https://github.com/TheBoredTeam/boring.notch) as `upstream`. Periodic syncs pull in upstream fixes and features.
-
-For the original project, downloads, Discord, and support, visit the upstream repo.
-
----
-
 ## Acknowledgments
 
-All credit for the original boring.notch concept and implementation goes to [TheBoredTeam](https://github.com/TheBoredTeam). This fork builds on their work.
+All credit for the original boring.notch concept and implementation goes to [TheBoredTeam](https://github.com/TheBoredTeam). machNotch builds on that foundation while moving into the mach-mono suite.
 
 - **[MediaRemoteAdapter](https://github.com/ungive/mediaremote-adapter)** — Now Playing source support for macOS 15.4+
 - **[NotchDrop](https://github.com/Lakr233/NotchDrop)** — Foundation for the Shelf feature

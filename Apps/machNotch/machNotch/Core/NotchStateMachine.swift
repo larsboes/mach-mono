@@ -1,6 +1,6 @@
 //
 //  NotchStateMachine.swift
-//  boringNotch
+//  machNotch
 //
 //  Created as part of Phase 1 architectural refactoring.
 //  Centralizes state determination logic from ContentView.

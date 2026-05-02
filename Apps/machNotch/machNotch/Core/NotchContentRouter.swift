@@ -1,6 +1,6 @@
 //
 //  NotchContentRouter.swift
-//  boringNotch
+//  machNotch
 //
 //  Created as part of Phase 3 architectural refactoring.
 //  Routes notch content based on NotchStateMachine state.
@@ -16,11 +16,11 @@ struct NotchContentRouter: View {
     let albumArtNamespace: Namespace.ID
 
     // Required environment and state for rendering
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.pluginManager) var pluginManager
     @Environment(\.settings) var settings
     @Environment(NotchStateMachine.self) var stateMachine
-    @Bindable var coordinator: BoringViewCoordinator
+    @Bindable var coordinator: NotchViewCoordinator
 
     /// Height to use for closed notch content
     var closedNotchHeight: CGFloat
@@ -165,7 +165,7 @@ struct NotchContentRouter: View {
     private func openContent(_ view: NotchViews) -> some View {
         VStack(spacing: 12) {
             // Header should just clear the physical notch
-            BoringHeader()
+            NotchHeader()
                 .frame(height: max(
                     54, // Increased from 44 to prevent cutoff
                     (NSScreen.screen(withUUID: coordinator.selectedScreenUUID)?.safeAreaInsets.top
@@ -258,7 +258,7 @@ struct NotchContentRouter_Previews: PreviewProvider {
         NotchContentRouter(
             displayState: NotchDisplayState.closed(content: NotchDisplayState.ClosedContent.idle),
             albumArtNamespace: namespace,
-            coordinator: BoringViewCoordinator(settings: MockNotchSettings(), xpcHelper: XPCHelperClient.shared),
+            coordinator: NotchViewCoordinator(settings: MockNotchSettings(), xpcHelper: XPCHelperClient.shared),
             closedNotchHeight: CGFloat(32),
             cornerRadiusScaleFactor: 1.0,
             cornerRadiusInsets: CornerRadiusInsets(opened: (top: 19, bottom: 24), closed: (top: 6, bottom: 14))

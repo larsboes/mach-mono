@@ -1,6 +1,6 @@
 //
 //  QuickLookServiceProtocol.swift
-//  boringNotch
+//  machNotch
 //
 
 import Foundation

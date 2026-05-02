@@ -5,12 +5,12 @@ import Combine
 final class LocalAPIServerController {
     private let eventBus: PluginEventBus
     private let pluginManager: PluginManager
-    private let viewModelProvider: () -> BoringViewModel
+    private let viewModelProvider: () -> NotchViewModel
 
     private var server: LocalAPIServer?
     private var cancellables = Set<AnyCancellable>()
 
-    init(eventBus: PluginEventBus, pluginManager: PluginManager, viewModelProvider: @escaping () -> BoringViewModel) {
+    init(eventBus: PluginEventBus, pluginManager: PluginManager, viewModelProvider: @escaping () -> NotchViewModel) {
         self.eventBus = eventBus
         self.pluginManager = pluginManager
         self.viewModelProvider = viewModelProvider

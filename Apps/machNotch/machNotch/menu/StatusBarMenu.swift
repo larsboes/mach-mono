@@ -1,6 +1,6 @@
 import Cocoa
 
-class BoringStatusMenu: NSMenu {
+class NotchStatusMenu: NSMenu {
 
     let statusItem: NSStatusItem
 
@@ -9,7 +9,7 @@ class BoringStatusMenu: NSMenu {
         super.init()
 
         if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "music.note", accessibilityDescription: "BoringNotch")
+            button.image = NSImage(systemSymbolName: "music.note", accessibilityDescription: "MachNotch")
             button.action = #selector(showMenu)
         }
 

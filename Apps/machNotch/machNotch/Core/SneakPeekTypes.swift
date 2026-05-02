@@ -1,6 +1,6 @@
 //
 //  SneakPeekTypes.swift
-//  boringNotch
+//  machNotch
 //
 //  Domain-layer value types for sneak peek and expanding view state.
 //  Must compile without SwiftUI/AppKit (Foundation only).

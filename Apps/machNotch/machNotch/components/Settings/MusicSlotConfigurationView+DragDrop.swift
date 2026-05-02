@@ -1,6 +1,6 @@
 //
 //  MusicSlotConfigurationView+DragDrop.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted drag and drop handling from MusicSlotConfigurationView.
 //

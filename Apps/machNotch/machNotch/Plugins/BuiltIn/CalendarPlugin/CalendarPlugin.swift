@@ -1,6 +1,6 @@
 //
 //  CalendarPlugin.swift
-//  boringNotch
+//  machNotch
 //
 //  Built-in calendar plugin.
 //  Wraps CalendarService to provide events and reminders.
@@ -21,7 +21,7 @@ final class CalendarPlugin: NotchPlugin, ExportablePlugin {
         description: "View upcoming events and reminders",
         icon: "calendar",
         version: "1.0.0",
-        author: "boringNotch",
+        author: "machNotch",
         category: .productivity
     )
     
@@ -119,7 +119,7 @@ final class CalendarPlugin: NotchPlugin, ExportablePlugin {
 
     private func exportICal(events: [EventModel]) -> Data {
         let formatter = icalDateFormatter()
-        var ical = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//boringNotch//Calendar Export//EN\r\n"
+        var ical = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//machNotch//Calendar Export//EN\r\n"
         for event in events {
             ical += "BEGIN:VEVENT\r\n"
             ical += "UID:\(event.id)\r\n"

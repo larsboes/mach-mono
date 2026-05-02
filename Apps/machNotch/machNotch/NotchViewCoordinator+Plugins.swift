@@ -1,13 +1,13 @@
 //
-//  BoringViewCoordinator+Plugins.swift
-//  boringNotch
+//  NotchViewCoordinator+Plugins.swift
+//  machNotch
 //
-//  Plugin integration logic extracted from BoringViewCoordinator.
+//  Plugin integration logic extracted from NotchViewCoordinator.
 //
 
 import Foundation
 
-extension BoringViewCoordinator {
+extension NotchViewCoordinator {
 
     /// Configure the coordinator with the plugin event bus and dependencies.
     /// This replaces direct coupling to managers.

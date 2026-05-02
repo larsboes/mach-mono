@@ -5,7 +5,7 @@ let baseURL = "http://127.0.0.1:19384/api/v1"
 
 func help() {
     print("""
-    notchctl - Control boringNotch from the command line
+    notchctl - Control machNotch from the command line
 
     Usage:
       notchctl <command> [args]

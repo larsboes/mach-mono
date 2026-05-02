@@ -1,13 +1,13 @@
 //
 //  PomodoroExpandedView.swift
-//  boringNotch
+//  machNotch
 //
 
 import SwiftUI
 
 struct PomodoroExpandedView: View {
     let plugin: PomodoroPlugin
-    @Environment(BoringViewCoordinator.self) var coordinator
+    @Environment(NotchViewCoordinator.self) var coordinator
     private var timer: PomodoroTimer { plugin.timer }
     
     var body: some View {

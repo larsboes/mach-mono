@@ -1,6 +1,6 @@
 //
 //  DesktopCaptureActor.swift
-//  boringNotch
+//  machNotch
 //
 //  Metal Liquid Glass - ScreenCaptureKit integration for desktop capture.
 //  Captures the desktop behind the notch window, excluding the notch itself.

@@ -3,7 +3,7 @@ import SwiftUI
 /// Concrete implementation of AppStateProviding
 @MainActor
 @Observable
-final class BoringAppState: AppStateProviding {
+final class NotchAppState: AppStateProviding {
     var isScreenLocked: Bool = false
 
     // Wrapper to handle non-Sendable observers safely

@@ -1,6 +1,6 @@
 //
 //  PluginMusicPlayerView.swift
-//  boringNotch
+//  machNotch
 //
 //  Refactored Music Player View for the Plugin Architecture.
 //  Uses MusicServiceProtocol instead of MusicManager singleton.
@@ -12,7 +12,7 @@ import Defaults
 struct PluginMusicPlayerView: View {
     let plugin: MusicPlugin
     let albumArtNamespace: Namespace.ID?
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.cornerRadiusInsets) var cornerRadiusInsets
 
     private var openEdgeSafeInset: CGFloat {
@@ -40,7 +40,7 @@ struct PluginAlbumArtView: View {
     let service: any MusicServiceProtocol
     let albumArtNamespace: Namespace.ID?
 
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.settings) var settings
 
     var body: some View {

@@ -1,6 +1,6 @@
 //
 //  PomodoroSettingsView.swift
-//  boringNotch
+//  machNotch
 //
 
 import SwiftUI

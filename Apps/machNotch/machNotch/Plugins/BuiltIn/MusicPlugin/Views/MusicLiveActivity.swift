@@ -1,6 +1,6 @@
 //
 //  MusicLiveActivity.swift
-//  boringNotch
+//  machNotch
 //
 //  Closed notch view for the Music Plugin.
 //  Refactored to use Environment values for layout and MusicServiceProtocol for data.
@@ -13,7 +13,7 @@ struct MusicLiveActivity: View {
     var frequencyBands: [Float] = []
 
     // Environment Dependencies
-    @Environment(BoringViewModel.self) var vm
+    @Environment(NotchViewModel.self) var vm
     @Environment(\.settings) var settings
     @Environment(\.albumArtNamespace) var albumArtNamespace: Namespace.ID?
     @Environment(\.displayClosedNotchHeight) var displayClosedNotchHeight

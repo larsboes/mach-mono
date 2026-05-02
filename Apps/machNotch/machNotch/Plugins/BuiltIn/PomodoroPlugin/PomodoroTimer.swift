@@ -1,6 +1,6 @@
 //
 //  PomodoroTimer.swift
-//  boringNotch
+//  machNotch
 //
 //  Core timer logic for the Pomodoro plugin.
 //
@@ -52,7 +52,7 @@ final class PomodoroTimer {
         self.settings = .default
         
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let appDir = appSupport.appendingPathComponent("boringNotch")
+        let appDir = appSupport.appendingPathComponent("machNotch")
         
         if !FileManager.default.fileExists(atPath: appDir.path) {
             try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true, attributes: nil)

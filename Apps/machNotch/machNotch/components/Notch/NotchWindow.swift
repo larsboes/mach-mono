@@ -1,13 +1,13 @@
 //
-//  BoringNotchWindow.swift
-//  boringNotch
+//  NotchWindow.swift
+//  machNotch
 //
 //  Created by Harsh Vardhan  Goswami  on 06/08/24.
 //
 
 import Cocoa
 
-class BoringNotchWindow: NSPanel {
+class NotchWindow: NSPanel {
     /// Whether the notch is currently open (enables click handling)
     var isNotchOpen: Bool = false
 

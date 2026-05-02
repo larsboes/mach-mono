@@ -5,7 +5,7 @@
 set -euo pipefail
 
 ERRORS=0
-SRC="boringNotch"
+SRC="machNotch"
 
 echo "=== Architecture Check ==="
 echo ""

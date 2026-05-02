@@ -1,6 +1,6 @@
 //
 //  AmbientGlowVisualizer.swift
-//  boringNotch
+//  machNotch
 //
 //  Endel-inspired generative visualization below the closed notch.
 //  Canvas-based for performance — particles, orbital curves, and waves.

@@ -1,13 +1,13 @@
 //
 //  NotchViewModelSettings.swift
-//  boringNotch
+//  machNotch
 //
-//  Created to replace direct Defaults access in BoringViewModel
+//  Created to replace direct Defaults access in NotchViewModel
 //
 
 import Foundation
 
-/// Protocol for providing settings to BoringViewModel
+/// Protocol for providing settings to NotchViewModel
 /// This allows dependency injection and removes direct Defaults access
 @MainActor
 protocol NotchViewModelSettings {

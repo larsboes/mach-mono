@@ -1,6 +1,6 @@
 //
 //  ContentView+SubViews.swift
-//  boringNotch
+//  machNotch
 //
 //  Extracted from ContentView — background, overlay, and visualizer sub-views.
 //

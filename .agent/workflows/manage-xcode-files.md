@@ -36,20 +36,20 @@ ruby scripts/manage_xcode_files.rb remove path/to/File1.swift path/to/File2.swif
 
 1. Create the file:
    ```bash
-   touch boringNotch/Plugins/Services/MyNewService.swift
+   touch machNotch/Plugins/Services/MyNewService.swift
    ```
 2. Add to Xcode:
    ```bash
-   ruby scripts/manage_xcode_files.rb add boringNotch/Plugins/Services/MyNewService.swift
+   ruby scripts/manage_xcode_files.rb add machNotch/Plugins/Services/MyNewService.swift
    ```
 
 ## Example Workflow (Removing a Manager)
 
 1. Remove from Xcode:
    ```bash
-   ruby scripts/manage_xcode_files.rb remove boringNotch/managers/OldManager.swift
+   ruby scripts/manage_xcode_files.rb remove machNotch/managers/OldManager.swift
    ```
 2. Delete from filesystem:
    ```bash
-   rm boringNotch/managers/OldManager.swift
+   rm machNotch/managers/OldManager.swift
    ```
