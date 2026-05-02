@@ -6,10 +6,21 @@ Monorepo of focused macOS quality-of-life utilities. Named after the Mach microk
 ## Structure
 ```
 mach-mono/
+├── .agent/              # Agent workflows and skills
+├── .claude/             # Claude Code rules
+├── .github/             # CI/CD workflows, issue templates
 ├── Apps/
 │   └── machNotch/       # Notch utility (mach.notch) — see Apps/machNotch/CLAUDE.md
+├── docs/
+│   ├── PRD.md           # Active implementation plan + feature roadmap + debt triage
+│   ├── ARCHITECTURE.md  # System architecture reference
+│   └── PLUGIN_DEVELOPMENT.md
 ├── Packages/            # Shared Swift packages (empty until second app)
-└── README.md
+├── resources/           # Demo assets, notchctl script
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── SECURITY.md
+└── mach-mono.xcworkspace
 ```
 
 ## Working in this repo

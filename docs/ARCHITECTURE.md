@@ -1,6 +1,6 @@
 # Architecture Overview
 
-> **Note:** This document reflects the system architecture as of March 2026 (v1.0 Plugin System + SOLID/DDD hardening + DDD directory restructure).
+> **Note:** This document reflects the system architecture as of May 2026 (v1.0 Plugin System + SOLID/DDD hardening + DDD directory restructure + mach-mono migration). For full debt triage with P1/P2/P3 priorities, see `docs/PRD.md → Known Architecture Debt`.
 
 machNotch is a macOS application designed to transform the static camera notch into a dynamic, interactive utility hub. The architecture is built on a **modular, plugin-first** foundation, ensuring extensibility, testability, and separation of concerns.
 
@@ -299,15 +299,15 @@ machNotch/
 
 ## ⚠️ Known Architecture Debt
 
-Last reviewed: 2026-03-21 (post DDD restructure).
+Last reviewed: 2026-05-02. Full triage (P1/P2/P3 + blocks annotations) in `docs/PRD.md → Known Architecture Debt`.
 
-| Issue | Principle | Severity | Notes |
+| Issue | Principle | Priority | Notes |
 |-------|-----------|----------|-------|
-| `ShelfItem` referenced by `PluginEventBus` | Bounded Context | Medium | Event bus carries domain type from shelf context. Fix: type-erased event payload. |
-| `ShelfSelectionModel` in `ShelfServiceProtocol` | DDD Layers | Medium | ViewModel type exposed through service protocol. Fix: expose selection as ID set. |
-| `NotchViewModel` dependency in all plugin views | DIP | Medium | Plugin views use `@Environment(NotchViewModel.self)`. Not fully self-contained. |
-| `NotchContentRouter.openContent()` switches on `NotchViews` enum | OCP | Low | When adding plugin-provided views dynamically |
-| `Constants.swift` imports SwiftUI for `CGFloat` | Domain Purity | Low | Could extract `spacing` to avoid SwiftUI import in Core/ |
+| `ShelfItem` referenced by `PluginEventBus` | Bounded Context | P2 | Event bus carries domain type from shelf context. Fix: type-erased event payload. |
+| `ShelfSelectionModel` in `ShelfServiceProtocol` | DDD Layers | P2 | ViewModel type exposed through service protocol. Fix: expose selection as ID set. |
+| `NotchViewModel` dependency in all plugin views | DIP | P3 | Plugin views use `@Environment(NotchViewModel.self)`. Not fully self-contained. |
+| `NotchContentRouter.openContent()` switches on `NotchViews` enum | OCP | P1 | Blocks Phase 9 dynamic plugin views. |
+| `Constants.swift` imports SwiftUI for `CGFloat` | Domain Purity | P3 | Could extract `spacing` to avoid SwiftUI import in Core/ |
 
 ---
 

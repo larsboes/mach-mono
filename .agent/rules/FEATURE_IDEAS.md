@@ -2,7 +2,8 @@
 
 > **Design Principle:** Every feature is a plugin. No vendor lock-in. Data is exportable. APIs are local-first.
 > 
-> Last updated: 2025-12-30
+> Last updated: 2026-05-02
+> For the authoritative feature roadmap and plugin specs, see `docs/PRD.md → Phase 16`.
 
 ---
 

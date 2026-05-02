@@ -50,7 +50,7 @@
 | 15 — Architecture Debt | Active | See debt triage section below. Quick wins available. |
 | 16 — New Plugins | Planned | SystemStats, PreventSleep, ExternalBrightness, ColorPicker, FocusMode, Downloads — see specs below. |
 
-### Phase 14 Status
+### Phase 14 Status ✅
 
 | Sub-phase | Status | Notes |
 |-----------|--------|-------|
