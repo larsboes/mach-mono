@@ -32,7 +32,7 @@ When splitting large files:
 
 After completing a file:
 ```bash
-xcodebuild -scheme boringNotch -destination 'platform=macOS' build 2>&1 | tail -50
+xcodebuild -project Apps/machNotch/machNotch.xcodeproj -scheme machNotch -destination 'platform=macOS' build 2>&1 | tail -50
 ```
 
 Don't batch multiple files without verifying builds.

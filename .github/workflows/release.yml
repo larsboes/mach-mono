@@ -1,4 +1,4 @@
-name: "Deploy Boring Notch"
+name: "Deploy machNotch"
 on:
   issue_comment:
     types: [created]
@@ -9,6 +9,8 @@ concurrency:
 
 env:
   PROJECT_NAME: machNotch
+  APP_DIR: Apps/machNotch
+  APPCAST_PATH: Apps/machNotch/updater/appcast.xml
   BETA_CHANNEL_NAME: beta
   RELEASE_COMMAND: /release
   CODE_SIGN_IDENTITY: "Apple Development"
@@ -182,8 +184,8 @@ jobs:
       head_ref: ${{ needs.preparation.outputs.head_ref }}
       version: ${{ needs.preparation.outputs.version }}
       build_number: ${{ needs.preparation.outputs.build_number }}
-      xcode_version: ${{ needs.preparation.outputs.xcode_version }}
-      code_sign_identity: ${{ needs.preparation.outputs.code_sign_identity }}
+      xcode_version: "16.4"
+      code_sign_identity: "Apple Development"
     secrets:
       BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
       P12_PASSWORD:              ${{ secrets.P12_PASSWORD }}
@@ -219,20 +221,20 @@ jobs:
           SPARKLE_PRIVATE_KEY: ${{ secrets.PRIVATE_SPARKLE_KEY }}
         run: |
           set -euo pipefail
-          test -x Configuration/sparkle/generate_appcast || {
-            echo "::error::Configuration/sparkle/generate_appcast missing or not executable"; exit 1;
+          test -x "${APP_DIR}/Configuration/sparkle/generate_appcast" || {
+            echo "::error::${APP_DIR}/Configuration/sparkle/generate_appcast missing or not executable"; exit 1;
           }
           CHANNEL_ARGS=()
           if [[ "${IS_BETA}" == "true" ]]; then
             CHANNEL_ARGS=(--channel "${{ env.BETA_CHANNEL_NAME }}")
           fi
-          printf '%s' "$SPARKLE_PRIVATE_KEY" | ./Configuration/sparkle/generate_appcast \
+          printf '%s' "$SPARKLE_PRIVATE_KEY" | "${APP_DIR}/Configuration/sparkle/generate_appcast" \
             --ed-key-file - \
             --link "https://github.com/larsboes/mach-mono/releases" \
             --download-url-prefix "https://github.com/larsboes/mach-mono/releases/download/v${VERSION}/" \
             --embed-release-notes \
             "${CHANNEL_ARGS[@]}" \
-            -o updater/appcast.xml \
+            -o "${APPCAST_PATH}" \
             Release/
 
       - name: Commit appcast
@@ -242,26 +244,26 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if [[ "${IS_BETA}" == "false" ]]; then
-            git add updater/appcast.xml
+            git add "${APPCAST_PATH}"
             git commit -m "Update version to v${VERSION} and appcast" || true
             RELEASE_SHA=$(git rev-parse HEAD)
             echo "release_sha=$RELEASE_SHA" >> "$GITHUB_OUTPUT"
             git push origin "HEAD:${HEAD_REF}" || true
             # Also push appcast to main so GitHub Pages deploys the Sparkle feed
-            cp updater/appcast.xml "$RUNNER_TEMP/appcast.xml"
+            cp "${APPCAST_PATH}" "$RUNNER_TEMP/appcast.xml"
             git fetch origin main
             git checkout FETCH_HEAD
-            cp "$RUNNER_TEMP/appcast.xml" updater/appcast.xml
-            git add updater/appcast.xml
+            cp "$RUNNER_TEMP/appcast.xml" "${APPCAST_PATH}"
+            git add "${APPCAST_PATH}"
             git commit -m "Update appcast for v${VERSION}" || echo "appcast already up to date"
             git push origin HEAD:main
           else
             # Save generated appcast, switch to main, apply and push
-            cp updater/appcast.xml "$RUNNER_TEMP/appcast.xml"
+            cp "${APPCAST_PATH}" "$RUNNER_TEMP/appcast.xml"
             git fetch origin main
             git checkout main
-            cp "$RUNNER_TEMP/appcast.xml" updater/appcast.xml
-            git add updater/appcast.xml
+            cp "$RUNNER_TEMP/appcast.xml" "${APPCAST_PATH}"
+            git add "${APPCAST_PATH}"
             git commit -m "Update appcast with beta release for v${VERSION}" || true
             echo "release_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
             git push origin main

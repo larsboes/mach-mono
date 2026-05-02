@@ -21,38 +21,28 @@ jobs:
   build:
     name: Build
     runs-on: macos-latest
-    strategy:
-      matrix:
-        xcode: [^16]
     steps:
     - name: Code Checkout
       uses: actions/checkout@v6.0.2
-    - uses: mxcl/xcodebuild@v3
-      with:
-        xcode: ${{ matrix.xcode }}
-        platform: macOS
-        scheme: machNotch
-        action: build
-        verbosity: xcpretty
-        upload-logs: always
-        configuration: release
+    - name: Build machNotch
+      run: |
+        xcodebuild -project Apps/machNotch/machNotch.xcodeproj \
+          -scheme machNotch \
+          -destination 'platform=macOS' \
+          -configuration Release \
+          build
 
   test:
     name: Test
     runs-on: macos-latest
-    strategy:
-      matrix:
-        xcode: [^16]
     steps:
     - uses: actions/checkout@v4
-    - uses: mxcl/xcodebuild@v3
-      with:
-        xcode: ${{ matrix.xcode }}
-        platform: macOS
-        scheme: machNotch
-        action: test
-        verbosity: xcpretty
-        upload-logs: always
+    - name: Test machNotch
+      run: |
+        xcodebuild -project Apps/machNotch/machNotch.xcodeproj \
+          -scheme machNotch \
+          -destination 'platform=macOS' \
+          test
 
   arch-check:
     name: Architecture Check

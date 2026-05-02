@@ -1,5 +1,5 @@
 ---
-description: Build and verify the boringNotch project
+description: Build and verify the machNotch project
 ---
 
 # Build Project
@@ -11,7 +11,7 @@ Build the project using Xcode command line tools.
 // turbo
 1. Build the project:
 ```bash
-xcodebuild -scheme boringNotch -destination 'platform=macOS' build 2>&1 | head -100
+xcodebuild -project Apps/machNotch/machNotch.xcodeproj -scheme machNotch -destination 'platform=macOS' build 2>&1 | head -100
 ```
 
 ## Notes

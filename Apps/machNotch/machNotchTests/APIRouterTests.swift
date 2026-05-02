@@ -1,5 +1,5 @@
 import XCTest
-@testable import boringNotch
+@testable import machNotch
 
 final class APIRouterTests: XCTestCase {
     var router: APIRouter!

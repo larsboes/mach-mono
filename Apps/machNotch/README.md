@@ -88,29 +88,35 @@ Cherry-picked and adapted the best community contributions that were pending on 
 
 ### Steps
 
-1. **Clone this fork:**
+1. **Clone this repository:**
    ```bash
-   git clone https://github.com/larsboes/boring.notch.git
-   cd boring.notch
+   git clone https://github.com/larsboes/mach-mono.git
+   cd mach-mono
    ```
 
 2. **Open the project:**
    ```bash
-   open boringNotch.xcodeproj
+   open Apps/machNotch/machNotch.xcodeproj
    ```
    Xcode will automatically resolve Swift Package dependencies on first open. If it doesn't, go to **File → Packages → Resolve Package Versions**.
 
 3. **Fix code signing** (required — the project ships with the maintainer's team/bundle ID):
-   - Select the **boringNotch** project in the sidebar
-   - For **each target** (`boringNotch`, `BoringNotchXPCHelper`, `boringNotchTests`):
+   - Select the **machNotch** project in the sidebar
+   - For **each target** (`machNotch`, `MachNotchXPCHelper`, `machNotchTests`):
      1. Go to the **Signing & Capabilities** tab
      2. Check **Automatically manage signing**
      3. Change **Team** to your personal team
-     4. Change **Bundle Identifier** to something unique (e.g., `com.yourname.boringnotch`)
+     4. Change **Bundle Identifier** to something unique (e.g., `com.yourname.machnotch`)
 
    <img src="docs/images/signing-setup.png" alt="Xcode Signing Setup" width="700" />
 
 4. **Build and run:** Press `Cmd + R`.
+
+   From the repository root you can also build and test with:
+   ```bash
+   xcodebuild -project Apps/machNotch/machNotch.xcodeproj -scheme machNotch -destination 'platform=macOS' build
+   xcodebuild -project Apps/machNotch/machNotch.xcodeproj -scheme machNotch -destination 'platform=macOS' test
+   ```
 
 > **Note:** If Xcode shows "Missing package product" errors, close and reopen the project. The package cache can be slow to sync on first open.
 

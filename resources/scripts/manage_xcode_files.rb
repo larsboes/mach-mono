@@ -25,7 +25,7 @@ def add_files(project_path, target_name, file_paths)
     puts "Adding #{file_path} to project..."
     
     # Split the path to find the right group
-    # E.g., "boringNotch/MediaControllers/Browser Extension/File.swift"
+    # E.g., "machNotch/MediaControllers/Browser Extension/File.swift"
     components = file_path.split('/')
     filename = components.pop
     
@@ -87,8 +87,8 @@ end
 
 command = ARGV.shift
 files = ARGV
-project_path = "boringNotch.xcodeproj"
-target_name = "boringNotch"
+project_path = "Apps/machNotch/machNotch.xcodeproj"
+target_name = "machNotch"
 
 case command
 when "add"

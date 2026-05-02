@@ -1,5 +1,5 @@
 import XCTest
-@testable import boringNotch
+@testable import machNotch
 
 // MARK: - Mock Exportable Plugin
 

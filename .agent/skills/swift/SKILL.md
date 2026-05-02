@@ -295,12 +295,12 @@ The LSP client auto-detects:
 
 ### Build Command
 ```bash
-xcodebuild -scheme boringNotch -destination 'platform=macOS' build 2>&1 | tail -50
+xcodebuild -project Apps/machNotch/machNotch.xcodeproj -scheme machNotch -destination 'platform=macOS' build 2>&1 | tail -50
 ```
 
 ### Test Command
 ```bash
-xcodebuild -scheme boringNotch -destination 'platform=macOS' test 2>&1 | tail -50
+xcodebuild -project Apps/machNotch/machNotch.xcodeproj -scheme machNotch -destination 'platform=macOS' test 2>&1 | tail -50
 ```
 
 ### Common Build Errors

@@ -23,22 +23,21 @@
 
 ## What is Mach?
 
-**Mach** is named after the [Mach microkernel](https://en.wikipedia.org/wiki/Mach_(kernel)) — the foundational layer that powers macOS itself. The name reflects the goal: a solid, architectural foundation that macOS utilities can be built on top of, fast and reliably.
+**Mach** is named after the [Mach microkernel](https://en.wikipedia.org/wiki/Mach_(kernel)) — the foundational layer that powers macOS itself. The name reflects the goal: a solid architectural foundation that macOS utilities can be built on top of, fast and reliably.
 
-`mach-mono` is a monorepo housing a growing suite of macOS utilities. Each app is a focused, native SwiftUI product. They share a common design language, architectural conventions, and — where it makes sense — shared Swift packages.
+`mach-mono` is a monorepo housing a growing suite of native macOS utilities. Each app is a focused SwiftUI product sharing common architectural conventions and — where it earns its keep — shared Swift packages.
 
 ---
 
 ## Apps
 
-### `boringNotch` — Notch Utility
+### `mach.notch` — Notch Utility
 > Transforms the MacBook notch into an interactive, plugin-driven command surface.
 
-A hardened fork of [boring.notch](https://github.com/TheBoredTeam/boring.notch) with a focus on architectural quality: DDD layer boundaries, SOLID plugin system, full dependency injection, and zero singletons in views or services. Every feature is a plugin — music, media controls, calendar, habits, pomodoro, shelf, teleprompter, battery, webcam, notifications, and more.
+A hardened fork of [boring.notch](https://github.com/TheBoredTeam/boring.notch) with a focus on architectural quality: DDD layer boundaries, SOLID plugin system, full dependency injection, and zero singletons in views or services. Every feature is a plugin — music, media controls, calendar, habits, pomodoro, shelf, teleprompter, battery, webcam, notifications, clipboard, weather, and more.
 
-- **Location:** `Apps/boringNotch/`
+- **Location:** `Apps/machNotch/`
 - **Requires:** macOS 14.0+, MacBook with notch
-- **Build:** `xcodebuild -scheme boringNotch -destination 'platform=macOS' build`
 
 ---
 
@@ -46,42 +45,73 @@ A hardened fork of [boring.notch](https://github.com/TheBoredTeam/boring.notch) 
 
 ```
 mach-mono/
+├── .agent/                  # Agent workflows and skills
+├── .claude/                 # Claude Code rules
+├── .github/                 # CI/CD workflows, issue templates
 ├── Apps/
-│   └── boringNotch/         # Notch utility (hardened boring.notch fork)
-├── Packages/                # Shared Swift packages (added as the suite grows)
-└── mach-mono.xcworkspace    # Xcode workspace (coming soon)
+│   └── machNotch/           # mach.notch — notch utility
+│       ├── machNotch/       # Swift source
+│       ├── MachNotchXPCHelper/
+│       ├── machNotchTests/
+│       └── machNotch.xcodeproj
+├── docs/
+│   └── PRD.md               # Active implementation plan + feature roadmap
+├── Packages/                # Shared Swift packages (grows with each new app)
+├── resources/               # Demo assets, scripts
+└── mach-mono.xcworkspace    # Open this to work on the whole suite
 ```
 
-New apps join `Apps/` as independent targets. Shared code that earns its keep gets extracted into `Packages/`.
+---
+
+## Getting Started
+
+**Open in Xcode (recommended):**
+
+```bash
+git clone https://github.com/larsboes/mach-mono.git
+cd mach-mono
+open mach-mono.xcworkspace
+```
+
+Select the `machNotch` scheme and run. That's it — no `cd` into subdirectories needed.
+
+**Build from command line:**
+
+```bash
+xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch \
+  -destination 'platform=macOS' build 2>&1 | tail -50
+```
+
+**Run tests:**
+
+```bash
+xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch \
+  -destination 'platform=macOS' test 2>&1 | tail -50
+```
 
 ---
 
 ## Roadmap
 
-- [ ] `boringWindow` — window management utility
-- [ ] `boringBar` — menu bar companion
-- [ ] Shared `MachUI` Swift package — design system across all apps
-- [ ] Shared `MachCore` Swift package — common system services
+- [x] `mach.notch` — notch utility (shipped)
+- [ ] `mach.window` — window snapping + DockDoor-style hover peek
+- [ ] `mach.bar` — menu bar companion (OneMenu-inspired)
+- [ ] `SystemStats` plugin — CPU/GPU/RAM/disk/network rings in the notch
+- [ ] `PreventSleep` plugin — IOKit sleep prevention toggle
+- [ ] `ExternalBrightness` plugin — DDC monitor brightness control
+- [ ] `ColorPicker` plugin — screen color sampler with history
+- [ ] `FocusMode` plugin — active Focus indicator in notch
+- [ ] Shared `MachUI` package — design system across all apps
+
+See [`docs/PRD.md`](docs/PRD.md) for the full implementation plan.
 
 ---
 
 ## Requirements
 
 - macOS 14.0 or later (optimised for macOS 15+)
-- MacBook with a notch (for `boringNotch`)
+- MacBook with a notch (for `mach.notch`)
 - Xcode 16+ to build from source
-
----
-
-## Building
-
-Clone the repo and open the relevant app:
-
-```bash
-git clone https://github.com/larsboes/mach-mono.git
-cd mach-mono/Apps/boringNotch
-open boringNotch.xcodeproj
-```
 
 ---
 
@@ -93,11 +123,11 @@ open boringNotch.xcodeproj
 
 - [**Atoll**](https://github.com/Ebullioscopic/Atoll) — a feature-rich notch utility that expanded on boring.notch with live activities, lock screen widgets, system stats, and more. A major source of feature inspiration for what this suite aims to become.
 
-- [**DockDoor**](https://github.com/ejbills/DockDoor) — window peeking, alt-tab, and dock enhancements for macOS. Inspiration for the upcoming window management utility in this suite.
+- [**DockDoor**](https://github.com/ejbills/DockDoor) — window peeking, alt-tab, and dock enhancements for macOS. Inspiration for the upcoming `mach.window` app.
 
 - [**MacroVisionKit**](https://github.com/TheBoredTeam/MacroVisionKit) — real-time fullscreen and window state detection framework powering the notch's context awareness.
 
-- [**Stats**](https://github.com/exelban/stats) — the reference implementation for macOS system metrics (CPU, GPU, memory, network, disk) via SMC and IOReport bindings.
+- [**Stats**](https://github.com/exelban/stats) — reference implementation for macOS system metrics (CPU, GPU, memory, network, disk) via SMC and IOReport bindings.
 
 - [**SkyLightWindow**](https://github.com/Lakr233/SkyLightWindow) — private API window rendering techniques.
 
@@ -109,4 +139,4 @@ open boringNotch.xcodeproj
 
 `mach-mono` is released under the **GNU General Public License v3.0** — see [LICENSE](LICENSE) for the full terms.
 
-This project incorporates code from [boring.notch](https://github.com/TheBoredTeam/boring.notch), [Atoll](https://github.com/Ebullioscopic/Atoll), and [DockDoor](https://github.com/ejbills/DockDoor), all of which are also GPL v3. Derivative works must remain GPL v3 and open source.
+This project incorporates code from [boring.notch](https://github.com/TheBoredTeam/boring.notch), [Atoll](https://github.com/Ebullioscopic/Atoll), and [DockDoor](https://github.com/ejbills/DockDoor), all of which are GPL v3. Derivative works must remain GPL v3 and open source.

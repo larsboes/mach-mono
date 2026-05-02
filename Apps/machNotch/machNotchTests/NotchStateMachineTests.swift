@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import boringNotch
+@testable import machNotch
 
 @MainActor
 final class NotchStateMachineTests: XCTestCase {

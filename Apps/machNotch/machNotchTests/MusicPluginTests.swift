@@ -8,7 +8,7 @@
 import XCTest
 import Combine
 import SwiftUI
-@testable import boringNotch
+@testable import machNotch
 
 @MainActor
 final class MusicPluginTests: XCTestCase {

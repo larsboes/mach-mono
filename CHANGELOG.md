@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🧹 Repo Hygiene
+*   **Root README refresh**: Updated root documentation from stale `boringNotch` paths to the current `Apps/machNotch/` layout.
+*   **Build command clarity**: Documented the current root-relative build command using `Apps/machNotch/machNotch.xcodeproj` and noted that plain root `xcodebuild` is not available until a root workspace/project/package exists.
+*   **Rename status**: Verified the active Xcode scheme/targets are `machNotch`, `MachNotchXPCHelper`, and `machNotchTests`; stale docs now point to the renamed scheme.
+*   **Build/test repair**: Fixed stale Xcode project paths for entitlements, Info.plists, preview assets, and moved source files so root-relative build and test commands pass again.
+*   **CI path cleanup**: Updated build, test, release, and Pages workflows to use the nested `Apps/machNotch/` project, configuration, and updater paths.
+
 ### 🎨 UI & Animation Polish
 *   **Wider, Cleaner Layout**: Increased notch width (`740pt` → `860pt`) for better spacing.
 *   **Unified Animations**: Rearchitected open/close animations for a smoother, interruptible, and more cohesive feel. Content and shell now animate together.
