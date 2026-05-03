@@ -1,10 +1,11 @@
 name: "Deploy machNotch"
 on:
-  issue_comment:
-    types: [created]
+  push:
+    tags:
+      - 'v*'
 
 concurrency:
-  group: release-${{ github.event.issue.number || github.run_id }}
+  group: release-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -12,176 +13,39 @@ env:
   APP_DIR: Apps/machNotch
   APPCAST_PATH: Apps/machNotch/updater/appcast.xml
   BETA_CHANNEL_NAME: beta
-  RELEASE_COMMAND: /release
   CODE_SIGN_IDENTITY: "Apple Development"
   XCODE_VERSION: "16.4"
 
 permissions:
-  contents: read
-  pull-requests: write
+  contents: write
 
 jobs:
-  # helper job to test for the release command in the comment; env is safe to use here
-  check_release:
-    name: Check for release command
-    runs-on: ubuntu-latest
-    outputs:
-      is_release: ${{ steps.check.outputs.is_release }}
-    steps:
-      - id: check
-        run: |
-          if [[ "${{ github.event.comment.body }}" == *"${{ env.RELEASE_COMMAND }}"* ]]; then
-            echo "is_release=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_release=false" >> $GITHUB_OUTPUT
-          fi
-
   preparation:
     name: Preparation
-    if: ${{ github.event.issue.pull_request && needs.check_release.outputs.is_release == 'true' }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     outputs:
       is_beta: ${{ steps.extract_version.outputs.is_beta }}
       version: ${{ steps.extract_version.outputs.version }}
       build_number: ${{ steps.extract_version.outputs.build_number }}
-      title: ${{ steps.release_notes.outputs.title }}
-      release_notes: ${{ steps.release_notes.outputs.release_notes }}
-      release_notes_github: ${{ steps.release_notes.outputs.release_notes_github }}
-      head_ref: ${{ steps.pr_info.outputs.head_ref }}
-      base_ref: ${{ steps.pr_info.outputs.base_ref }}
     steps:
-      - name: Validate permissions and PR state
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          REPO="${{ github.repository }}"
-          COMMENTER="${{ github.event.comment.user.login }}"
-          PR_NUMBER="${{ github.event.issue.number }}"
-
-          # Acknowledge the command
-          gh api "repos/${REPO}/issues/comments/${{ github.event.comment.id }}/reactions" \
-            -f content=eyes --silent
-
-          # Require admin permission
-          PERM=$(gh api "repos/${REPO}/collaborators/${COMMENTER}/permission" --jq '.permission')
-          if [[ "$PERM" != "admin" ]]; then
-            echo "::error::${COMMENTER} is not an admin (permission: ${PERM})"
-            exit 1
-          fi
-
-          # Require mergeable, non-draft PR
-          IS_DRAFT=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq '.draft')
-          MERGEABLE=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq '.mergeable')
-          if [[ "$IS_DRAFT" == "true" || "$MERGEABLE" != "true" ]]; then
-            echo "::error::PR #${PR_NUMBER} is not ready to merge (draft=${IS_DRAFT}, mergeable=${MERGEABLE})"
-            exit 1
-          fi
-
-      - name: Get PR branch info
-        id: pr_info
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          PR_DATA=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.issue.number }}" \
-            --jq '{head_ref: .head.ref, base_ref: .base.ref}')
-          echo "head_ref=$(echo "$PR_DATA" | jq -r '.head_ref')" >> "$GITHUB_OUTPUT"
-          echo "base_ref=$(echo "$PR_DATA" | jq -r '.base_ref')" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          ref: ${{ steps.pr_info.outputs.head_ref }}
-
-      - name: Ensure scripts directory exists
-        env:
-          BASE_REF: ${{ steps.pr_info.outputs.base_ref }}
-        run: |
-          if [ ! -f ".github/scripts/extract_version.py" ]; then
-            echo "Script not found in PR branch, fetching from base branch"
-            git fetch origin "$BASE_REF"
-            git checkout "origin/$BASE_REF" -- .github/scripts/
-          fi
-
-      - name: Extract version from comment
+      - name: Extract version from tag
         id: extract_version
-        env:
-          COMMENT: ${{ github.event.comment.body }}
         run: |
-          set -euo pipefail
-          python3 -m pip install --upgrade --no-cache-dir semver
-          export projname="${{ env.PROJECT_NAME }}"
-          OUTPUT=$(python3 .github/scripts/extract_version.py -c "$COMMENT")
-          VERSION=$(awk -F= '/^version=/{print $2; exit}' <<<"$OUTPUT")
-          IS_BETA=$(awk -F= '/^is_beta=/{print $2; exit}' <<<"$OUTPUT")
-          BUILD_NUMBER="${GITHUB_RUN_NUMBER}"
+          VERSION="${GITHUB_REF_NAME#v}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "is_beta=$IS_BETA" >> "$GITHUB_OUTPUT"
-          echo "build_number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
-          echo "Version: $VERSION | Beta: $IS_BETA | Build: $BUILD_NUMBER"
-
-      - name: Generate release notes from PR
-        id: release_notes
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          PR_NUMBER="${{ github.event.issue.number }}"
-          REPO="${{ github.repository }}"
-          TITLE=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq '.title // "Release"')
-          BODY=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq '.body // "- No release notes provided"')
-
-          # Strip H1 headings for GitHub release notes
-          BODY_GITHUB=$(printf '%s' "$BODY" | sed '/^# /d' | perl -pe 's#<h1[^>]*>.*?</h1>##gi')
-
-          {
-            echo "title=${TITLE}"
-            echo "release_notes<<RELEASE_NOTES_DELIM"
-            echo "$BODY"
-            echo "RELEASE_NOTES_DELIM"
-            echo "release_notes_github<<RELEASE_NOTES_GH_DELIM"
-            echo "$BODY_GITHUB"
-            echo "RELEASE_NOTES_GH_DELIM"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Check version not already released
-        env:
-          VERSION: ${{ steps.extract_version.outputs.version }}
-        run: |
-          git fetch --tags
-          if git rev-parse -q --verify "refs/tags/v${VERSION}" >/dev/null; then
-            echo "::error::Version v${VERSION} already exists as a tag"
-            exit 1
+          if [[ "$VERSION" == *"beta"* || "$VERSION" == *"rc"* ]]; then
+            echo "is_beta=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_beta=false" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Sync branch (stable releases only)
-        if: steps.extract_version.outputs.is_beta == 'false'
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-          BASE_REF: ${{ steps.pr_info.outputs.base_ref }}
-          HEAD_REF: ${{ steps.pr_info.outputs.head_ref }}
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global credential.https://github.com.helper \
-            '!f() { echo "username=x-access-token"; printf "password=%s\n" "${GITHUB_TOKEN}"; }; f'
-          git fetch origin "$BASE_REF"
-          git checkout "$HEAD_REF"
-          git merge --no-ff "origin/$BASE_REF" -m "Sync branch before release"
-          git push origin "$HEAD_REF"
+          echo "build_number=${GITHUB_RUN_NUMBER}" >> "$GITHUB_OUTPUT"
 
   build:
     name: Build and sign
     needs: preparation
-    permissions:
-      contents: write
     uses: ./.github/workflows/build_reusable.yml
     with:
-      head_ref: ${{ needs.preparation.outputs.head_ref }}
+      head_ref: ${{ github.ref_name }}
       version: ${{ needs.preparation.outputs.version }}
       build_number: ${{ needs.preparation.outputs.build_number }}
       xcode_version: "16.4"
@@ -195,30 +59,21 @@ jobs:
     name: Publish release
     needs: [preparation, build]
     runs-on: macos-latest
-    permissions:
-      contents: write
-    env:
-      HEAD_REF: ${{ needs.preparation.outputs.head_ref }}
-      VERSION: ${{ needs.preparation.outputs.version }}
-      IS_BETA: ${{ needs.preparation.outputs.is_beta }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@v4
         with:
-          ref: ${{ env.HEAD_REF }}
+          ref: ${{ github.ref_name }}
 
-      - uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ env.PROJECT_NAME }}.dmg
           path: Release
 
-      - name: Create embedded release notes
-        env:
-          RELEASE_NOTES: ${{ needs.preparation.outputs.release_notes }}
-        run: printf '%s' "$RELEASE_NOTES" > Release/machNotch.html
-
       - name: Generate signed appcast
         env:
           SPARKLE_PRIVATE_KEY: ${{ secrets.PRIVATE_SPARKLE_KEY }}
+          VERSION: ${{ needs.preparation.outputs.version }}
+          IS_BETA: ${{ needs.preparation.outputs.is_beta }}
         run: |
           set -euo pipefail
           test -x "${APP_DIR}/Configuration/sparkle/generate_appcast" || {
@@ -232,7 +87,6 @@ jobs:
             --ed-key-file - \
             --link "https://github.com/larsboes/mach-mono/releases" \
             --download-url-prefix "https://github.com/larsboes/mach-mono/releases/download/v${VERSION}/" \
-            --embed-release-notes \
             "${CHANNEL_ARGS[@]}" \
             -o "${APPCAST_PATH}" \
             Release/
@@ -243,46 +97,32 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if [[ "${IS_BETA}" == "false" ]]; then
-            git add "${APPCAST_PATH}"
-            git commit -m "Update version to v${VERSION} and appcast" || true
-            RELEASE_SHA=$(git rev-parse HEAD)
-            echo "release_sha=$RELEASE_SHA" >> "$GITHUB_OUTPUT"
-            git push origin "HEAD:${HEAD_REF}" || true
-            # Also push appcast to main so GitHub Pages deploys the Sparkle feed
-            cp "${APPCAST_PATH}" "$RUNNER_TEMP/appcast.xml"
-            git fetch origin main
-            git checkout FETCH_HEAD
-            cp "$RUNNER_TEMP/appcast.xml" "${APPCAST_PATH}"
-            git add "${APPCAST_PATH}"
-            git commit -m "Update appcast for v${VERSION}" || echo "appcast already up to date"
-            git push origin HEAD:main
-          else
-            # Save generated appcast, switch to main, apply and push
-            cp "${APPCAST_PATH}" "$RUNNER_TEMP/appcast.xml"
-            git fetch origin main
-            git checkout main
-            cp "$RUNNER_TEMP/appcast.xml" "${APPCAST_PATH}"
-            git add "${APPCAST_PATH}"
-            git commit -m "Update appcast with beta release for v${VERSION}" || true
-            echo "release_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-            git push origin main
-          fi
+          
+          # Since we are on a tag, we need to push the appcast to the main branch
+          git fetch origin main
+          git checkout main
+          cp "${APPCAST_PATH}" "$RUNNER_TEMP/appcast.xml"
+          cp "$RUNNER_TEMP/appcast.xml" "${APPCAST_PATH}"
+          git add "${APPCAST_PATH}"
+          git commit -m "Update appcast for v${{ needs.preparation.outputs.version }}" || echo "appcast already up to date"
+          git push origin main
+          
+          RELEASE_SHA=$(git rev-parse HEAD)
+          echo "release_sha=$RELEASE_SHA" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TITLE: ${{ needs.preparation.outputs.title }}
-          NOTES: ${{ needs.preparation.outputs.release_notes_github }}
+          VERSION: ${{ needs.preparation.outputs.version }}
+          IS_BETA: ${{ needs.preparation.outputs.is_beta }}
           RELEASE_SHA: ${{ steps.commit_appcast.outputs.release_sha }}
         run: |
-          RELEASE_FLAGS=()
+          RELEASE_FLAGS=(--generate-notes)
           if [[ "${IS_BETA}" == "true" ]]; then
-            RELEASE_FLAGS=(--prerelease)
+            RELEASE_FLAGS+=(--prerelease)
           fi
           gh release create "v${VERSION}" Release/machNotch.dmg \
-            --title "v${VERSION} - ${TITLE}" \
-            --notes "$NOTES" \
+            --title "v${VERSION}" \
             --target "${RELEASE_SHA}" \
             "${RELEASE_FLAGS[@]}"
 
@@ -299,7 +139,6 @@ jobs:
           set -euo pipefail
           DMG_URL="https://github.com/larsboes/mach-mono/releases/download/v${VERSION}/machNotch.dmg"
 
-          # Retry SHA calculation (release may need a moment to propagate)
           for attempt in 1 2 3; do
             if SHA256=$(curl -sL --fail "$DMG_URL" | shasum -a 256 | cut -d' ' -f1); then break; fi
             echo "Attempt $attempt failed, retrying in 10s..."; sleep 10
@@ -339,12 +178,12 @@ jobs:
           fi
 
       - name: Upload cask artifacts
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@v4
         with:
           name: homebrew-cask-${{ env.VERSION }}
           path: mach-notch*.rb
 
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@v4
         with:
           repository: larsboes/mach-mono
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
@@ -368,73 +207,4 @@ jobs:
           else
             git commit -m "$COMMIT_MSG"
             git push
-          fi
-
-  ending:
-    name: Finalize
-    if: ${{ always() && needs.preparation.result != 'skipped' && needs.check_release.outputs.is_release == 'true' }}
-    needs: [check_release, preparation, build, publish, upgrade-brew]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    env:
-      ALL_RESULTS: ${{ join(needs.*.result, ',') }}
-      RELEASE_SUCCEEDED: ${{ !contains(join(needs.*.result, ','), 'failure') && !contains(join(needs.*.result, ','), 'cancelled') }}
-    steps:
-      - name: React to trigger comment
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          REPO="${{ github.repository }}"
-          COMMENT_ID="${{ github.event.comment.id }}"
-          if [[ "$ALL_RESULTS" != *"failure"* && "$ALL_RESULTS" != *"cancelled"* ]]; then
-            REACTION="rocket"
-          else
-            REACTION="confused"
-          fi
-          gh api "repos/${REPO}/issues/comments/${COMMENT_ID}/reactions" \
-            -f content="$REACTION" --silent
-
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        if: needs.preparation.outputs.is_beta == 'false' && env.RELEASE_SUCCEEDED == 'true'
-        with:
-          ref: ${{ needs.preparation.outputs.head_ref }}
-          fetch-depth: 0
-
-      - name: Merge PR (stable releases only)
-        if: needs.preparation.outputs.is_beta == 'false' && env.RELEASE_SUCCEEDED == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-          HEAD_REF: ${{ needs.preparation.outputs.head_ref }}
-          BASE_REF: ${{ needs.preparation.outputs.base_ref }}
-          VERSION: ${{ needs.preparation.outputs.version }}
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global credential.https://github.com.helper \
-            '!f() { echo "username=x-access-token"; printf "password=%s\n" "${GITHUB_TOKEN}"; }; f'
-          git fetch origin "$BASE_REF"
-          git checkout "$BASE_REF"
-          git merge --no-ff "origin/$HEAD_REF" -m "Release version v${VERSION}"
-          git push origin "$BASE_REF"
-
-      - name: Summary
-        env:
-          IS_BETA: ${{ needs.preparation.outputs.is_beta }}
-          VERSION: ${{ needs.preparation.outputs.version }}
-          BUILD_NUMBER: ${{ needs.preparation.outputs.build_number }}
-        shell: bash
-        run: |
-          if [[ "${IS_BETA}" == "true" ]]; then
-            BUILD_TYPE="beta"
-          else
-            BUILD_TYPE="stable"
-          fi
-          if [[ "${RELEASE_SUCCEEDED}" == "true" ]]; then
-            echo "✅ Released machNotch v${VERSION} (${BUILD_TYPE} build ${BUILD_NUMBER})" >> "$GITHUB_STEP_SUMMARY"
-            echo "🍺 Homebrew cask updated" >> "$GITHUB_STEP_SUMMARY"
-            echo "📱 Sparkle appcast updated" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "❌ Release failed${VERSION:+ for machNotch v${VERSION}}" >> "$GITHUB_STEP_SUMMARY"
           fi
