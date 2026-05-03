@@ -23,7 +23,8 @@ enum PluginRegistry {
             HabitTrackerPlugin(),
             PomodoroPlugin(),
             TeleprompterPlugin(),
-            DisplaySurfacePlugin()
+            DisplaySurfacePlugin(),
+            SystemStatsPlugin()
         ]
     }
 }

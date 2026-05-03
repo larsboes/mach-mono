@@ -15,6 +15,7 @@ enum PluginID {
     static let pomodoro = "com.machnotch.pomodoro"
     static let teleprompter = "com.machnotch.teleprompter"
     static let displaySurface = "com.machnotch.display-surface"
+    static let systemStats = "com.machnotch.system-stats"
 
     // System-level source IDs for events (not registered plugins)
     enum System {
