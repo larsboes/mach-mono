@@ -29,6 +29,7 @@ protocol SystemServiceProvider {
     var keyboardBacklight: any KeyboardBacklightServiceProtocol { get }
     var battery: any BatteryServiceProtocol { get }
     var xpcHelper: any XPCHelperServiceProtocol { get }
+    var fullScreen: any FullScreenServiceProtocol { get }
 }
 
 // MARK: - Storage Services

@@ -132,7 +132,8 @@ import SwiftUI
                     self.hudEnableTask = nil
 
                     if change.newValue {
-                        self.hudEnableTask = Task { @MainActor in
+                        self.hudEnableTask = Task { @MainActor [weak self] in
+                            guard let self = self else { return }
                             let granted = await self.xpcHelper.ensureAccessibilityAuthorization(promptIfNeeded: true)
                             if Task.isCancelled { return }
                             if granted {

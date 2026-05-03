@@ -95,13 +95,13 @@ import SwiftUI
     }
 
     var hideOnClosed: Bool = true
-    nonisolated(unsafe) var hideOnClosedDebounceTask: Task<Void, Never>?
+    @ObservationIgnored var hideOnClosedDebounceTask: Task<Void, Never>?
 
     /// Debounced ears state for closed notch width.
     /// Prevents flicker from transient music/face state changes.
     var closedEarsActive: Bool = false
-    nonisolated(unsafe) var earsDebounceTask: Task<Void, Never>?
-    nonisolated(unsafe) var earsTrackingTask: Task<Void, Never>?
+    @ObservationIgnored var earsDebounceTask: Task<Void, Never>?
+    @ObservationIgnored var earsTrackingTask: Task<Void, Never>?
     var earsCancellables = Set<AnyCancellable>()
 
     /// Optional plugin-requested height override for closed notch (e.g. teleprompter needs double height)

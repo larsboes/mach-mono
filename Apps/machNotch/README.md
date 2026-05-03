@@ -1,17 +1,21 @@
-<h1 align="center">
-  <br>
-  <strong>mach.notch</strong>
-  <br>
-  machNotch
-  <br>
-</h1>
-
+<p align="center">
+  <img src="machNotch/Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png" alt="machNotch logo" width="120">
+</p>
+<h1 align="center">machNotch</h1>
 <p align="center">
   <strong>A native macOS notch utility with a modern plugin architecture, clean dependency injection, and a growing suite of built-in productivity surfaces.</strong>
 </p>
 
 <p align="center">
-  <img src="https://github.com/larsboes/mach-mono/actions/workflows/cicd.yml/badge.svg" alt="Build & Test" />
+  <a href="https://github.com/larsboes/mach-mono/actions/workflows/cicd.yml">
+    <img src="https://github.com/larsboes/mach-mono/actions/workflows/cicd.yml/badge.svg" alt="Build & Test" />
+  </a>
+  <a href="https://github.com/larsboes/mach-mono/releases">
+    <img src="https://img.shields.io/github/downloads/larsboes/mach-mono/total?label=Downloads" alt="GitHub downloads"/>
+  </a>
+  <a href="https://github.com/larsboes/mach-mono/releases/latest">
+    <img src="https://img.shields.io/badge/Download-machNotch%20for%20macOS-0A84FF?style=for-the-badge&logo=apple" alt="Download machNotch for macOS"/>
+  </a>
 </p>
 
 <p align="center">
@@ -78,6 +82,16 @@ Cherry-picked and adapted the best community contributions that were pending on 
 - macOS **14 Sonoma** or later
 - Apple Silicon or Intel Mac
 
+---
+
+## Installation
+
+1) Download the latest DMG [here](https://github.com/larsboes/mach-mono/releases/latest).
+2) Open the DMG and drag machNotch into Applications.
+3) Launch machNotch and grant the requested permissions.
+
+---
+
 ## Building from Source
 
 ### Prerequisites
@@ -86,7 +100,17 @@ Cherry-picked and adapted the best community contributions that were pending on 
 - **Xcode 16 or later**
 - A free **Apple Developer account** (for code signing)
 
-### Steps
+### Building the DMG (Recommended)
+
+Running the app outside of Xcode is highly recommended for proper memory management and avoiding debugger-induced retain cycles. You can build the full DMG installer locally:
+
+```bash
+cd Apps/machNotch/Configuration/dmg
+./create_dmg.sh
+```
+This script compiles the release binary, signs it, and packages it using `dmgbuild` into a ready-to-use `.dmg`.
+
+### Running in Xcode
 
 1. **Clone this repository:**
    ```bash
@@ -108,7 +132,7 @@ Cherry-picked and adapted the best community contributions that were pending on 
      3. Change **Team** to your personal team
      4. Change **Bundle Identifier** to something unique (e.g., `com.yourname.machnotch`)
 
-   <img src="docs/images/signing-setup.png" alt="Xcode Signing Setup" width="700" />
+   <img src="../../docs/images/signing-setup.png" alt="Xcode Signing Setup" width="700" />
 
 4. **Build and run:** Press `Cmd + R`.
 
@@ -143,6 +167,22 @@ SwiftUI Views -> PluginManager -> NotchPlugin instances -> Service Protocols -> 
 ```
 
 Every feature is a plugin. Plugins communicate via `PluginEventBus`, never by importing each other. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full reference and [docs/PLUGIN_DEVELOPMENT.md](docs/PLUGIN_DEVELOPMENT.md) for the plugin development guide.
+
+---
+
+## Tagging & Release Strategy
+
+machNotch uses an automated CI/CD pipeline built on GitHub Actions. To trigger a new DMG build and GitHub Release automatically:
+
+1. Draft your changes and commit them to the repository.
+2. Push a new semantic version tag starting with `v` (e.g., `v1.2.0`).
+
+```bash
+git tag v1.2.0
+git push origin v1.2.0
+```
+
+The CI pipeline will automatically compile the app, generate the DMG, and attach it to a new GitHub Release with the corresponding version number.
 
 ---
 

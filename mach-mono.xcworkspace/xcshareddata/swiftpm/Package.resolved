@@ -1,5 +1,5 @@
 {
-  "originHash" : "8bf1426e3e3b9d125af564e7da8c54d782158675f29a6c37f0877ecd9959bd05",
+  "originHash" : "feabc63ebef4483b7c8f0ec8a881eff41011d61929184500ea901a78e01872c1",
   "pins" : [
     {
       "identity" : "asyncxpcconnection",
@@ -44,15 +44,6 @@
       "state" : {
         "revision" : "04f2fd18cc9404a0a0917265a449002674f24ec9",
         "version" : "4.5.2"
-      }
-    },
-    {
-      "identity" : "macrovisionkit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/TheBoredTeam/MacroVisionKit",
-      "state" : {
-        "revision" : "da481a6be8d8b1bf7fcb218507a72428bbcae7b0",
-        "version" : "0.2.0"
       }
     },
     {

@@ -123,7 +123,7 @@
 | 5.2 | API | **Dynamic routing** — `APIRouteRegistrar` protocol (own file) enables plugins to register/unregister REST routes at runtime. Path params (`/plugins/{id}`) with proper 404 vs 405. |
 | 5.3 | API | **Auth middleware** — Keychain-backed Bearer token in `APIAuthMiddleware` (`@unchecked Sendable`, `NSLock`). Denies on keychain failure (secure default). Enforced on all POST endpoints. |
 | 5.4 | API | **Rate limiter** — `APIRateLimiter` (own file), sliding window 10 req/s per client. Periodic cleanup every 60s evicts stale clients — prevents unbounded memory growth. |
-| 5.5 | API | **CLI companion** — `notchctl` shell script in `scripts/` wrapping REST API (`open`, `close`, `display`, `music`, `teleprompter`). |
+| 5.5 | API | **CLI companion** — `notchctl` shell script in `resources/scripts/` wrapping REST API (`open`, `close`, `display`, `music`, `teleprompter`). |
 | 5.6 | API | **REST endpoints** — full coverage: notch state/open/close/toggle, plugin list/detail/toggle, music now-playing/play-pause/next/previous. All plugin accesses wrapped in `MainActor.run`. |
 | 5.7 | API | **Event enrichment** — WebSocket payloads now include event-specific data (track title/artist/album, battery level/charging, notch phase) instead of generic metadata. |
 | 6.1 | Plugin | **TeleprompterPlugin** — camera-adjacent script scrolling. 6 API endpoints (load/start/pause/stop/state/ai-assist). Timer only fires when `isScrolling == true` (no idle 60fps overhead). `didSet` observer manages lifecycle. |
@@ -363,7 +363,7 @@ GET  /api/v1/music/now-playing        POST /api/v1/music/play-pause|next|previou
 WS   /api/v1/events                   → notch.opened, music.changed, system.batteryChanged, ...
 ```
 
-**CLI:** `notchctl open|close|display|music|teleprompter` — shell script in `scripts/`.
+**CLI:** `notchctl open|close|display|music|teleprompter` — shell script in `resources/scripts/`.
 
 ---
 

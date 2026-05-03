@@ -4,4 +4,7 @@
    <FileRef
       location = "group:Apps/machNotch/machNotch.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:Packages/MacroVisionKit">
+   </FileRef>
 </Workspace>

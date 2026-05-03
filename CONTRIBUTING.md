@@ -21,7 +21,7 @@ You can contribute in many ways: writing code, improving documentation, reportin
 
 ## Localizations
 
-Please submit all translations to [Crowdin](https://crowdin.com/project/mach-notch). New strings added to the `dev` branch from code changes will sync automatically to Crowdin, and Crowdin will automatically open a new PR with translations to allow us to integrate them.
+Please submit all translations to [Crowdin](https://crowdin.com/project/mach-notch). New strings added from code changes will sync automatically to Crowdin, and Crowdin will automatically open a new PR with translations to allow us to integrate them.
 
 ## Contributing Code
 
@@ -31,7 +31,7 @@ Please submit all translations to [Crowdin](https://crowdin.com/project/mach-not
 - **Discuss major changes**: For significant features or major changes, please open an issue first to discuss your approach with maintainers and the community.
 
 > [!IMPORTANT]
-> All code contributions must be based on the `dev` branch, not `main`. Documentation changes should be based on `main` instead.
+> All contributions should branch from `main` unless a maintainer asks you to target another branch.
 
 ### Setting Up Your Environment
 
@@ -44,11 +44,11 @@ Please submit all translations to [Crowdin](https://crowdin.com/project/mach-not
    ```
    Replace `{your-username}` with your GitHub username.
 
-3. **Switch to the `dev` branch**:
+3. **Make sure `main` is up to date**:
    ```bash
-   git checkout dev
+   git checkout main
+   git pull origin main
    ```
-   All code contributions must be based on the `dev` branch, not `main`. Documentation changes should be based on `main` instead.
 
 5. **Create a new feature branch**:
    ```bash
@@ -68,7 +68,7 @@ Please submit all translations to [Crowdin](https://crowdin.com/project/mach-not
    Write clear, concise commit messages that explain what your changes do and why.
 
 4. **Keep your branch up to date**:
-   Regularly sync your branch with the latest changes from the `dev` branch to avoid conflicts.
+   Regularly sync your branch with the latest changes from `main` to avoid conflicts.
 
 5. **Push to your fork**:
    ```bash
@@ -96,13 +96,13 @@ machNotch uses a plugin-first architecture. Adding a new feature usually means c
         }
     }
     ```
-3.  **Register the Plugin**: Add your plugin instance to the `builtInPlugins` array in `AppDelegate.swift`.
+3.  **Register the Plugin**: Add your plugin instance to `PluginRegistry.makeBuiltInPlugins()` in `Apps/machNotch/machNotch/Plugins/Core/PluginRegistry.swift`.
 
 For more details, see the [Architecture Guide](docs/ARCHITECTURE.md).
 
 ### Pull Requests
 
-1. **Create a pull request**: Go to the original repository and click "New Pull Request." Select your feature branch and set the base branch to `dev`.
+1. **Create a pull request**: Go to the original repository and click "New Pull Request." Select your feature branch and set the base branch to `main`.
 
 2. **Write a detailed description**: Your PR should include:
    - A clear title summarizing the changes

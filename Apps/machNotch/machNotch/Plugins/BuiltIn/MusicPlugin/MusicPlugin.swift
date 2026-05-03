@@ -190,10 +190,10 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
                 Text(info.track.artist)
             }
             Button(info.isPlaying ? "Pause" : "Play") {
-                Task { await self.togglePlayPause() }
+                Task { [weak self] in await self?.togglePlayPause() }
             }
             Button("Next Track") {
-                Task { await self.next() }
+                Task { [weak self] in await self?.next() }
             }
         }
     }

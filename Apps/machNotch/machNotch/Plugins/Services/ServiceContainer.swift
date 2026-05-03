@@ -38,6 +38,9 @@ final class ServiceContainer: NotchServiceProvider {
     /// Battery status service (wraps BatteryService)
     public let battery: any BatteryServiceProtocol
 
+    /// Full Screen monitoring service
+    public let fullScreen: any FullScreenServiceProtocol
+
     /// Thumbnail generation service
     public let thumbnails: any ThumbnailServiceProtocol
 
@@ -115,6 +118,7 @@ final class ServiceContainer: NotchServiceProvider {
         self.weather = WeatherService(settings: settings)
         self.face = FaceService(settings: settings)
         self.dragDrop = DragDropService()
+        self.fullScreen = FullScreenService()
 
         self.temporaryFileStorage = TemporaryFileStorageService()
         self.imageProcessing = ImageProcessingService(temporaryFileStorage: self.temporaryFileStorage)
@@ -163,6 +167,7 @@ final class ServiceContainer: NotchServiceProvider {
         brightness: any BrightnessServiceProtocol,
         keyboardBacklight: any KeyboardBacklightServiceProtocol,
         battery: any BatteryServiceProtocol,
+        fullScreen: any FullScreenServiceProtocol,
         thumbnails: any ThumbnailServiceProtocol,
         lyrics: any LyricsServiceProtocol,
         sharing: any SharingServiceProtocol,
@@ -193,6 +198,7 @@ final class ServiceContainer: NotchServiceProvider {
         self.brightness = brightness
         self.keyboardBacklight = keyboardBacklight
         self.battery = battery
+        self.fullScreen = fullScreen
         self.thumbnails = thumbnails
         self.lyrics = lyrics
         self.sharing = sharing

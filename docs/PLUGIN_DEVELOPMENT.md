@@ -49,6 +49,7 @@ final class MyFeaturePlugin: NotchPlugin {
 }
 ```
 
+
 ### 2. Define the UI
 
 Plugins can implement two UI slots:
@@ -166,18 +167,17 @@ final class MyPluginTests: XCTestCase {
 
 ## 📦 Registration
 
-Finally, add the plugin to `AppObjectGraph.swift` (the DI composition root) to register it:
+Finally, add the plugin to `PluginRegistry.swift` to register it. `AppObjectGraph` reads this registry when constructing `PluginManager`.
 
 ```swift
-// AppObjectGraph.swift
-lazy var pluginManager: PluginManager = {
-    PluginManager(
-        services: ServiceContainer(),
-        // ...
-        builtInPlugins: [
+// Plugins/Core/PluginRegistry.swift
+@MainActor
+enum PluginRegistry {
+    static func makeBuiltInPlugins() -> [any NotchPlugin] {
+        [
             MusicPlugin(),
             MyFeaturePlugin() // <--- Add this
         ]
-    )
-}()
+    }
+}
 ```

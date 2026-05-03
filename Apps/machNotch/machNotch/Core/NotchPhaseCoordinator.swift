@@ -47,8 +47,8 @@ protocol NotchPhaseDelegate: AnyObject {
         }
     }
     
-    nonisolated(unsafe) var closeWatchdogTask: Task<Void, Never>?
-    nonisolated(unsafe) var postCloseHoverTask: Task<Void, Never>?
+    @ObservationIgnored var closeWatchdogTask: Task<Void, Never>?
+    @ObservationIgnored var postCloseHoverTask: Task<Void, Never>?
     
     init() {}
 

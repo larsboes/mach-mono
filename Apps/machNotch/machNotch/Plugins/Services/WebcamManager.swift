@@ -103,7 +103,7 @@ import SwiftUI
         NSLog("Camera device was connected")
         sessionQueue.async { [weak self] in
             guard let self = self else { return }
-            Task { @MainActor in self.checkCameraAvailability() }
+            Task { @MainActor [weak self] in self?.checkCameraAvailability() }
         }
     }
 
