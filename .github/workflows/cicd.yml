@@ -23,7 +23,7 @@ jobs:
     runs-on: macos-latest
     steps:
     - name: Code Checkout
-      uses: actions/checkout@v6.0.2
+      uses: actions/checkout@v4
     - name: Build machNotch
       run: |
         xcodebuild -project Apps/machNotch/machNotch.xcodeproj \

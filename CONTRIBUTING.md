@@ -8,7 +8,6 @@ You can contribute in many ways: writing code, improving documentation, reportin
 
 ## Table of Contents
 
-- [Localizations](#localizations)
 - [Contributing Code](#contributing-code)
   - [Before You Start](#before-you-start)
   - [Setting Up Your Environment](#setting-up-your-environment)
@@ -19,10 +18,6 @@ You can contribute in many ways: writing code, improving documentation, reportin
 - [Feature Requests](#feature-requests)
 - [Getting Help](#getting-help)
 
-## Localizations
-
-Please submit all translations to [Crowdin](https://crowdin.com/project/mach-notch). New strings added from code changes will sync automatically to Crowdin, and Crowdin will automatically open a new PR with translations to allow us to integrate them.
-
 ## Contributing Code
 
 ### Before You Start
@@ -31,7 +26,7 @@ Please submit all translations to [Crowdin](https://crowdin.com/project/mach-not
 - **Discuss major changes**: For significant features or major changes, please open an issue first to discuss your approach with maintainers and the community.
 
 > [!IMPORTANT]
-> All contributions should branch from `main` unless a maintainer asks you to target another branch.
+> All contributions should branch from `dev` unless a maintainer asks you to target another branch.
 
 ### Setting Up Your Environment
 
@@ -44,10 +39,10 @@ Please submit all translations to [Crowdin](https://crowdin.com/project/mach-not
    ```
    Replace `{your-username}` with your GitHub username.
 
-3. **Make sure `main` is up to date**:
+3. **Make sure `dev` is up to date**:
    ```bash
-   git checkout main
-   git pull origin main
+   git checkout dev
+   git pull origin dev
    ```
 
 5. **Create a new feature branch**:
@@ -102,7 +97,7 @@ For more details, see the [Architecture Guide](docs/ARCHITECTURE.md).
 
 ### Pull Requests
 
-1. **Create a pull request**: Go to the original repository and click "New Pull Request." Select your feature branch and set the base branch to `main`.
+1. **Create a pull request**: Go to the original repository and click "New Pull Request." Select your feature branch and set the base branch to `dev`.
 
 2. **Write a detailed description**: Your PR should include:
    - A clear title summarizing the changes

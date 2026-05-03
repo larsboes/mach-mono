@@ -4,9 +4,7 @@ Please, go through these steps before you submit a PR.
 1. Make sure that your PR is not a duplicate.
 2. If not, then make sure that:
 
-    a. Your changes MUST NOT change translations. Please submit translations on [Crowdin](https://crowdin.com/project/mach-notch).
-
-    b. You have tested the code yourself to ensure it builds correctly and functions as intended.
+    a. You have tested the code yourself to ensure it builds correctly and functions as intended.
 
 3. **After** these steps, you're ready to open a pull request.
 

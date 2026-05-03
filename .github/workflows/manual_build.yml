@@ -5,7 +5,7 @@ on:
       head_ref:
         description: 'Branch to build'
         required: false
-        default: main
+        default: dev
       version:
         description: 'Marketing version (optional)'
         required: false
@@ -27,7 +27,7 @@ jobs:
     name: Build and sign app
     uses: ./.github/workflows/build_reusable.yml
     with:
-      head_ref: ${{ github.event.inputs.head_ref || github.ref_name || 'main' }}
+      head_ref: ${{ github.event.inputs.head_ref || github.ref_name || 'dev' }}
       version: ${{ github.event.inputs.version || '' }}
       build_number: ${{ github.event.inputs.build_number || '' }}
       xcode_version: ${{ github.event.inputs.xcode_version || '16.4' }}
