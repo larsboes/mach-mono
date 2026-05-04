@@ -1,0 +1,53 @@
+{
+  "transcriptDirectory": "/Users/larsboes/.cursor/projects/Users-larsboes-Developer-mach-mono/agent-transcripts",
+  "transcripts": {
+    "2f9e6937-503b-4705-ad8d-3914cee2eae6/2f9e6937-503b-4705-ad8d-3914cee2eae6.jsonl": {
+      "mtime": 1777750523.3790827,
+      "path": "/Users/larsboes/.cursor/projects/Users-larsboes-Developer-mach-mono/agent-transcripts/2f9e6937-503b-4705-ad8d-3914cee2eae6/2f9e6937-503b-4705-ad8d-3914cee2eae6.jsonl",
+      "size": 139106
+    },
+    "33b07721-dcfd-4645-8138-6309828402cc/33b07721-dcfd-4645-8138-6309828402cc.jsonl": {
+      "mtime": 1777887803.1137917,
+      "path": "/Users/larsboes/.cursor/projects/Users-larsboes-Developer-mach-mono/agent-transcripts/33b07721-dcfd-4645-8138-6309828402cc/33b07721-dcfd-4645-8138-6309828402cc.jsonl",
+      "size": 81551
+    },
+    "33b07721-dcfd-4645-8138-6309828402cc/subagents/be44f772-4a42-4622-b8e7-6e2a033277a8.jsonl": {
+      "mtime": 1777887813.415077,
+      "path": "/Users/larsboes/.cursor/projects/Users-larsboes-Developer-mach-mono/agent-transcripts/33b07721-dcfd-4645-8138-6309828402cc/subagents/be44f772-4a42-4622-b8e7-6e2a033277a8.jsonl",
+      "size": 2427
+    },
+    "4758c15e-58c7-4a29-82d9-41c6881c4d02/4758c15e-58c7-4a29-82d9-41c6881c4d02.jsonl": {
+      "mtime": 1777822111.0441856,
+      "path": "/Users/larsboes/.cursor/projects/Users-larsboes-Developer-mach-mono/agent-transcripts/4758c15e-58c7-4a29-82d9-41c6881c4d02/4758c15e-58c7-4a29-82d9-41c6881c4d02.jsonl",
+      "size": 33947
+    },
+    "4758c15e-58c7-4a29-82d9-41c6881c4d02/subagents/60278006-c6f6-4ed4-90c4-79f783d3afd6.jsonl": {
+      "mtime": 1777751952.2349484,
+      "path": "/Users/larsboes/.cursor/projects/Users-larsboes-Developer-mach-mono/agent-transcripts/4758c15e-58c7-4a29-82d9-41c6881c4d02/subagents/60278006-c6f6-4ed4-90c4-79f783d3afd6.jsonl",
+      "size": 7758
+    },
+    "7325cc07-e005-463b-9d51-b13d21e4c3ee/7325cc07-e005-463b-9d51-b13d21e4c3ee.jsonl": {
+      "mtime": 1777884411.654821,
+      "path": "/Users/larsboes/.cursor/projects/Users-larsboes-Developer-mach-mono/agent-transcripts/7325cc07-e005-463b-9d51-b13d21e4c3ee/7325cc07-e005-463b-9d51-b13d21e4c3ee.jsonl",
+      "size": 91312
+    },
+    "8a10fdd0-7263-425a-b91d-36b0fcd1486f/8a10fdd0-7263-425a-b91d-36b0fcd1486f.jsonl": {
+      "mtime": 1777875914.7841659,
+      "path": "/Users/larsboes/.cursor/projects/Users-larsboes-Developer-mach-mono/agent-transcripts/8a10fdd0-7263-425a-b91d-36b0fcd1486f/8a10fdd0-7263-425a-b91d-36b0fcd1486f.jsonl",
+      "size": 61934
+    },
+    "9a1b16b6-fb30-4ddb-b7be-b87c863c0bae/9a1b16b6-fb30-4ddb-b7be-b87c863c0bae.jsonl": {
+      "mtime": 1777870610.1810086,
+      "path": "/Users/larsboes/.cursor/projects/Users-larsboes-Developer-mach-mono/agent-transcripts/9a1b16b6-fb30-4ddb-b7be-b87c863c0bae/9a1b16b6-fb30-4ddb-b7be-b87c863c0bae.jsonl",
+      "size": 202441
+    },
+    "9a1b16b6-fb30-4ddb-b7be-b87c863c0bae/subagents/911ac8e6-6027-47fe-aa6d-348f849012c5.jsonl": {
+      "mtime": 1777833030.850871,
+      "path": "/Users/larsboes/.cursor/projects/Users-larsboes-Developer-mach-mono/agent-transcripts/9a1b16b6-fb30-4ddb-b7be-b87c863c0bae/subagents/911ac8e6-6027-47fe-aa6d-348f849012c5.jsonl",
+      "size": 18794
+    }
+  },
+  "updatedAt": "2026-05-04T10:15:41.303450+00:00",
+  "version": 1,
+  "workspace": "/Users/larsboes/Developer/mach-mono"
+}
