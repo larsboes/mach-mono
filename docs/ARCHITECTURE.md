@@ -295,6 +295,8 @@ machNotch/
 └── sizing/matters.swift           # Pure sizing utility functions
 ```
 
+**Weather source:** OpenWeatherMap is the primary provider for the Weather plugin. WeatherKit is optional fallback-only behavior when available, and weather results are cached in memory for 30 minutes to avoid repeated API calls from hover/open interactions.
+
 ---
 
 ## ⚠️ Known Architecture Debt

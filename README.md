@@ -21,6 +21,16 @@
 
 ---
 
+## Design System
+
+This monorepo adheres to a strict **Minimalistic Aesthetic**. 
+
+> **Core Principles:** Clarity, Cohesion, Tech-Forward, Subtlety.
+> 
+> See [.agent/rules/DESIGN.md](.agent/rules/DESIGN.md) for full guidelines.
+
+---
+
 ## What is Mach?
 
 **Mach** is named after the [Mach microkernel](https://en.wikipedia.org/wiki/Mach_(kernel)) — the foundational layer that powers macOS itself. The name reflects the goal: a solid architectural foundation that macOS utilities can be built on top of, fast and reliably.
@@ -96,11 +106,13 @@ xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch \
 - [x] `mach.notch` — notch utility (shipped)
 - [ ] `mach.window` — window snapping + DockDoor-style hover peek
 - [ ] `mach.bar` — menu bar companion (OneMenu-inspired)
-- [ ] `SystemStats` plugin — CPU/GPU/RAM/disk/network rings in the notch
+- [x] `HabitTracker` plugin — daily habits with streaks and progress rings (shipped)
+- [~] `SystemStats` plugin — CPU/GPU/RAM/disk/network rings in the notch (in progress)
 - [ ] `PreventSleep` plugin — IOKit sleep prevention toggle
 - [ ] `ExternalBrightness` plugin — DDC monitor brightness control
 - [ ] `ColorPicker` plugin — screen color sampler with history
 - [ ] `FocusMode` plugin — active Focus indicator in notch
+- [ ] `MenuBar` plugin — absorb menu bar icons into the notch
 - [ ] Shared `MachUI` package — design system across all apps
 
 See [`docs/PRD.md`](docs/PRD.md) for the full implementation plan.
@@ -139,4 +151,4 @@ See [`docs/PRD.md`](docs/PRD.md) for the full implementation plan.
 
 `mach-mono` is released under the **GNU General Public License v3.0** — see [LICENSE](LICENSE) for the full terms.
 
-This project incorporates code from [boring.notch](https://github.com/TheBoredTeam/boring.notch), [Atoll](https://github.com/Ebullioscopic/Atoll), and [DockDoor](https://github.com/ejbills/DockDoor), all of which are GPL v3. Derivative works must remain GPL v3 and open source.
+This project incorporates code from [boring.notch](https://github.com/TheBoredTeam/boring.notch) (GPL v3). Derivative works must remain GPL v3 and open source.

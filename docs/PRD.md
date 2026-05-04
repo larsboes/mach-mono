@@ -26,9 +26,72 @@
 - `Plugins/Core/NotchPlugin.swift` — stable protocol
 - `Plugins/Core/PluginEventBus.swift` — stable; add new event types as new structs
 - `Core/NotchStateMachine.swift` — pure and tested; only modify for state logic changes
-- `private/CGSSpace.swift` — private API wrapper
+- `private/MachWindowSpace.swift` — private API wrapper
 - `mediaremote-adapter/` — pre-built framework, read-only
 - `XPCHelperClient/XPCHelperClient.swift` — stable XPC client, service name is `com.larsboes.machnotch.xpc-helper`
+
+---
+
+## License Migration — GPL v3 → MIT
+
+**Current state:** Both `/LICENSE` (root) and `Apps/machNotch/LICENSE` are GPL v3, inherited from the BoringNotch fork. `CGSSpace.swift` is additionally MPL 2.0 (from avaidyam/Parrot). `MacroVisionKit` is already MIT. `MachBriefKit` and `Apps/machBrief/` will be MIT from creation.
+
+**Goal:** Relicense machNotch and the mach-mono root to MIT once all BoringNotch-origin code is genuinely reengineered. This is a deliberate, file-by-file process — not a one-liner. Renaming `Boring*` → `Notch*` was cosmetic; rewriting the logic is the actual work.
+
+**Principle:** Reengineering means understanding what a component does, then implementing the same behavior from scratch with different design choices. The ideas, APIs, and patterns are not owned by BoringNotch. The specific expression in code is. Replace the expression.
+
+---
+
+### CGSSpace.swift — Reengineering Plan
+
+**File:** `private/CGSSpace.swift` | **Current license:** MPL 2.0 (avaidyam/Parrot) | **Size:** 64 lines
+
+**Can it be rewritten?** Yes. The file has two parts:
+
+1. **`@_silgen_name` declarations** — Swift bindings to private macOS C functions (`CGSSpaceCreate`, `CGSSpaceDestroy`, etc.). These are factual interface declarations to system APIs, not creative authorship. The same declarations appear in dozens of open-source macOS projects (yabai, AeroSpace, Amethyst, etc.). Not copyrightable.
+
+2. **`CGSSpace` class wrapper** — ~30 lines. Simple `NSWindow` set that syncs to a CGS space on change. Trivially rewritable.
+
+**Rewrite approach:** Create `private/MachWindowSpace.swift` (MIT) from scratch:
+- Rename class to `MachWindowSpace`
+- Keep same `@_silgen_name` declarations (factual, not creative)
+- Redesign wrapper: use `windowNumbers: [CGWindowID]` directly instead of `Set<NSWindow>` — cleaner, no AppKit dependency in the type
+- Add `@MainActor` conformance consistent with the codebase
+- Remove MPL header entirely — fresh file, fresh license
+- Delete `CGSSpace.swift` after all call sites are updated
+- Update `CLAUDE.md` "Files to Not Touch" to reference `MachWindowSpace.swift`
+
+**Effort:** ~1 hour. Low risk — pure rename + minor interface redesign.
+
+---
+
+### Reengineering Checklist — BoringNotch Origin
+
+Files/areas that were **renamed** (cosmetic) rather than **rewritten** (genuine). Each needs a rewrite pass before the MIT relicense is clean.
+
+| Area | Status | Notes |
+|------|--------|-------|
+| `CGSSpace.swift` | ✅ Rewritten | See `MachWindowSpace.swift` (MIT) |
+| `NotchViewModel` | ⏳ Audit needed | Was `BoringViewModel` — extensively modified but not rewritten from scratch |
+| `NotchViewCoordinator` | ⏳ Audit needed | Was `BoringViewCoordinator` — check for original logic |
+| `NotchStateMachine` | ✅ Likely clean | Pure state machine, extensively tested, logic is independent |
+| `ContentView` | ⏳ Audit needed | Likely carries original layout structure |
+| `Core/Controllers/` | ⏳ Audit needed | HoverController, SizeCalculator — check origin |
+| `MusicPlugin` | ⏳ Audit needed | Most plugin logic is likely original (mediaremote-adapter is read-only framework) |
+| `BatteryPlugin` | ✅ Likely clean | Standard IOKit pattern, no unique BoringNotch logic |
+| `HabitTrackerPlugin` | ✅ Clean | Built entirely after fork — original work |
+| `TeleprompterPlugin` | ✅ Clean | Built entirely after fork — original work |
+| Plugin architecture (`NotchPlugin`, `PluginEventBus`, `PluginContext`) | ✅ Likely clean | Architecture redesign is substantial original work |
+| `AppObjectGraph` (DI root) | ✅ Likely clean | DI pattern introduced post-fork |
+| `private/LocalAPI/` | ✅ Clean | Built entirely after fork — original work |
+
+**Process for each "Audit needed" file:**
+1. Read the file — identify logic that looks like it came verbatim from BoringNotch vs. post-fork additions
+2. If uncertain: rewrite the file from scratch using the current behavior as the spec
+3. Mark ✅ in this table
+4. When all rows are ✅: update both `LICENSE` files to MIT, update CLAUDE.md
+
+**Do not rush this.** Each rewrite is a build-and-test cycle. One file per PR.
 
 ---
 
@@ -55,7 +118,7 @@
 | 12 — Audio Visualizer | Active | 12.1–12.6 shipped. Active CPU: ~11% (over 3% target — SCK overhead). |
 | 13 — Notch Video Player | Planned (Long-term) | PiP-style video player via AVPlayer + browser integration. |
 | 15 — Architecture Debt | Active | See debt triage section below. Quick wins available. |
-| 16 — New Plugins | Planned | SystemStats, PreventSleep, ExternalBrightness, ColorPicker, FocusMode, Downloads — see specs below. |
+| 16 — New Plugins | Active | **✅ HabitTracker** (shipped). Planned: SystemStats, PreventSleep, ExternalBrightness, ColorPicker, FocusMode, Downloads, MenuBar (absorber), Battery, DevActivity, Brief, MoodJournal — see specs below. |
 
 ### Phase 14 Status ✅
 
@@ -1106,7 +1169,7 @@ POST /api/v1/visualizer/toggle
 
 ### BUG-2 — Notch Expands Horizontally ~3s Then Snaps Back
 
-**Status:** ⚠️ Open (confirmed present as of 2026-03-23 audit)
+**Status:** ✅ Fixed (Phase 15.1 — `NotchSizeCalculator.swift:95` gates ear-width on `input.phase == .closed`)
 
 **Symptom:** Notch randomly widens (horizontally) for ~3 seconds then returns to normal size.
 
@@ -1126,7 +1189,7 @@ POST /api/v1/visualizer/toggle
 
 ### BUG-3 — AudioFFTProcessor Force Unwrap Crash Risk
 
-**Status:** ⚠️ Open
+**Status:** ✅ Fixed (Phase 15.4 — `fftSetup` is now `FFTSetup?` optional; `guard let setup = fftSetup` used at call site)
 
 **Location:** `Plugins/Services/AudioFFTProcessor.swift:40`
 
@@ -1140,7 +1203,7 @@ self.fftSetup = vDSP_create_fftsetup(n, FFTRadix(kFFTRadix2))!
 
 ### BUG-4 — Unstructured Observer Tasks in NotchObserverSetup Have No Cancellation
 
-**Status:** ⚠️ Open
+**Status:** ✅ Fixed (Phase 15.5 — `deinit { observerTasks.forEach { $0.cancel() } }` in `NotchObserverSetup.swift`)
 
 **Location:** `Core/NotchObserverSetup.swift:46–72`
 
@@ -1152,7 +1215,7 @@ Two `Task { @MainActor in }` blocks launched in `setupDetectorObserver()` are ne
 
 ### BUG-5 — Recursive Observation Accumulation in startEarsTracking
 
-**Status:** ⚠️ Open
+**Status:** ✅ Fixed (Phase 15.5 — `startEarsTracking()` now cancels `earsTrackingTask` before re-subscribing via structured Task)
 
 **Location:** `ViewModel/NotchViewModel+Observers.swift:57–64`
 
@@ -1164,7 +1227,7 @@ Two `Task { @MainActor in }` blocks launched in `setupDetectorObserver()` are ne
 
 ### BUG-6 — Silent try? Swallows Task Cancellation Signal
 
-**Status:** Low-severity pattern, 4+ locations
+**Status:** ✅ Fixed (Phase 15.5 — `KeyboardShortcutCoordinator.swift:101` uses `try await` + `guard !Task.isCancelled`)
 
 **Locations:**
 - `Core/KeyboardShortcutCoordinator.swift:100`: `try? await Task.sleep(for: .seconds(3))`
@@ -1180,7 +1243,7 @@ try await Task.sleep(for: .seconds(3))
 
 ### BUG-7 — @unchecked Sendable on AudioFFTProcessor Without Synchronization
 
-**Status:** ⚠️ Low-severity data race risk
+**Status:** ✅ Fixed (Phase 15.4 — `@MainActor` added to `AudioFFTProcessor`; `@unchecked Sendable` removed)
 
 **Location:** `Plugins/Services/AudioFFTProcessor.swift:14`
 
@@ -1569,13 +1632,13 @@ Before committing to implementation, validate:
 
 ## Phase 16 — New Plugins
 
-All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin: new folder at `Plugins/BuiltIn/<Name>Plugin/`, register in `AppObjectGraph`, add `PluginID` constant.
+All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin: new folder at `Plugins/BuiltIn/<Name>Plugin/`, register in `AppObjectGraph`, add `PluginID` constant. See `docs/PLUGIN_DEVELOPMENT.md` for the full plugin authoring guide.
 
 ---
 
 ### Plugin 1: SystemStats
 
-**Inspiration:** OneMenu, Atoll | **Reference:** [exelban/stats](https://github.com/exelban/stats) (GPL v3)
+**Inspiration:** OneMenu, Atoll | **Reference:** [exelban/stats](https://github.com/exelban/stats) (GPL v3) | **License note:** Independent reimplementation — zero exelban/stats code. All system metrics via standard public APIs (`host_statistics64`, `FileManager`, `getifaddrs`, `IOAccelerator`).
 
 **Goal:** Show CPU/GPU/RAM/disk/network usage as circular ring indicators in the notch. Most visually impactful addition — makes the notch a live system monitor.
 
@@ -1629,7 +1692,7 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 
 ### Plugin 3: ExternalBrightness
 
-**Inspiration:** OneMenu | **Reference:** [MonitorControl](https://github.com/MonitorControl/MonitorControl) (GPL v3)
+**Inspiration:** OneMenu | **Reference:** [MonitorControl](https://github.com/MonitorControl/MonitorControl) (GPL v3) | **License note:** Independent reimplementation — zero MonitorControl code. DDC via public IOKit APIs (`IOFramebufferConnectControl`, `IOAVServiceWriteI2C`); `CoreDisplay` as fallback.
 
 **Goal:** Control external monitor brightness via DDC (Display Data Channel) directly from the notch. No third-party app required.
 
@@ -1739,9 +1802,192 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 
 ---
 
+### Plugin 7: MenuBar (Menu Bar Absorber)
+
+**Inspiration:** Ice (GPL v3) | **License note:** Independent reimplementation — zero Ice code. Same underlying macOS mechanisms, original implementation.
+
+**Goal:** Absorb configured menu bar icons into the notch. User-selected icons disappear from the menu bar and reappear as tappable items inside the expanded notch panel. Clears menu bar clutter without quitting apps.
+
+**View slots:**
+- `closedNotchContent` — Hidden (absorber is invisible in closed state by design).
+- `expandedPanelContent` — Horizontal row of absorbed icon images. Each is tappable — sends a synthetic click to the original NSStatusItem, opening its popover/menu as normal.
+- `settingsContent` — List of detected menu bar apps. Toggle per-app to absorb. Drag to reorder.
+
+**Services needed:**
+- New `MenuBarServiceProtocol` + `MenuBarService` in `Plugins/Services/`
+- Item enumeration: `CGWindowListCopyWindowInfo(CGWindowListOption.optionOnScreenOnly, kCGNullWindowID)` filtered to `kCGWindowLayer == 25` (menu bar layer)
+- Icon capture: `CGWindowListCreateImage` per item window — renders the icon as-is
+- Hiding mechanism: Place a sentinel `NSStatusItem` (zero-width, always rightmost) as a section divider. Items configured for absorption are moved right of the sentinel via `CGSSetWindowAlpha(_:_:_:)` + `CGSSetWindowLevel` to render them invisible in place — no position shuffling needed.
+- Click passthrough: `AXUIElementPerformAction` on the item's `AXPress` action — triggers the original app's menu/popover without screen recording permission.
+
+**Architecture decisions:**
+- `CGSSpace.swift` already in `private/` — reuse connection handle (`_CGSDefaultConnection()`)
+- Hiding is alpha-based (invisible but present), not positional — avoids fighting macOS's auto-layout of the status bar
+- Icon images cached on a background actor; refreshed when `CGWindowListCopyWindowInfo` detects a change
+- Absorbed items persisted as bundle IDs in `PluginSettings` — survives relaunches
+- On `deactivate()`: restore alpha to 1.0 for all absorbed items — no orphaned invisible icons
+- `displayRequest` = nil — never requests sneak peek proactively
+
+**Permissions:** `NSAccessibilityUsageDescription` — required for `AXUIElementPerformAction` click passthrough.
+
+**Anti-pattern (what Ice does that we don't):** Ice uses control items as section dividers and moves items positionally. We avoid positional moves — they require fighting macOS's status bar layout engine and are the source of most of Ice's 1671-line complexity. Alpha-hiding is simpler and sufficient for our use case.
+
+---
+
+### Plugin 8: Battery
+
+**Inspiration:** Al Dente, native macOS battery menu
+
+**Goal:** Replace the third-party battery menu bar app. Show charge %, source, and energy mode in the notch. Includes charge limit toggle (keep battery at 80% to preserve long-term health).
+
+**View slots:**
+- `closedNotchContent` — Battery icon + % when not plugged in, or charging indicator when plugged. Amber pulse below 20%.
+- `expandedPanelContent` — Charge %, power source (battery / adapter + slow/fast/MagSafe label), energy mode picker (Automatic / Low Power / High Performance), charge limit toggle (80% cap).
+- `settingsContent` — Low battery threshold for amber pulse, show/hide in closed notch.
+
+**Services needed:**
+- New `BatteryServiceProtocol` + `BatteryService`
+- `IOPSCopyPowerSourcesInfo()` + `IOPSGetPowerSourceDescription()` — charge %, source, adapter wattage
+- `IOPSNotificationCreateRunLoopSource` — event-driven updates, no polling
+- Energy mode: `pmset -g` via `Process` to read; `pmset lowpowermode 1/0` via XPC helper to write (requires admin — use `AuthorizationExecuteWithPrivileges` in XPC helper)
+- Charge limit (80% cap): `smckit` / `IOSMCFamily` private API — or `pmset` with `charge` key if available. Mark as v2 if SMC access is complex.
+
+**Architecture decisions:**
+- `IOPSNotification` on main RunLoop — SwiftUI-friendly, no polling
+- Energy mode write goes through existing `MachNotchXPCHelper` — add `setEnergyMode(_:)` to XPC protocol
+- Amber pulse via `PluginEventBus` publishing a `BatteryLowEvent` — other plugins can react
+- `displayRequest` = `.background` normally; `.high` when battery drops below threshold
+
+**Permissions:** None for reading. XPC helper handles energy mode writes.
+
+---
+
+### Plugin 9: DevActivity
+
+**Inspiration:** cmux (GPL) | **License note:** Independent reimplementation — zero cmux code.
+
+**Goal:** Show active Claude Code (and general tmux) session status in the notch. Replace the cmux menu bar icon. Surface "waiting for input" state as an ambient notch indicator — tap to jump to the relevant terminal session.
+
+**View slots:**
+- `closedNotchContent` — Subtle indicator dot + session count when any session is waiting for input. Hidden when all sessions idle.
+- `expandedPanelContent` — List of active tmux sessions with their last output snippet. "Waiting for input" vs "Running" vs "Idle" states. Tap to bring Terminal/iTerm to front on that session.
+- `settingsContent` — Socket path (default `$TMPDIR/tmux-*/default`), refresh interval, filter by session name prefix.
+
+**Services needed:**
+- New `DevActivityServiceProtocol` + `DevActivityService`
+- tmux socket enumeration: `glob($TMPDIR/tmux-*/default)` — no tmux binary dependency
+- Session list: `tmux -S <socket> list-sessions -F "#{session_name}:#{session_activity}"` via `Process`
+- "Waiting for input" detection: check if the active pane's process is awaiting stdin — `tmux -S <socket> display-message -p "#{pane_current_command}"` → if `claude`, `node`, `python` etc. and no recent output, classify as waiting
+- Claude Code specifically: parse `~/.claude/projects/` activity or use `tmux` pane title (Claude Code sets the pane title)
+- Bring-to-front: `NSRunningApplication(processIdentifier:)?.activate()` + AppleScript to select the right tmux window
+
+**Architecture decisions:**
+- Poll every 10s via `Task` with structured cancellation — tmux has no push API
+- `Process` calls on a background actor — no main thread blocking
+- Session state diffed on each poll — only publish changes, not full refresh
+- `displayRequest` = `.high` when a session transitions to "waiting for input" (brief sneak peek); `.background` otherwise
+- Graceful degradation: if tmux not found or no socket, plugin shows nothing silently
+
+**Permissions:** None required — tmux socket is user-accessible.
+
+---
+
+### Plugin 10: Brief
+
+**Dependency:** `Packages/MachBriefKit` (shared SPM package, also powers `Apps/machBrief/` iOS app — see `docs/machBrief-PRD.md`)
+
+**Goal:** Show the current daily brief entry in the notch — word, fact, quote, mantra, or mood prompt depending on which sources the user has enabled. Same deterministic schedule as the iOS app, same content at the same time on both platforms.
+
+**View slots:**
+- `closedNotchContent` — Source icon + title snippet, right-aligned. Yields to music/active content.
+- `expandedPanelContent` — Full entry card with source-appropriate layout: word card (phonetic + definition + example), quote card (quote + author), fact card, mood prompt with 5-option picker.
+- `settingsContent` — Toggle which sources participate, link to machBrief iOS app for full settings.
+
+**Services needed:**
+- No new service — consumes `MachBriefKit.DailyScheduler`, `MachBriefKit.BriefStore`, and enabled `BriefSource` instances directly
+- `MachBriefKit` added as local SPM dependency to `machNotch` target
+- ObsidianSink wired if vault path is configured (shared config via `MachBriefKit.BriefStore`)
+
+**Architecture decisions:**
+- `MachBriefKit` is platform-agnostic Swift (no UIKit/AppKit) — links cleanly into macOS target
+- `DailyScheduler` uses date-seeded PRNG — same slot content on iOS and macOS
+- Mood check-in in expanded panel writes via `MoodCheckInSource` → triggers all configured sinks (Obsidian, HealthKit v2)
+- `displayRequest` = `.background` — never interrupts active content
+
+**Permissions:** None required (Obsidian file access via security-scoped bookmark set in machBrief iOS app, shared via `MachBriefKit`).
+
+---
+
+### Plugin 11: MoodJournal
+
+**Category:** Same family as HabitTrackerPlugin (daily check-ins, personal data) — shares the emotional/behavioral tracking space.
+
+**Goal:** Quick mood check-in from the notch. Works standalone (SwiftData). Recommended integration: Obsidian daily note append. Connects naturally to HabitTracker — mood is a daily signal like a habit completion.
+
+**View slots:**
+- `closedNotchContent` — Subtle emoji or color dot showing today's last mood. Hidden until first check-in of the day.
+- `expandedPanelContent` — Two states:
+  - **Check-in state** (default if no entry today): "How are you feeling?" + 5 pill buttons: Awesome · Good · Okay · Bad · Terrible. Optional one-line note field. Confirm tap logs and transitions to history state.
+  - **History state** (after check-in): Today's mood + note. Scroll to see last 7 days as a mini timeline. Edit button to amend today's entry.
+- `settingsContent` — Daily reminder time (optional notification), Obsidian vault path picker, markdown template editor, toggle show in closed notch.
+
+**Services needed:**
+- New `MoodServiceProtocol` + `MoodService` in `Plugins/Services/`
+- Persistence: JSON file in app support dir (same pattern as `HabitStore`) — no SwiftData dependency, keeps it macOS 13 compatible
+- Obsidian write: `FileManager` append to `<vault>/Daily/YYYY-MM-DD.md` via security-scoped bookmark
+- Optional reminder: `UNUserNotificationCenter` scheduled notification at user-set time
+
+**Data model:**
+```swift
+struct MoodEntry: Identifiable, Codable {
+    let id: UUID
+    let date: Date          // normalized to start of day
+    let mood: MoodLevel
+    let note: String?
+    let loggedAt: Date
+}
+
+enum MoodLevel: Int, Codable, CaseIterable {
+    case awesome = 5
+    case good    = 4
+    case okay    = 3
+    case bad     = 2
+    case terrible = 1
+
+    var label: String { /* "Awesome", "Good", ... */ }
+    var emoji: String { /* "😄", "🙂", "😐", "😔", "😞" */ }
+}
+```
+
+**Obsidian output (appended to daily note):**
+```markdown
+## Mood — 18:32
+Feeling: Good 🙂
+Note: good focus session, finished the PRD planning
+```
+
+**Architecture decisions:**
+- `MoodStore` mirrors `HabitStore` pattern — JSON persistence, `@Observable`, background save
+- Obsidian write is fire-and-forget on a background task — failure logged silently, never blocks UI
+- Security-scoped bookmark stored in `PluginSettings` — persists across relaunches without re-prompting
+- `displayRequest` = `.normal` briefly after check-in (sneak peek to confirm); `.background` rest of day
+- Connection to HabitTracker: `MoodJournalPlugin` publishes `MoodCheckedInEvent` on `PluginEventBus` — HabitTracker (or any future plugin) can react
+
+**Permissions:** `UNUserNotificationCenter` authorization (optional, only if reminder enabled). File access via security-scoped bookmark (no special entitlement beyond `com.apple.security.files.user-selected.read-write`).
+
+---
+
+### ✅ HabitTracker (Shipped)
+
+**Location:** `Plugins/BuiltIn/HabitTrackerPlugin/` — 6 files, registered in `PluginRegistry`.
+**Status:** Fully working. Models, store (JSON persistence), closed view (dot indicators), expanded view (habit rows with toggle), settings view (add/edit/delete habits, color/symbol picker).
+**Remaining:** No known gaps. Obsidian export and MoodJournal `MoodCheckedInEvent` integration are natural v2 additions.
+
+---
+
 ## mach.window — App Spec
 
-**Location:** `Apps/machWindow/` | **Bundle ID:** `com.larsboes.mach.window` | **License:** GPL v3
+**Location:** `Apps/machWindow/` | **Bundle ID:** `com.larsboes.mach.window` | **License:** MIT (target — independent implementation, no GPL code)
 
 ### Why a separate app, not a plugin
 
