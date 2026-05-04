@@ -164,7 +164,7 @@ extension Defaults.Keys {
     static let isNowPlayingDeprecated = Key<Bool>("isNowPlayingDeprecated", default: false)
 
     static var defaultMediaController: MediaControllerType {
-        Defaults[.isNowPlayingDeprecated] ? .appleMusic : .nowPlaying
+        MediaControllerType.defaultController(isNowPlayingDeprecated: Defaults[.isNowPlayingDeprecated])
     }
 
     static let didClearLegacyURLCacheV1 = Key<Bool>("didClearLegacyURLCache_v1", default: false)

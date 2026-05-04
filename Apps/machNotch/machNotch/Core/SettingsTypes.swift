@@ -25,6 +25,15 @@ enum MediaControllerType: String, CaseIterable, Identifiable, Defaults.Serializa
     case spotify = "Spotify"
     case youtubeMusic = "YouTube Music"
     var id: String { self.rawValue }
+
+    static func availableControllers(isNowPlayingDeprecated: Bool) -> [MediaControllerType] {
+        guard isNowPlayingDeprecated else { return allCases }
+        return allCases.filter { $0 != .nowPlaying }
+    }
+
+    static func defaultController(isNowPlayingDeprecated: Bool) -> MediaControllerType {
+        isNowPlayingDeprecated ? .appleMusic : .nowPlaying
+    }
 }
 
 enum WeatherSource: String, CaseIterable, Identifiable, Defaults.Serializable {

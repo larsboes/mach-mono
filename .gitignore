@@ -55,3 +55,5 @@ build/
 
 # Build logs
 build_log*.txt
+
+.cursor/

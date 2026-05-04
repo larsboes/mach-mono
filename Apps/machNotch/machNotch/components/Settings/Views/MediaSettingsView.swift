@@ -143,10 +143,6 @@ struct Media: View {
 
     // Only show controller options that are available on this macOS version
     private var availableMediaControllers: [MediaControllerType] {
-        if settings.isNowPlayingDeprecated {
-            return MediaControllerType.allCases.filter { $0 != .nowPlaying }
-        } else {
-            return MediaControllerType.allCases
-        }
+        MediaControllerType.availableControllers(isNowPlayingDeprecated: settings.isNowPlayingDeprecated)
     }
 }

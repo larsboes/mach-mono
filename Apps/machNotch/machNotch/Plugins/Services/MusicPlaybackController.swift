@@ -11,13 +11,31 @@ import Combine
 import SwiftUI
 
 @MainActor
+protocol MediaControllerCapabilityProviding {
+    func isNowPlayingDeprecated() async throws -> Bool
+}
+
+@MainActor
+final class MediaControllerCapabilityService: MediaControllerCapabilityProviding {
+    private let mediaChecker: MediaChecker
+
+    init(mediaChecker: MediaChecker = MediaChecker()) {
+        self.mediaChecker = mediaChecker
+    }
+
+    func isNowPlayingDeprecated() async throws -> Bool {
+        try await mediaChecker.checkDeprecationStatus()
+    }
+}
+
+@MainActor
 @Observable
 final class MusicPlaybackController {
     private var cancellables = Set<AnyCancellable>()
     private var controllerCancellables = Set<AnyCancellable>()
     private var debounceIdleTask: Task<Void, Never>?
     @ObservationIgnored public private(set) var isNowPlayingDeprecated: Bool = false
-    private let mediaChecker = MediaChecker()
+    private let mediaControllerCapabilities: any MediaControllerCapabilityProviding
     var activeController: (any MediaControllerProtocol)?
     private var settings: any MediaSettings
     var isPlaying = false
@@ -53,8 +71,12 @@ final class MusicPlaybackController {
 
     // MARK: - Initialization
 
-    init(settings: any MediaSettings) {
+    init(
+        settings: any MediaSettings,
+        mediaControllerCapabilities: (any MediaControllerCapabilityProviding)? = nil
+    ) {
         self.settings = settings
+        self.mediaControllerCapabilities = mediaControllerCapabilities ?? MediaControllerCapabilityService()
         NotificationCenter.default.publisher(for: Notification.Name.mediaControllerChanged)
             .sink { [weak self] _ in
                 self?.setActiveControllerBasedOnPreference()
@@ -63,7 +85,7 @@ final class MusicPlaybackController {
 
         Task { @MainActor in
             do {
-                self.isNowPlayingDeprecated = try await self.mediaChecker.checkDeprecationStatus()
+                self.isNowPlayingDeprecated = try await self.mediaControllerCapabilities.isNowPlayingDeprecated()
                 self.settings.isNowPlayingDeprecated = self.isNowPlayingDeprecated
             } catch {
                 print("Failed to check deprecation status: \(error). Defaulting to false.")

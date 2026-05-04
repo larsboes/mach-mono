@@ -283,25 +283,23 @@ A timer plugin needing only `sound` + `notifications` must depend on 28 services
 ### [P2 — Quick Win] Layer Violation: MusicManager.isNowPlayingDeprecatedStatic Leaks Across Layers
 
 **Severity:** Medium | **Files:** 4 files outside `Plugins/Services/` | **Effort:** Low
+**Status:** ✅ Fixed (2026-05-04)
 
 `MusicManager.isNowPlayingDeprecatedStatic` (concrete infra type) is accessed directly in:
 - `Core/DefaultsKeys.swift:164` — application layer calling into concrete infra
 - `components/Settings/Views/MediaSettingsView.swift:31, 146` — presentation calling concrete infra
 - `components/Onboarding/MusicControllerSelectionView.swift:16` — presentation calling concrete infra
 
-All 4 use it to detect whether the NowPlaying API is deprecated (macOS version check). The correct pattern is a protocol abstraction (e.g., `MediaControllerCapabilityProtocol`) injected via settings or service provider.
+All 4 used it to detect whether the NowPlaying API is deprecated (macOS version check). Fixed by routing deprecation checks through settings + `MediaControllerCapabilityProviding` and centralizing controller availability/default selection in `MediaControllerType` helpers.
 
 **When to fix:** Phase 15 — low-effort, high-clarity win.
 
 ### [P2 — Quick Win] OCP Violation: NotificationsPlugin Casts to Concrete ServiceContainer
 
 **Severity:** Medium | **Files:** `Plugins/BuiltIn/NotificationsPlugin/NotificationsPlugin.swift:51` | **Effort:** Low
+**Status:** ✅ Fixed (2026-05-04)
 
-```swift
-if let container = context.services as? ServiceContainer {
-```
-
-Downcasts the protocol-typed `context.services` to the concrete `ServiceContainer`. If `ServiceContainer` is ever renamed, split, or mocked, this breaks silently. The required service should be added to the relevant `ServiceProvider` sub-protocol instead.
+Historical issue: downcasted protocol-typed `context.services` to concrete `ServiceContainer`. Current implementation resolves this by consuming `context.services.systemNotificationObserver` directly from service provider protocols, with no concrete cast.
 
 **When to fix:** Phase 15 — 1-line fix, high DI cleanliness.
 
