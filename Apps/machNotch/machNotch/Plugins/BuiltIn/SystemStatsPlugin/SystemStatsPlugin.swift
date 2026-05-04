@@ -32,7 +32,7 @@ final class SystemStatsPlugin: NotchPlugin, PositionedPlugin {
         state = .activating
         settings = context.settings
         isEnabled = context.settings.isEnabled
-        statsService = context.services.systemStats
+        statsService = context.systemServices.systemStats
         statsService?.refreshInterval = refreshInterval
         statsService?.startMonitoring()
         state = .active

@@ -10,11 +10,11 @@ import SwiftUI
 @MainActor
 @Observable
 final class ClipboardPlugin: NotchPlugin {
-    
+
     // MARK: - NotchPlugin
-    
+
     let id = PluginID.clipboard
-    
+
     let metadata = PluginMetadata(
         name: "Clipboard",
         description: "View and manage clipboard history",
@@ -23,7 +23,7 @@ final class ClipboardPlugin: NotchPlugin {
         author: "machNotch",
         category: .utilities
     )
-    
+
     var isEnabled: Bool = true
 
     private(set) var state: PluginState = .inactive
@@ -37,21 +37,21 @@ final class ClipboardPlugin: NotchPlugin {
 
     func activate(context: PluginContext) async throws {
         self.context = context
-        context.services.clipboardManager.startMonitoring()
+        context.pluginExtensionServices.clipboardManager.startMonitoring()
         state = .active
     }
 
     func deactivate() async {
-        context?.services.clipboardManager.stopMonitoring()
+        context?.pluginExtensionServices.clipboardManager.stopMonitoring()
         state = .inactive
     }
-    
+
     // MARK: - UI Slots
-    
+
     @ViewBuilder
     func expandedPanelContent() -> some View {
         if isEnabled, state.isActive, let context {
-            ClipboardView(manager: context.services.clipboardManager)
+            ClipboardView(manager: context.pluginExtensionServices.clipboardManager)
         }
     }
 }

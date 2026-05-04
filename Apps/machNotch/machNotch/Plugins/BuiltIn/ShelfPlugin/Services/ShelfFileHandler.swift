@@ -59,7 +59,7 @@ final class ShelfFileHandler: ShelfFileHandlerProtocol {
         Task {
             let urls = await items.asyncCompactMap { item -> URL? in
                 if case .file = item.kind {
-                    return service.resolveAndUpdateBookmark(for: item)
+                    return await service.resolveAndUpdateBookmark(for: item)
                 }
                 return nil
             }
@@ -104,28 +104,24 @@ final class ShelfFileHandler: ShelfFileHandlerProtocol {
     
     func open(items: [ShelfItem], with appURL: URL? = nil) {
         Task {
-            var allSelectedURLs: [URL] = []
-
-            for itm in items {
-                if let fileURL = itm.fileURL {
-                    allSelectedURLs.append(fileURL)
-                } else if case .link(let url) = itm.kind {
-                    allSelectedURLs.append(url)
-                }
+            let allSelectedURLs: [URL] = items.compactMap { itm -> URL? in
+                if let fileURL = itm.fileURL { return fileURL }
+                if case .link(let url) = itm.kind { return url }
+                return nil
             }
 
             guard !allSelectedURLs.isEmpty else { return }
 
-            let config = NSWorkspace.OpenConfiguration()
-            
             if let appURL = appURL {
                 let fileURLs = allSelectedURLs.filter { $0.isFileURL }
                 do {
                     if !fileURLs.isEmpty {
                         _ = try await fileURLs.accessSecurityScopedResources { _ in
+                            let config = NSWorkspace.OpenConfiguration()
                             try await NSWorkspace.shared.open(allSelectedURLs, withApplicationAt: appURL, configuration: config)
                         }
                     } else {
+                        let config = NSWorkspace.OpenConfiguration()
                         try await NSWorkspace.shared.open(allSelectedURLs, withApplicationAt: appURL, configuration: config)
                     }
                 } catch {

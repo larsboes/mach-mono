@@ -24,7 +24,7 @@ final class AudioFFTProcessor {
     /// Samples to advance between windows. 2048 → ~21fps at 44100Hz.
     private let hopSize: Int = 2048
     private let log2n: vDSP_Length
-    private let fftSetup: FFTSetup?
+    nonisolated(unsafe) private let fftSetup: FFTSetup?
     private let window: [Float]
     private var previousBands: [Float]
     private var peakBands: [Float]

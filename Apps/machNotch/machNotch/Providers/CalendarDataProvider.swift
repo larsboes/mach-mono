@@ -21,27 +21,19 @@ class CalendarDataProvider: CalendarDataProviding {
     
     @MainActor
     func requestAccess(to type: EKEntityType) async throws -> Bool {
-        if #available(macOS 14.0, *) {
-            switch type {
-            case .event:
-                return try await store.requestFullAccessToEvents()
-            case .reminder:
-                return try await store.requestFullAccessToReminders()
-            @unknown default:
-                return false
-            }
-        } else {
-            return try await store.requestAccess(to: type)
+        switch type {
+        case .event:
+            return try await store.requestFullAccessToEvents()
+        case .reminder:
+            return try await store.requestFullAccessToReminders()
+        @unknown default:
+            return false
         }
     }
     
     private func hasAccess(to entityType: EKEntityType) -> Bool {
         let status = EKEventStore.authorizationStatus(for: entityType)
-        if #available(macOS 14.0, *) {
-            return status == .fullAccess
-        } else {
-            return status == .authorized
-        }
+        return status == .fullAccess
     }
     
     func calendars() async -> [CalendarModel] {

@@ -20,6 +20,7 @@
 		0F6FC24F85B930F05C4D2972 /* CalendarDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22890E9D4CCA59DD8BB5D1A6 /* CalendarDataProvider.swift */; };
 		0FDBD863A6927FF382640064 /* BluetoothServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D34B886EB323251D5E5225E9 /* BluetoothServiceProtocol.swift */; };
 		1040BF71F4E0BA72D8E0A7B8 /* MacroVisionKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1768C057F5E84F0471D9FD87 /* MacroVisionKit */; };
+		E11A00010000000000000001 /* MachBriefKit in Frameworks */ = {isa = PBXBuildFile; productRef = E11A00020000000000000001 /* MachBriefKit */; };
 		10641555AF43DDB6C9B55F27 /* PomodoroClosedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4708C2801E067446ADD04F78 /* PomodoroClosedView.swift */; };
 		1100290C2E847E2800035A57 /* NSItemProvider+LoadHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1100290B2E847E2800035A57 /* NSItemProvider+LoadHelpers.swift */; };
 		110029272E84FD4C00035A57 /* TemporaryFileStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 110029262E84FD4C00035A57 /* TemporaryFileStorageService.swift */; };
@@ -155,6 +156,7 @@
 		312FE24D4629E8B2C243E9DD /* NotchVolumeControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D11C468AF4F351C6BC408CD9 /* NotchVolumeControl.swift */; };
 		327DF2F76B387F76C31A0A0D /* ShelfService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA640EF0042EB0B31405E86D /* ShelfService.swift */; };
 		342411349B16580F20447A04 /* PluginRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA21B89DEED061A2797EE9D /* PluginRegistry.swift */; };
+		DD0011223344556677BB0001 /* BriefPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0011223344556677AA0001 /* BriefPlugin.swift */; };
 		3562226DCCA14FFFBBAD64FE /* DisplaySurfaceState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AB734CE9FD34BA6A7096521 /* DisplaySurfaceState.swift */; };
 		3A958AB02A879E0D96009DDE /* CustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829177F6B342E6E24252B640 /* CustomSlider.swift */; };
 		3B5D5B96CBC1BABD9F2A331D /* ShelfMenuDialogs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FC562FA09251CAAABE14E84 /* ShelfMenuDialogs.swift */; };
@@ -166,6 +168,10 @@
 		441B5EC9B804A55739E0157D /* MicrophoneMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4C5FFEDE9C6F9278A00815 /* MicrophoneMonitor.swift */; };
 		44B26A1A6D134632901EA987 /* SpectrumBarsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C17CB405DDD402FB09416A5 /* SpectrumBarsView.swift */; };
 		45736EB72C6F4A7B96A390D7 /* APIRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80B02F8D609742898CD3B0EE /* APIRouterTests.swift */; };
+		BB0011223344556677BB0001 /* BatteryPluginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0011223344556677AA0001 /* BatteryPluginTests.swift */; };
+		BB0011223344556677BB0002 /* ExportCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0011223344556677AA0002 /* ExportCoordinatorTests.swift */; };
+		BB0011223344556677BB0003 /* MusicPluginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0011223344556677AA0003 /* MusicPluginTests.swift */; };
+		BB0011223344556677BB0004 /* SystemStatsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0011223344556677AA0004 /* SystemStatsServiceTests.swift */; };
 		467BADDEACFDB56F4CC6AF3D /* PluginMenuBarItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B991E0B23FB25E0DECD338 /* PluginMenuBarItems.swift */; };
 		46E5ECA4A0484AC6925E02FC /* TeleprompterState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E89F93D419C42EE8D894352 /* TeleprompterState.swift */; };
 		475F67441B9A9A514AA93940 /* SettingsTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA24C65E96919EB99E61EF4D /* SettingsTypes.swift */; };
@@ -554,6 +560,7 @@
 		1D8C2670F1A8320273B9ACF8 /* WindowCoordinator+MultiDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WindowCoordinator+MultiDisplay.swift"; sourceTree = "<group>"; };
 		1F8B6BFCF3E56A40172144DA /* PomodoroTimer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PomodoroTimer.swift; path = machNotch/Plugins/BuiltIn/PomodoroPlugin/PomodoroTimer.swift; sourceTree = "<group>"; };
 		1FA21B89DEED061A2797EE9D /* PluginRegistry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PluginRegistry.swift; path = machNotch/Plugins/Core/PluginRegistry.swift; sourceTree = SOURCE_ROOT; };
+		DD0011223344556677AA0001 /* BriefPlugin.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BriefPlugin.swift; path = machNotch/Plugins/BuiltIn/BriefPlugin/BriefPlugin.swift; sourceTree = SOURCE_ROOT; };
 		1FE212DA48341E773C58B984 /* NowPlayingController+UpdateHandling.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "NowPlayingController+UpdateHandling.swift"; sourceTree = "<group>"; };
 		20664216D6CD2C0B26724A29 /* CalendarServiceProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CalendarServiceProtocol.swift; path = machNotch/Plugins/Services/CalendarServiceProtocol.swift; sourceTree = "<group>"; };
 		22890E9D4CCA59DD8BB5D1A6 /* CalendarDataProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CalendarDataProvider.swift; path = machNotch/Providers/CalendarDataProvider.swift; sourceTree = "<group>"; };
@@ -636,6 +643,10 @@
 		7E240AC845E7BB1BF6256FF8 /* NotchViewModel+Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotchViewModel+Camera.swift"; sourceTree = "<group>"; };
 		7E27686E3B1A45920C007980 /* MetalBlurView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MetalBlurView.swift; path = Effects/MetalBlurView.swift; sourceTree = "<group>"; };
 		80B02F8D609742898CD3B0EE /* APIRouterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = APIRouterTests.swift; path = machNotchTests/APIRouterTests.swift; sourceTree = "<group>"; };
+		BB0011223344556677AA0001 /* BatteryPluginTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BatteryPluginTests.swift; sourceTree = "<group>"; };
+		BB0011223344556677AA0002 /* ExportCoordinatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportCoordinatorTests.swift; sourceTree = "<group>"; };
+		BB0011223344556677AA0003 /* MusicPluginTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MusicPluginTests.swift; sourceTree = "<group>"; };
+		BB0011223344556677AA0004 /* SystemStatsServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SystemStatsServiceTests.swift; sourceTree = "<group>"; };
 		80C4F7F2C2A1E21C93605870 /* NotificationServiceProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NotificationServiceProtocol.swift; path = machNotch/Plugins/Services/NotificationServiceProtocol.swift; sourceTree = "<group>"; };
 		818FA5930AD6D391811ED1D5 /* HabitTrackerPlugin.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HabitTrackerPlugin.swift; path = machNotch/Plugins/BuiltIn/HabitTrackerPlugin/HabitTrackerPlugin.swift; sourceTree = "<group>"; };
 		829177F6B342E6E24252B640 /* CustomSlider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CustomSlider.swift; sourceTree = "<group>"; };
@@ -827,6 +838,7 @@
 				B19016222CC15B3D00E3F12E /* Defaults in Frameworks */,
 				111BE95D2ECD71E10079DD4E /* AsyncXPCConnection in Frameworks */,
 				1040BF71F4E0BA72D8E0A7B8 /* MacroVisionKit in Frameworks */,
+				E11A00010000000000000001 /* MachBriefKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -919,6 +931,10 @@
 			children = (
 				E6FB60B94B79A390572281D8 /* NotchStateMachineTests.swift */,
 				EA3972B2992CD0247A6A32A1 /* Info.plist */,
+				BB0011223344556677AA0001 /* BatteryPluginTests.swift */,
+				BB0011223344556677AA0002 /* ExportCoordinatorTests.swift */,
+				BB0011223344556677AA0003 /* MusicPluginTests.swift */,
+				BB0011223344556677AA0004 /* SystemStatsServiceTests.swift */,
 			);
 			path = machNotchTests;
 			sourceTree = SOURCE_ROOT;
@@ -1698,6 +1714,14 @@
 			name = ClipboardPlugin;
 			sourceTree = "<group>";
 		};
+		DD0011223344556677GG0001 /* BriefPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				DD0011223344556677AA0001 /* BriefPlugin.swift */,
+			);
+			name = BriefPlugin;
+			sourceTree = "<group>";
+		};
 		CEFF00CD59A4152E00347405 /* BuiltIn */ = {
 			isa = PBXGroup;
 			children = (
@@ -1711,6 +1735,7 @@
 				C75D0973476EB85CA759E6AA /* ClipboardPlugin */,
 				B4A4C32B7C88050D780F4C8A /* HabitTrackerPlugin */,
 				C465A1003AAB19639180357E /* PomodoroPlugin */,
+				DD0011223344556677GG0001 /* BriefPlugin */,
 			);
 			name = BuiltIn;
 			sourceTree = "<group>";
@@ -1924,6 +1949,7 @@
 				111BE95C2ECD71E10079DD4E /* AsyncXPCConnection */,
 				110029372E86940F00035A57 /* SQLite */,
 				1768C057F5E84F0471D9FD87 /* MacroVisionKit */,
+				E11A00020000000000000001 /* MachBriefKit */,
 			);
 			productName = machNotch;
 			productReference = 14CEF4122C5CAED300855D72 /* machNotch.app */;
@@ -1988,6 +2014,7 @@
 				110029362E86940F00035A57 /* XCRemoteSwiftPackageReference "SQLite.swift" */,
 				DBD1CF702F0338F80088B80D /* XCRemoteSwiftPackageReference "SwiftGlass" */,
 				2D53505DF273D6CFE7D95783 /* XCLocalSwiftPackageReference "MacroVisionKit" */,
+				E11A00030000000000000001 /* XCLocalSwiftPackageReference "MachBriefKit" */,
 			);
 			productRefGroup = 14CEF4132C5CAED300855D72 /* Products */;
 			projectDirPath = "";
@@ -2367,6 +2394,7 @@
 				AAEF796B364706962819A1F2 /* SystemNotificationObserver.swift in Sources */,
 				B6790B854AF22B5B70859FFE /* SystemNotificationObserverProtocol.swift in Sources */,
 				342411349B16580F20447A04 /* PluginRegistry.swift in Sources */,
+				DD0011223344556677BB0001 /* BriefPlugin.swift in Sources */,
 				524FF39FABF5A397BA209DFB /* PluginOrderSettingsView.swift in Sources */,
 				467BADDEACFDB56F4CC6AF3D /* PluginMenuBarItems.swift in Sources */,
 				97A332BDB2111AB05F7CF50A /* NotchPhaseCoordinator.swift in Sources */,
@@ -2386,6 +2414,10 @@
 				45736EB72C6F4A7B96A390D7 /* APIRouterTests.swift in Sources */,
 				481109FFAE8F7A980C360A0E /* NotchStateMachineTests.swift in Sources */,
 				969B08A0CD751A676280F2CE /* NotchHoverControllerTests.swift in Sources */,
+				BB0011223344556677BB0001 /* BatteryPluginTests.swift in Sources */,
+				BB0011223344556677BB0002 /* ExportCoordinatorTests.swift in Sources */,
+				BB0011223344556677BB0003 /* MusicPluginTests.swift in Sources */,
+				BB0011223344556677BB0004 /* SystemStatsServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2419,7 +2451,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.larsboes.machnotch.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/machNotch.app/Contents/MacOS/machNotch";
 			};
 			name = Release;
@@ -2437,7 +2469,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.larsboes.machnotch.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/machNotch.app/Contents/MacOS/machNotch";
 			};
 			name = Debug;
@@ -2463,7 +2495,7 @@
 				REGISTER_APP_GROUPS = YES;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
@@ -2488,7 +2520,7 @@
 				REGISTER_APP_GROUPS = YES;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};
@@ -2556,7 +2588,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = targeted;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
@@ -2616,7 +2648,7 @@
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_STRICT_CONCURRENCY = targeted;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};
@@ -2686,7 +2718,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OTHER_FLAGS = "-enable-experimental-feature Macros";
 				SWIFT_STRICT_CONCURRENCY = targeted;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				SYSTEM_FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SDKROOT)/System/Library/PrivateFrameworks",
@@ -2759,7 +2791,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OTHER_FLAGS = "-enable-experimental-feature Macros";
 				SWIFT_STRICT_CONCURRENCY = targeted;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				SYSTEM_FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SDKROOT)/System/Library/PrivateFrameworks",
@@ -2812,6 +2844,10 @@
 		2D53505DF273D6CFE7D95783 /* XCLocalSwiftPackageReference "MacroVisionKit" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../../Packages/MacroVisionKit;
+		};
+		E11A00030000000000000001 /* XCLocalSwiftPackageReference "MachBriefKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../Packages/MachBriefKit;
 		};
 /* End XCLocalSwiftPackageReference section */
 
@@ -2941,6 +2977,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2D53505DF273D6CFE7D95783 /* XCLocalSwiftPackageReference "MacroVisionKit" */;
 			productName = MacroVisionKit;
+		};
+		E11A00020000000000000001 /* MachBriefKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E11A00030000000000000001 /* XCLocalSwiftPackageReference "MachBriefKit" */;
+			productName = MachBriefKit;
 		};
 		9A987A0F2C73CA8D005CA465 /* Collections */ = {
 			isa = XCSwiftPackageProductDependency;

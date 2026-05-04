@@ -69,7 +69,7 @@ struct GlowingSnake<
     
     @ViewBuilder var shape: Content
     
-    var animatableData: Double {
+    nonisolated var animatableData: Double {
         get { progress }
         set { progress = newValue }
     }

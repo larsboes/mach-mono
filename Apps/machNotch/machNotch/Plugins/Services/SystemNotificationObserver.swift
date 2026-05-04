@@ -19,7 +19,10 @@ final class SystemNotificationObserver: SystemNotificationObserverProtocol {
     private var knownHashes: Set<Int> = []
     private var hashCleanupTask: Task<Void, Never>?
 
-    private static let notificationCenterBundleID = "com.apple.UserNotificationCenter"
+    private static let notificationCenterBundleIDs = [
+        "com.apple.UserNotificationCenter",
+        "com.apple.notificationcenterui"
+    ]
     private static let pollInterval: UInt64 = 2 * 1_000_000_000 // 2 seconds
     private static let dedupeWindowSeconds: TimeInterval = 5
 
@@ -39,7 +42,7 @@ final class SystemNotificationObserver: SystemNotificationObserverProtocol {
         guard AXIsProcessTrusted() else {
             print("[SystemNotificationObserver] Accessibility not trusted — requesting permission")
             let options: NSDictionary = [
-                kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true
+                "AXTrustedCheckOptionPrompt": true
             ]
             AXIsProcessTrustedWithOptions(options)
             return
@@ -87,19 +90,32 @@ final class SystemNotificationObserver: SystemNotificationObserverProtocol {
     }
 
     private func pollNotificationBanners() {
-        guard let app = NSRunningApplication.runningApplications(
-            withBundleIdentifier: Self.notificationCenterBundleID
-        ).first else { return }
+        for app in runningNotificationCenterApps() {
+            let pid = app.processIdentifier
+            let axApp = AXUIElementCreateApplication(pid)
 
-        let pid = app.processIdentifier
-        let axApp = AXUIElementCreateApplication(pid)
+            guard let windows = axAttribute(axApp, kAXWindowsAttribute) as? [AXUIElement] else {
+                continue
+            }
 
-        guard let windows = axAttribute(axApp, kAXWindowsAttribute) as? [AXUIElement] else {
-            return
+            for window in windows {
+                extractNotificationsFromElement(window)
+            }
+        }
+    }
+
+    private func runningNotificationCenterApps() -> [NSRunningApplication] {
+        let bundled = Self.notificationCenterBundleIDs.flatMap { bundleID in
+            NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
         }
 
-        for window in windows {
-            extractNotificationsFromElement(window)
+        let named = NSWorkspace.shared.runningApplications.filter { app in
+            (app.localizedName ?? "").localizedCaseInsensitiveContains("notification")
+        }
+
+        var seenPIDs = Set<pid_t>()
+        return (bundled + named).filter { app in
+            seenPIDs.insert(app.processIdentifier).inserted
         }
     }
 

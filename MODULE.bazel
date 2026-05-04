@@ -1,0 +1,26 @@
+module(
+    name = "mach_mono",
+    version = "0.0.1",
+)
+
+bazel_dep(name = "rules_apple", version = "4.1.0")
+bazel_dep(name = "rules_swift", version = "3.1.2")
+bazel_dep(name = "rules_xcodeproj", version = "2.6.0")
+bazel_dep(name = "rules_cc", version = "0.2.17")
+bazel_dep(name = "apple_support", version = "1.24.2")
+
+# Configure the local Xcode toolchain
+xcode_configure = use_extension("@rules_apple//apple:extensions.bzl", "xcode_configure")
+xcode_configure.configure(
+    version = "26.4.1", 
+)
+use_repo(xcode_configure, "local_config_xcode")
+
+# Register the local nlohmann_json as a module
+bazel_dep(name = "nlohmann_json", version = "3.11.3")
+local_path_override(
+    module_name = "nlohmann_json",
+    path = "external/nlohmann_json",
+)
+
+register_toolchains("@rules_swift//swift/toolchains:all")

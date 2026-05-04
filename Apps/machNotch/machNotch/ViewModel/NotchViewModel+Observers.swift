@@ -1,36 +1,44 @@
 //
 //  NotchViewModel+Observers.swift
-//  machNotch
+//  machNotch — mach-mono
 //
-//  Observer setup, ears debounce, and sizing delegation.
+//  Fullscreen hide debounce, closed-notch “ears” tracking, sizing, and automation intents.
 //
 
 import Combine
 import Defaults
 import SwiftUI
 
+// MARK: - Debounce intervals (must stay aligned across fullscreen + ears paths)
+
+private enum NotchObserverDebouncing {
+    static let fullscreenHide = Duration.milliseconds(400)
+    static let earsWidthSettle = Duration.milliseconds(400)
+}
+
 extension NotchViewModel {
 
-    // MARK: - Observer Setup
+    // MARK: - Fullscreen → hide when closed
 
     func setupDetectorObserver() {
-        observerSetup.setupDetectorObserver(screenUUID: screenUUID) { [weak self] (shouldHide: Bool) in
+        observerSetup.setupDetectorObserver(screenUUID: screenUUID) { [weak self] shouldHide in
             guard let self else { return }
-            self.hideOnClosedDebounceTask?.cancel()
-            self.hideOnClosedDebounceTask = Task { @MainActor [weak self] in
+            hideOnClosedDebounceTask?.cancel()
+            hideOnClosedDebounceTask = Task { @MainActor [weak self] in
                 do {
-                    try await Task.sleep(for: .milliseconds(400))
-                } catch { return }
+                    try await Task.sleep(for: NotchObserverDebouncing.fullscreenHide)
+                } catch {
+                    return
+                }
                 guard let self else { return }
-                if self.hideOnClosed != shouldHide {
-                    // Animate only when closed to avoid visual pop during open transitions
-                    if self.notchState == .closed {
-                        withAnimation(.smooth) {
-                            self.hideOnClosed = shouldHide
-                        }
-                    } else {
-                        self.hideOnClosed = shouldHide
+                guard hideOnClosed != shouldHide else { return }
+
+                if notchState == .closed {
+                    withAnimation(.smooth) {
+                        hideOnClosed = shouldHide
                     }
+                } else {
+                    hideOnClosed = shouldHide
                 }
             }
         }
@@ -42,32 +50,34 @@ extension NotchViewModel {
         }
     }
 
-    // MARK: - Ears Debounce
+    // MARK: - Closed notch ears (debounced)
 
     func setupEarsObserver() {
-        closedEarsActive = computeRawEarsActive()
-        startEarsTracking()
+        closedEarsActive = earsShouldShowForCurrentMediaState()
+        beginClosedEarsObservationLoop()
 
         services.music.playbackStatePublisher
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in self?.onEarsInputChanged() }
+            .sink { [weak self] _ in self?.debounceClosedEarsUpdate() }
             .store(in: &earsCancellables)
     }
 
-    private func startEarsTracking() {
+    /// Tracks Defaults / music-derived inputs that affect ear width without Combine publishers.
+    private func beginClosedEarsObservationLoop() {
         earsTrackingTask?.cancel()
         earsTrackingTask = Task { @MainActor [weak self] in
             while !Task.isCancelled {
                 guard let self else { break }
-                let _ = withObservationTracking {
-                    self.computeRawEarsActive()
-                } onChange: { }
 
-                self.onEarsInputChanged()
+                let _ = withObservationTracking {
+                    self.earsShouldShowForCurrentMediaState()
+                } onChange: {}
+
+                debounceClosedEarsUpdate()
 
                 await withCheckedContinuation { continuation in
                     withObservationTracking {
-                        _ = self.computeRawEarsActive()
+                        _ = self.earsShouldShowForCurrentMediaState()
                     } onChange: {
                         continuation.resume()
                     }
@@ -76,43 +86,51 @@ extension NotchViewModel {
         }
     }
 
-    private func computeRawEarsActive() -> Bool {
-        let isFaceActive = !services.music.playbackState.isPlaying &&
-                           services.music.isPlayerIdle &&
-                           settings.showNotHumanFace
-        let isMusicActive = (services.music.playbackState.isPlaying || !services.music.isPlayerIdle) &&
-                            settings.musicLiveActivityEnabled
-        return (isMusicActive || isFaceActive) && !hideOnClosed
+    /// Raw ears eligibility before debounce (matches prior `computeRawEarsActive` semantics).
+    private func earsShouldShowForCurrentMediaState() -> Bool {
+        let playback = services.music.playbackState
+        let idlePortraitEligible =
+            !playback.isPlaying &&
+            services.music.isPlayerIdle &&
+            settings.showNotHumanFace
+        let liveActivityEligible =
+            (playback.isPlaying || !services.music.isPlayerIdle) &&
+            settings.musicLiveActivityEnabled
+        return (idlePortraitEligible || liveActivityEligible) && !hideOnClosed
     }
 
-    private func onEarsInputChanged() {
-        let target = computeRawEarsActive()
-        guard target != closedEarsActive else {
+    private func debounceClosedEarsUpdate() {
+        let next = earsShouldShowForCurrentMediaState()
+        guard next != closedEarsActive else {
             earsDebounceTask?.cancel()
             earsDebounceTask = nil
             return
         }
+
         earsDebounceTask?.cancel()
         earsDebounceTask = Task { @MainActor [weak self] in
             do {
-                try await Task.sleep(for: .milliseconds(400))
-            } catch { return }
+                try await Task.sleep(for: NotchObserverDebouncing.earsWidthSettle)
+            } catch {
+                return
+            }
             guard let self, !Task.isCancelled else { return }
-            let confirmed = self.computeRawEarsActive()
-            if self.closedEarsActive != confirmed {
-                self.closedEarsActive = confirmed
+            let confirmed = earsShouldShowForCurrentMediaState()
+            if closedEarsActive != confirmed {
+                closedEarsActive = confirmed
             }
         }
     }
 
-    /// Reset currentView to .home when alwaysShowTabs is disabled and shelf isn't the default.
+    // MARK: - Tabs
+
     func setupTabResetObserver() {
         Task { @MainActor [weak self] in
             for await value in Defaults.updates(.alwaysShowTabs) {
                 guard let self, !value else { continue }
-                let isShelfEmpty = self.shelfService?.isEmpty ?? true
-                if isShelfEmpty || !self.settings.openShelfByDefault {
-                    self.currentView = .home
+                let shelfEmpty = shelfService?.isEmpty ?? true
+                if shelfEmpty || !settings.openShelfByDefault {
+                    currentView = .home
                 }
             }
         }
@@ -126,31 +144,32 @@ extension NotchViewModel {
     }
 
     func updateNotchSize() {
-        let result = sizeCalculator.updateNotchSize(
-            screenUUID: self.screenUUID,
-            currentState: self.notchState
+        let delta = sizeCalculator.updateNotchSize(
+            screenUUID: screenUUID,
+            currentState: notchState
         )
 
         withAnimation(.smooth(duration: 0.3)) {
-            if result.shouldUpdateNotchSize {
-                self.notchSize = result.closedSize
+            if delta.shouldUpdateNotchSize {
+                notchSize = delta.closedSize
             }
 
-            if let screenFrame = getScreenFrame(self.screenUUID) {
-                let width = openNotchSize.width
-                let height = openNotchSize.height
-                let x = screenFrame.midX - (width / 2)
-                let y = screenFrame.maxY - height
-
-                let region = CGRect(x: x, y: y, width: width, height: height)
-                self.services.dragDrop.updateNotchRegion(region)
+            if let screenFrame = getScreenFrame(screenUUID) {
+                let w = openNotchSize.width
+                let h = openNotchSize.height
+                let rect = CGRect(
+                    x: screenFrame.midX - w / 2,
+                    y: screenFrame.maxY - h,
+                    width: w,
+                    height: h
+                )
+                services.dragDrop.updateNotchRegion(rect)
             }
         }
     }
 
-    // MARK: - Sizing (delegation to calculator)
+    // MARK: - Closed-notch sizing inputs
 
-    /// Snapshot of all inputs the calculator needs.
     var closedNotchInput: ClosedNotchInput {
         ClosedNotchInput(
             screenUUID: screenUUID,
@@ -180,7 +199,7 @@ extension NotchViewModel {
         sizeCalculator.chinHeight(input: closedNotchInput, notchState: notchState)
     }
 
-    // MARK: - Intent Observers
+    // MARK: - App Intents / NotificationCenter bridge
 
     func setupIntentObservers() {
         NotificationCenter.default.publisher(for: .openNotchIntent)

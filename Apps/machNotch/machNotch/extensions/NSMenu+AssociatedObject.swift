@@ -14,7 +14,7 @@ private final class MenuActionBox: NSObject {
 
 extension NSMenu {
     // Each NSMenu instance can store one retained target
-    private static let retainedAction = AssociatedObject<MenuActionBox>()
+    nonisolated(unsafe) private static let retainedAction = AssociatedObject<MenuActionBox>()
 
     func retainActionTarget(_ target: AnyObject) {
         NSMenu.retainedAction[self] = MenuActionBox(target: target)

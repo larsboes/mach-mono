@@ -56,4 +56,7 @@ build/
 # Build logs
 build_log*.txt
 
-.cursor/
+.cursor/*
+!.cursor/.gitkeep
+!.cursor/rules/
+!.cursor/rules/**

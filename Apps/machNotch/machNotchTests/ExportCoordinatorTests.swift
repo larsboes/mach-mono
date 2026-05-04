@@ -1,4 +1,5 @@
 import XCTest
+
 @testable import machNotch
 
 // MARK: - Mock Exportable Plugin
@@ -20,9 +21,7 @@ final class MockExportablePlugin: NotchPlugin, ExportablePlugin {
 
     func activate(context: PluginContext) async throws { state = .active }
     func deactivate() async { state = .inactive }
-    func closedNotchContent() -> AnyView? { nil }
-    func expandedPanelContent() -> AnyView? { nil }
-    func settingsContent() -> AnyView? { nil }
+    // View methods intentionally omitted — protocol defaults return EmptyView
 
     // ExportablePlugin
 
@@ -122,37 +121,7 @@ final class ExportablePluginTests: XCTestCase {
     }
 }
 
-final class APIRouterTests: XCTestCase {
-    func testNotchStateRouteReturnsStateEnvelope() async {
-        let router = APIRouter(
-            notchState: { APINotchState(phase: "open", screen: "main", size: APISize(width: 120, height: 48)) },
-            openNotch: {},
-            closeNotch: {},
-            toggleNotch: {}
-        )
-
-        let request = APIRequest(method: .get, path: "/api/v1/notch/state", headers: [:], body: Data())
-        let response = await router.route(request)
-
-        XCTAssertEqual(response.statusCode, 200)
-        let json = String(data: response.body, encoding: .utf8) ?? ""
-        XCTAssertTrue(json.contains("\"ok\":true"))
-        XCTAssertTrue(json.contains("\"phase\":\"open\""))
-    }
-
-    func testUnknownRouteReturns404() async {
-        let router = APIRouter(
-            notchState: { APINotchState(phase: "closed", screen: "main", size: APISize(width: 200, height: 32)) },
-            openNotch: {},
-            closeNotch: {},
-            toggleNotch: {}
-        )
-
-        let request = APIRequest(method: .post, path: "/api/v1/does-not-exist", headers: [:], body: Data())
-        let response = await router.route(request)
-
-        XCTAssertEqual(response.statusCode, 404)
-        let json = String(data: response.body, encoding: .utf8) ?? ""
-        XCTAssertTrue(json.contains("\"ok\":false"))
-    }
-}
+// NOTE: APIRouterNotchStateTests was removed — APIRouter no longer accepts
+// notchState/openNotch/closeNotch/toggleNotch parameters in its initialiser.
+// Those route-handler tests live in APIRouterTests.swift using the dynamic
+// registration API instead.

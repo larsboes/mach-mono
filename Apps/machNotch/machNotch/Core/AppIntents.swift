@@ -3,8 +3,8 @@ import AppIntents
 // MARK: - Notch Control
 
 struct OpenNotchIntent: AppIntent {
-    static var title: LocalizedStringResource = "Open Notch"
-    static var description = IntentDescription("Opens the machNotch panel.")
+    nonisolated(unsafe) static var title: LocalizedStringResource = "Open Notch"
+    nonisolated(unsafe) static var description = IntentDescription("Opens the machNotch panel.")
 
     @MainActor
     func perform() async throws -> some IntentResult {
@@ -14,8 +14,8 @@ struct OpenNotchIntent: AppIntent {
 }
 
 struct CloseNotchIntent: AppIntent {
-    static var title: LocalizedStringResource = "Close Notch"
-    static var description = IntentDescription("Closes the machNotch panel.")
+    nonisolated(unsafe) static var title: LocalizedStringResource = "Close Notch"
+    nonisolated(unsafe) static var description = IntentDescription("Closes the machNotch panel.")
 
     @MainActor
     func perform() async throws -> some IntentResult {
@@ -25,8 +25,8 @@ struct CloseNotchIntent: AppIntent {
 }
 
 struct ToggleNotchIntent: AppIntent {
-    static var title: LocalizedStringResource = "Toggle Notch"
-    static var description = IntentDescription("Opens the notch if closed, closes it if open.")
+    nonisolated(unsafe) static var title: LocalizedStringResource = "Toggle Notch"
+    nonisolated(unsafe) static var description = IntentDescription("Opens the notch if closed, closes it if open.")
 
     @MainActor
     func perform() async throws -> some IntentResult {
@@ -38,8 +38,8 @@ struct ToggleNotchIntent: AppIntent {
 // MARK: - Music Control
 
 struct ToggleMusicPlaybackIntent: AppIntent {
-    static var title: LocalizedStringResource = "Play / Pause Music"
-    static var description = IntentDescription("Toggles playback of the current track in machNotch.")
+    nonisolated(unsafe) static var title: LocalizedStringResource = "Play / Pause Music"
+    nonisolated(unsafe) static var description = IntentDescription("Toggles playback of the current track in machNotch.")
 
     @MainActor
     func perform() async throws -> some IntentResult {
@@ -49,8 +49,8 @@ struct ToggleMusicPlaybackIntent: AppIntent {
 }
 
 struct NextTrackIntent: AppIntent {
-    static var title: LocalizedStringResource = "Next Track"
-    static var description = IntentDescription("Skips to the next track via machNotch.")
+    nonisolated(unsafe) static var title: LocalizedStringResource = "Next Track"
+    nonisolated(unsafe) static var description = IntentDescription("Skips to the next track via machNotch.")
 
     @MainActor
     func perform() async throws -> some IntentResult {
@@ -60,8 +60,8 @@ struct NextTrackIntent: AppIntent {
 }
 
 struct PreviousTrackIntent: AppIntent {
-    static var title: LocalizedStringResource = "Previous Track"
-    static var description = IntentDescription("Goes back to the previous track via machNotch.")
+    nonisolated(unsafe) static var title: LocalizedStringResource = "Previous Track"
+    nonisolated(unsafe) static var description = IntentDescription("Goes back to the previous track via machNotch.")
 
     @MainActor
     func perform() async throws -> some IntentResult {

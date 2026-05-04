@@ -42,6 +42,28 @@ final class PluginContext {
         self.appState = appState
         self.mediaSettings = mediaSettings
     }
+
+    // MARK: - ISP-Compliant Narrowed Service Accessors
+    //
+    // Prefer these over `services` when your plugin only needs a focused capability group.
+    // Built-in plugins use the narrowest accessor that covers their actual needs.
+    // In Phase 9, third-party plugins will receive a PluginContext whose `services`
+    // is constrained to only the sub-protocol they declared at registration time.
+
+    /// Music, lyrics, sound — for media-centric plugins.
+    var mediaServices: any MediaServiceProvider { services }
+
+    /// Volume, brightness, battery, keyboard backlight, system stats.
+    var systemServices: any SystemServiceProvider { services }
+
+    /// Shelf, temporary files, image processing, thumbnails, QuickLook.
+    var storageServices: any StorageServiceProvider { services }
+
+    /// Notifications, system notification observer, sharing, drag-drop, webcam, face.
+    var uiServices: any UIServiceProvider { services }
+
+    /// AI, bluetooth, clipboard, calendar, weather, API route registrar.
+    var pluginExtensionServices: any PluginExtensionServiceProvider { services }
 }
 
 // MARK: - App State Protocol

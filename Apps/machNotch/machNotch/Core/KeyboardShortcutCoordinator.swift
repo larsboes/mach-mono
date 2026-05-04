@@ -55,21 +55,25 @@ final class KeyboardShortcutCoordinator {
     private func handleToggleSneakPeek() {
         if settings.sneakPeekStyles == .inline {
             if !coordinator.expandingView.show {
-                eventBus.emit(SneakPeekRequestedEvent(
-                    sourcePluginId: PluginID.System.keyboard,
-                    request: SneakPeekRequest(style: .inline, type: .music)
-                ))
+                eventBus.emit(
+                    SneakPeekRequestedEvent(
+                        sourcePluginId: PluginID.System.keyboard,
+                        request: SneakPeekRequest(style: .inline, type: .music)
+                    ))
             } else {
-                coordinator.toggleExpandingView(status: false, type: .music, value: 0, browser: .chromium)
+                coordinator.toggleExpandingView(
+                    status: false, type: .music, value: 0, browser: .chromium)
             }
         } else {
             if !coordinator.sneakPeek.show {
-                eventBus.emit(SneakPeekRequestedEvent(
-                    sourcePluginId: PluginID.System.keyboard,
-                    request: SneakPeekRequest(style: .standard, type: .music)
-                ))
+                eventBus.emit(
+                    SneakPeekRequestedEvent(
+                        sourcePluginId: PluginID.System.keyboard,
+                        request: SneakPeekRequest(style: .standard, type: .music)
+                    ))
             } else {
-                coordinator.toggleSneakPeek(status: false, type: .music, duration: 1.5, value: 0, icon: "")
+                coordinator.toggleSneakPeek(
+                    status: false, type: .music, duration: 1.5, value: 0, icon: "")
             }
         }
     }
@@ -99,8 +103,7 @@ final class KeyboardShortcutCoordinator {
             let task = Task { [weak viewModel] in
                 do {
                     try await Task.sleep(for: .seconds(3))
-                } catch { return }
-                guard !Task.isCancelled else { return }
+                } catch { return }  // CancellationError exits here
                 await MainActor.run {
                     viewModel?.close()
                 }

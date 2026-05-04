@@ -3,6 +3,7 @@ import SwiftUI
 struct WeatherClosedPill: View {
     private enum PopoverMode { case preview, detail }
     let weather: WeatherData
+    @Environment(NotchViewModel.self) private var vm
     @State private var isHoveringPill = false
     @State private var isHoveringPopover = false
     @State private var popoverMode: PopoverMode = .preview
@@ -30,6 +31,7 @@ struct WeatherClosedPill: View {
         .onHover { hovering in
             isHoveringPill = hovering
             if hovering {
+                vm.cancelPendingOpen()
                 hideTask?.cancel()
                 if !showPopover {
                     popoverMode = .preview
@@ -51,12 +53,14 @@ struct WeatherClosedPill: View {
                 }
         }
         .onChange(of: showPopover) { _, isShowing in
+            vm.isBatteryPopoverActive = isShowing
             if !isShowing {
                 hideTask?.cancel()
                 popoverMode = .preview
             }
         }
         .onDisappear {
+            vm.isBatteryPopoverActive = false
             hideTask?.cancel()
         }
     }

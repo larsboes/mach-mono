@@ -96,7 +96,7 @@ Cherry-picked and adapted the best community contributions that were pending on 
 
 ### Prerequisites
 
-- **macOS 14 or later**
+- **macOS 15 or later**
 - **Xcode 16 or later**
 - A free **Apple Developer account** (for code signing)
 
@@ -166,7 +166,7 @@ The extension connects directly to machNotch via a local WebSocket to transmit m
 SwiftUI Views -> PluginManager -> NotchPlugin instances -> Service Protocols -> System APIs
 ```
 
-Every feature is a plugin. Plugins communicate via `PluginEventBus`, never by importing each other. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full reference and [docs/PLUGIN_DEVELOPMENT.md](docs/PLUGIN_DEVELOPMENT.md) for the plugin development guide.
+Every feature is a plugin. Plugins communicate via `PluginEventBus`, never by importing each other. See [docs/architecture/overview.md](../../docs/architecture/overview.md) for the full reference and [docs/guides/plugin-development.md](../../docs/guides/plugin-development.md) for the plugin development guide.
 
 ---
 

@@ -14,7 +14,6 @@ actor ThumbnailService: ThumbnailServiceProtocol {
     // Use NSCache for automatic memory management and thread safety
     private let cache = NSCache<NSString, CGImage>()
     private var pendingRequests: [String: Task<CGImage?, Never>] = [:]
-    private let thumbnailGenerator = QLThumbnailGenerator.shared
     private let maxCacheSize = 100
 
     init() {
@@ -69,7 +68,7 @@ actor ThumbnailService: ThumbnailServiceProtocol {
             )
             request.iconMode = true
 
-            let representation = try? await thumbnailGenerator.generateBestRepresentation(for: request)
+            let representation = try? await QLThumbnailGenerator.shared.generateBestRepresentation(for: request)
             guard let rep = representation else { return nil }
             return rep.cgImage
         }

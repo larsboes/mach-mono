@@ -11,8 +11,8 @@
 //  - Views receive this plugin via @Environment(PluginManager.self)
 //
 
-import SwiftUI
 import Combine
+import SwiftUI
 
 // MARK: - Music Plugin
 
@@ -45,7 +45,8 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
 
     var nowPlaying: NowPlayingInfo? {
         guard let service = musicService,
-              let track = service.currentTrack else {
+            let track = service.currentTrack
+        else {
             return nil
         }
         return NowPlayingInfo(
@@ -93,7 +94,7 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
         state = .activating
 
         // Store references
-        self.musicService = context.services.music
+        self.musicService = context.mediaServices.music
         self.settings = context.settings
         self.mediaSettings = context.mediaSettings
         self.eventBus = context.eventBus
@@ -153,10 +154,10 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
 
     var displayRequest: DisplayRequest? {
         guard isEnabled, state.isActive,
-              let service = musicService,
-              service.playbackState.isPlaying || !service.isPlayerIdle,
-              // Use settings to check if Live Activity is enabled
-              settings?.get("showLiveActivity", default: true) ?? true
+            let service = musicService,
+            service.playbackState.isPlaying || !service.isPlayerIdle,
+            // Use settings to check if Live Activity is enabled
+            settings?.get("showLiveActivity", default: true) ?? true
         else {
             return nil
         }
@@ -257,7 +258,7 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
                 }
             }
             .store(in: &cancellables)
-            
+
         // Emit events when sneak peek is requested
         service.sneakPeekPublisher
             .sink { [weak self] request in

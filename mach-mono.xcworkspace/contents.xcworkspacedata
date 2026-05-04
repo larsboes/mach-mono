@@ -7,4 +7,10 @@
    <FileRef
       location = "group:Packages/MacroVisionKit">
    </FileRef>
+   <FileRef
+      location = "group:Packages/MachBriefKit">
+   </FileRef>
+   <FileRef
+      location = "group:Apps/machBrief/machBrief.xcodeproj">
+   </FileRef>
 </Workspace>

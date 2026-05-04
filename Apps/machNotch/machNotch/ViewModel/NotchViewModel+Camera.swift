@@ -1,58 +1,65 @@
 //
 //  NotchViewModel+Camera.swift
-//  machNotch
+//  machNotch — mach-mono
 //
-//  Extracted camera-related methods from NotchViewModel.
+//  Webcam preview toggle with System Settings hand-off when access is denied.
 //
 
 import AppKit
 
 extension NotchViewModel {
+
     func toggleCameraPreview() {
-        if isRequestingAuthorization {
-            return
-        }
+        guard !isRequestingAuthorization else { return }
 
         switch services.webcam.authorizationStatus {
         case .authorized:
-            if services.webcam.isSessionRunning {
-                services.webcam.stopSession()
-                isCameraExpanded = false
-            } else if services.webcam.cameraAvailable {
-                services.webcam.startSession()
-                isCameraExpanded = true
-            }
-
+            flipRunningCameraSession()
         case .denied, .restricted:
-            DispatchQueue.main.async {
-                NSApp.setActivationPolicy(.regular)
-                NSApp.activate(ignoringOtherApps: true)
-
-                let alert = NSAlert()
-                alert.messageText = "Camera Access Required"
-                alert.informativeText = "Please allow camera access in System Settings."
-                alert.addButton(withTitle: "Open Settings")
-                alert.addButton(withTitle: "Cancel")
-
-                if alert.runModal() == .alertFirstButtonReturn {
-                    if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera") {
-                        NSWorkspace.shared.open(url)
-                    }
-                }
-
-                NSApp.setActivationPolicy(.accessory)
-                NSApp.deactivate()
-            }
-
+            promptOpenCameraPrivacySettings()
         case .notDetermined:
-            isRequestingAuthorization = true
-            services.webcam.checkAndRequestVideoAuthorization()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                self.isRequestingAuthorization = false
-            }
-
+            requestInitialCameraAuthorization()
         default:
             break
+        }
+    }
+
+    private func flipRunningCameraSession() {
+        if services.webcam.isSessionRunning {
+            services.webcam.stopSession()
+            isCameraExpanded = false
+        } else if services.webcam.cameraAvailable {
+            services.webcam.startSession()
+            isCameraExpanded = true
+        }
+    }
+
+    private func promptOpenCameraPrivacySettings() {
+        DispatchQueue.main.async {
+            NSApp.setActivationPolicy(.regular)
+            NSApp.activate(ignoringOtherApps: true)
+
+            let alert = NSAlert()
+            alert.messageText = "Camera Access Required"
+            alert.informativeText = "Please allow camera access in System Settings."
+            alert.addButton(withTitle: "Open Settings")
+            alert.addButton(withTitle: "Cancel")
+
+            if alert.runModal() == .alertFirstButtonReturn,
+               let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera") {
+                NSWorkspace.shared.open(url)
+            }
+
+            NSApp.setActivationPolicy(.accessory)
+            NSApp.deactivate()
+        }
+    }
+
+    private func requestInitialCameraAuthorization() {
+        isRequestingAuthorization = true
+        services.webcam.checkAndRequestVideoAuthorization()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            self?.isRequestingAuthorization = false
         }
     }
 }

@@ -1,5 +1,4 @@
 {
-  "originHash" : "feabc63ebef4483b7c8f0ec8a881eff41011d61929184500ea901a78e01872c1",
   "pins" : [
     {
       "identity" : "asyncxpcconnection",
@@ -119,5 +118,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }

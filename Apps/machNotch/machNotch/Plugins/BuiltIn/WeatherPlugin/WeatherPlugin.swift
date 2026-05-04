@@ -11,11 +11,11 @@ import SwiftUI
 @MainActor
 @Observable
 final class WeatherPlugin: NotchPlugin, PositionedPlugin {
-    
+
     // MARK: - NotchPlugin
-    
+
     let id = PluginID.weather
-    
+
     let metadata = PluginMetadata(
         name: "Weather",
         description: "View current weather conditions",
@@ -24,15 +24,15 @@ final class WeatherPlugin: NotchPlugin, PositionedPlugin {
         author: "machNotch",
         category: .utilities
     )
-    
+
     var isEnabled: Bool = true
-    
+
     private(set) var state: PluginState = .inactive
-    
+
     // MARK: - PositionedPlugin
-    
+
     var closedNotchPosition: ClosedNotchPosition { .right }
-    
+
     // MARK: - Dependencies
 
     var weatherService: (any WeatherServiceProtocol)?
@@ -47,7 +47,7 @@ final class WeatherPlugin: NotchPlugin, PositionedPlugin {
     func activate(context: PluginContext) async throws {
         state = .activating
 
-        self.weatherService = context.services.weather
+        self.weatherService = context.pluginExtensionServices.weather
         self.settings = context.settings
 
         // Always start updates — UI gating in NotchHomeView handles visibility
@@ -55,14 +55,14 @@ final class WeatherPlugin: NotchPlugin, PositionedPlugin {
 
         state = .active
     }
-    
+
     func deactivate() async {
         weatherService?.stopUpdatingWeather()
         weatherService = nil
         settings = nil
         state = .inactive
     }
-    
+
     // MARK: - UI Slots
 
     var displayRequest: DisplayRequest? {
@@ -83,7 +83,7 @@ final class WeatherPlugin: NotchPlugin, PositionedPlugin {
             WeatherView()
         }
     }
-    
+
     @ViewBuilder
     func settingsContent() -> some View {
         WeatherSettings()

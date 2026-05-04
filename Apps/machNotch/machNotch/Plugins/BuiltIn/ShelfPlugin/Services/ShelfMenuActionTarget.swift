@@ -116,7 +116,7 @@ final class ShelfMenuActionTarget: NSObject {
             guard self != nil else { return }
             let fileURLs = await selected.asyncCompactMap { item -> URL? in
                 if case .file = item.kind {
-                    return service.resolveAndUpdateBookmark(for: item)
+                    return await service.resolveAndUpdateBookmark(for: item)
                 }
                 return nil
             }

@@ -1,0 +1,26 @@
+---
+description: mach-mono source-of-truth map
+alwaysApply: true
+---
+
+# mach-mono Cursor Rules
+
+Read these canonical files before making repo changes:
+
+1. `AGENTS.md` — common AI agent instructions.
+2. `repo.yaml` — structured repo facts, product paths, policies, and doc pointers.
+3. `docs/README.md` — documentation index.
+4. Product-specific instructions, especially `Apps/machNotch/CLAUDE.md` for machNotch work. For machBrief, use `docs/prds/machBrief-*.md` until an app-local agent file exists.
+5. Full workspace membership is listed in `repo.yaml` → `workspace.xcode.includes` (root `mach-mono.xcworkspace` is not machNotch-only).
+
+Do not duplicate repo facts in Cursor rules. If facts change, update `repo.yaml` and the relevant Markdown source of truth instead.
+
+Canonical docs:
+
+- Active machNotch PRD: `docs/prds/machNotch.md`
+- machBrief macOS PRD: `docs/prds/machBrief-macOS.md`
+- machBrief iOS PRD: `docs/prds/machBrief-iOS.md`
+- Architecture: `docs/architecture/overview.md`
+- Plugin guide: `docs/guides/plugin-development.md`
+- Bazel roadmap: `docs/roadmaps/bazel.md`
+- Decisions: `docs/decisions/`

@@ -9,6 +9,11 @@
 import AppKit
 import ScreenCaptureKit
 
+/// ScreenCaptureKit delivers pixel buffers on a handler queue; this wrapper crosses into `Task` as `@unchecked Sendable`.
+private struct UncheckedPixelBuffer: @unchecked Sendable {
+    let buffer: CVPixelBuffer
+}
+
 /// A Swift actor that manages ScreenCaptureKit streaming for thread-safe desktop capture.
 /// Captures the desktop region behind the notch, excluding the notch window itself.
 actor DesktopCaptureActor {
@@ -156,8 +161,9 @@ actor DesktopCaptureActor {
         
         // Create and add output
         let output = StreamOutput { [weak self] pixelBuffer in
+            let wrapped = UncheckedPixelBuffer(buffer: pixelBuffer)
             Task { [weak self] in
-                await self?.handleFrame(pixelBuffer)
+                await self?.handleFrame(wrapped)
             }
         }
         self.streamOutput = output
@@ -202,8 +208,8 @@ actor DesktopCaptureActor {
     
     // MARK: - Private Methods
     
-    private func handleFrame(_ pixelBuffer: CVPixelBuffer) {
-        frameContinuation?.yield(pixelBuffer)
+    private func handleFrame(_ pixelBuffer: UncheckedPixelBuffer) {
+        frameContinuation?.yield(pixelBuffer.buffer)
     }
 }
 

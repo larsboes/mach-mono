@@ -8,7 +8,7 @@ Please, go through these steps before you submit a PR.
 
 3. **After** these steps, you're ready to open a pull request.
 
-    a. Your pull request MUST NOT target the `main` branch on this repository. You probably want to target `dev` instead.
+    a. Target `main` unless a maintainer explicitly asks for another branch.
 
     b. Give a descriptive title to your PR.
 

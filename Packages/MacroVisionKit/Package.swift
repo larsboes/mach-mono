@@ -1,10 +1,10 @@
-// swift-tools-version: 6.1
+// swift-tools-version: 6.3
 import PackageDescription
 
 let package = Package(
     name: "MacroVisionKit",
     platforms: [
-        .macOS(.v10_15)
+        .macOS(.v26)
     ],
     products: [
         .library(

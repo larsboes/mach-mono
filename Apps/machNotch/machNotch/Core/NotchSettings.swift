@@ -41,8 +41,8 @@ private struct BindableNotchSettingsKey: EnvironmentKey {
     // Fall back to .shared — SwiftUI may resolve the default during NSHostingView init
     // before .environment(\.bindableSettings, ...) is applied in the modifier chain.
     // A fatalError here crashes the app at launch.
-    @MainActor static var defaultValue: DefaultsNotchSettings {
-        DefaultsNotchSettings.shared
+    nonisolated static var defaultValue: DefaultsNotchSettings {
+        MainActor.assumeIsolated { DefaultsNotchSettings.shared }
     }
 }
 

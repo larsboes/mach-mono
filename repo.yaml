@@ -1,0 +1,138 @@
+repo:
+  name: mach-mono
+  primary_branch: main
+  description: Monorepo for focused Apple platform quality-of-life utilities.
+  identity:
+    suite_name: mach-mono
+    naming_note: Prefer mach-mono and machNotch naming; keep boring.notch/BoringNotch only for attribution, license, and dependency history.
+
+# ADR index — use for "why"; full context lives in each file.
+decisions:
+  branching: docs/decisions/0001-main-only-branching.md
+  workspace: docs/decisions/0002-root-xcode-workspace.md
+  licensing: docs/decisions/0003-license-policy.md
+  bazel: docs/decisions/0004-bazel-orchestration.md
+  weather: docs/decisions/0005-weather-provider-strategy.md
+
+workspace:
+  tech_stack:
+    minimum_os: macOS 26
+    minimum_ios: iOS 20
+    swift_version: 6.3
+    persistence: SwiftData
+    widgets: WidgetKit
+  xcode:
+    path: mach-mono.xcworkspace
+    primary_scheme: machNotch
+    primary_project: Apps/machNotch/machNotch.xcodeproj
+    # All members of the workspace (see mach-mono.xcworkspace/contents.xcworkspacedata)
+    includes:
+      - Apps/machNotch/machNotch.xcodeproj
+      - Apps/machBrief/machBrief.xcodeproj
+      - Packages/MacroVisionKit
+      - Packages/MachBriefKit
+  bazel:
+    status: in_progress
+    module: MODULE.bazel
+    roadmap: docs/roadmaps/bazel.md
+
+products:
+  machNotch:
+    display_name: mach.notch
+    kind: macOS app
+    status: active
+    path: Apps/machNotch
+    xcode_project: Apps/machNotch/machNotch.xcodeproj
+    scheme: machNotch
+    agent_instructions: Apps/machNotch/CLAUDE.md
+    prd: docs/prds/machNotch.md
+    architecture: docs/architecture/overview.md
+    plugin_development: docs/guides/plugin-development.md
+    license:
+      current: GPL-3.0
+      target: MIT
+      migration_doc: docs/prds/machNotch.md#license-migration--gpl-v3--mit
+
+  machBrief:
+    display_name: mach.brief
+    kind: macOS/iOS app
+    status: in_development
+    path: Apps/machBrief
+    xcode_project: Apps/machBrief/machBrief.xcodeproj
+    package: Packages/MachBriefKit
+    prd:
+      macos: docs/prds/machBrief-macOS.md
+      ios: docs/prds/machBrief-iOS.md
+    license:
+      target: MIT
+
+packages:
+  root: Packages
+  existing:
+    MachBriefKit:
+      path: Packages/MachBriefKit
+      license: MIT
+    MacroVisionKit:
+      path: Packages/MacroVisionKit
+      license: MIT
+  planned:
+    MachCore:
+      path: Packages/MachCore
+      license: MIT
+    MachUI:
+      path: Packages/MachUI
+      license: MIT
+
+policies:
+  naming:
+    project_identity: mach-mono / machNotch
+    avoid_stale_names:
+      - boring
+      - boring.notch
+    exceptions:
+      - attribution
+      - license history
+      - dependency history
+  branching:
+    model: main-only
+    decision: docs/decisions/0001-main-only-branching.md
+  build_verification:
+    preferred_entrypoint: root-xcode-workspace
+    command: xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch -destination 'platform=macOS' build
+    decision: docs/decisions/0002-root-xcode-workspace.md
+  licensing:
+    new_apps: MIT
+    new_packages: MIT
+    forbidden_dependency_licenses:
+      - GPL
+      - MPL
+    decision: docs/decisions/0003-license-policy.md
+  architecture:
+    plugin_first: true
+    dependency_injection_root: AppObjectGraph
+    new_singletons_allowed: false
+    max_swift_file_lines: 300
+
+services:
+  weather:
+    primary: OpenWeatherMap
+    fallback: WeatherKit
+    cache_duration_minutes: 30
+    decision: docs/decisions/0005-weather-provider-strategy.md
+
+docs:
+  index: docs/README.md
+  overall_model_description: docs/README.md  # "Where the overall model is defined" — layered facts, agents, PRDs, ADRs, adapters
+  prds: docs/prds
+  architecture: docs/architecture/overview.md
+  guides: docs/guides
+  roadmaps: docs/roadmaps
+  decisions: docs/decisions
+  sideloading: docs/guides/sideloading.md
+
+agent_files:
+  canonical_guidelines: docs/AGENT-GUIDELINES.md
+  claude_code_config: .claude
+  cursor_adapter: .cursor
+  reusable_workflows: .agent/workflows
+  reusable_skills: .agent/skills

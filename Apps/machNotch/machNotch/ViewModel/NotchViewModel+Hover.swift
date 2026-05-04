@@ -1,15 +1,16 @@
 //
 //  NotchViewModel+Hover.swift
-//  machNotch
+//  machNotch — mach-mono
 //
-//  Hover zone management and heartbeat integration for NotchViewModel.
+//  Hover zone sizing and heartbeat-driven open/close hints bridged into NotchHoverController.
 //
 
-import Foundation
 import AppKit
+import Foundation
 
 extension NotchViewModel {
-    // MARK: - Hover Zone Management
+
+    // MARK: - Hover window binding
 
     func setHoverWindow(_ window: NSWindow?) {
         self.window = window
@@ -19,18 +20,20 @@ extension NotchViewModel {
         hoverController.updateHoverZone(screenUUID: screenUUID)
     }
 
-    // MARK: - Heartbeat Lifecycle
+    // MARK: - Heartbeat wiring
 
     func configureHoverCallbacks() {
         hoverController.isShelfActive = { [weak self] in
             self?.currentView == .shelf
         }
+
         hoverController.onShouldOpen = { [weak self] in
             guard let self else { return }
-            guard self.settings.openNotchOnHover else { return }
-            guard !self.coordinator.sneakPeek.show else { return }
-            self.open()
+            guard settings.openNotchOnHover else { return }
+            guard !coordinator.sneakPeek.show else { return }
+            open()
         }
+
         hoverController.onShouldClose = { [weak self] in
             self?.close(force: true)
         }
@@ -44,13 +47,13 @@ extension NotchViewModel {
         hoverController.stopHeartbeat()
     }
 
-    // MARK: - Hover Signal (TrackingArea hint)
+    // MARK: - Tracking-area hints
 
     func handleHoverSignal(_ signal: HoverSignal) {
         hoverController.handleHoverHint(signal)
     }
 
-    // MARK: - Legacy Compatibility
+    // MARK: - Legacy entry points (tests / older call sites)
 
     func mouseEntered() {
         handleHoverSignal(.entered)
@@ -61,16 +64,16 @@ extension NotchViewModel {
     }
 
     func scheduleClose() {
-        // Heartbeat handles close scheduling via tick().
-        // Trigger an immediate tick in case heartbeat isn't running yet.
         hoverController.tick()
     }
 
-    func setupHoverController() {
-        // No-op: hover logic is in hoverController heartbeat
-    }
+    func setupHoverController() {}
 
     func cancelPendingClose() {
         hoverController.cancelPendingClose()
+    }
+
+    func cancelPendingOpen() {
+        hoverController.cancelPendingOpen()
     }
 }

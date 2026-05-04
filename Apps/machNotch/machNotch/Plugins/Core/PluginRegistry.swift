@@ -24,7 +24,8 @@ enum PluginRegistry {
             PomodoroPlugin(),
             TeleprompterPlugin(),
             DisplaySurfacePlugin(),
-            SystemStatsPlugin()
+            SystemStatsPlugin(),
+            BriefPlugin(),
         ]
     }
 }

@@ -11,11 +11,11 @@ import SwiftUI
 @MainActor
 @Observable
 final class ShelfPlugin: NotchPlugin, ExportablePlugin {
-    
+
     // MARK: - NotchPlugin
-    
+
     let id = PluginID.shelf
-    
+
     let metadata = PluginMetadata(
         name: "Shelf",
         description: "Temporary storage for files and links",
@@ -24,39 +24,39 @@ final class ShelfPlugin: NotchPlugin, ExportablePlugin {
         author: "machNotch",
         category: .productivity
     )
-    
+
     var isEnabled: Bool = true
-    
+
     private(set) var state: PluginState = .inactive
-    
+
     // MARK: - Dependencies
-    
+
     var shelfService: (any ShelfServiceProtocol)?
     private var settings: PluginSettings?
-    
+
     // MARK: - Initialization
-    
+
     init() {}
-    
+
     // MARK: - Lifecycle
-    
+
     func activate(context: PluginContext) async throws {
         state = .activating
-        
-        self.shelfService = context.services.shelf
+
+        self.shelfService = context.storageServices.shelf
         self.settings = context.settings
-        
+
         state = .active
     }
-    
+
     func deactivate() async {
         shelfService = nil
         settings = nil
         state = .inactive
     }
-    
+
     // MARK: - UI Slots
-    
+
     @ViewBuilder
     func expandedPanelContent() -> some View {
         if isEnabled, state.isActive {
@@ -65,7 +65,7 @@ final class ShelfPlugin: NotchPlugin, ExportablePlugin {
             ShelfView()
         }
     }
-    
+
     @ViewBuilder
     func settingsContent() -> some View {
         Shelf()
@@ -96,10 +96,11 @@ final class ShelfPlugin: NotchPlugin, ExportablePlugin {
                 "id": item.id.uuidString,
                 "name": item.displayName,
                 "type": item.kindLabel,
-                "isTemporary": item.isTemporary
+                "isTemporary": item.isTemporary,
             ]
         }
-        return try JSONSerialization.data(withJSONObject: entries, options: [.prettyPrinted, .sortedKeys])
+        return try JSONSerialization.data(
+            withJSONObject: entries, options: [.prettyPrinted, .sortedKeys])
     }
 
     private func exportCSV(items: [ShelfItem]) -> Data {

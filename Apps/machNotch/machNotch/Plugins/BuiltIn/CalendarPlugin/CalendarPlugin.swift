@@ -11,11 +11,11 @@ import SwiftUI
 @MainActor
 @Observable
 final class CalendarPlugin: NotchPlugin, ExportablePlugin {
-    
+
     // MARK: - NotchPlugin
-    
+
     let id = PluginID.calendar
-    
+
     let metadata = PluginMetadata(
         name: "Calendar",
         description: "View upcoming events and reminders",
@@ -24,27 +24,27 @@ final class CalendarPlugin: NotchPlugin, ExportablePlugin {
         author: "machNotch",
         category: .productivity
     )
-    
+
     var isEnabled: Bool = true
-    
+
     private(set) var state: PluginState = .inactive
-    
+
     // MARK: - Dependencies
-    
+
     var calendarService: (any CalendarServiceProtocol)?
     private var settings: PluginSettings?
-    
+
     // MARK: - Initialization
-    
+
     init() {}
-    
+
     // MARK: - Lifecycle
-    
+
     func activate(context: PluginContext) async throws {
         state = .activating
-        
-        self.calendarService = context.services.calendar
-        
+
+        self.calendarService = context.pluginExtensionServices.calendar
+
         // Sync enabled state with legacy setting for now
         // In the future, this should be bi-directional or migrated
         if self.settings != nil {
@@ -52,18 +52,18 @@ final class CalendarPlugin: NotchPlugin, ExportablePlugin {
             // For now, let's assume the plugin is enabled by default in the manager,
             // but the view logic in NotchHomeView controls visibility.
         }
-        
+
         state = .active
     }
-    
+
     func deactivate() async {
         calendarService = nil
         settings = nil
         state = .inactive
     }
-    
+
     // MARK: - UI Slots
-    
+
     @ViewBuilder
     func expandedPanelContent() -> some View {
         if isEnabled, state.isActive {
@@ -71,7 +71,7 @@ final class CalendarPlugin: NotchPlugin, ExportablePlugin {
             CalendarView()
         }
     }
-    
+
     @ViewBuilder
     func settingsContent() -> some View {
         CalendarSettings()
@@ -112,7 +112,8 @@ final class CalendarPlugin: NotchPlugin, ExportablePlugin {
         for event in events {
             let title = event.title.replacingOccurrences(of: ",", with: ";")
             let location = (event.location ?? "").replacingOccurrences(of: ",", with: ";")
-            csv += "\(title),\(formatter.string(from: event.start)),\(formatter.string(from: event.end)),\(location),\(event.isAllDay),\(event.type)\n"
+            csv +=
+                "\(title),\(formatter.string(from: event.start)),\(formatter.string(from: event.end)),\(location),\(event.isAllDay),\(event.type)\n"
         }
         return Data(csv.utf8)
     }

@@ -26,7 +26,7 @@ You can contribute in many ways: writing code, improving documentation, reportin
 - **Discuss major changes**: For significant features or major changes, please open an issue first to discuss your approach with maintainers and the community.
 
 > [!IMPORTANT]
-> All contributions should branch from `dev` unless a maintainer asks you to target another branch.
+> This repository uses `main` as the canonical integration branch unless a maintainer explicitly asks you to target another branch.
 
 ### Setting Up Your Environment
 
@@ -39,13 +39,13 @@ You can contribute in many ways: writing code, improving documentation, reportin
    ```
    Replace `{your-username}` with your GitHub username.
 
-3. **Make sure `dev` is up to date**:
+3. **Make sure `main` is up to date**:
    ```bash
-   git checkout dev
-   git pull origin dev
+   git checkout main
+   git pull origin main
    ```
 
-5. **Create a new feature branch**:
+4. **Create a new feature branch**:
    ```bash
    git checkout -b feature/{your-feature-name}
    ```
@@ -93,11 +93,11 @@ machNotch uses a plugin-first architecture. Adding a new feature usually means c
     ```
 3.  **Register the Plugin**: Add your plugin instance to `PluginRegistry.makeBuiltInPlugins()` in `Apps/machNotch/machNotch/Plugins/Core/PluginRegistry.swift`.
 
-For more details, see the [Architecture Guide](docs/ARCHITECTURE.md).
+For more details, see the [Architecture Guide](docs/architecture/overview.md) and [Plugin Development Guide](docs/guides/plugin-development.md).
 
 ### Pull Requests
 
-1. **Create a pull request**: Go to the original repository and click "New Pull Request." Select your feature branch and set the base branch to `dev`.
+1. **Create a pull request**: Go to the original repository and click "New Pull Request." Select your feature branch and set the base branch to `main` unless a maintainer asks otherwise.
 
 2. **Write a detailed description**: Your PR should include:
    - A clear title summarizing the changes

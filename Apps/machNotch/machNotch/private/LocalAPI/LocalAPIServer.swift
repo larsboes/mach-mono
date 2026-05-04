@@ -1,7 +1,8 @@
 import Foundation
 import Network
 
-final class LocalAPIServer {
+/// NWListener callbacks are `@Sendable`; queue-serialized access is handled manually.
+final class LocalAPIServer: @unchecked Sendable {
     private let router: APIRouter
     private let queue = DispatchQueue(label: "me.com.larsboes.machnotch.localapi", qos: .userInitiated)
     private let port: UInt16

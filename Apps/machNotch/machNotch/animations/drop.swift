@@ -52,7 +52,6 @@ enum StandardAnimations {
     static let closeDuration: Duration = .milliseconds(230)
 
     /// Bouncy spring for playful animations
-    @available(macOS 14.0, *)
     static var bouncy: Animation {
         Animation.spring(.bouncy(duration: 0.4))
     }
@@ -85,10 +84,6 @@ enum StandardAnimations {
 
 enum NotchAnimations {
     static var animation: Animation {
-        if #available(macOS 14.0, *) {
-            StandardAnimations.bouncy
-        } else {
-            StandardAnimations.timingCurve
-        }
+        StandardAnimations.bouncy
     }
 }

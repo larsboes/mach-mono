@@ -1,0 +1,55 @@
+name: machBrief
+options:
+  minimumXcodeGenVersion: 2.45.0
+  deploymentTarget:
+    macOS: "14.0"
+packages:
+  MachBriefKit:
+    path: ../../Packages/MachBriefKit
+targets:
+  machBrief:
+    type: application
+    platform: macOS
+    sources:
+      - path: machBrief
+    info:
+      path: machBrief/Info.plist
+      properties:
+        LSUIElement: true
+        NSPrincipalClass: NSApplication
+        CFBundleDisplayName: mach.brief
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: mach.brief
+        PRODUCT_NAME: machBrief
+        SWIFT_VERSION: "5.9"
+    dependencies:
+      - package: MachBriefKit
+      - target: machBriefWidget
+        embed: true
+  machBriefWidget:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: machBriefWidget
+    info:
+      path: machBriefWidget/Info.plist
+      properties:
+        CFBundleDisplayName: machBriefWidget
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: mach.brief.widget
+        PRODUCT_NAME: machBriefWidget
+        SWIFT_VERSION: "5.9"
+    dependencies:
+      - package: MachBriefKit
+schemes:
+  machBrief:
+    build:
+      targets:
+        machBrief: all
+        machBriefWidget: all
+    run:
+      config: Debug

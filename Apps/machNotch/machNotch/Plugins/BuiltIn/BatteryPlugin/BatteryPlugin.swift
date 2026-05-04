@@ -11,11 +11,11 @@ import SwiftUI
 @MainActor
 @Observable
 final class BatteryPlugin: NotchPlugin, PositionedPlugin {
-    
+
     // MARK: - NotchPlugin
-    
+
     let id = PluginID.battery
-    
+
     let metadata = PluginMetadata(
         name: "Battery",
         description: "Monitor battery status and get notifications",
@@ -24,38 +24,38 @@ final class BatteryPlugin: NotchPlugin, PositionedPlugin {
         author: "machNotch",
         category: .system
     )
-    
+
     var isEnabled: Bool = true
-    
+
     private(set) var state: PluginState = .inactive
-    
+
     // MARK: - PositionedPlugin
-    
+
     var closedNotchPosition: ClosedNotchPosition { .farRight }
-    
+
     // MARK: - Dependencies
-    
+
     var batteryService: (any BatteryServiceProtocol)?
     private var settings: PluginSettings?
-    
+
     // MARK: - Lifecycle
-    
+
     func activate(context: PluginContext) async throws {
         state = .activating
-        
-        batteryService = context.services.battery
+
+        batteryService = context.systemServices.battery
         settings = context.settings
         isEnabled = context.settings.isEnabled
-        
+
         state = .active
     }
-    
+
     func deactivate() async {
         batteryService = nil
         settings = nil
         state = .inactive
     }
-    
+
     // MARK: - UI Slots
 
     var displayRequest: DisplayRequest? {
@@ -91,7 +91,7 @@ final class BatteryPlugin: NotchPlugin, PositionedPlugin {
             BatteryMenuBarSummary(snapshot: service.snapshot)
         }
     }
-    
+
     @ViewBuilder
     func settingsContent() -> some View {
         Charge()
@@ -110,7 +110,7 @@ final class BatteryPlugin: NotchPlugin, PositionedPlugin {
 private struct PluginBatteryClosedView: View {
     let snapshot: BatterySnapshot
     @Environment(NotchViewModel.self) var vm
-    
+
     var body: some View {
         HStack(spacing: 0) {
             HStack {

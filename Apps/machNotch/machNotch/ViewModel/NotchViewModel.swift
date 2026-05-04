@@ -1,22 +1,22 @@
 //
-//  NotchViewModel.swift
-//  machNotch
-//
-//  Created by Harsh Vardhan  Goswami  on 04/08/24.
-//  Refactored: Thin orchestrator using extracted controllers
-//
+//  NotchViewModel.swift — machNotch (mach-mono)
+//  Orchestrates controllers + observers; phase transitions via NotchPhaseCoordinator (NotchPhaseDelegate).
+//  Contract: phase APIs delegate to phaseCoordinator; syncAnimationState skips transitions;
+//  syncBackgroundServices gates restartables; drag shelf wiring in attachShelfDragBehavior.
 
 import Combine
-import Defaults
 import SwiftUI
 
 @MainActor
 @Observable class NotchViewModel: NotchPhaseDelegate {
-    // MARK: - Dependencies
+
+    // MARK: - Composition
+
     let coordinator: any ViewCoordinating
-    private let detector: FullscreenMediaDetector
+    private let fullscreenDetector: FullscreenMediaDetector
     let settings: NotchViewModelSettings
     let displaySettings: any DisplaySettings
+
     let hoverController: NotchHoverController
     let sizeCalculator: NotchSizeCalculator
     let observerSetup: NotchObserverManager
@@ -26,16 +26,22 @@ import SwiftUI
 
     var gestureCoordinator = NotchGestureCoordinator()
 
-    /// Per-screen navigation state. Each NotchViewModel owns its own currentView,
-    /// so multi-display mode has independent navigation per screen.
+    let services: any NotchServiceProvider
+    var shelfService: ShelfServiceProtocol?
+
+    weak var window: NSWindow?
+
+    // MARK: - Navigation (per-screen; multi-display independent)
+
     var currentView: NotchViews = .home
 
-    /// Navigate to a view with animation. Centralizes all currentView writes.
     func navigate(to view: NotchViews) {
         withAnimation(.smooth) {
             self.currentView = view
         }
     }
+
+    // MARK: - Phase surface
 
     var phase: NotchPhase { phaseCoordinator.phase }
 
@@ -63,11 +69,10 @@ import SwiftUI
         phaseCoordinator.cancelInteractiveScrub()
     }
 
-    /// Back off background services when closed to save battery.
     func syncBackgroundServices() {
         let restartables: [any BackgroundServiceRestartable] = [
             services.battery as? BackgroundServiceRestartable,
-            services.bluetoothManager as? BackgroundServiceRestartable
+            services.bluetoothManager as? BackgroundServiceRestartable,
         ].compactMap { $0 }
 
         for service in restartables {
@@ -78,33 +83,33 @@ import SwiftUI
             }
         }
     }
-    /// Decoupled content reveal progress (0→1).
-    /// Animated independently from the shell spring so content can lead/lag the shell.
-    var contentRevealProgress: CGFloat = 0
 
-    /// Shell expansion progress (0→1).
-    /// Driven by StandardAnimations.open/close to ensure smooth corner radius transitions.
+    // MARK: - Animation progress (shell vs content)
+
+    var contentRevealProgress: CGFloat = 0
     var shellAnimationProgress: CGFloat = 0
+
+    // MARK: - Drag / drop targeting
 
     var dragDetectorTargeting: Bool = false
     var generalDropTargeting: Bool = false
     var dropZoneTargeting: Bool = false
     var dropEvent: Bool = false
+
     var anyDropZoneTargeting: Bool {
         dropZoneTargeting || dragDetectorTargeting || generalDropTargeting
     }
 
+    // MARK: - Closed-notch presentation
+
     var hideOnClosed: Bool = true
     @ObservationIgnored var hideOnClosedDebounceTask: Task<Void, Never>?
 
-    /// Debounced ears state for closed notch width.
-    /// Prevents flicker from transient music/face state changes.
     var closedEarsActive: Bool = false
     @ObservationIgnored var earsDebounceTask: Task<Void, Never>?
     @ObservationIgnored var earsTrackingTask: Task<Void, Never>?
     var earsCancellables = Set<AnyCancellable>()
 
-    /// Optional plugin-requested height override for closed notch (e.g. teleprompter needs double height)
     var pluginPreferredHeight: CGFloat?
 
     var edgeAutoOpenActive: Bool = false
@@ -140,14 +145,8 @@ import SwiftUI
     var isCameraExpanded: Bool = false
     var isRequestingAuthorization: Bool = false
 
-    /// Combine subscriptions for NotificationCenter — auto-cancel on dealloc.
     var notificationCancellables = Set<AnyCancellable>()
 
-    let services: any NotchServiceProvider
-
-    var shelfService: ShelfServiceProtocol?
-
-    weak var window: NSWindow?
     var isHoveringNotch: Bool {
         hoverController.isHoveringNotch
     }
@@ -160,7 +159,6 @@ import SwiftUI
 
     // MARK: - Initialization
 
-    @MainActor
     init(
         screenUUID: String? = nil,
         coordinator: any ViewCoordinating,
@@ -170,31 +168,45 @@ import SwiftUI
         displaySettings: any DisplaySettings
     ) {
         self.coordinator = coordinator
-        self.detector = detector
+        self.fullscreenDetector = detector
         self.services = services
-        // settings must be provided; nil fallback only for secondary window clones
         self.settings = settings ?? DefaultNotchViewModelSettings(source: MockNotchSettings())
         self.displaySettings = displaySettings
-        // animation is now a static let — no init-time computation needed
 
-        self.hoverController = NotchHoverController(settings: self.settings, displaySettings: displaySettings)
-        self.sizeCalculator = NotchSizeCalculator(settings: self.settings, displaySettings: displaySettings)
-        self.observerSetup = NotchObserverManager(settings: self.settings, detector: detector)
-        self.shelfService = nil
+        self.hoverController = NotchHoverController(
+            settings: self.settings,
+            displaySettings: displaySettings
+        )
+        self.sizeCalculator = NotchSizeCalculator(
+            settings: self.settings,
+            displaySettings: displaySettings
+        )
+        self.observerSetup = NotchObserverManager(
+            settings: self.settings,
+            detector: detector
+        )
 
         self.phaseCoordinator.delegate = self
 
-        let preventCloseThunk: @MainActor () -> Bool = { [weak self] in
-            return self?.services.sharing.preventNotchClose ?? false
+        let sharingBlocksClose: @MainActor () -> Bool = { [weak self] in
+            self?.services.sharing.preventNotchClose ?? false
         }
-        hoverController.shouldPreventClose = preventCloseThunk
+        hoverController.shouldPreventClose = sharingBlocksClose
+
         configureHoverCallbacks()
-        setupDragDropCallbacks()
+        attachShelfDragBehavior()
 
         self.screenUUID = screenUUID
-        sizeCalculator.notchSize = getClosedNotchSize(settings: displaySettings, screenUUID: screenUUID)
+
+        sizeCalculator.notchSize = getClosedNotchSize(
+            settings: displaySettings,
+            screenUUID: screenUUID
+        )
         sizeCalculator.closedNotchSize = sizeCalculator.notchSize
-        sizeCalculator.inactiveNotchSize = getInactiveNotchSize(settings: displaySettings, screenUUID: screenUUID)
+        sizeCalculator.inactiveNotchSize = getInactiveNotchSize(
+            settings: displaySettings,
+            screenUUID: screenUUID
+        )
 
         hoverController.updateHoverZone(screenUUID: screenUUID)
 
@@ -206,31 +218,31 @@ import SwiftUI
         setupEarsObserver()
     }
 
-    // Defined in NotchViewModel+Observers.swift
-
     @MainActor
     convenience init() {
         let mockSettings = MockNotchSettings()
-        let musicService = MusicService(manager: MusicManager(settings: mockSettings))
-        
-        // Use a lightweight mock container for previews
         let mockServices = ServiceContainer(
             eventBus: PluginEventBus(),
             settings: mockSettings
         )
-        
         self.init(
-            coordinator: NotchViewCoordinator(settings: mockSettings, xpcHelper: XPCHelperClient.shared),
-            detector: FullscreenMediaDetector(musicService: musicService, settings: mockSettings),
+            coordinator: NotchViewCoordinator(
+                settings: mockSettings,
+                xpcHelper: XPCHelperClient.shared
+            ),
+            detector: FullscreenMediaDetector(
+                musicService: mockServices.music,
+                settings: mockSettings
+            ),
             services: mockServices,
             displaySettings: mockSettings
         )
     }
 
-    private func setupDragDropCallbacks() {
+    private func attachShelfDragBehavior() {
         services.dragDrop.onDragEntersNotchRegion = { [weak self] in
             Task { @MainActor in
-                guard let self = self else { return }
+                guard let self else { return }
                 self.dragDetectorTargeting = true
                 self.open()
                 self.currentView = .shelf
@@ -239,7 +251,7 @@ import SwiftUI
 
         services.dragDrop.onDragExitsNotchRegion = { [weak self] in
             Task { @MainActor in
-                guard let self = self else { return }
+                guard let self else { return }
                 self.dragDetectorTargeting = false
             }
         }
@@ -255,26 +267,20 @@ import SwiftUI
         }
     }
 
-    /// Ensures progress variables match the current phase.
-    /// Acts as a safety fallback for interrupted animations.
-    /// Skips .closing/.opening transitions — those are driven by the explicit
-    /// withAnimation blocks in open()/close() and must not be overridden here.
     func syncAnimationState(animated: Bool = false) {
-        // Only sync for terminal states (.open, .closed).
-        // Transition states (.opening, .closing) are managed by their animation blocks.
         guard !phase.isTransitioning else { return }
 
         let targetProgress: CGFloat = phase.isVisible ? 1 : 0
 
         if animated {
-            let animation = phase.isVisible ? StandardAnimations.open : StandardAnimations.close
-            withAnimation(animation) {
+            let curve = phase.isVisible ? StandardAnimations.open : StandardAnimations.close
+            withAnimation(curve) {
                 self.shellAnimationProgress = targetProgress
                 self.contentRevealProgress = targetProgress
             }
         } else {
-            self.shellAnimationProgress = targetProgress
-            self.contentRevealProgress = targetProgress
+            shellAnimationProgress = targetProgress
+            contentRevealProgress = targetProgress
         }
     }
 

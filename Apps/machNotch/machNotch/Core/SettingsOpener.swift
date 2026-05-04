@@ -1,7 +1,7 @@
 import SwiftUI
 
 private struct ShowSettingsWindowKey: EnvironmentKey {
-    static let defaultValue: () -> Void = {}
+    nonisolated(unsafe) static let defaultValue: () -> Void = {}
 }
 
 extension EnvironmentValues {

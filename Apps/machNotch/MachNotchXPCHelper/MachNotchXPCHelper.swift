@@ -10,6 +10,13 @@ import ApplicationServices
 import IOKit
 import CoreGraphics
 
+/// Boxes an XPC reply callback so it can cross an `@Sendable` GCD boundary under Swift 6.
+private final class BoolReplyBox: @unchecked Sendable {
+    nonisolated(unsafe) private let body: (Bool) -> Void
+    init(_ body: @escaping (Bool) -> Void) { self.body = body }
+    func send(_ value: Bool) { body(value) }
+}
+
 class MachNotchXPCHelper: NSObject, MachNotchXPCHelperProtocol {
     
     @objc func isAccessibilityAuthorized(with reply: @escaping (Bool) -> Void) {
@@ -20,7 +27,8 @@ class MachNotchXPCHelper: NSObject, MachNotchXPCHelperProtocol {
 
     @objc func requestAccessibilityAuthorization() {
         autoreleasepool {
-            let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
+            // String key avoids Swift 6 concurrency diagnostics on the ApplicationServices global `kAXTrustedCheckOptionPrompt`.
+            let options = ["AXTrustedCheckOptionPrompt": true] as CFDictionary
             AXIsProcessTrustedWithOptions(options)
         }
     }
@@ -36,9 +44,10 @@ class MachNotchXPCHelper: NSObject, MachNotchXPCHelperProtocol {
                 requestAccessibilityAuthorization()
             }
 
+            let replyBox = BoolReplyBox(reply)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 autoreleasepool {
-                    reply(AXIsProcessTrusted())
+                    replyBox.send(AXIsProcessTrusted())
                 }
             }
         }
@@ -94,7 +103,7 @@ class MachNotchXPCHelper: NSObject, MachNotchXPCHelperProtocol {
         }
     }
 
-    private static let keyboardClient = KeyboardBrightnessClient()
+    private nonisolated(unsafe) static let keyboardClient = KeyboardBrightnessClient()
 
     @objc func isKeyboardBrightnessAvailable(with reply: @escaping (Bool) -> Void) {
         autoreleasepool {
@@ -242,7 +251,7 @@ class MachNotchXPCHelper: NSObject, MachNotchXPCHelperProtocol {
 
     // MARK: - Helper handle for private framework
     private enum DisplayServicesHandle {
-        static let handle: UnsafeMutableRawPointer? = {
+        nonisolated(unsafe) static let handle: UnsafeMutableRawPointer? = {
             let paths = [
                 "/System/Library/PrivateFrameworks/DisplayServices.framework/DisplayServices",
                 "/System/Library/PrivateFrameworks/DisplayServices.framework/Versions/Current/DisplayServices"

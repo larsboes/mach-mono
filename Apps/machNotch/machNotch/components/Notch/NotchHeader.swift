@@ -107,11 +107,6 @@ struct NotchHeader: View {
                 vm.navigate(to: vm.currentView == .teleprompter ? .home : .teleprompter)
             }
         }
-        if pluginManager?.hasPlugin(id: PluginID.systemStats) == true {
-            HeaderButton(icon: "gauge.with.dots.needle.50percent", isActive: vm.currentView == .systemStats) {
-                vm.navigate(to: vm.currentView == .systemStats ? .home : .systemStats)
-            }
-        }
         if settings.showMirror {
             HeaderActionButton(icon: "web.camera") {
                 vm.toggleCameraPreview()

@@ -1,0 +1,4 @@
+# Bazel Configuration
+build --apple_platform_type=macos
+build --verbose_failures
+build --apple_generate_dsym

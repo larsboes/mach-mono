@@ -220,7 +220,7 @@ struct Advanced: View {
                 .onChange(of: settings.showOnLockScreen, initial: true) { _, newValue in
                     if newValue {
                         if !AXIsProcessTrusted() {
-                            let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
+                            let options: NSDictionary = ["AXTrustedCheckOptionPrompt": true]
                             AXIsProcessTrustedWithOptions(options)
                         }
                     }

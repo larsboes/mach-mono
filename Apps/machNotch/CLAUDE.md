@@ -1,12 +1,15 @@
 # mach.notch — Project Instructions
 
+Monorepo context: read [`AGENTS.md`](../../AGENTS.md) and [`repo.yaml`](../../repo.yaml) for suite-wide facts, build entrypoints, and policies. This file is **app-local** (structure, DDD, plugins, standards).
+
 ## Overview
-macOS SwiftUI app that replaces the MacBook notch with an interactive widget system. Plugin-first architecture — every feature (music, battery, calendar, weather, shelf, webcam, notifications, clipboard, pomodoro, teleprompter, habits) is a plugin. Part of the [mach-mono](https://github.com/larsboes/mach-mono) suite.
+macOS SwiftUI app that replaces the MacBook notch with an interactive widget system. Plugin-first architecture — every feature (music, battery, calendar, weather, shelf, webcam, notifications, clipboard, pomodoro, teleprompter, habits) is a plugin. Part of the [mach-mono](https://github.com/larsboes/mach-mono) suite. See `repo.yaml` for system requirements.
 
 ## Build & Test
-- **Build:** `xcodebuild -project machNotch.xcodeproj -scheme machNotch -destination 'platform=macOS' build 2>&1 | tail -50`
-- **Test:** `xcodebuild -project machNotch.xcodeproj -scheme machNotch -destination 'platform=macOS' test 2>&1 | tail -50`
-- Run these commands from `Apps/machNotch/`.
+- **Preferred repo build:** `xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch -destination 'platform=macOS' build 2>&1 | tail -50`
+- **Preferred repo test:** `xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch -destination 'platform=macOS' test 2>&1 | tail -50`
+- Run preferred commands from the repository root.
+- **Local app build fallback:** `xcodebuild -project machNotch.xcodeproj -scheme machNotch -destination 'platform=macOS' build 2>&1 | tail -50` from `Apps/machNotch/`.
 - Always build after changes. Don't commit without a green build.
 
 ## Directory Structure
