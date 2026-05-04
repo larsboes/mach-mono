@@ -82,8 +82,10 @@ struct NotchHeader: View {
                     .transition(.scale(scale: 0.8).combined(with: .opacity))
                     .padding(.trailing, 8)
             } else {
-                headerButtons
-                    .padding(.leading, 12) // Extra buffer from the notch area
+                HStack(spacing: 4) {
+                    headerButtons
+                }
+                .padding(.leading, 8) // Extra buffer from the notch area
             }
         }
     }
@@ -105,28 +107,24 @@ struct NotchHeader: View {
                 vm.navigate(to: vm.currentView == .teleprompter ? .home : .teleprompter)
             }
         }
+        if pluginManager?.hasPlugin(id: PluginID.systemStats) == true {
+            HeaderButton(icon: "gauge.with.dots.needle.50percent", isActive: vm.currentView == .systemStats) {
+                vm.navigate(to: vm.currentView == .systemStats ? .home : .systemStats)
+            }
+        }
         if settings.showMirror {
             HeaderActionButton(icon: "web.camera") {
                 vm.toggleCameraPreview()
             }
         }
+        if settings.showBatteryIndicator,
+           let batteryPlugin = pluginManager?.plugin(id: PluginID.battery, as: BatteryPlugin.self) {
+            batteryPlugin.headerContent()
+        }
         if settings.settingsIconInNotch {
             HeaderActionButton(icon: "gear") {
                 showSettingsWindow()
             }
-        }
-        if settings.showBatteryIndicator, let batteryService = pluginManager?.services.battery {
-            BatteryStatusView(
-                batteryWidth: 30,
-                isCharging: batteryService.isCharging,
-                isInLowPowerMode: batteryService.isInLowPowerMode,
-                isPluggedIn: batteryService.isPluggedIn,
-                levelBattery: batteryService.levelBattery,
-                maxCapacity: batteryService.maxCapacity,
-                timeToFullCharge: batteryService.timeToFullCharge,
-                isForNotification: false
-            )
-            .padding(.trailing, 10) // Equal Abstand to right border as home tab has to left
         }
     }
 }

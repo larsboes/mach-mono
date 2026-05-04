@@ -122,6 +122,7 @@ final class MockNotchSettings: NotchSettings {
     var showHabitTracker: Bool = false
     var showPomodoro: Bool = false
     var showTeleprompter: Bool = true
+    var weatherSource: WeatherSource = .auto
     var openWeatherMapApiKey: String = ""
 
     // MARK: - Calendar Settings

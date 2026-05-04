@@ -6,7 +6,7 @@
 //
 
 import Combine
-// NOTE: Defaults.updates/publisher needed for reactive observation — see NavigationState.swift comment.
+// NOTE: Defaults publishers drive reactive observation when settings change.
 import Defaults
 import SwiftUI
 

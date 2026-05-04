@@ -16,7 +16,7 @@ extension WindowCoordinator {
         for uuid in windows.keys where !currentScreenUUIDs.contains(uuid) {
             if let window = windows[uuid] {
                 window.close()
-                spaceManager.notchSpace.windows.remove(window)
+                spaceManager.notchSpace.unregister(window)
                 windows.removeValue(forKey: uuid)
                 viewModels.removeValue(forKey: uuid)
             }
@@ -42,12 +42,8 @@ extension WindowCoordinator {
                 stateMachines[uuid] = stateMachine
             }
 
-            if let window = windows[uuid], let viewModel = viewModels[uuid] {
+            if let window = windows[uuid] {
                 positionWindow(window, on: screen, changeAlpha: changeAlpha)
-
-                if viewModel.notchState == .closed {
-                    viewModel.close()
-                }
             }
         }
     }
@@ -78,10 +74,6 @@ extension WindowCoordinator {
 
         if let window = window {
             positionWindow(window, on: selectedScreen, changeAlpha: changeAlpha)
-
-            if primaryViewModel.notchState == .closed {
-                primaryViewModel.close()
-            }
         }
     }
 

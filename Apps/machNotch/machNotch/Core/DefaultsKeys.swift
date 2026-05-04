@@ -62,6 +62,7 @@ extension Defaults.Keys {
     static let showHabitTracker = Key<Bool>("showHabitTracker", default: true)
     static let showPomodoro = Key<Bool>("showPomodoro", default: true)
     static let showTeleprompter = Key<Bool>("showTeleprompter", default: true)
+    static let weatherSource = Key<WeatherSource>("weatherSource", default: .auto)
     static let openWeatherMapApiKey = Key<String>("openWeatherMapApiKey", default: "")
     static let hideCompletedReminders = Key<Bool>("hideCompletedReminders", default: true)
     static let sliderColor = Key<SliderColorEnum>("sliderUseAlbumArtColor", default: SliderColorEnum.white)

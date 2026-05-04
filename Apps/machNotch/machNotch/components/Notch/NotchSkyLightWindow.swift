@@ -118,7 +118,7 @@ class NotchSkyLightWindow: NSPanel {
 
         // NOTE: .transient is intentionally NOT used here. On macOS 16+, .transient
         // can cause windows to be hidden on external displays when combined with
-        // CGSSpace management. Mission Control hiding is handled via window level instead.
+        // MachWindowSpace management. Mission Control hiding is handled via window level instead.
         _ = hasNotch // Silence unused warning; screen type may be used for future per-display behavior
 
         collectionBehavior = newBehavior
@@ -152,4 +152,14 @@ class NotchSkyLightWindow: NSPanel {
     /// This enables button clicks while preventing focus stealing when closed.
     override var canBecomeKey: Bool { isNotchOpen }
     override var canBecomeMain: Bool { false }
+
+    /// Intercept Tab / Shift+Tab so focus never escapes the panel.
+    /// Without this, pressing Tab while the notch is open causes macOS
+    /// to deactivate the panel, leaving the notch in a broken state.
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == 48 { // Tab key
+            return // swallow
+        }
+        super.keyDown(with: event)
+    }
 }

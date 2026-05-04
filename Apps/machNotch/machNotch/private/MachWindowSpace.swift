@@ -1,44 +1,56 @@
 //
-//  CGSSpace.swift
+//  MachWindowSpace.swift
 //  machNotch
 //
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+//  Created by machNotch
+//  MIT License
 //
-// Original source: https://github.com/avaidyam/Parrot/
-// Modified by Alexander on 2024-10-27
 
 import AppKit
 
 /// Small Spaces API wrapper.
-public final class CGSSpace {
+@MainActor
+public final class MachWindowSpace {
     private let identifier: CGSSpaceID
 
-    public var windows: Set<NSWindow> = [] {
+    public var windowNumbers: [CGWindowID] = [] {
         didSet {
-            let remove = oldValue.subtracting(self.windows)
-            let add = self.windows.subtracting(oldValue)
+            let oldSet = Set(oldValue)
+            let newSet = Set(self.windowNumbers)
+            
+            let remove = oldSet.subtracting(newSet)
+            let add = newSet.subtracting(oldSet)
 
             CGSRemoveWindowsFromSpaces(_CGSDefaultConnection(),
-                                       remove.map { $0.windowNumber } as NSArray,
-                                       [self.identifier])
+                                       Array(remove) as NSArray,
+                                       [self.identifier] as NSArray)
             CGSAddWindowsToSpaces(_CGSDefaultConnection(),
-                                  add.map { $0.windowNumber } as NSArray,
-                                  [self.identifier])
+                                  Array(add) as NSArray,
+                                  [self.identifier] as NSArray)
         }
     }
 
-    /// Initialized `CGSSpace`s *MUST* be de-initialized upon app exit!
+    public func register(_ window: NSWindow) {
+        let windowID = CGWindowID(window.windowNumber)
+        guard !windowNumbers.contains(windowID) else { return }
+        windowNumbers.append(windowID)
+    }
+
+    public func unregister(_ window: NSWindow) {
+        let windowID = CGWindowID(window.windowNumber)
+        windowNumbers.removeAll { $0 == windowID }
+    }
+
+    /// Initialized `MachWindowSpace`s *MUST* be de-initialized upon app exit!
     public init(level: Int = 0) {
         let flag = 0x1 // this value MUST be 1, otherwise, Finder decides to draw desktop icons
         self.identifier = CGSSpaceCreate(_CGSDefaultConnection(), flag, nil)
         CGSSpaceSetAbsoluteLevel(_CGSDefaultConnection(), self.identifier, level)
-        CGSShowSpaces(_CGSDefaultConnection(), [self.identifier])
+        CGSShowSpaces(_CGSDefaultConnection(), [self.identifier] as NSArray)
     }
 
     deinit {
-        CGSHideSpaces(_CGSDefaultConnection(), [self.identifier])
+        CGSHideSpaces(_CGSDefaultConnection(), [self.identifier] as NSArray)
         CGSSpaceDestroy(_CGSDefaultConnection(), self.identifier)
     }
 }

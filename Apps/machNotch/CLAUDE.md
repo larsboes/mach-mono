@@ -20,7 +20,7 @@ machNotch/
 │   ├── Controllers          # NotchHoverController, NotchSizeCalculator,
 │   │                        # NotchCameraController, NotchObserverManager
 │   ├── Coordinators         # WindowCoordinator, NotchContentRouter,
-│   │                        # SneakPeekService, KeyboardShortcutCoordinator
+│   │                        # KeyboardShortcutCoordinator
 │   └── Settings             # DefaultsNotchSettings (+extensions), NotchSettings,
 │                            # NotchViewModelSettings, Constants, DefaultsKeys, SettingsTypes
 ├── ViewModel/               # NotchViewModel + extensions (Camera, Hover, Observers, OpenClose)
@@ -97,5 +97,5 @@ machNotch/
 - `Plugins/Core/NotchPlugin.swift` — stable protocol
 - `Plugins/Core/PluginEventBus.swift` — stable; add new event types as new structs
 - `Core/NotchStateMachine.swift` — pure domain; only modify if state logic changes
-- `private/CGSSpace.swift` — private API wrapper
+- `private/MachWindowSpace.swift` — MIT private API wrapper (do not modify)
 - `mediaremote-adapter/` — pre-built framework, read-only

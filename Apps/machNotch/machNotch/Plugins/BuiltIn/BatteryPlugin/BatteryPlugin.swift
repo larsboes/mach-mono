@@ -43,8 +43,9 @@ final class BatteryPlugin: NotchPlugin, PositionedPlugin {
     func activate(context: PluginContext) async throws {
         state = .activating
         
-        self.batteryService = context.services.battery
-        self.settings = context.settings
+        batteryService = context.services.battery
+        settings = context.settings
+        isEnabled = context.settings.isEnabled
         
         state = .active
     }
@@ -60,55 +61,60 @@ final class BatteryPlugin: NotchPlugin, PositionedPlugin {
     var displayRequest: DisplayRequest? {
         guard isEnabled, state.isActive, let service = batteryService else { return nil }
 
-        // Check for low/high battery levels
-        let level = Int(service.levelBattery)
-        let lowThreshold = settings?.get("lowBatteryThreshold", default: 20) ?? 20
-        let highThreshold = settings?.get("highBatteryThreshold", default: 80) ?? 80
-        
-        // Critical: Low Battery
-        if !service.isCharging && level <= lowThreshold {
+        switch service.alertKind(initial: true) {
+        case .lowBattery:
             return DisplayRequest(priority: .critical, category: DisplayRequest.system)
-        }
-        
-        // High: High Battery (only when charging)
-        if service.isCharging && level >= highThreshold {
+        case .highBattery:
             return DisplayRequest(priority: .normal, category: DisplayRequest.system)
+        case nil:
+            return nil
         }
-        
-        return nil
     }
 
     @ViewBuilder
     func closedNotchContent() -> some View {
         if isEnabled, state.isActive, let service = batteryService {
-            PluginBatteryView(service: service)
+            PluginBatteryClosedView(snapshot: service.snapshot)
+        }
+    }
+
+    @ViewBuilder
+    func expandedPanelContent() -> some View {
+        if isEnabled, state.isActive, let service = batteryService {
+            BatteryExpandedPanelView(snapshot: service.snapshot)
         }
     }
 
     @ViewBuilder
     func menuBarView() -> some View {
         if isEnabled, state.isActive, let service = batteryService {
-            Text("Battery: \(Int(service.levelBattery))%\(service.isCharging ? " ⚡" : "")")
+            BatteryMenuBarSummary(snapshot: service.snapshot)
         }
     }
     
     @ViewBuilder
     func settingsContent() -> some View {
-        // Reuse existing Charge view (BatterySettingsView)
         Charge()
+    }
+
+    @ViewBuilder
+    func headerContent() -> some View {
+        if isEnabled, state.isActive, let service = batteryService {
+            BatteryStatusView(snapshot: service.snapshot, isForNotification: false)
+        }
     }
 }
 
 // MARK: - View Wrappers
 
-struct PluginBatteryView: View {
-    let service: any BatteryServiceProtocol
+private struct PluginBatteryClosedView: View {
+    let snapshot: BatterySnapshot
     @Environment(NotchViewModel.self) var vm
     
     var body: some View {
         HStack(spacing: 0) {
             HStack {
-                Text(service.statusText)
+                Text(snapshot.statusText)
                     .font(.subheadline)
                     .foregroundStyle(Color.white)
             }
@@ -118,18 +124,46 @@ struct PluginBatteryView: View {
                 .frame(width: vm.closedNotchSize.width + 10)
 
             HStack {
-                BatteryStatusView(
-                    batteryWidth: 30,
-                    isCharging: service.isCharging,
-                    isInLowPowerMode: service.isInLowPowerMode,
-                    isPluggedIn: service.isPluggedIn,
-                    levelBattery: service.levelBattery,
-                    maxCapacity: service.maxCapacity,
-                    timeToFullCharge: service.timeToFullCharge,
-                    isForNotification: true
-                )
+                BatteryStatusView(snapshot: snapshot, isForNotification: true)
             }
             .frame(width: 76, alignment: .trailing)
+        }
+    }
+}
+
+private struct BatteryExpandedPanelView: View {
+    let snapshot: BatterySnapshot
+
+    var body: some View {
+        VStack(spacing: 14) {
+            Label("Battery", systemImage: "battery.100")
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .foregroundStyle(.white.opacity(0.9))
+
+            BatteryMenuView(
+                isPluggedIn: snapshot.isPluggedIn,
+                isCharging: snapshot.isCharging,
+                levelBattery: Float(snapshot.level),
+                maxCapacity: Float(snapshot.maxCapacity),
+                timeToFullCharge: snapshot.timeToFullCharge,
+                isInLowPowerMode: snapshot.isInLowPowerMode,
+                onDismiss: {}
+            )
+            .background(.white.opacity(0.055), in: RoundedRectangle(cornerRadius: 16))
+        }
+        .padding(.horizontal, 18)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+}
+
+private struct BatteryMenuBarSummary: View {
+    let snapshot: BatterySnapshot
+
+    var body: some View {
+        Label {
+            Text("Battery: \(snapshot.level)%\(snapshot.isCharging ? " charging" : "")")
+        } icon: {
+            Image(systemName: snapshot.isCharging ? "battery.100.bolt" : "battery.100")
         }
     }
 }

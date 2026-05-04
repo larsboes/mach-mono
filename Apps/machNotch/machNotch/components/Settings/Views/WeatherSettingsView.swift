@@ -24,15 +24,46 @@ struct WeatherSettings: View {
                 }
             }
 
+            Section(header: Text("Source")) {
+                Picker("Weather source", selection: $settings.weatherSource) {
+                    ForEach(WeatherSource.allCases) { source in
+                        Text(source.rawValue).tag(source)
+                    }
+                }
+                .pickerStyle(.menu)
+                .onChange(of: settings.weatherSource) { _, _ in
+                    pluginManager?.services.weather.refreshWeather()
+                }
+
+                Text(settings.weatherSource.description)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Text("Weather data is cached in memory for up to 30 minutes to avoid repeated API calls while opening or previewing the notch.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                if let activeSource = pluginManager?.services.weather.activeSource {
+                    Label("Currently using \(activeSource.rawValue)", systemImage: "checkmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
+            }
+
             Section(header: Text("API Key")) {
                 SecureField("OpenWeatherMap API Key", text: $settings.openWeatherMapApiKey)
                     .textFieldStyle(.roundedBorder)
+                    .disabled(settings.weatherSource == .weatherKit)
 
-                if settings.openWeatherMapApiKey.isEmpty {
+                if settings.weatherSource != .weatherKit && settings.openWeatherMapApiKey.isEmpty {
                     Link(destination: URL(string: "https://openweathermap.org/api")!) {
                         Label("Get your free API key", systemImage: "arrow.up.right.square")
                             .font(.caption)
                     }
+                } else if settings.weatherSource == .weatherKit {
+                    Text("OpenWeatherMap is the primary source for Auto. WeatherKit is optional and usually unused.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
             }
 
@@ -61,7 +92,7 @@ struct WeatherSettings: View {
                                 NSWorkspace.shared.open(settingsURL)
                             }
                         }
-                    } else {
+                    } else if weatherService.locationAuthorizationStatus == .authorizedAlways {
                         HStack {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(.green)
@@ -69,6 +100,9 @@ struct WeatherSettings: View {
                                 .foregroundColor(.secondary)
                         }
                         .padding()
+                    } else {
+                        Text("Location access status is unavailable.")
+                            .foregroundColor(.secondary)
                     }
                 }
             }
@@ -91,6 +125,12 @@ struct WeatherSettings: View {
                         Text("Condition")
                         Spacer()
                         Text(weather.condition)
+                            .foregroundStyle(.secondary)
+                    }
+                    HStack {
+                        Text("Source")
+                        Spacer()
+                        Text(weather.source.rawValue)
                             .foregroundStyle(.secondary)
                     }
                     HStack {

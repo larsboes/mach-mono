@@ -18,6 +18,17 @@ class BatteryService: BatteryServiceProtocol, BackgroundServiceRestartable {
     // Conformance to BatteryServiceProtocol (computed properties for protocol match)
     var level: Double { Double(levelBattery) }
     var timeRemaining: TimeInterval? { timeToFullCharge > 0 ? TimeInterval(timeToFullCharge * 60) : nil }
+    var snapshot: BatterySnapshot {
+        BatterySnapshot(
+            levelBattery: levelBattery,
+            isPluggedIn: isPluggedIn,
+            isCharging: isCharging,
+            isInLowPowerMode: isInLowPowerMode,
+            timeToFullCharge: timeToFullCharge,
+            maxCapacity: maxCapacity,
+            statusText: statusText
+        )
+    }
     
     // Internal state
     private var isInitial: Bool = true
@@ -181,11 +192,11 @@ class BatteryService: BatteryServiceProtocol, BackgroundServiceRestartable {
     private func notifyImportantChange(levelChanged: Bool) {
         Task {
             // Check for battery level notifications
-            if levelChanged, let notificationType = checkBatteryLevel(level: Int(self.levelBattery), initial: self.isInitial) {
+            if levelChanged, let notificationType = alertKind(initial: self.isInitial) {
                 var soundToPlay = "Disabled"
-                if notificationType == "Low Battery" {
+                if notificationType == .lowBattery {
                     soundToPlay = settings.lowBatteryNotificationSound
-                } else if notificationType == "High Battery" {
+                } else if notificationType == .highBattery {
                     soundToPlay = settings.highBatteryNotificationSound
                 }
                 
@@ -213,17 +224,13 @@ class BatteryService: BatteryServiceProtocol, BackgroundServiceRestartable {
         }
     }
     
-    private func checkBatteryLevel(level: Int, initial: Bool) -> String? {
-        let lowThreshold = settings.lowBatteryNotificationLevel
-        let highThreshold = settings.highBatteryNotificationLevel
-        
-        if !self.isCharging && (level == lowThreshold || (initial && level <= lowThreshold)) && lowThreshold > 0 {
-            return "Low Battery"
-        }
-        if self.isCharging && (level == highThreshold || (initial && level >= highThreshold)) && highThreshold > 0 {
-            return "High Battery"
-        }
-        return nil
+    func alertKind(initial: Bool) -> BatteryAlertKind? {
+        BatteryAlertEvaluator.alert(
+            for: snapshot,
+            lowThreshold: settings.lowBatteryNotificationLevel,
+            highThreshold: settings.highBatteryNotificationLevel,
+            initial: initial
+        )
     }
 }
 

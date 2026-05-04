@@ -37,13 +37,13 @@ protocol NotchPhaseDelegate: AnyObject {
 
 @MainActor
 @Observable final class NotchPhaseCoordinator {
-    weak var delegate: NotchPhaseDelegate!
+    weak var delegate: (any NotchPhaseDelegate)?
     
     var phase: NotchPhase = .closed {
         didSet {
             guard phase != oldValue else { return }
-            delegate.syncAnimationState(animated: true)
-            delegate.syncBackgroundServices()
+            delegate?.syncAnimationState(animated: true)
+            delegate?.syncBackgroundServices()
         }
     }
     
@@ -53,6 +53,7 @@ protocol NotchPhaseDelegate: AnyObject {
     init() {}
 
     func open(initialVelocity: CGFloat = 0) {
+        guard let delegate else { return }
         // Allow opening if closed OR if we are currently closing OR if we are scrubbing (opening)
         guard phase == .closed || phase == .closing || phase == .opening else { return }
 
@@ -77,11 +78,11 @@ protocol NotchPhaseDelegate: AnyObject {
             self.phase = .opening
             delegate.shellAnimationProgress = 1
         } completion: {
-            guard self.phase == .opening else { return }
+            guard self.phase == .opening, let delegate = self.delegate else { return }
             self.phase = .open
-            self.delegate.hoverController.setNotchOpen(true)
-            self.delegate.syncWindowState()
-            self.delegate.startHoverHeartbeat()
+            delegate.hoverController.setNotchOpen(true)
+            delegate.syncWindowState()
+            delegate.startHoverHeartbeat()
         }
 
         // Content reveals independently — shell leads, content follows
@@ -93,10 +94,13 @@ protocol NotchPhaseDelegate: AnyObject {
     }
 
     func close(force: Bool = false) {
+        guard let delegate else { return }
         if delegate.services.sharing.preventNotchClose { return }
         if !force && delegate.isHoveringNotch && phase == .open { return }
-        // Allow closing if open OR if we are currently opening (interrupt)
-        guard phase == .open || phase == .opening || force else { return }
+        // Allow closing if open OR if we are currently opening (interrupt).
+        // Never re-enter close when already closing or closed — prevents double-close
+        // animation conflicts even with force=true.
+        guard phase == .open || phase == .opening else { return }
 
         delegate.hoverController.cancelPendingOpen()
         delegate.hoverController.setNotchOpen(false)
@@ -120,30 +124,30 @@ protocol NotchPhaseDelegate: AnyObject {
             delegate.closedNotchSize = baseClosedSize
             self.phase = .closing
         } completion: {
-            guard self.phase == .closing else { return }
+            guard self.phase == .closing, let delegate = self.delegate else { return }
             self.phase = .closed
-            self.delegate.syncWindowState()
+            delegate.syncWindowState()
 
             // Delay hover re-check to prevent immediate re-open.
             self.postCloseHoverTask?.cancel()
             self.postCloseHoverTask = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .milliseconds(300))
                 guard let self, !Task.isCancelled, self.phase == .closed else { return }
-                if self.delegate.hoverController.isMouseInHoverZone() {
-                    self.delegate.handleHoverSignal(.entered)
+                if self.delegate?.hoverController.isMouseInHoverZone() == true {
+                    self.delegate?.handleHoverSignal(.entered)
                 }
             }
         }
         
         // --- Safety Watchdog ---
         closeWatchdogTask?.cancel()
-        closeWatchdogTask = Task { @MainActor in
+        closeWatchdogTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .milliseconds(600))
-            guard !Task.isCancelled else { return }
+            guard let self, !Task.isCancelled else { return }
             if self.phase == .closing {
                 self.phase = .closed
-                self.delegate.syncWindowState()
-                self.delegate.syncAnimationState(animated: false)
+                self.delegate?.syncWindowState()
+                self.delegate?.syncAnimationState(animated: false)
             }
         }
 
@@ -157,14 +161,12 @@ protocol NotchPhaseDelegate: AnyObject {
     }
 
     func closeHello() {
-        delegate.contentRevealProgress = 0
-        withAnimation(StandardAnimations.close) {
-            delegate.coordinator.helloAnimationRunning = false
-            close()
-        }
+        delegate?.coordinator.helloAnimationRunning = false
+        close()
     }
 
     func interactiveScrub(progress: CGFloat) {
+        guard let delegate else { return }
         // Only allow scrub from closed
         guard phase == .closed || phase == .opening else { return }
 

@@ -135,7 +135,31 @@ class NotchStateMachine {
             ))
         }
 
-        // Priority 4: Active Plugin Content (replaces MusicLiveActivity and BatteryNotification)
+        // Priority 4: Standard sneak peek (non-inline HUD)
+        if input.sneakPeek.show &&
+           !input.showInlineHUD &&
+           input.sneakPeek.type != .music &&
+           input.sneakPeek.type != .battery {
+            return .closed(content: .sneakPeek(
+                type: input.sneakPeek.type,
+                value: input.sneakPeek.value,
+                icon: input.sneakPeek.icon
+            ))
+        }
+
+        // Priority 5: Music sneak peek (standard style)
+        if input.sneakPeek.show &&
+           input.sneakPeek.type == .music &&
+           !input.hideOnClosed &&
+           input.sneakPeekStyle == .standard {
+            return .closed(content: .sneakPeek(
+                type: .music,
+                value: input.sneakPeek.value,
+                icon: input.sneakPeek.icon
+            ))
+        }
+
+        // Priority 6: Active Plugin Content (replaces MusicLiveActivity and BatteryNotification)
         // Checks if a plugin requested display and explicit sneak peek isn't overriding it
         if let pluginId = input.activePluginId,
            !input.hideOnClosed,
@@ -153,29 +177,7 @@ class NotchStateMachine {
             return .closed(content: .face)
         }
 
-        // Priority 6: Standard sneak peek (non-inline HUD)
-        if input.sneakPeek.show &&
-           !input.showInlineHUD &&
-           input.sneakPeek.type != .music &&
-           input.sneakPeek.type != .battery {
-            return .closed(content: .sneakPeek(
-                type: input.sneakPeek.type,
-                value: input.sneakPeek.value,
-                icon: input.sneakPeek.icon
-            ))
-        }
 
-        // Priority 7: Music sneak peek (standard style)
-        if input.sneakPeek.show &&
-           input.sneakPeek.type == .music &&
-           !input.hideOnClosed &&
-           input.sneakPeekStyle == .standard {
-            return .closed(content: .sneakPeek(
-                type: .music,
-                value: input.sneakPeek.value,
-                icon: input.sneakPeek.icon
-            ))
-        }
 
         // Default: idle
         return .closed(content: .idle)

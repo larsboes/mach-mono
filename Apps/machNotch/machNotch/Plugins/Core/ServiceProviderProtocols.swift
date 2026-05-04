@@ -28,6 +28,7 @@ protocol SystemServiceProvider {
     var brightness: any BrightnessServiceProtocol { get }
     var keyboardBacklight: any KeyboardBacklightServiceProtocol { get }
     var battery: any BatteryServiceProtocol { get }
+    var systemStats: any SystemStatsServiceProtocol { get }
     var xpcHelper: any XPCHelperServiceProtocol { get }
     var fullScreen: any FullScreenServiceProtocol { get }
 }

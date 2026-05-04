@@ -7,12 +7,13 @@
 
 import Foundation
 
+@MainActor
 class NotchSpaceManager {
-    let notchSpace: CGSSpace
+    let notchSpace: MachWindowSpace
     private var eventTap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
 
     init() {
-        notchSpace = CGSSpace(level: 2147483647) // Max level
+        notchSpace = MachWindowSpace(level: 2147483647) // Max level
     }
 }

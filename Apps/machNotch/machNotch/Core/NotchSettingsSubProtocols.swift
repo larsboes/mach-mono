@@ -144,6 +144,7 @@ protocol WidgetSettings {
     var showMirror: Bool { get set }
     var showCalendar: Bool { get set }
     var showWeather: Bool { get set }
+    var weatherSource: WeatherSource { get set }
     var openWeatherMapApiKey: String { get set }
     var showHabitTracker: Bool { get set }
     var showPomodoro: Bool { get set }

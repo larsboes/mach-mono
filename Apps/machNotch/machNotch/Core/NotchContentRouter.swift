@@ -41,10 +41,12 @@ struct NotchContentRouter: View {
                 openContent(view)
 
             case .sneakPeek(let type, let value, let icon):
-                sneakPeekContent(type: type, value: value, icon: icon)
+                // Handled in closedContent for now, but enum allows top-level state
+                EmptyView()
 
             case .expanding(let type):
-                expandingContent(type: type)
+                // Expanding view content (future implementation)
+                EmptyView()
             }
         }
         .environment(coordinator)
@@ -95,9 +97,14 @@ struct NotchContentRouter: View {
 
     @ViewBuilder
     private var idleContent: some View {
-        Rectangle()
-        .fill(Color.clear)
-        .frame(width: vm.closedNotchSize.width, height: closedNotchHeight)
+        if let pluginManager, pluginManager.isPluginEnabled(id: PluginID.systemStats) {
+            pluginManager.closedNotchView(for: PluginID.systemStats)
+                .frame(height: closedNotchHeight)
+        } else {
+            Rectangle()
+                .fill(Color.clear)
+                .frame(width: vm.closedNotchSize.width, height: closedNotchHeight)
+        }
     }
 
     @ViewBuilder
@@ -220,6 +227,11 @@ struct NotchContentRouter: View {
                         pluginManager.expandedPanelView(for: PluginID.teleprompter)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
+                case .systemStats:
+                    if let pluginManager {
+                        pluginManager.expandedPanelView(for: PluginID.systemStats)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity) // Ensure content area is flexible
@@ -230,21 +242,6 @@ struct NotchContentRouter: View {
         }
         .clipped() // Ensure entire open content VStack is clipped at the island height boundary
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    // MARK: - Sneak Peek / Expanding
-
-    @ViewBuilder
-    private func sneakPeekContent(type: SneakContentType, value: CGFloat, icon: String) -> some View {
-        // Sneak peek content when notch state is not closed
-        // This handles the sneakPeek case from NotchDisplayState
-        EmptyView()
-    }
-
-    @ViewBuilder
-    private func expandingContent(type: SneakContentType) -> some View {
-        // Expanding view content
-        EmptyView()
     }
 }
 

@@ -714,6 +714,7 @@
       }
     },
     "%d%%" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -1026,6 +1027,9 @@
       }
     },
     "%lldpx" : {
+
+    },
+    "%llds" : {
 
     },
     "• Bug fixes" : {
@@ -3693,206 +3697,6 @@
         }
       }
     },
-    "machNotch" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "machNotch"
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "machNotch"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "machNotch"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "machNotch"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "machNotch"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "machNotch"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "machNotch"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "machNotch"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "machNotch"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "machNotch"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "machNotch"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "machNotch"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "machNotch"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "machNotch"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "machNotch"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "machNotch"
-          }
-        }
-      }
-    },
-    "mach.notch" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "mach.notch"
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "mach.notch"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "mach.notch"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "mach.notch"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "mach.notch"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "mach.notch"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "mach.notch"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "mach.notch"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "mach.notch"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "mach.notch"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "mach.notch"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "mach.notch"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "mach.notch"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "mach.notch"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "mach.notch"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "mach.notch"
-          }
-        }
-      }
-    },
     "Bulk Export" : {
 
     },
@@ -6236,6 +6040,9 @@
         }
       }
     },
+    "CPU" : {
+
+    },
     "Current Weather" : {
 
     },
@@ -6338,6 +6145,9 @@
           }
         }
       }
+    },
+    "Currently using %@" : {
+
     },
     "Custom" : {
       "localizations" : {
@@ -7250,6 +7060,9 @@
         }
       }
     },
+    "Disk" : {
+
+    },
     "Display" : {
 
     },
@@ -8066,106 +7879,6 @@
         }
       }
     },
-    "Enable notch mirror" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Enable notch mirror"
-          }
-        },
-        "cs" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Povolit zrcadlo výřezu"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Spiegelfunktion aktivieren"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enable notch mirror"
-          }
-        },
-        "en-GB" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enable notch mirror"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Habilitar espejo de la muesca"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Activer le miroir ennuyeux"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Enable notch mirror"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Abilita specchio"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "노치 미러 켜기"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Włącz lustro notcha"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Enable notch mirror"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Enable notch mirror"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Sıkıcı aynayı aktifleştir"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Enable notch mirror"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "启用虚拟镜像"
-          }
-        }
-      }
-    },
     "Enable gestures" : {
       "localizations" : {
         "ar" : {
@@ -8471,6 +8184,106 @@
     },
     "Enable location access" : {
 
+    },
+    "Enable notch mirror" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Enable notch mirror"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Povolit zrcadlo výřezu"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Spiegelfunktion aktivieren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable notch mirror"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable notch mirror"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Habilitar espejo de la muesca"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Activer le miroir ennuyeux"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Enable notch mirror"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Abilita specchio"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "노치 미러 켜기"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Włącz lustro notcha"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Enable notch mirror"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Enable notch mirror"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Sıkıcı aynayı aktifleştir"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Enable notch mirror"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "启用虚拟镜像"
+          }
+        }
+      }
     },
     "Enable Pomodoro Timer" : {
 
@@ -9187,9 +9000,6 @@
           }
         }
       }
-    },
-    "Feels %@" : {
-
     },
     "Files dropped on the shelf will be shared via this service" : {
       "localizations" : {
@@ -11867,6 +11677,9 @@
     "Location access is required to show weather information." : {
 
     },
+    "Location access status is unavailable." : {
+
+    },
     "Long Break: %lld" : {
 
     },
@@ -12167,6 +11980,206 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "低电量模式"
+          }
+        }
+      }
+    },
+    "mach.notch" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "mach.notch"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "mach.notch"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "mach.notch"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mach.notch"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mach.notch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "mach.notch"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "mach.notch"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "mach.notch"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "mach.notch"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "mach.notch"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "mach.notch"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "mach.notch"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "mach.notch"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "mach.notch"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "mach.notch"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "mach.notch"
+          }
+        }
+      }
+    },
+    "machNotch" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "machNotch"
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "machNotch"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "machNotch"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "machNotch"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "machNotch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "machNotch"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "machNotch"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "machNotch"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "machNotch"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "machNotch"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "machNotch"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "machNotch"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "machNotch"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "machNotch"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "machNotch"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "machNotch"
           }
         }
       }
@@ -13477,6 +13490,9 @@
         }
       }
     },
+    "Memory" : {
+
+    },
     "Mic %@" : {
       "localizations" : {
         "ar" : {
@@ -14286,6 +14302,9 @@
           }
         }
       }
+    },
+    "Network" : {
+
     },
     "Never hide" : {
       "localizations" : {
@@ -15739,6 +15758,9 @@
     "OpenWeatherMap API Key" : {
 
     },
+    "OpenWeatherMap is the primary source for Auto. WeatherKit is optional and usually unused." : {
+
+    },
     "Option key behaviour" : {
       "localizations" : {
         "ar" : {
@@ -16686,6 +16708,12 @@
           }
         }
       }
+    },
+    "Refresh" : {
+
+    },
+    "Refresh Interval" : {
+
     },
     "Release name" : {
       "localizations" : {
@@ -20527,6 +20555,9 @@
     "Sound" : {
 
     },
+    "Source" : {
+
+    },
     "Sources" : {
 
     },
@@ -21045,6 +21076,9 @@
           }
         }
       }
+    },
+    "System Stats" : {
+
     },
     "Tap to cancel" : {
 
@@ -22577,6 +22611,9 @@
         }
       }
     },
+    "Visible Metrics" : {
+
+    },
     "Visualizer height" : {
 
     },
@@ -22585,6 +22622,22 @@
     },
     "Weather" : {
 
+    },
+    "Weather data is cached in memory for up to 30 minutes to avoid repeated API calls while opening or previewing the notch." : {
+
+    },
+    "Weather source" : {
+
+    },
+    "Weather: %@, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Weather: %1$@, %2$@"
+          }
+        }
+      }
     },
     "Welcome" : {
       "localizations" : {

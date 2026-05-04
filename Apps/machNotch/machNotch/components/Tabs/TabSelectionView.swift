@@ -23,16 +23,21 @@ private let coreTabs = [
 ]
 
 private let weatherTab = TabModel(label: "Weather", icon: "cloud.sun.fill", view: .weather)
+private let systemStatsTab = TabModel(label: "Stats", icon: "gauge.with.dots.needle.50percent", view: .systemStats)
 
 struct TabSelectionView: View {
     @Environment(NotchViewModel.self) var vm
     @Environment(\.settings) var settings
+    @Environment(\.pluginManager) var pluginManager
     @Namespace var animation
 
     private var visibleTabs: [TabModel] {
         var tabs = coreTabs
         if settings.showWeather {
             tabs.insert(weatherTab, at: 2) // After Notifications
+        }
+        if pluginManager?.hasPlugin(id: PluginID.systemStats) == true {
+            tabs.append(systemStatsTab)
         }
         return tabs
     }

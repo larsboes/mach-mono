@@ -65,17 +65,15 @@ final class WeatherPlugin: NotchPlugin, PositionedPlugin {
     
     // MARK: - UI Slots
 
+    var displayRequest: DisplayRequest? {
+        guard isEnabled, state.isActive, weatherService?.currentWeather != nil else { return nil }
+        return DisplayRequest(priority: .background, category: DisplayRequest.utility)
+    }
+
     @ViewBuilder
     func closedNotchContent() -> some View {
         if isEnabled, state.isActive, let weather = weatherService?.currentWeather {
-            HStack(spacing: 4) {
-                Image(systemName: weather.systemIconName)
-                    .font(.system(size: 12))
-                    .foregroundStyle(.white.opacity(0.8))
-                Text(weather.temperatureString)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.8))
-            }
+            WeatherClosedPill(weather: weather)
         }
     }
 
@@ -89,5 +87,12 @@ final class WeatherPlugin: NotchPlugin, PositionedPlugin {
     @ViewBuilder
     func settingsContent() -> some View {
         WeatherSettings()
+    }
+
+    @ViewBuilder
+    func menuBarView() -> some View {
+        if isEnabled, state.isActive, let weather = weatherService?.currentWeather {
+            WeatherMenuBarSummary(weather: weather)
+        }
     }
 }

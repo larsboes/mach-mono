@@ -57,6 +57,10 @@ extension NotchViewCoordinator {
         if type == .mic {
             settings.currentMicStatus = value == 1
         }
+        
+        if status {
+            scheduleSneakPeekHide(after: sneakPeekDuration)
+        }
     }
 
     func scheduleSneakPeekHide(after duration: TimeInterval) {

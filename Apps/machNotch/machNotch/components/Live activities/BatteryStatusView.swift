@@ -57,7 +57,13 @@ struct BatteryView: View {
                 )
                 .padding(.leading, 2)
 
-            if !iconStatus.isEmpty && (isForNotification || settings.showPowerStatusIcons) {
+            if settings.showBatteryPercentage {
+                Text("\(Int(levelBattery))")
+                    .font(.system(size: batteryWidth * 0.32, weight: .heavy, design: .rounded))
+                    .foregroundColor(batteryColor == .white ? .black : .white)
+                    .shadow(color: batteryColor == .white ? .clear : .black.opacity(0.4), radius: 0.5, x: 0, y: 0)
+                    .frame(width: batteryWidth - 3, alignment: .center)
+            } else if !iconStatus.isEmpty && (isForNotification || settings.showPowerStatusIcons) {
                 ZStack {
                     Image(iconStatus)
                         .resizable()
@@ -152,7 +158,7 @@ struct BatteryMenuView: View {
             .padding(.vertical, 8)
         }
         .padding()
-        .frame(width: 280)
+        .frame(maxWidth: .infinity)
         .foregroundColor(.white)
     }
 
@@ -185,6 +191,39 @@ struct BatteryStatusView: View {
     @Environment(NotchViewModel.self) var vm
     @Environment(\.settings) var settings
 
+    init(
+        batteryWidth: CGFloat = 26,
+        isCharging: Bool = false,
+        isInLowPowerMode: Bool = false,
+        isPluggedIn: Bool = false,
+        levelBattery: Float = 0,
+        maxCapacity: Float = 0,
+        timeToFullCharge: Int = 0,
+        isForNotification: Bool = false
+    ) {
+        self._batteryWidth = State(initialValue: batteryWidth)
+        self.isCharging = isCharging
+        self.isInLowPowerMode = isInLowPowerMode
+        self.isPluggedIn = isPluggedIn
+        self.levelBattery = levelBattery
+        self.maxCapacity = maxCapacity
+        self.timeToFullCharge = timeToFullCharge
+        self._isForNotification = State(initialValue: isForNotification)
+    }
+
+    init(snapshot: BatterySnapshot, batteryWidth: CGFloat = 30, isForNotification: Bool) {
+        self.init(
+            batteryWidth: batteryWidth,
+            isCharging: snapshot.isCharging,
+            isInLowPowerMode: snapshot.isInLowPowerMode,
+            isPluggedIn: snapshot.isPluggedIn,
+            levelBattery: Float(snapshot.level),
+            maxCapacity: Float(snapshot.maxCapacity),
+            timeToFullCharge: snapshot.timeToFullCharge,
+            isForNotification: isForNotification
+        )
+    }
+
     var body: some View {
         Button(action: {
             withAnimation {
@@ -192,11 +231,6 @@ struct BatteryStatusView: View {
             }
         }) {
             HStack {
-                if settings.showBatteryPercentage {
-                    Text("\(Int32(levelBattery))%")
-                        .font(.callout)
-                        .foregroundStyle(.white)
-                }
                 BatteryView(
                     levelBattery: levelBattery,
                     isPluggedIn: isPluggedIn,
@@ -209,6 +243,16 @@ struct BatteryStatusView: View {
             }
         }
         .buttonStyle(ScaleButtonStyle())
+        .onHover { hovering in
+            isHoveringButton = hovering
+            if hovering {
+                hideTask?.cancel()
+                hideTask = nil
+                withAnimation { showPopupMenu = true }
+            } else {
+                scheduleHideIfNeeded()
+            }
+        }
         .popover(
             isPresented: $showPopupMenu,
             arrowEdge: .bottom) {

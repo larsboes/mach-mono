@@ -38,6 +38,9 @@ final class ServiceContainer: NotchServiceProvider {
     /// Battery status service (wraps BatteryService)
     public let battery: any BatteryServiceProtocol
 
+    /// System stats service (CPU, memory, disk, network)
+    public let systemStats: any SystemStatsServiceProtocol
+
     /// Full Screen monitoring service
     public let fullScreen: any FullScreenServiceProtocol
 
@@ -136,6 +139,7 @@ final class ServiceContainer: NotchServiceProvider {
         self.volume = VolumeManager(eventBus: eventBus)
         self.brightness = BrightnessManager(eventBus: eventBus, xpcHelper: xpcHelper)
         self.keyboardBacklight = KeyboardBacklightManager(eventBus: eventBus, xpcHelper: xpcHelper)
+        self.systemStats = SystemStatsService()
         self.sharing = SharingStateManager()
         self.quickLook = QuickLookService()
         self.quickShare = QuickShareService(temporaryFileStorage: self.temporaryFileStorage, sharingStateManager: self.sharing)
@@ -167,6 +171,7 @@ final class ServiceContainer: NotchServiceProvider {
         brightness: any BrightnessServiceProtocol,
         keyboardBacklight: any KeyboardBacklightServiceProtocol,
         battery: any BatteryServiceProtocol,
+        systemStats: any SystemStatsServiceProtocol,
         fullScreen: any FullScreenServiceProtocol,
         thumbnails: any ThumbnailServiceProtocol,
         lyrics: any LyricsServiceProtocol,
@@ -198,6 +203,7 @@ final class ServiceContainer: NotchServiceProvider {
         self.brightness = brightness
         self.keyboardBacklight = keyboardBacklight
         self.battery = battery
+        self.systemStats = systemStats
         self.fullScreen = fullScreen
         self.thumbnails = thumbnails
         self.lyrics = lyrics

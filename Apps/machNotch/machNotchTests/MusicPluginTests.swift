@@ -7,6 +7,7 @@
 
 import XCTest
 import Combine
+import CoreLocation
 import SwiftUI
 @testable import machNotch
 
@@ -198,8 +199,16 @@ class MockShelfService: ShelfServiceProtocol {
 }
 
 class MockWeatherService: WeatherServiceProtocol {
-    var weather: WeatherData?
-    func refresh() async {}
+    var currentWeather: WeatherData?
+    var activeSource: WeatherDataSource?
+    var isLoading = false
+    var errorMessage: String?
+    var locationAuthorizationStatus: CLAuthorizationStatus = .authorizedAlways
+    func checkLocationAuthorization() {}
+    func startUpdatingWeather() {}
+    func stopUpdatingWeather() {}
+    func fetchWeather() {}
+    func refreshWeather() {}
 }
 
 class MockWebcamService: WebcamServiceProtocol {

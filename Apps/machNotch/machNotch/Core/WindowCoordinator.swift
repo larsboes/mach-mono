@@ -77,14 +77,14 @@ final class WindowCoordinator {
         if shouldCleanupMulti {
             windows.values.forEach { window in
                 window.close()
-                spaceManager.notchSpace.windows.remove(window)
+                spaceManager.notchSpace.unregister(window)
             }
             windows.removeAll()
             viewModels.removeAll()
             stateMachines.removeAll()
         } else if let window = window {
             window.close()
-            spaceManager.notchSpace.windows.remove(window)
+            spaceManager.notchSpace.unregister(window)
             if let obs = windowScreenDidChangeObserver {
                 NotificationCenter.default.removeObserver(obs)
                 windowScreenDidChangeObserver = nil
@@ -125,7 +125,7 @@ final class WindowCoordinator {
         )
 
         window.orderFrontRegardless()
-        spaceManager.notchSpace.windows.insert(window)
+        spaceManager.notchSpace.register(window)
         viewModel.setHoverWindow(window)
         viewModel.setupHoverController()
 

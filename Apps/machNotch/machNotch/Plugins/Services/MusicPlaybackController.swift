@@ -163,7 +163,6 @@ final class MusicPlaybackController {
         let hasContentChange = state.title != songTitle
             || state.artist != artistName
             || state.album != album
-            || state.artwork != nil
             || state.bundleIdentifier != bundleIdentifier
 
         if hasContentChange {

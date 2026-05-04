@@ -27,6 +27,25 @@ enum MediaControllerType: String, CaseIterable, Identifiable, Defaults.Serializa
     var id: String { self.rawValue }
 }
 
+enum WeatherSource: String, CaseIterable, Identifiable, Defaults.Serializable {
+    case auto = "Auto"
+    case weatherKit = "Native WeatherKit"
+    case openWeatherMap = "OpenWeatherMap"
+
+    var id: String { rawValue }
+
+    var description: String {
+        switch self {
+        case .auto:
+            return "Use OpenWeatherMap as the primary source; WeatherKit is only a fallback when available."
+        case .weatherKit:
+            return "Use Apple's native WeatherKit data. Requires the WeatherKit entitlement."
+        case .openWeatherMap:
+            return "Use your OpenWeatherMap API key."
+        }
+    }
+}
+
 enum SneakPeekStyle: String, CaseIterable, Identifiable, Defaults.Serializable {
     case standard = "Default"
     case inline = "Inline"

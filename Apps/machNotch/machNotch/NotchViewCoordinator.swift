@@ -12,10 +12,10 @@ import SwiftUI
 
 @MainActor
 @Observable class NotchViewCoordinator: ViewCoordinating {
-    var currentView: NotchViews = .home
     var isScrollableViewPresented: Bool = false
     var helloAnimationRunning: Bool = false
     var hudEnableTask: Task<Void, Never>?
+    @ObservationIgnored private var observerTasks: [Task<Void, Never>] = []
 
     var settings: any CoordinatorSettings
 
@@ -36,9 +36,7 @@ import SwiftUI
 
     var sneakPeek: SneakPeekState = .init() {
         didSet {
-            if sneakPeek.show {
-                scheduleSneakPeekHide(after: sneakPeekDuration)
-            } else {
+            if !sneakPeek.show {
                 sneakPeekTask?.cancel()
             }
         }
@@ -70,6 +68,7 @@ import SwiftUI
             sneakPeekTask?.cancel()
             expandingViewTask?.cancel()
             hudEnableTask?.cancel()
+            observerTasks.forEach { $0.cancel() }
             if let accessibilityObserver {
                 NotificationCenter.default.removeObserver(accessibilityObserver)
             }
@@ -150,51 +149,56 @@ import SwiftUI
 
         // Observe changes to alwaysShowTabs (settings mutation only;
         // currentView reset is now per-screen in NotchViewModel.setupTabResetObserver)
-        Task { @MainActor in
+        observerTasks.append(Task { @MainActor [weak self] in
             for await value in Defaults.updates(.alwaysShowTabs) {
+                guard let self else { return }
                 if !value {
                     self.settings.openLastTabByDefault = false
                 }
             }
-        }
+        })
 
         // Observe changes to openLastTabByDefault
-        Task { @MainActor in
+        observerTasks.append(Task { @MainActor [weak self] in
             for await value in Defaults.updates(.openLastTabByDefault) {
+                guard let self else { return }
                 if value {
                     self.settings.alwaysShowTabs = true
                 }
             }
-        }
+        })
 
         // Observe changes to preferredScreenUUID
-        Task { @MainActor in
+        observerTasks.append(Task { @MainActor [weak self] in
             for await uuid in Defaults.updates(.preferredScreenUUID) {
+                guard let self else { return }
                 if let uuid = uuid {
-                    selectedScreenUUID = uuid
+                    self.selectedScreenUUID = uuid
                 }
                 NotificationCenter.default.post(name: Notification.Name.selectedScreenChanged, object: nil)
             }
-        }
+        })
     }
 
     private func setupInitialState() {
-        Task { @MainActor in
-            helloAnimationRunning = settings.firstLaunch
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            self.helloAnimationRunning = self.settings.firstLaunch
 
-            if helloAnimationRunning {
+            if self.helloAnimationRunning {
                 try? await Task.sleep(for: .seconds(10))
-                if helloAnimationRunning {
-                    helloAnimationRunning = false
+                guard !Task.isCancelled else { return }
+                if self.helloAnimationRunning {
+                    self.helloAnimationRunning = false
                 }
             }
 
-            if settings.hudReplacement {
-                let authorized = await xpcHelper.isAccessibilityAuthorized()
+            if self.settings.hudReplacement {
+                let authorized = await self.xpcHelper.isAccessibilityAuthorized()
                 if !authorized {
-                    settings.hudReplacement = false
+                    self.settings.hudReplacement = false
                 } else {
-                    await mediaKeyInterceptor?.start(promptIfNeeded: false)
+                    await self.mediaKeyInterceptor?.start(promptIfNeeded: false)
                 }
             }
         }

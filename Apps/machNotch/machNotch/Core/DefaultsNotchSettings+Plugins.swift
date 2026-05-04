@@ -88,6 +88,10 @@ import Defaults
         get { Defaults[.showTeleprompter] }
         set { Defaults[.showTeleprompter] = newValue }
     }
+    var weatherSource: WeatherSource {
+        get { Defaults[.weatherSource] }
+        set { Defaults[.weatherSource] = newValue }
+    }
     var openWeatherMapApiKey: String {
         get { Defaults[.openWeatherMapApiKey] }
         set { Defaults[.openWeatherMapApiKey] = newValue }
