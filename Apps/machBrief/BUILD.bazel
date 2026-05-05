@@ -19,7 +19,7 @@ macos_extension(
     name = "machBriefWidget",
     bundle_id = "mach.brief.widget",
     infoplists = ["machBriefWidget/Info.plist"],
-    minimum_os_version = "14.0",
+    minimum_os_version = "26.0",
     deps = [":machBriefWidget_Lib"],
 )
 
@@ -27,7 +27,7 @@ macos_application(
     name = "machBrief",
     bundle_id = "mach.brief",
     infoplists = ["machBrief/Info.plist"],
-    minimum_os_version = "14.0",
+    minimum_os_version = "26.0",
     deps = [":machBrief_Lib"],
     extensions = [":machBriefWidget"],
     visibility = ["//visibility:public"],

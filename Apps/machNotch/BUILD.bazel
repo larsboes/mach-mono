@@ -1,5 +1,5 @@
-load("@rules_swift//swift:swift.bzl", "swift_library")
-load("@rules_apple//apple:macos.bzl", "macos_application")
+load("@rules_swift//swift:swift.bzl", "swift_library", "swift_test")
+load("@rules_apple//apple:macos.bzl", "macos_application", "macos_unit_test")
 load("@rules_apple//apple:resources.bzl", "apple_resource_group")
 load("@rules_apple//apple:apple.bzl", "apple_dynamic_framework_import")
 
@@ -12,12 +12,17 @@ apple_dynamic_framework_import(
 
 apple_resource_group(
     name = "machNotch_Resources",
-    resources = glob([
-        "machNotch/Assets.xcassets/**",
-        "machNotch/Localizable.xcstrings",
-        "machNotch/welcome.m4a",
-        "machNotch/animations/**",
-    ]),
+    resources = glob(
+        [
+            "machNotch/Assets.xcassets/**",
+            "machNotch/Localizable.xcstrings",
+            "machNotch/welcome.m4a",
+            "machNotch/animations/**",
+        ],
+        # macOS 26+ requires Icon Composer .icon bundles, not legacy .appiconset.
+        # Exclude until the icon is migrated; the Xcode project retains the icon.
+        exclude = ["machNotch/Assets.xcassets/AppIcon.appiconset/**"],
+    ),
 )
 
 swift_library(
@@ -27,29 +32,62 @@ swift_library(
     deps = [],
 )
 
+_SHARED_DEPS = [
+    "//Packages/MacroVisionKit",
+    "//Packages/MachBriefKit",
+    "@swiftpkg_asyncxpcconnection//:AsyncXPCConnection",
+    "@swiftpkg_defaults//:Defaults",
+    "@swiftpkg_keyboardshortcuts//:KeyboardShortcuts",
+    "@swiftpkg_launchatlogin_modern//:LaunchAtLogin",
+    "@swiftpkg_lottie_spm//:Lottie",
+    "@swiftpkg_skylightwindow//:SkyLightWindow",
+    "@swiftpkg_sparkle//:Sparkle",
+    "@swiftpkg_sqlite.swift//:SQLite",
+    "@swiftpkg_swift_collections//:Collections",
+    "@swiftpkg_swiftglass//:SwiftGlass",
+]
+
+# Testable core — all sources except the @main entry point.
 swift_library(
     name = "machNotch_Lib",
     srcs = glob(
         ["machNotch/**/*.swift"],
-        # StatusBarMenu.swift is not in the Xcode target (WIP) — exclude to match.
+        # Exclude @main entry point so tests can link against this library.
+        # Exclude StatusBarMenu.swift (WIP, not in Xcode target).
+        exclude = [
+            "machNotch/machNotchApp.swift",
+            "machNotch/menu/StatusBarMenu.swift",
+        ],
+    ),
+    module_name = "machNotch",
+    deps = _SHARED_DEPS,
+)
+
+# App entry point — only linked into the final macos_application.
+# MediaRemoteAdapter is added here so the dynamic framework is embedded in the
+# app bundle but not in the test binary (which cannot load it without embedding).
+swift_library(
+    name = "machNotch_App",
+    srcs = glob(
+        ["machNotch/**/*.swift"],
         exclude = ["machNotch/menu/StatusBarMenu.swift"],
     ),
     module_name = "machNotch",
-    deps = [
-        "//Packages/MacroVisionKit",
-        "//Packages/MachBriefKit",
-        ":MediaRemoteAdapter",
-        "@swiftpkg_asyncxpcconnection//:AsyncXPCConnection",
-        "@swiftpkg_defaults//:Defaults",
-        "@swiftpkg_keyboardshortcuts//:KeyboardShortcuts",
-        "@swiftpkg_launchatlogin_modern//:LaunchAtLogin",
-        "@swiftpkg_lottie_spm//:Lottie",
-        "@swiftpkg_skylightwindow//:SkyLightWindow",
-        "@swiftpkg_sparkle//:Sparkle",
-        "@swiftpkg_sqlite.swift//:SQLite",
-        "@swiftpkg_swift_collections//:Collections",
-        "@swiftpkg_swiftglass//:SwiftGlass",
-    ],
+    deps = [":MediaRemoteAdapter"] + _SHARED_DEPS,
+)
+
+swift_library(
+    name = "machNotchTests_Lib",
+    srcs = glob(["machNotchTests/**/*.swift"]),
+    deps = [":machNotch_Lib"],
+    testonly = True,
+)
+
+macos_unit_test(
+    name = "machNotchTests",
+    bundle_id = "com.larsboes.machNotchTests",
+    minimum_os_version = "15.0",
+    deps = [":machNotchTests_Lib"],
 )
 
 # TODO: Embed MachNotchXPCHelper as an XPC service bundle.
@@ -63,8 +101,8 @@ macos_application(
         "machNotch/Info.plist",
         "bazel_info.plist",
     ],
-    minimum_os_version = "15.0",
-    deps = [":machNotch_Lib"],
+    minimum_os_version = "26.0",
+    deps = [":machNotch_App"],
     resources = [":machNotch_Resources"],
     visibility = ["//visibility:public"],
 )

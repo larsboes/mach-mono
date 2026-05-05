@@ -1,6 +1,6 @@
 # 0002 — Root Xcode workspace as primary entrypoint
 
-- Status: Accepted
+- Status: Superseded by [0007](0007-native-bazel-builds.md)
 - Date: 2026-05-04
 
 ## Context
@@ -9,12 +9,13 @@
 
 ## Decision
 
-Use `mach-mono.xcworkspace` as the primary Xcode entrypoint for repo-level verification.
+~~Use `mach-mono.xcworkspace` as the primary Xcode entrypoint for repo-level verification.~~
 
-The primary scheme is `machNotch`.
+**Superseded:** Bazel is the primary build and verification system. `mach-mono.xcworkspace` is retained for IDE navigation only — it is not the canonical build entrypoint. See ADR 0007.
 
 ## Consequences
 
-- Root build/test instructions should prefer `xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch ...`.
-- App-specific instructions may include local project commands, but should not contradict the root workspace entrypoint.
-- When workspace topology changes, update `repo.yaml`, `docs/README.md`, root `README.md`, and app instructions together.
+- Canonical build: `bazel build //Apps/machNotch:machNotch`
+- Canonical test: `bazel test //...`
+- `mach-mono.xcworkspace` is IDE scaffolding only — do not use `xcodebuild` as the verification source of truth.
+- When workspace topology changes, update `repo.yaml`, `docs/README.md`, root `README.md`, and `MODULE.bazel` together.

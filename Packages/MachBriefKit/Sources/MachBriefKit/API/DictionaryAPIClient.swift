@@ -4,18 +4,20 @@ public struct DictionaryWordDetail: Sendable {
     public let word: String
     public let definition: String?
     public let partOfSpeech: String?
+    public let phonetic: String?
     public let example: String?
 }
 
 public protocol DictionaryAPIClientProtocol: Sendable {
-    func lookup(word: String) async -> DictionaryWordDetail?
+    func lookup(word: String, languageCode: String) async -> DictionaryWordDetail?
 }
 
 public struct DictionaryAPIClient: DictionaryAPIClientProtocol {
     public init() {}
 
-    public func lookup(word: String) async -> DictionaryWordDetail? {
-        guard let url = URL(string: "https://api.dictionaryapi.dev/api/v2/entries/en/\(word)") else {
+    public func lookup(word: String, languageCode: String = "en") async -> DictionaryWordDetail? {
+        guard let encodedWord = word.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
+              let url = URL(string: "https://api.dictionaryapi.dev/api/v2/entries/\(languageCode)/\(encodedWord)") else {
             return nil
         }
         do {
@@ -27,6 +29,7 @@ public struct DictionaryAPIClient: DictionaryAPIClientProtocol {
                 word: first.word,
                 definition: meaning?.definitions.first?.definition,
                 partOfSpeech: meaning?.partOfSpeech,
+                phonetic: first.phonetic ?? first.phonetics.first(where: { $0.text != nil })?.text,
                 example: meaning?.definitions.first?.example
             )
         } catch {
@@ -37,7 +40,13 @@ public struct DictionaryAPIClient: DictionaryAPIClientProtocol {
 
 private struct DictionaryResponse: Codable {
     let word: String
+    let phonetic: String?
+    let phonetics: [Phonetic]
     let meanings: [Meaning]
+}
+
+private struct Phonetic: Codable {
+    let text: String?
 }
 
 private struct Meaning: Codable {

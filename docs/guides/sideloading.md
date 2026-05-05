@@ -1,6 +1,6 @@
 # iOS Sideloading — Free Developer Account Setup
 
-How to install mach.vocab (or any app in this repo) on your own iPhone without paying $99/yr.
+How to install mach.brief (or any app in this repo) on your own iPhone without paying $99/yr.
 
 ---
 
@@ -32,7 +32,7 @@ Do this once. Subsequent installs from the same Apple ID don't require it again.
 ## Installing / updating
 
 1. Open `mach-mono.xcworkspace` in Xcode
-2. Select the `machVocab` scheme
+2. Select the `machBrief` scheme
 3. Plug in your iPhone (or select it wirelessly after first pairing)
 4. Hit **Run** (▶)
 
@@ -53,7 +53,7 @@ Free Apple ID certificates expire after **7 days**. The app will refuse to launc
 Setup:
 1. Download AltServer (Mac app) from altstore.io
 2. Install AltStore onto your iPhone via AltServer
-3. Open AltStore on your iPhone → My Apps → refresh machVocab
+3. Open AltStore on your iPhone → My Apps → refresh machBrief
 4. (Optional) Enable background refresh so AltStore does this automatically
 
 **SideStore** is an alternative that works without a Mac running — it self-refreshes over a VPN loopback. More complex to set up, but fully autonomous.
@@ -65,7 +65,7 @@ Setup:
 After installing:
 
 1. Long-press home screen → + (top left)
-2. Search "mach.vocab"
+2. Search "mach.brief"
 3. Add lock screen widget: swipe to lock screen → long-press → Customize → add widget
 4. Add home screen widget: same + flow, choose medium size
 

@@ -1,2 +1,9 @@
 build --verbose_failures
 build --apple_generate_dsym
+
+# CI profile — activate with --config=ci
+build:ci --noshow_progress
+build:ci --show_result=0
+build:ci --color=no
+build:ci --keep_going
+build:ci --announce_rc

@@ -7,7 +7,7 @@ public struct BriefEntry: Codable, Identifiable, Sendable {
     public let title: String
     public let subtitle: String?
     public let body: String?
-    public let metadata: [String: String]
+    public var metadata: [String: String]
     public var isFavorited: Bool
     public let revealedAt: Date
 

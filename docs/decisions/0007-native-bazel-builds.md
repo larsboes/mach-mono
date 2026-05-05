@@ -27,5 +27,6 @@ Removed:
 
 - `bazel build //Apps/machNotch:machNotch` works natively without a generated Xcode project detour.
 - `bazel build //Apps/machBrief:machBrief` works natively.
+- `bazel test //Packages/MachBriefKit:MachBriefKitTests` is the MachBriefKit verification target.
 - All new features and packages must define Bazel targets.
 - XPC service embedding (`MachNotchXPCHelper`) requires further work — currently compiled separately, embedding deferred (see roadmap Phase 2).

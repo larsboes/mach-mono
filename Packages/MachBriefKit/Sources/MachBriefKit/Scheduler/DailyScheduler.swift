@@ -21,6 +21,11 @@ public struct DailyScheduler: Sendable {
         calendar.startOfDay(for: date)
     }
 
+    public func date(for slot: DailySlot, on day: Date) -> Date {
+        let start = startOfDay(for: day)
+        return calendar.date(byAdding: .hour, value: slot.hour, to: start) ?? start
+    }
+
     public func stableSeed(for date: Date, slot: DailySlot, sourceID: String) -> Int {
         let dayStart = startOfDay(for: date).timeIntervalSinceReferenceDate
         var hasher = Hasher()

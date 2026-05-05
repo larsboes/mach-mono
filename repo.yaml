@@ -63,6 +63,9 @@ products:
     path: Apps/machBrief
     xcode_project: Apps/machBrief/machBrief.xcodeproj
     package: Packages/MachBriefKit
+    bazel:
+      build: bazel build //Apps/machBrief:machBrief
+      test: bazel test //Packages/MachBriefKit:MachBriefKitTests
     prd:
       macos: docs/prds/machBrief-macOS.md
       ios: docs/prds/machBrief-iOS.md
@@ -100,9 +103,10 @@ policies:
     model: main-only
     decision: docs/decisions/0001-main-only-branching.md
   build_verification:
-    preferred_entrypoint: root-xcode-workspace
-    command: xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch -destination 'platform=macOS' build
-    decision: docs/decisions/0002-root-xcode-workspace.md
+    preferred_entrypoint: bazel
+    command: bazel build //Apps/machBrief:machBrief
+    test_command: bazel test //Packages/MachBriefKit:MachBriefKitTests
+    decision: docs/decisions/0007-native-bazel-builds.md
   licensing:
     new_apps: MIT
     new_packages: MIT

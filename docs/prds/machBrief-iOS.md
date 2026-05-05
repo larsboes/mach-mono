@@ -174,7 +174,7 @@ enum DailySlot: Int, CaseIterable, Codable {
 - **Interactive widget (iOS 17+):** Mood check-in tappable directly from lock/home screen — no app open required.
 
 ### machNotch Plugin (macOS)
-- `MachBriefKit` linked via local SPM package
+- `MachBriefKit` linked as Bazel dependency in machNotch
 - `closedNotchContent` — source icon + title snippet (right-aligned, yields to music)
 - `expandedPanelContent` — full entry card with source-appropriate layout
 - Same `DailyScheduler` deterministic logic — same slot content as iOS
@@ -189,9 +189,9 @@ mach-mono/
 │   └── machBrief/
 │       ├── machBrief/           # iOS app source
 │       ├── machBriefWidget/     # WidgetKit extension
-│       └── machBrief.xcodeproj
+│       └── BUILD.bazel          # Bazel build targets (canonical)
 ├── Packages/
-│   └── MachBriefKit/            # Shared Swift package (macOS + iOS)
+│   └── MachBriefKit/            # Shared Bazel-built Swift package (macOS + iOS)
 │       ├── Sources/MachBriefKit/
 │       │   ├── Scheduler/
 │       │   │   ├── DailyScheduler.swift
@@ -256,13 +256,13 @@ See `docs/guides/sideloading.md` for full setup guide.
 
 ## Tech Stack
 
-- **Language:** Swift 5.9+
+- **Language:** Swift 6+
 - **UI:** SwiftUI
 - **Persistence:** SwiftData (iOS 20+ / macOS 26+)
 - **Widgets:** WidgetKit + App Intents (interactive widgets)
 - **Networking:** URLSession — WordSource API enrichment only
-- **Shared logic:** `MachBriefKit` local SPM package
-- **Min iOS:** 17.0 | **Min macOS:** 14.0
+- **Shared logic:** `MachBriefKit` Bazel-built package
+- **Min iOS:** 18.0 | **Min macOS:** 26.0
 
 ---
 

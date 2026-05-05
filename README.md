@@ -38,11 +38,11 @@ This monorepo adheres to a strict **Minimalistic Aesthetic**.
 
 `mach-mono` is a monorepo housing a growing suite of native Apple-platform utilities. Each app is a focused SwiftUI product sharing common architectural conventions and — where it earns its keep — shared Swift packages.
 
-**Build systems:** [Xcode](https://developer.apple.com/xcode/) via [`mach-mono.xcworkspace`](mach-mono.xcworkspace) is currently supported, but we are going all-in on **[Bazel](https://bazel.build/)** ([Bzlmod](https://bazel.build/external/module)) as the primary orchestration layer. 
+**Build system:** **[Bazel](https://bazel.build/)** ([Bzlmod](https://bazel.build/external/module)) is the primary build system — all targets, tests, and CI run through Bazel. [`mach-mono.xcworkspace`](mach-mono.xcworkspace) is available for IDE navigation only.
 
 > "We go Bazel or we go home!"
 
-See [`docs/roadmaps/bazel.md`](docs/roadmaps/bazel.md) and [`docs/decisions/0004-bazel-orchestration.md`](docs/decisions/0004-bazel-orchestration.md) for the rollout plan.
+See [`docs/roadmaps/bazel.md`](docs/roadmaps/bazel.md) and [`docs/decisions/0007-native-bazel-builds.md`](docs/decisions/0007-native-bazel-builds.md).
 
 ### Documentation model
 
@@ -103,7 +103,7 @@ mach-mono/
 ├── external/                # Vendored third-party trees consumed by Bazel
 ├── Packages/                # Shared Swift packages (MacroVisionKit, MachBriefKit, …)
 ├── resources/               # Demo assets, scripts
-└── mach-mono.xcworkspace    # Open this to work on the whole suite (Xcode)
+└── mach-mono.xcworkspace    # Xcode IDE navigation only (build via Bazel)
 ```
 
 ## Project Architecture
@@ -113,9 +113,8 @@ This diagram provides a high-level overview of the monorepo's technical structur
 ```mermaid
 graph TD
     %% Define Layers
-    subgraph BuildOrchestration [Orchestration Layer]
+    subgraph BuildOrchestration [Build System]
         BZ[Bazel / Bzlmod]
-        XC[Xcode Workspace]
     end
 
     subgraph Apps [Applications]
@@ -135,7 +134,6 @@ graph TD
 
     %% Connections
     BZ --> MN & MB
-    XC --> MN & MB
     
     MN --> MVK
     MB --> MBK
@@ -155,29 +153,28 @@ graph TD
 
 ## Getting Started
 
-**Open in Xcode (recommended):**
+**Build (Bazel):**
 
 ```bash
 git clone https://github.com/larsboes/mach-mono.git
 cd mach-mono
-open mach-mono.xcworkspace
-```
-
-Select the `machNotch` scheme and run. That's it — no `cd` into subdirectories needed.
-
-**Build from command line:**
-
-```bash
-xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch \
-  -destination 'platform=macOS' build 2>&1 | tail -50
+bazel build //Apps/machNotch:machNotch
+bazel build //Apps/machBrief:machBrief
 ```
 
 **Run tests:**
 
 ```bash
-xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch \
-  -destination 'platform=macOS' test 2>&1 | tail -50
+bazel test //...
 ```
+
+**IDE (Xcode — navigation only):**
+
+```bash
+open mach-mono.xcworkspace
+```
+
+Xcode is for code navigation and editing. Build and test via Bazel.
 
 ---
 

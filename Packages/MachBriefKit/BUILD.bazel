@@ -1,4 +1,4 @@
-load("@rules_swift//swift:swift.bzl", "swift_library")
+load("@rules_swift//swift:swift.bzl", "swift_library", "swift_test")
 load("@rules_apple//apple:resources.bzl", "apple_resource_bundle")
 
 apple_resource_bundle(
@@ -15,4 +15,10 @@ swift_library(
     deps = [],
     data = [":MachBriefKit_Resources"],
     defines = ["SWIFT_PACKAGE"], 
+)
+
+swift_test(
+    name = "MachBriefKitTests",
+    srcs = glob(["Tests/**/*.swift"]),
+    deps = [":MachBriefKit"],
 )

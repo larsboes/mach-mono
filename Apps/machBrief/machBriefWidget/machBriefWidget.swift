@@ -6,13 +6,16 @@ struct BriefTimelineEntry: TimelineEntry {
     let date: Date
     let title: String
     let subtitle: String?
+    let body: String?
+    let sourceID: String
+    let metadata: [String: String]
 }
 
 struct BriefProvider: TimelineProvider {
-    private let source = QuoteSource()
+    private let engine = BriefEngine()
 
     func placeholder(in context: Context) -> BriefTimelineEntry {
-        BriefTimelineEntry(date: .now, title: "Daily brief", subtitle: "Placeholder")
+        BriefTimelineEntry(date: .now, title: "lucid", subtitle: "(adjective.) /LOO-sid/", body: "Clear, easy to understand, or mentally sharp.", sourceID: "word", metadata: ["kind": "word"])
     }
 
     func getSnapshot(in context: Context, completion: @escaping (BriefTimelineEntry) -> Void) {
@@ -22,12 +25,19 @@ struct BriefProvider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<BriefTimelineEntry>) -> Void) {
         Task {
             let now = Date()
-            var entries: [BriefTimelineEntry] = []
-            for slot in DailySlot.allCases {
-                let entry = await source.entry(for: slot, date: now)
-                entries.append(BriefTimelineEntry(date: now, title: entry.title, subtitle: entry.subtitle))
+            let settings = BriefSettingsCoding.load()
+            let items = await engine.timelineEntries(for: now, settings: settings)
+            let entries = items.map { item in
+                BriefTimelineEntry(
+                    date: item.date,
+                    title: item.entry.title,
+                    subtitle: item.entry.subtitle,
+                    body: item.entry.body,
+                    sourceID: item.entry.sourceID,
+                    metadata: item.entry.metadata
+                )
             }
-            completion(Timeline(entries: entries, policy: .after(now.addingTimeInterval(60 * 60))))
+            completion(Timeline(entries: entries, policy: .after(now.addingTimeInterval(60 * 60 * 6))))
         }
     }
 }
@@ -36,17 +46,65 @@ struct BriefWidgetEntryView: View {
     let entry: BriefTimelineEntry
 
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(entry.title)
-                .font(.headline)
-            if let subtitle = entry.subtitle {
-                Text(subtitle)
+        if entry.sourceID == "word" {
+            VStack(alignment: .leading, spacing: 7) {
+                Text(entry.title.lowercased())
+                    .font(.system(.title2, design: .serif).weight(.bold))
+                    .foregroundStyle(Color(red: 0.13, green: 0.13, blue: 0.12))
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
+                if let subtitle = entry.subtitle {
+                    Text(subtitle)
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(Color(red: 0.36, green: 0.45, blue: 0.43))
+                        .lineLimit(1)
+                }
+                if let body = entry.body {
+                    Text(body)
+                        .font(.caption)
+                        .foregroundStyle(Color(red: 0.24, green: 0.25, blue: 0.23))
+                        .lineLimit(3)
+                }
+                Spacer(minLength: 0)
+                Label("Word", systemImage: "textformat.abc")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(Color(red: 0.36, green: 0.45, blue: 0.43))
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .padding(12)
+            .background(
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.96, green: 0.94, blue: 0.88),
+                        Color(red: 0.80, green: 0.90, blue: 0.88),
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+        } else {
+            VStack(alignment: .leading) {
+                Label(BriefSourceRegistry.descriptor(for: entry.sourceID).displayName, systemImage: BriefSourceRegistry.descriptor(for: entry.sourceID).systemImage)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                Text(entry.title)
+                    .font(.headline)
+                    .lineLimit(3)
+                if let subtitle = entry.subtitle {
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                if let body = entry.body {
+                    Text(body)
+                        .font(.caption2)
+                        .lineLimit(3)
+                        .foregroundStyle(.secondary)
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .padding(8)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .padding(8)
     }
 }
 

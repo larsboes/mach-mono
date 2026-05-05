@@ -6,10 +6,8 @@ Monorepo context: read [`AGENTS.md`](../../AGENTS.md) and [`repo.yaml`](../../re
 macOS SwiftUI app that replaces the MacBook notch with an interactive widget system. Plugin-first architecture — every feature (music, battery, calendar, weather, shelf, webcam, notifications, clipboard, pomodoro, teleprompter, habits) is a plugin. Part of the [mach-mono](https://github.com/larsboes/mach-mono) suite. See `repo.yaml` for system requirements.
 
 ## Build & Test
-- **Preferred repo build:** `xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch -destination 'platform=macOS' build 2>&1 | tail -50`
-- **Preferred repo test:** `xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch -destination 'platform=macOS' test 2>&1 | tail -50`
-- Run preferred commands from the repository root.
-- **Local app build fallback:** `xcodebuild -project machNotch.xcodeproj -scheme machNotch -destination 'platform=macOS' build 2>&1 | tail -50` from `Apps/machNotch/`.
+- **Build:** `bazelisk build //Apps/machNotch:machNotch` from repo root
+- **Test:** `bazelisk test //Apps/machNotch:machNotchTests //Packages/MachBriefKit:MachBriefKitTests` from repo root
 - Always build after changes. Don't commit without a green build.
 
 ## Directory Structure

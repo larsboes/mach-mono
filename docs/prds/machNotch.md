@@ -24,10 +24,10 @@ license:
 
 **Architecture:** Plugin-first + DI via ServiceContainer + @Observable/@MainActor throughout. Every feature is a plugin. Views never construct services. All cross-plugin communication via PluginEventBus.
 
-**Tech Stack:** Swift 5.9+, SwiftUI/AppKit, Defaults (settings), Combine (publishers), XPC helper, Sparkle (updates), Lottie (animations), KeyboardShortcuts
+**Tech Stack:** Swift 6+, SwiftUI/AppKit, Defaults (settings), Combine (publishers), XPC helper, Sparkle (updates), Lottie (animations), KeyboardShortcuts
 
-**Build:** `xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch -destination 'platform=macOS' build 2>&1 | tail -50`
-**Test:** `xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch -destination 'platform=macOS' test 2>&1 | tail -50`
+**Build:** `bazel build //Apps/machNotch:machNotch`
+**Test:** `bazel test //Apps/machNotch:machNotchTests`
 
 ### Key Constraints
 
@@ -119,8 +119,8 @@ This roadmap converts the checklist above into a deterministic sequence with exp
 
 #### Canonical Verification Commands (run after each rewrite pass)
 
-- Build: `xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch -destination 'platform=macOS' build 2>&1 | tail -50`
-- Test: `xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch -destination 'platform=macOS' test 2>&1 | tail -50`
+- Build: `bazel build //Apps/machNotch:machNotch`
+- Test: `bazel test //Apps/machNotch:machNotchTests`
 
 #### Execution Order (priority + rationale)
 
@@ -255,8 +255,8 @@ Do not flip licenses until all conditions below are true:
 ## Current State (2026-05-04)
 
 **Repo:** `larsboes/mach-mono` — monorepo, `main` branch only. App lives at `Apps/machNotch/`.
-**Build:** ✅ `BUILD SUCCEEDED` (verified 2026-05-04 via `xcodebuild -workspace mach-mono.xcworkspace -scheme machNotch`)
-**Tests:** ✅ 53/53 passing across 7 suites — APIRouterTests (4), BatteryPluginTests (10), ExportablePluginTests (7), MusicPluginTests (3), NotchHoverControllerTests (10), NotchStateMachineTests (14), SystemStatsServiceTests (5). All test files wired into the Xcode target.
+**Build:** ✅ `BUILD SUCCEEDED` (verified 2026-05-04 via `bazel build //Apps/machNotch:machNotch`)
+**Tests:** ✅ 53/53 passing across 7 suites — APIRouterTests (4), BatteryPluginTests (10), ExportablePluginTests (7), MusicPluginTests (3), NotchHoverControllerTests (10), NotchStateMachineTests (14), SystemStatsServiceTests (5).
 **Migration:** Complete. All `Boring*` classes/files renamed to `Notch*`/`Mach*`. Bundle ID `com.larsboes.machnotch`. Display name `mach.notch`. Plugin IDs `com.machnotch.*`. PluginSettings migration paths updated.
 **GitHub Pages:** Enabled (workflow source). Sparkle `SUFeedURL` → `https://larsboes.github.io/mach-mono/appcast.xml` will resolve once `static.yml` workflow runs.
 
@@ -2052,7 +2052,7 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 
 ### Plugin 10: Brief
 
-**Dependency:** `Packages/MachBriefKit` (shared SPM package, also powers `Apps/machBrief/` macOS app — see `docs/prds/machBrief-macOS.md`)
+**Dependency:** `Packages/MachBriefKit` (shared Bazel-built package, also powers `Apps/machBrief/` macOS app — see `docs/prds/machBrief-macOS.md`)
 
 **Goal:** Show the current daily brief entry in the notch — word, fact, quote, mantra, or mood prompt depending on which sources the user has enabled. Same deterministic schedule as the machBrief app, same content at the same time.
 
@@ -2063,7 +2063,7 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 
 **Services needed:**
 - No new service — consumes `MachBriefKit.DailyScheduler`, `MachBriefKit.BriefStore`, and enabled `BriefSource` instances directly
-- `MachBriefKit` added as local SPM dependency to `machNotch` target
+- `MachBriefKit` added as Bazel dependency to `machNotch` target
 - ObsidianSink wired if vault path is configured (shared config via `MachBriefKit.BriefStore`)
 
 **Architecture decisions:**
@@ -2184,14 +2184,9 @@ Window management requires persistent system-level presence independent of the n
 - `NSAccessibilityUsageDescription` — window move/resize via AXUIElement
 - No Screen Recording needed for thumbnail peek
 
-### Workspace integration
+### Bazel integration
 
-Add to `mach-mono.xcworkspace/contents.xcworkspacedata`:
-```xml
-<FileRef location="group:Apps/machWindow/machWindow.xcodeproj" />
-```
-
-Shared packages (`KeyboardShortcuts`, `Defaults`) will be resolved once from workspace root — no duplicate SPM resolution.
+Add `machWindow` to `MODULE.bazel` and define `//Apps/machWindow:machWindow` in its `BUILD.bazel`. Shared packages (`KeyboardShortcuts`, `Defaults`) are vendored via Bazel — no duplicate resolution.
 
 ### Architecture
 

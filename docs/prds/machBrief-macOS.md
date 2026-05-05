@@ -49,7 +49,7 @@ No streaks, no scoring, no pressure. Ambient enrichment.
 | Phase | Platform | Notes |
 |-------|----------|-------|
 | v1 | macOS 26+ | Menu Bar + Notification Center widget — this PRD |
-| v2 | iOS 17+ | Lock Screen + Home Screen widgets — see `docs/prds/machBrief-iOS.md` |
+| v2 | iOS 18+ | Lock Screen + Home Screen widgets — see `docs/prds/machBrief-iOS.md` |
 | v3 | Android | Full Kotlin/Compose reimplementation of sources/sinks model — MachBriefKit does NOT port to Android |
 
 ---
@@ -70,7 +70,7 @@ DailyScheduler
 └── 4 slots/day — assigns sources to slots based on user config
 ```
 
-**MachBriefKit** (`Packages/MachBriefKit/`) is a local SPM package declared for `.macOS(.v14)` and `.iOS(.v17)`. On Android, the sources/sinks model will be reimplemented in Kotlin/Compose — MachBriefKit is Swift-only.
+**MachBriefKit** (`Packages/MachBriefKit/`) is a Swift package built primarily through Bazel for macOS 26. On Android, the sources/sinks model will be reimplemented in Kotlin/Compose — MachBriefKit is Swift-only.
 
 ---
 
@@ -116,7 +116,7 @@ DailyScheduler
 - Widget setup nudge (links to System Settings → Widgets)
 
 ### machNotch Plugin (Optional)
-- `MachBriefKit` linked via local SPM package in machNotch
+- `MachBriefKit` linked as Bazel dependency in machNotch
 - `closedNotchContent` — source icon + title snippet (right-aligned, yields to music)
 - `expandedPanelContent` — full entry card with source-appropriate layout
 
@@ -231,9 +231,9 @@ mach-mono/
 │   └── machBrief/
 │       ├── machBrief/              # macOS app source (MenuBarExtra)
 │       ├── machBriefWidget/        # WidgetKit extension (macOS Notification Center)
-│       └── machBrief.xcodeproj    # macOS deployment target (flip from current iOS)
+│       └── BUILD.bazel             # Bazel build targets (canonical)
 ├── Packages/
-│   └── MachBriefKit/               # Shared Swift package (.macOS(.v14), .iOS(.v17))
+│   └── MachBriefKit/               # Shared Swift package, Bazel-first
 │       ├── Sources/MachBriefKit/
 │       │   ├── Scheduler/
 │       │   ├── Sources/
@@ -251,7 +251,7 @@ mach-mono/
         └── Plugins/BuiltIn/BriefPlugin/   # optional machNotch integration
 ```
 
-**Xcode project change needed:** `Apps/machBrief/machBrief.xcodeproj` is currently iOS-targeted. Must be changed to macOS 26 deployment target before any build work begins.
+**Bazel build/test:** `bazel build //Apps/machBrief:machBrief` and `bazel test //Packages/MachBriefKit:MachBriefKitTests` are the canonical verification commands. Xcode project files are optional IDE scaffolding.
 
 ---
 
@@ -268,14 +268,14 @@ mach-mono/
 
 ## Tech Stack
 
-- **Language:** Swift 5.9+
+- **Language:** Swift 6.3
 - **UI:** SwiftUI
 - **App shell:** `MenuBarExtra` (macOS 13+) — no Dock icon
 - **Persistence:** SwiftData (macOS 26+)
 - **Widgets:** WidgetKit (macOS 26+)
 - **Networking:** URLSession — WordSource API enrichment only
-- **Shared logic:** `MachBriefKit` local SPM package
-- **Min macOS:** 14.0
+- **Shared logic:** `MachBriefKit` local Swift package, built through Bazel
+- **Min macOS:** 26.0
 
 ---
 

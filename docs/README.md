@@ -72,7 +72,7 @@ These files should **point to** the table above, not restate it.
 ## Decisions
 
 - [`decisions/0001-main-only-branching.md`](decisions/0001-main-only-branching.md)
-- [`decisions/0002-root-xcode-workspace.md`](decisions/0002-root-xcode-workspace.md)
+- [`decisions/0002-root-xcode-workspace.md`](decisions/0002-root-xcode-workspace.md) *(superseded by 0007)*
 - [`decisions/0003-license-policy.md`](decisions/0003-license-policy.md)
 - [`decisions/0004-bazel-orchestration.md`](decisions/0004-bazel-orchestration.md)
 - [`decisions/0005-weather-provider-strategy.md`](decisions/0005-weather-provider-strategy.md)

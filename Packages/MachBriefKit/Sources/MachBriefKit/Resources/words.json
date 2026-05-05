@@ -1,5 +1,86 @@
 [
-  { "word": "serendipity", "definition": "The occurrence of events by chance in a happy way.", "partOfSpeech": "noun" },
-  { "word": "lucid", "definition": "Expressed clearly; easy to understand.", "partOfSpeech": "adjective" },
-  { "word": "steadfast", "definition": "Resolutely or dutifully firm and unwavering.", "partOfSpeech": "adjective" }
+  {
+    "word": "serendipity",
+    "definition": "The occurrence of events by chance in a happy or useful way.",
+    "partOfSpeech": "noun",
+    "phonetic": "/ser-en-DIP-i-tee/",
+    "example": "A bit of serendipity brought the missing idea back."
+  },
+  {
+    "word": "lucid",
+    "definition": "Clear, easy to understand, or mentally sharp.",
+    "partOfSpeech": "adjective",
+    "phonetic": "/LOO-sid/",
+    "example": "The note was short, lucid, and kind."
+  },
+  {
+    "word": "steadfast",
+    "definition": "Firm, loyal, and unwavering in purpose.",
+    "partOfSpeech": "adjective",
+    "phonetic": "/STED-fast/",
+    "example": "A steadfast routine made the week feel lighter."
+  },
+  {
+    "word": "ineffable",
+    "definition": "Too great or intense to be expressed in words.",
+    "partOfSpeech": "adjective",
+    "phonetic": "/in-EF-uh-buhl/",
+    "example": "There was an ineffable calm in the empty studio."
+  },
+  {
+    "word": "elucidate",
+    "definition": "To make something clear or easier to understand.",
+    "partOfSpeech": "verb",
+    "phonetic": "/ih-LOO-si-dayt/",
+    "example": "The diagram helped elucidate the whole system."
+  },
+  {
+    "word": "encumber",
+    "definition": "To weigh down, burden, or make movement difficult.",
+    "partOfSpeech": "verb",
+    "phonetic": "/en-KUHM-ber/",
+    "example": "Too many options can encumber a simple choice."
+  },
+  {
+    "word": "mellifluous",
+    "definition": "Pleasantly smooth and musical to hear.",
+    "partOfSpeech": "adjective",
+    "phonetic": "/meh-LIF-loo-us/",
+    "example": "Her mellifluous voice softened the room."
+  },
+  {
+    "word": "sonder",
+    "definition": "The realization that each passerby has a vivid inner life.",
+    "partOfSpeech": "noun",
+    "phonetic": "/SAHN-der/",
+    "example": "The train station filled him with sonder."
+  },
+  {
+    "word": "resolute",
+    "definition": "Admirably purposeful and determined.",
+    "partOfSpeech": "adjective",
+    "phonetic": "/REZ-uh-loot/",
+    "example": "She was quiet, resolute, and ready."
+  },
+  {
+    "word": "ephemeral",
+    "definition": "Lasting for a very short time.",
+    "partOfSpeech": "adjective",
+    "phonetic": "/ih-FEM-er-uhl/",
+    "example": "The color at sunset was beautiful and ephemeral."
+  },
+  {
+    "word": "luminous",
+    "definition": "Full of or giving off light; clear and inspiring.",
+    "partOfSpeech": "adjective",
+    "phonetic": "/LOO-muh-nus/",
+    "example": "The morning felt luminous after the rain."
+  },
+  {
+    "word": "equanimity",
+    "definition": "Calmness and composure, especially in difficulty.",
+    "partOfSpeech": "noun",
+    "phonetic": "/ee-kwuh-NIM-i-tee/",
+    "example": "He answered the pressure with equanimity."
+  }
 ]

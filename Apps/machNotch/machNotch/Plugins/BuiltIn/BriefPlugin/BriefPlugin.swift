@@ -2,7 +2,7 @@
 //  BriefPlugin.swift
 //  machNotch
 //
-//  Daily text brief — deterministic per-slot quote shown in the closed notch.
+//  Daily text brief — deterministic per-slot entry shown in the closed notch.
 //
 
 import MachBriefKit
@@ -16,8 +16,8 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
 
     let metadata = PluginMetadata(
         name: "Brief",
-        description: "Shows a deterministic daily text brief.",
-        icon: "text.append",
+        description: "Shows the current mach.brief word, fact, quote, mantra, or mood prompt.",
+        icon: "text.book.closed",
         category: .productivity
     )
 
@@ -26,8 +26,7 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
     var closedNotchPosition: ClosedNotchPosition { .right }
 
     private var cachedEntry: BriefEntry?
-    private let scheduler = DailyScheduler()
-    private let source = QuoteSource()
+    private let engine = BriefEngine()
 
     // MARK: - Lifecycle
 
@@ -35,8 +34,8 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
         _ = context
         state = .activating
         let now = Date()
-        let slot = scheduler.slot(for: now)
-        cachedEntry = await source.entry(for: slot, date: now)
+        let settings = BriefSettingsCoding.load()
+        cachedEntry = await engine.entry(for: now, settings: settings)
         state = .active
     }
 
@@ -58,9 +57,9 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
     func closedNotchContent() -> some View {
         if let entry = cachedEntry {
             HStack(spacing: 6) {
-                Image(systemName: "text.append")
+                Image(systemName: BriefSourceRegistry.descriptor(for: entry.sourceID).systemImage)
                     .font(.caption)
-                Text(entry.title)
+                Text(entry.sourceID == "word" ? entry.title.lowercased() : entry.title)
                     .font(.caption)
                     .lineLimit(1)
             }
@@ -71,20 +70,48 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
     @ViewBuilder
     func expandedPanelContent() -> some View {
         if let entry = cachedEntry {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Daily Brief")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Text(entry.title)
-                    .font(.headline)
-                if let subtitle = entry.subtitle, !subtitle.isEmpty {
-                    Text(subtitle)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+            if entry.sourceID == "word" {
+                VStack(alignment: .leading, spacing: 10) {
+                    Label("Word of the day", systemImage: "textformat.abc")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Color(red: 0.45, green: 0.58, blue: 0.55))
+                    Text(entry.title.lowercased())
+                        .font(.system(size: 34, weight: .bold, design: .serif))
+                    if let subtitle = entry.subtitle, !subtitle.isEmpty {
+                        Text(subtitle)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+                    if let body = entry.body, !body.isEmpty {
+                        Text(body)
+                            .font(.callout)
+                            .foregroundStyle(.primary)
+                    }
+                    if let example = entry.metadata["example"] {
+                        Text(example)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(.top, 4)
+                    }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .padding(16)
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(BriefSourceRegistry.descriptor(for: entry.sourceID).displayName)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Text(entry.title)
+                        .font(.headline)
+                    if let subtitle = entry.subtitle, !subtitle.isEmpty {
+                        Text(subtitle)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .padding(16)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .padding(16)
         }
     }
 }

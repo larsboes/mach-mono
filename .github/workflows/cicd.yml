@@ -13,7 +13,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-# Least-privilege: only needs to read code for building.
 permissions:
   contents: read
 
@@ -22,42 +21,46 @@ jobs:
     name: Build
     runs-on: macos-latest
     steps:
-    - name: Code Checkout
-      uses: actions/checkout@v5
-    - name: Build machNotch
-      run: |
-        xcodebuild -workspace mach-mono.xcworkspace \
-          -scheme machNotch \
-          -destination 'platform=macOS' \
-          -configuration Release \
-          MACOSX_DEPLOYMENT_TARGET=15.0 \
-          CODE_SIGN_IDENTITY=- \
-          CODE_SIGNING_ALLOWED=NO \
-          CODE_SIGNING_REQUIRED=NO \
-          DEVELOPMENT_TEAM= \
-          build
+      - uses: actions/checkout@v4
+
+      - name: Cache Bazel
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/bazel
+          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved') }}
+          restore-keys: |
+            bazel-${{ runner.os }}-
+
+      - name: Build all apps
+        run: |
+          bazelisk build --config=ci \
+            //Apps/machNotch:machNotch \
+            //Apps/machBrief:machBrief
 
   test:
     name: Test
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v5
-    - name: Test machNotch
-      run: |
-        xcodebuild -workspace mach-mono.xcworkspace \
-          -scheme machNotch \
-          -destination 'platform=macOS' \
-          MACOSX_DEPLOYMENT_TARGET=15.0 \
-          CODE_SIGN_IDENTITY=- \
-          CODE_SIGNING_ALLOWED=NO \
-          CODE_SIGNING_REQUIRED=NO \
-          DEVELOPMENT_TEAM= \
-          test
+      - uses: actions/checkout@v4
+
+      - name: Cache Bazel
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/bazel
+          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved') }}
+          restore-keys: |
+            bazel-${{ runner.os }}-
+
+      - name: Run tests
+        run: |
+          bazelisk test --config=ci \
+            //Packages/MachBriefKit:MachBriefKitTests \
+            //Apps/machNotch:machNotchTests
 
   arch-check:
     name: Architecture Check
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
-    - name: Run architecture checks
-      run: bash .github/scripts/arch-check.sh
+      - uses: actions/checkout@v4
+      - name: Run architecture checks
+        run: bash .github/scripts/arch-check.sh
