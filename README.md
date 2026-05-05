@@ -162,6 +162,36 @@ bazel build //Apps/machNotch:machNotch
 bazel build //Apps/machBrief:machBrief
 ```
 
+<details>
+<summary><strong>Build & Run: mach.brief</strong></summary>
+
+```bash
+bazel build //Apps/machBrief:machBrief
+ditto -x -k "$(bazel cquery //Apps/machBrief:machBrief --output=files | head -1)" /tmp
+open /tmp/machBrief.app
+```
+
+**To terminate:**
+```bash
+killall machBrief
+```
+</details>
+
+<details>
+<summary><strong>Build & Run: mach.notch</strong></summary>
+
+```bash
+bazel build //Apps/machNotch:machNotch
+ditto -x -k "$(bazel cquery //Apps/machNotch:machNotch --output=files | head -1)" /tmp
+open /tmp/machNotch.app
+```
+
+**To terminate:**
+```bash
+killall machNotch
+```
+</details>
+
 **Run tests:**
 
 ```bash

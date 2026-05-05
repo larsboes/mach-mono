@@ -14,7 +14,7 @@ env:
   APPCAST_PATH: Apps/machNotch/updater/appcast.xml
   BETA_CHANNEL_NAME: beta
   CODE_SIGN_IDENTITY: "Apple Development"
-  XCODE_VERSION: "16.4"
+  XCODE_VERSION: "16.4.1"
 
 permissions:
   contents: write
@@ -48,7 +48,7 @@ jobs:
       head_ref: ${{ github.ref_name }}
       version: ${{ needs.preparation.outputs.version }}
       build_number: ${{ needs.preparation.outputs.build_number }}
-      xcode_version: "16.4"
+      xcode_version: "16.4.1"
       code_sign_identity: "Apple Development"
     secrets:
       BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
