@@ -7,6 +7,7 @@
 
 import MachBriefKit
 import SwiftUI
+import Combine
 
 @MainActor
 @Observable
@@ -27,7 +28,7 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
 
     private var cachedEntry: BriefEntry?
     private let engine = BriefEngine()
-    private var cancellables = Set<AnyCancellable>()
+    @ObservationIgnored private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Lifecycle
 
@@ -126,6 +127,12 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
                         Text(subtitle)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
+                    }
+                    if let body = entry.body, !body.isEmpty {
+                        Text(body)
+                            .font(.callout)
+                            .foregroundStyle(.primary)
+                            .padding(.top, 4)
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
