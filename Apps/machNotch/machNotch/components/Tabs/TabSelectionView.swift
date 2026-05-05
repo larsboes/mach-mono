@@ -19,11 +19,12 @@ private let coreTabs = [
     TabModel(label: "Notifications", icon: "bell.fill", view: .notifications),
     TabModel(label: "Shelf", icon: "tray.fill", view: .shelf),
     TabModel(label: "Clipboard", icon: "doc.on.clipboard.fill", view: .clipboard),
-    TabModel(label: "Notes", icon: "note.text", view: .notes)
+    TabModel(label: "Notes", icon: "note.text", view: .notes),
 ]
 
 private let weatherTab = TabModel(label: "Weather", icon: "cloud.sun.fill", view: .weather)
 private let systemStatsTab = TabModel(label: "Stats", icon: "gauge.with.dots.needle.50percent", view: .systemStats)
+private let briefTab = TabModel(label: "Brief", icon: "text.book.closed.fill", view: .brief)
 
 struct TabSelectionView: View {
     @Environment(NotchViewModel.self) var vm
@@ -35,6 +36,9 @@ struct TabSelectionView: View {
         var tabs = coreTabs
         if settings.showWeather {
             tabs.insert(weatherTab, at: 2) // After Notifications
+        }
+        if pluginManager?.hasPlugin(id: PluginID.brief) == true {
+            tabs.append(briefTab)
         }
         if pluginManager?.hasPlugin(id: PluginID.systemStats) == true {
             tabs.append(systemStatsTab)

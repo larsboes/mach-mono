@@ -7,3 +7,7 @@ build:ci --show_result=0
 build:ci --color=no
 build:ci --keep_going
 build:ci --announce_rc
+# Skip DSYM generation in CI — it's slow and the artifacts aren't used.
+build:ci --noapple_generate_dsym
+# Print test failure output so CI logs are debuggable.
+build:ci --test_output=errors

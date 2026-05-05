@@ -1,6 +1,6 @@
---- a/apple/testing/default_runner/macos_default_runner.generated.xctestrun
-+++ b/apple/testing/default_runner/macos_default_runner.generated.xctestrun
-@@ -5,6 +5,8 @@
+--- a/apple/testing/default_runner/macos_test_runner.template.xctestrun
++++ b/apple/testing/default_runner/macos_test_runner.template.xctestrun
+@@ -4,6 +4,8 @@
  <dict>
  	<key>BazelMacOSTests</key>
  	<dict>

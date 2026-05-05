@@ -35,6 +35,7 @@ public enum NotchViews: Sendable {
     case teleprompter
     case weather
     case systemStats
+    case brief
 }
 
 enum SettingsEnum {

@@ -27,21 +27,35 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
 
     private var cachedEntry: BriefEntry?
     private let engine = BriefEngine()
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Lifecycle
 
     func activate(context: PluginContext) async throws {
         _ = context
         state = .activating
-        let now = Date()
-        let settings = BriefSettingsCoding.load()
-        cachedEntry = await engine.entry(for: now, settings: settings)
+        await reloadEntry()
         state = .active
+        
+        NotificationCenter.default.publisher(for: NSNotification.Name("briefSettingsDidChange"))
+            .sink { [weak self] _ in
+                Task { @MainActor in
+                    await self?.reloadEntry()
+                }
+            }
+            .store(in: &cancellables)
     }
 
     func deactivate() async {
+        cancellables.removeAll()
         cachedEntry = nil
         state = .inactive
+    }
+    
+    private func reloadEntry() async {
+        let now = Date()
+        let settings = BriefSettingsCoding.load()
+        cachedEntry = await engine.entry(for: now, settings: settings)
     }
 
     // MARK: - Display
@@ -52,6 +66,11 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
     }
 
     // MARK: - UI Slots
+
+    @ViewBuilder
+    func settingsContent() -> some View {
+        BriefSettingsView()
+    }
 
     @ViewBuilder
     func closedNotchContent() -> some View {

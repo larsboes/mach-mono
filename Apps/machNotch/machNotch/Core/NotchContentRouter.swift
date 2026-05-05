@@ -232,6 +232,11 @@ struct NotchContentRouter: View {
                         pluginManager.expandedPanelView(for: PluginID.systemStats)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
+                case .brief:
+                    if let pluginManager {
+                        pluginManager.expandedPanelView(for: PluginID.brief)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity) // Ensure content area is flexible

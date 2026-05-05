@@ -181,7 +181,7 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
 
     @ViewBuilder
     func settingsContent() -> some View {
-        MusicSettingsView(plugin: self)
+        Media()
     }
 
     @ViewBuilder

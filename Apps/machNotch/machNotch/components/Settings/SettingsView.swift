@@ -9,8 +9,27 @@
 import Sparkle
 import SwiftUI
 
+struct SettingsCategory: Identifiable, Hashable {
+    let id: String
+    let name: String
+    let systemImage: String
+}
+
 struct SettingsView: View {
+    private static let systemCategories: [SettingsCategory] = [
+        .init(id: "General", name: "General", systemImage: "gear"),
+        .init(id: "Appearance", name: "Appearance", systemImage: "eye"),
+        .init(id: "HUD", name: "HUDs", systemImage: "dial.medium.fill"),
+        .init(id: "Bluetooth", name: "Bluetooth", systemImage: "antenna.radiowaves.left.and.right"),
+        .init(id: "Plugins", name: "Plugins", systemImage: "puzzlepiece.extension"),
+        .init(id: "Shortcuts", name: "Shortcuts", systemImage: "keyboard"),
+        .init(id: "Data", name: "Data & Privacy", systemImage: "externaldrive"),
+        .init(id: "Advanced", name: "Advanced", systemImage: "gearshape.2"),
+        .init(id: "About", name: "About", systemImage: "info.circle"),
+    ]
+
     @State private var selectedTab = "General"
+    @State private var searchText = ""
     @State private var accentColorUpdateTrigger = UUID()
     @Environment(\.pluginManager) var pluginManager
     @Environment(\.settings) var settings
@@ -21,61 +40,51 @@ struct SettingsView: View {
         self.updaterController = updaterController
     }
 
+    var pluginCategories: [SettingsCategory] {
+        guard let pm = pluginManager else { return [] }
+        return pm.allPlugins
+            .filter { $0.hasSettingsContent }
+            .map { plugin in
+                SettingsCategory(
+                    id: plugin.id,
+                    name: plugin.metadata.name,
+                    systemImage: plugin.metadata.icon
+                )
+            }
+    }
+
+    private func filtered(_ categories: [SettingsCategory]) -> [SettingsCategory] {
+        if searchText.isEmpty { return categories }
+        return categories.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+    }
+
+    var filteredSystem: [SettingsCategory] { filtered(Self.systemCategories) }
+    var filteredPlugins: [SettingsCategory] { filtered(pluginCategories) }
+
     var body: some View {
         NavigationSplitView {
             List(selection: $selectedTab) {
-                NavigationLink(value: "General") {
-                    Label("General", systemImage: "gear")
+                if !filteredSystem.isEmpty {
+                    ForEach(filteredSystem) { category in
+                        NavigationLink(value: category.id) {
+                            Label(category.name, systemImage: category.systemImage)
+                        }
+                    }
                 }
-                NavigationLink(value: "Appearance") {
-                    Label("Appearance", systemImage: "eye")
+                
+                if !filteredSystem.isEmpty && !filteredPlugins.isEmpty {
+                    Divider()
                 }
-                NavigationLink(value: "Media") {
-                    Label("Media", systemImage: "play.laptopcomputer")
-                }
-                NavigationLink(value: "Calendar") {
-                    Label("Calendar", systemImage: "calendar")
-                }
-                NavigationLink(value: "Weather") {
-                    Label("Weather", systemImage: "cloud.sun.fill")
-                }
-                NavigationLink(value: "Habit Tracker") {
-                    Label("Habit Tracker", systemImage: "checkmark.circle.fill")
-                }
-                NavigationLink(value: "Pomodoro") {
-                    Label("Pomodoro", systemImage: "timer")
-                }
-                NavigationLink(value: "Notifications") {
-                    Label("Notifications", systemImage: "bell.badge")
-                }
-                NavigationLink(value: "HUD") {
-                    Label("HUDs", systemImage: "dial.medium.fill")
-                }
-                NavigationLink(value: "Battery") {
-                    Label("Battery", systemImage: "battery.100.bolt")
-                }
-                NavigationLink(value: "Bluetooth") {
-                    Label("Bluetooth", systemImage: "antenna.radiowaves.left.and.right")
-                }
-                NavigationLink(value: "Shelf") {
-                    Label("Shelf", systemImage: "books.vertical")
-                }
-                NavigationLink(value: "Plugins") {
-                    Label("Plugins", systemImage: "puzzlepiece.extension")
-                }
-                NavigationLink(value: "Shortcuts") {
-                    Label("Shortcuts", systemImage: "keyboard")
-                }
-                NavigationLink(value: "Data") {
-                    Label("Data & Privacy", systemImage: "externaldrive")
-                }
-                NavigationLink(value: "Advanced") {
-                    Label("Advanced", systemImage: "gearshape.2")
-                }
-                NavigationLink(value: "About") {
-                    Label("About", systemImage: "info.circle")
+                
+                if !filteredPlugins.isEmpty {
+                    ForEach(filteredPlugins) { category in
+                        NavigationLink(value: category.id) {
+                            Label(category.name, systemImage: category.systemImage)
+                        }
+                    }
                 }
             }
+            .searchable(text: $searchText, placement: .sidebar, prompt: "Search settings")
             .listStyle(SidebarListStyle())
             .tint(.effectiveAccent(from: settings))
             .toolbar(removing: .sidebarToggle)
@@ -87,36 +96,14 @@ struct SettingsView: View {
                     GeneralSettings()
                 case "Appearance":
                     Appearance()
-                case "Media":
-                    Media()
-                case "Calendar":
-                    CalendarSettings()
-                case "Weather":
-                    WeatherSettings()
-                case "Habit Tracker":
-                    if let pm = pluginManager {
-                        pm.settingsView(for: PluginID.habitTracker)
-                    } else {
-                        Text("Plugin Manager unavailable")
-                    }
-                case "Pomodoro":
-                    if let pm = pluginManager {
-                        pm.settingsView(for: PluginID.pomodoro)
-                    } else {
-                        Text("Plugin Manager unavailable")
-                    }
-                case "Notifications":
-                    NotificationsSettingsView()
                 case "HUD":
                     HUD()
-                case "Battery":
-                    Charge()
                 case "Bluetooth":
                     if let pm = pluginManager {
                         BluetoothSettingsView(bluetoothManager: pm.services.bluetoothManager)
+                    } else {
+                        Text("Plugin Manager unavailable")
                     }
-                case "Shelf":
-                    Shelf()
                 case "Plugins":
                     PluginOrderSettingsView()
                 case "Shortcuts":
@@ -136,7 +123,11 @@ struct SettingsView: View {
                                 userDriverDelegate: nil))
                     }
                 default:
-                    GeneralSettings()
+                    if let pm = pluginManager, pm.hasPlugin(id: selectedTab) {
+                        pm.settingsView(for: selectedTab)
+                    } else {
+                        GeneralSettings()
+                    }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
