@@ -18,6 +18,7 @@ apple_resource_group(
             "machNotch/Localizable.xcstrings",
             "machNotch/welcome.m4a",
             "machNotch/animations/**",
+            "mediaremote-adapter/mediaremote-adapter.pl",
         ],
         # macOS 26+ requires Icon Composer .icon bundles, not legacy .appiconset.
         # Exclude until the icon is migrated; the Xcode project retains the icon.

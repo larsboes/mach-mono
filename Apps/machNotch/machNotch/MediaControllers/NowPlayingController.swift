@@ -182,9 +182,13 @@ final class NowPlayingController: MediaControllerProtocol {
     // MARK: - Setup
     private func setupNowPlayingObserver() async {
         let process = Process()
+        let frameworkPath = Bundle.main.privateFrameworksPath?.appending("/MediaRemoteAdapter.framework")
+        print("Script URL: \(String(describing: Bundle.main.url(forResource: "mediaremote-adapter", withExtension: "pl")))")
+        print("Framework Path: \(String(describing: frameworkPath))")
         guard
             let scriptURL = Bundle.main.url(forResource: "mediaremote-adapter", withExtension: "pl"),
-            let frameworkPath = Bundle.main.privateFrameworksPath?.appending("/MediaRemoteAdapter.framework")
+            let frameworkPath = frameworkPath,
+            FileManager.default.fileExists(atPath: frameworkPath)
         else {
             assertionFailure("Could not find mediaremote-adapter.pl script or framework path")
             return
