@@ -13,6 +13,8 @@ decisions:
   licensing: docs/decisions/0003-license-policy.md
   bazel: docs/decisions/0004-bazel-orchestration.md
   weather: docs/decisions/0005-weather-provider-strategy.md
+  bazel_detour: docs/decisions/0006-deferred-native-bazel-builds.md
+  bazel_native: docs/decisions/0007-native-bazel-builds.md
 
 workspace:
   tech_stack:
@@ -32,9 +34,10 @@ workspace:
       - Packages/MacroVisionKit
       - Packages/MachBriefKit
   bazel:
-    status: in_progress
+    status: active
     module: MODULE.bazel
     roadmap: docs/roadmaps/bazel.md
+    decision: docs/decisions/0007-native-bazel-builds.md
 
 products:
   machNotch:

@@ -1,0 +1,70 @@
+load("@rules_swift//swift:swift.bzl", "swift_library")
+load("@rules_apple//apple:macos.bzl", "macos_application")
+load("@rules_apple//apple:resources.bzl", "apple_resource_group")
+load("@rules_apple//apple:apple.bzl", "apple_dynamic_framework_import")
+
+# Pre-built MediaRemote adapter framework — provides private NowPlaying API.
+apple_dynamic_framework_import(
+    name = "MediaRemoteAdapter",
+    framework_imports = glob(["mediaremote-adapter/MediaRemoteAdapter.framework/**"]),
+    visibility = ["//visibility:public"],
+)
+
+apple_resource_group(
+    name = "machNotch_Resources",
+    resources = glob([
+        "machNotch/Assets.xcassets/**",
+        "machNotch/Localizable.xcstrings",
+        "machNotch/welcome.m4a",
+        "machNotch/animations/**",
+    ]),
+)
+
+swift_library(
+    name = "MachNotchXPCHelper_Lib",
+    srcs = glob(["MachNotchXPCHelper/**/*.swift"]),
+    module_name = "MachNotchXPCHelper",
+    deps = [],
+)
+
+swift_library(
+    name = "machNotch_Lib",
+    srcs = glob(
+        ["machNotch/**/*.swift"],
+        # StatusBarMenu.swift is not in the Xcode target (WIP) — exclude to match.
+        exclude = ["machNotch/menu/StatusBarMenu.swift"],
+    ),
+    module_name = "machNotch",
+    deps = [
+        "//Packages/MacroVisionKit",
+        "//Packages/MachBriefKit",
+        ":MediaRemoteAdapter",
+        "@swiftpkg_asyncxpcconnection//:AsyncXPCConnection",
+        "@swiftpkg_defaults//:Defaults",
+        "@swiftpkg_keyboardshortcuts//:KeyboardShortcuts",
+        "@swiftpkg_launchatlogin_modern//:LaunchAtLogin",
+        "@swiftpkg_lottie_spm//:Lottie",
+        "@swiftpkg_skylightwindow//:SkyLightWindow",
+        "@swiftpkg_sparkle//:Sparkle",
+        "@swiftpkg_sqlite.swift//:SQLite",
+        "@swiftpkg_swift_collections//:Collections",
+        "@swiftpkg_swiftglass//:SwiftGlass",
+    ],
+)
+
+# TODO: Embed MachNotchXPCHelper as an XPC service bundle.
+# MachNotchXPCHelper_Lib is compiled separately for now to surface errors.
+# Full embedding requires wiring via xpc_services attribute once rules_apple
+# supports this cleanly.
+macos_application(
+    name = "machNotch",
+    bundle_id = "com.larsboes.machNotch",
+    infoplists = [
+        "machNotch/Info.plist",
+        "bazel_info.plist",
+    ],
+    minimum_os_version = "15.0",
+    deps = [":machNotch_Lib"],
+    resources = [":machNotch_Resources"],
+    visibility = ["//visibility:public"],
+)

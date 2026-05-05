@@ -1,20 +1,20 @@
-# 0004 — Bazel as exploratory orchestration
+# 0004 — Bazel as primary orchestration
 
 - Status: Accepted
 - Date: 2026-05-04
 
 ## Context
 
-The repository has Bzlmod files and a Bazel roadmap. Xcode remains the primary day-to-day Apple platform build entrypoint, while Bazel is being evaluated for cross-platform orchestration as the monorepo grows.
+The repository has Bzlmod files and a Bazel roadmap. As the monorepo grows, we have decided to elevate Bazel from exploratory orchestration to the **primary build and orchestration infrastructure**.
 
 ## Decision
 
-Treat Bazel as exploratory orchestration until the roadmap graduates it to primary build infrastructure.
+Treat Bazel as the source of truth for build orchestration. Xcode will remain the IDE entrypoint, but Bazel targets are now production requirements.
 
-Keep the roadmap in `docs/roadmaps/bazel.md` instead of a root-level `BAZEL.md` so it is clearly part of docs, not a competing build source of truth.
+Keep the roadmap in `docs/roadmaps/bazel.md` instead of a root-level `BAZEL.md` so it is clearly part of docs.
 
 ## Consequences
 
-- Root workspace verification remains the default for Swift/Xcode changes.
-- Bazel docs should describe current migration status and not imply full production ownership until true.
-- If Bazel becomes primary, update `repo.yaml`, root `README.md`, docs index, CI docs, and app instructions together.
+- Bazel targets now require first-class support.
+- All new features and packages must be defined with Bazel targets.
+- Update `repo.yaml`, root `README.md`, docs index, CI docs, and app instructions to prioritize Bazel.

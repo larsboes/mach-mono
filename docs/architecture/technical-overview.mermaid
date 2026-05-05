@@ -1,0 +1,35 @@
+```mermaid
+graph TD
+    subgraph BuildOrchestration [Orchestration Layer]
+        BZ[Bazel / Bzlmod]
+        XC[Xcode Workspace]
+    end
+
+    subgraph Apps [Applications]
+        MN[machNotch]
+        MB[machBrief]
+    end
+
+    subgraph Packages [Shared Libraries]
+        MVK[MacroVisionKit]
+        MBK[MachBriefKit]
+    end
+
+    subgraph Core [Project Core]
+        RY[repo.yaml - Facts]
+        AG[AGENT-GUIDELINES - Rules]
+    end
+
+    BZ --> MN
+    BZ --> MB
+    XC --> MN
+    XC --> MB
+
+    MN --> MVK
+    MB --> MBK
+
+    MN -.-> RY
+    MB -.-> RY
+    
+    RY -.-> AG
+```

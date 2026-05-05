@@ -1,0 +1,5 @@
+# Root BUILD.bazel — entry point for Bazel builds.
+#
+# Build the apps:
+#   bazel build //Apps/machNotch:machNotch
+#   bazel build //Apps/machBrief:machBrief

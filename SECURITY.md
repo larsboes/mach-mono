@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-The Bored Team and community take security bugs in machNotch seriously. We appreciate your efforts to responsibly disclose your findings, and will make every effort to acknowledge your contributions.
+The mach-mono team takes security bugs seriously. We appreciate your efforts to responsibly disclose your findings, and will make every effort to acknowledge your contributions.
 
 To report a security issue, please use the GitHub Security Advisory ["Report a Vulnerability"](https://github.com/larsboes/mach-mono/security/advisories/new) tab.
 

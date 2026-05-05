@@ -2,7 +2,7 @@
 
 This directory is the human-readable documentation hub for `mach-mono`.
 
-For structured repo facts, use [`../repo.yaml`](../repo.yaml). For agent behavior, use [`../AGENTS.md`](../AGENTS.md).
+For structured repo facts, use [`../repo.yaml`](../repo.yaml). For centralized agent guidelines, use [`AGENT-GUIDELINES.md`](AGENT-GUIDELINES.md).
 
 ## Where the overall model is defined
 
@@ -11,20 +11,20 @@ There is **no single file** that replaces the layers below; together they are th
 | Layer | Role | File(s) |
 |------|------|---------|
 | **Facts** | What is true right now (paths, schemes, policies, pointers) | [`../repo.yaml`](../repo.yaml) |
-| **Agent behavior** | How coding agents should work in this repo | [`../AGENTS.md`](../AGENTS.md) |
+| **Agent Guidelines** | How coding agents should work in this repo | [`AGENT-GUIDELINES.md`](AGENT-GUIDELINES.md) |
 | **Product direction** | What each product should become, phases, status | [`prds/`](prds/) |
 | **Decisions (why)** | ADRs for durable choices | [`decisions/`](decisions/) |
 | **Architecture & how-tos** | Design reference and guides | [`architecture/`](architecture/), [`guides/`](guides/) |
-| **Tool adapters** | Cursor, Claude Code, workflows — consume the above, do not fork facts | [`../CLAUDE.md`](../CLAUDE.md), [`../.cursor/`](../.cursor/), [`../.claude/`](../.claude/), [`../.agent/`](../.agent/) |
+| **Tool adapters** | Cursor, Claude Code, workflows — consume the above | [`../CLAUDE.md`](../CLAUDE.md), [`../.cursor/`](../.cursor/), [`../.claude/`](../.claude/), [`../.agent/`](../.agent/) |
 
-**Human-friendly index:** this file (`docs/README.md`). **Repo landing:** [`../README.md`](../README.md) links here and to the fact/behavior entrypoints.
+**Human-friendly index:** this file (`docs/README.md`). **Repo landing:** [`../README.md`](../README.md) links here and to the fact/guideline entrypoints.
 
-Rule of thumb from [`../AGENTS.md`](../AGENTS.md): `repo.yaml` says what is true; `AGENTS.md` says how agents behave; PRDs say what products should become; decisions say why; adapters say how each tool should read those.
+Rule of thumb from [`AGENT-GUIDELINES.md`](AGENT-GUIDELINES.md): `repo.yaml` says what is true; `AGENT-GUIDELINES.md` says how agents behave; PRDs say what products should become; decisions say why; adapters say how each tool should read those.
 
 ## Where to start
 
 - **New to the repo?** Open [`../README.md`](../README.md), then [`../repo.yaml`](../repo.yaml) for paths, schemes, and policies.
-- **Contributing or automating?** Read [`../AGENTS.md`](../AGENTS.md) first.
+- **Contributing or automating?** Read [`AGENT-GUIDELINES.md`](AGENT-GUIDELINES.md) first.
 - **Product scope and current work?** See [`prds/machNotch.md`](prds/machNotch.md) (active app); front matter and the “Current State” section list active phases.
 - **Why a convention exists?** See [`decisions/`](decisions/).
 
@@ -33,7 +33,7 @@ Rule of thumb from [`../AGENTS.md`](../AGENTS.md): `repo.yaml` says what is true
 | Concern | Canonical location | Notes |
 |---|---|---|
 | Structured repo facts | [`../repo.yaml`](../repo.yaml) | Machine-readable facts and pointers. |
-| Agent behavior | [`../AGENTS.md`](../AGENTS.md) | Common instructions for AI coding agents. |
+| Agent guidelines | [`AGENT-GUIDELINES.md`](AGENT-GUIDELINES.md) | Centralized instruction for AI coding agents. |
 | Claude adapter | [`../CLAUDE.md`](../CLAUDE.md) | Thin Claude-specific entrypoint. |
 | Product plans | [`prds/`](prds/) | PRDs, phases, feature specs, and product roadmap details. |
 | Architecture | [`architecture/overview.md`](architecture/overview.md) | System architecture reference. |
@@ -47,8 +47,8 @@ These files should **point to** the table above, not restate it.
 
 | Location | Role |
 |----------|------|
-| [`../AGENTS.md`](../AGENTS.md) | Cross-tool agent behavior and high-signal repo conventions. |
-| [`../CLAUDE.md`](../CLAUDE.md) | Thin Claude Code entry; read `AGENTS.md` and `repo.yaml` first. |
+| [`../AGENT-GUIDELINES.md`](AGENT-GUIDELINES.md) | Cross-tool agent behavior and high-signal repo conventions. |
+| [`../CLAUDE.md`](../CLAUDE.md) | Thin Claude Code entry; read `AGENT-GUIDELINES.md` and `repo.yaml` first. |
 | [`../.cursor/`](../.cursor/) | Cursor rules — short hooks into canonical docs. |
 | [`../.claude/`](../.claude/) | Claude Code–local config, rules, and skills. |
 | [`../.agent/`](../.agent/) | Reusable **workflows** and skills; start with [`../.agent/README.md`](../.agent/README.md). |
@@ -76,6 +76,8 @@ These files should **point to** the table above, not restate it.
 - [`decisions/0003-license-policy.md`](decisions/0003-license-policy.md)
 - [`decisions/0004-bazel-orchestration.md`](decisions/0004-bazel-orchestration.md)
 - [`decisions/0005-weather-provider-strategy.md`](decisions/0005-weather-provider-strategy.md)
+- [`decisions/0006-deferred-native-bazel-builds.md`](decisions/0006-deferred-native-bazel-builds.md) *(superseded by 0007)*
+- [`decisions/0007-native-bazel-builds.md`](decisions/0007-native-bazel-builds.md)
 
 ## Maintenance rules
 

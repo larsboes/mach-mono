@@ -3,24 +3,39 @@ module(
     version = "0.0.1",
 )
 
-bazel_dep(name = "rules_apple", version = "4.1.0")
-bazel_dep(name = "rules_swift", version = "3.1.2")
-bazel_dep(name = "rules_xcodeproj", version = "2.6.0")
+bazel_dep(name = "apple_support", version = "2.5.4")
 bazel_dep(name = "rules_cc", version = "0.2.17")
-bazel_dep(name = "apple_support", version = "1.24.2")
+bazel_dep(name = "rules_apple", version = "4.5.3")
+bazel_dep(name = "rules_swift", version = "3.6.1")
+bazel_dep(name = "rules_swift_package_manager", version = "1.15.0")
 
-# Configure the local Xcode toolchain
-xcode_configure = use_extension("@rules_apple//apple:extensions.bzl", "xcode_configure")
-xcode_configure.configure(
-    version = "26.4.1", 
-)
-use_repo(xcode_configure, "local_config_xcode")
-
-# Register the local nlohmann_json as a module
+# Local C++ JSON library — retained for future C++/Swift interop.
 bazel_dep(name = "nlohmann_json", version = "3.11.3")
 local_path_override(
     module_name = "nlohmann_json",
     path = "external/nlohmann_json",
 )
 
-register_toolchains("@rules_swift//swift/toolchains:all")
+swift_deps = use_extension(
+    "@rules_swift_package_manager//:extensions.bzl",
+    "swift_deps",
+)
+swift_deps.from_package(
+    resolved = "//:Package.resolved",
+    swift = "//:Package.swift",
+)
+use_repo(
+    swift_deps,
+    "swift_package",
+    "swiftpkg_asyncxpcconnection",
+    "swiftpkg_defaults",
+    "swiftpkg_keyboardshortcuts",
+    "swiftpkg_launchatlogin_modern",
+    "swiftpkg_lottie_spm",
+    "swiftpkg_pow",
+    "swiftpkg_skylightwindow",
+    "swiftpkg_sparkle",
+    "swiftpkg_sqlite.swift",
+    "swiftpkg_swift_collections",
+    "swiftpkg_swiftglass",
+)

@@ -1,0 +1,34 @@
+
+```mermaid
+graph TD
+    subgraph "Root Entrypoints"
+        AG[AGENTS.md]
+        CL[CLAUDE.md]
+        GE[GEMINI.md]
+    end
+
+    subgraph "Canonical Sources (docs/)"
+        GL[AGENT-GUIDELINES.md]
+        RY[repo.yaml]
+        DC[docs/decisions/]
+        PR[docs/prds/]
+    end
+
+    subgraph "Adapters"
+        AC[.agent/]
+        CC[.claude/]
+        CU[.cursor/]
+    end
+
+    AG --> GL
+    CL --> GL
+    GE --> GL
+    
+    AC -.-> GL
+    CC -.-> GL
+    CU -.-> GL
+    
+    GL --> RY
+    GL --> DC
+    GL --> PR
+```

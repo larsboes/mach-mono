@@ -1,4 +1,11 @@
 load("@rules_swift//swift:swift.bzl", "swift_library")
+load("@rules_apple//apple:resources.bzl", "apple_resource_bundle")
+
+apple_resource_bundle(
+    name = "MachBriefKit_Resources",
+    bundle_name = "MachBriefKit_MachBriefKit",
+    resources = glob(["Resources/**"]),
+)
 
 swift_library(
     name = "MachBriefKit",
@@ -6,4 +13,6 @@ swift_library(
     module_name = "MachBriefKit",
     visibility = ["//visibility:public"],
     deps = [],
+    data = [":MachBriefKit_Resources"],
+    defines = ["SWIFT_PACKAGE"], 
 )

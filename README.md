@@ -28,7 +28,7 @@ This monorepo adheres to a strict **Minimalistic Aesthetic**.
 
 > **Core Principles:** Clarity, Cohesion, Tech-Forward, Subtlety.
 > 
-> See [.agent/rules/DESIGN.md](.agent/rules/DESIGN.md) for full guidelines.
+> See [docs/AGENT-GUIDELINES.md](docs/AGENT-GUIDELINES.md) for full design guidelines.
 
 ---
 
@@ -38,7 +38,11 @@ This monorepo adheres to a strict **Minimalistic Aesthetic**.
 
 `mach-mono` is a monorepo housing a growing suite of native Apple-platform utilities. Each app is a focused SwiftUI product sharing common architectural conventions and — where it earns its keep — shared Swift packages.
 
-**Build systems:** [Xcode](https://developer.apple.com/xcode/) via [`mach-mono.xcworkspace`](mach-mono.xcworkspace) is the primary day-to-day entrypoint. **[Bazel](https://bazel.build/)** ([Bzlmod](https://bazel.build/external/module)) is the intended long-term orchestration layer for this monorepo — see [`docs/roadmaps/bazel.md`](docs/roadmaps/bazel.md) and [`docs/decisions/0004-bazel-orchestration.md`](docs/decisions/0004-bazel-orchestration.md).
+**Build systems:** [Xcode](https://developer.apple.com/xcode/) via [`mach-mono.xcworkspace`](mach-mono.xcworkspace) is currently supported, but we are going all-in on **[Bazel](https://bazel.build/)** ([Bzlmod](https://bazel.build/external/module)) as the primary orchestration layer. 
+
+> "We go Bazel or we go home!"
+
+See [`docs/roadmaps/bazel.md`](docs/roadmaps/bazel.md) and [`docs/decisions/0004-bazel-orchestration.md`](docs/decisions/0004-bazel-orchestration.md) for the rollout plan.
 
 ### Documentation model
 
@@ -77,11 +81,12 @@ Configurable daily content (words, facts, quotes, mantras, mood prompts) with op
 mach-mono/
 ├── MODULE.bazel             # Bazel module root (Bzlmod)
 ├── WORKSPACE.bzlmod         # Workspace marker for Bazel
-├── AGENTS.md                # Common AI agent instructions
+├── AGENTS.md                # Pointer to canonical AGENT-GUIDELINES.md
 ├── CLAUDE.md                # Thin Claude Code adapter
+├── GEMINI.md                # Thin Gemini CLI adapter
 ├── repo.yaml                # Canonical structured repo facts
 ├── .agent/                  # Reusable agent workflows and skills
-├── .claude/                 # Claude Code config and Claude-only rules
+├── .claude/                 # Claude Code config
 ├── .cursor/                 # Cursor adapter rules
 ├── .github/                 # CI/CD workflows, issue templates
 ├── Apps/
@@ -89,6 +94,7 @@ mach-mono/
 │   └── machBrief/           # mach.brief — in development (see docs/prds)
 ├── docs/
 │   ├── README.md            # Documentation index
+│   ├── AGENT-GUIDELINES.md  # Canonical agent behavioral/arch rules
 │   ├── architecture/        # System architecture references
 │   ├── decisions/           # ADR-style decision records
 │   ├── guides/              # Practical guides
@@ -98,6 +104,51 @@ mach-mono/
 ├── Packages/                # Shared Swift packages (MacroVisionKit, MachBriefKit, …)
 ├── resources/               # Demo assets, scripts
 └── mach-mono.xcworkspace    # Open this to work on the whole suite (Xcode)
+```
+
+## Project Architecture
+
+This diagram provides a high-level overview of the monorepo's technical structure:
+
+```mermaid
+graph TD
+    %% Define Layers
+    subgraph BuildOrchestration [Orchestration Layer]
+        BZ[Bazel / Bzlmod]
+        XC[Xcode Workspace]
+    end
+
+    subgraph Apps [Applications]
+        MN[machNotch]
+        MB[machBrief]
+    end
+
+    subgraph Packages [Shared Libraries]
+        MVK[MacroVisionKit]
+        MBK[MachBriefKit]
+    end
+
+    subgraph Core [Project Core]
+        RY[repo.yaml]
+        AG[AGENT-GUIDELINES]
+    end
+
+    %% Connections
+    BZ --> MN & MB
+    XC --> MN & MB
+    
+    MN --> MVK
+    MB --> MBK
+
+    %% Core references
+    MN & MB -.-> RY
+    RY -.-> AG
+
+    %% Styling
+    style BuildOrchestration fill:#f9f9f9,stroke:#333
+    style Apps fill:#f0f8ff,stroke:#333
+    style Packages fill:#fff0f5,stroke:#333
+    style Core fill:#ffffe0,stroke:#333
 ```
 
 ---
