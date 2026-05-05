@@ -89,7 +89,7 @@ swift_library(
 macos_unit_test(
     name = "machNotchTests",
     bundle_id = "com.larsboes.machNotchTests",
-    minimum_os_version = "15.0",
+    minimum_os_version = "26.0",
     deps = [":machNotchTests_Lib"],
 )
 
@@ -104,7 +104,7 @@ macos_application(
         "machNotch/Info.plist",
         "bazel_info.plist",
     ],
-    minimum_os_version = "15.0",
+    minimum_os_version = "26.0",
     deps = [":machNotch_App"],
     resources = [":machNotch_Resources"],
     visibility = ["//visibility:public"],
