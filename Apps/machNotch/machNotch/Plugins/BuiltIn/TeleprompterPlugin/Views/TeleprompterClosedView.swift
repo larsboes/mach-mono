@@ -6,7 +6,7 @@ import SwiftUI
 struct TeleprompterClosedView: View {
     let state: TeleprompterState
 
-    @Environment(NotchViewModel.self) var vm
+    @Environment(PluginUIContext.self) var uiContext
     @Environment(\.displayClosedNotchHeight) var displayClosedNotchHeight
 
     /// Real notch height (camera area) — keep text out of this zone
@@ -21,7 +21,7 @@ struct TeleprompterClosedView: View {
 
     /// Match closed notch width + flanking (same pattern as MusicLiveActivity)
     private var contentWidth: CGFloat {
-        vm.closedNotchSize.width + 100
+        uiContext.closedNotchSize.width + 100
     }
 
     var body: some View {
@@ -33,7 +33,7 @@ struct TeleprompterClosedView: View {
             // Reading zone — teleprompter text, directly below camera
             ZStack {
                 // Background Voice Glow Beam (Only active while scrolling/playing AND not transitioning)
-                if state.isScrolling, !vm.phase.isTransitioning {
+                if state.isScrolling, !uiContext.phase.isTransitioning {
                     Rectangle()
                         .fill(
                             LinearGradient(
@@ -128,8 +128,8 @@ struct TeleprompterClosedView: View {
         .onDisappear {
             state.timerManager.micMonitor.stopMonitoring()
         }
-        .onChange(of: vm.notchState) {
-            if vm.notchState != .closed {
+        .onChange(of: uiContext.notchState) {
+            if uiContext.notchState != .closed {
                 state.timerManager.micMonitor.stopMonitoring()
             }
         }

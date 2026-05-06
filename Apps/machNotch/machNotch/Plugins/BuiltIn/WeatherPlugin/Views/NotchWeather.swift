@@ -3,7 +3,7 @@ import SwiftUI
 struct WeatherClosedPill: View {
     private enum PopoverMode { case preview, detail }
     let weather: WeatherData
-    @Environment(NotchViewModel.self) private var vm
+    @Environment(PluginUIContext.self) private var uiContext
     @State private var isHoveringPill = false
     @State private var isHoveringPopover = false
     @State private var popoverMode: PopoverMode = .preview
@@ -31,7 +31,7 @@ struct WeatherClosedPill: View {
         .onHover { hovering in
             isHoveringPill = hovering
             if hovering {
-                vm.cancelPendingOpen()
+                uiContext.cancelPendingOpen()
                 hideTask?.cancel()
                 if !showPopover {
                     popoverMode = .preview
@@ -53,14 +53,14 @@ struct WeatherClosedPill: View {
                 }
         }
         .onChange(of: showPopover) { _, isShowing in
-            vm.isBatteryPopoverActive = isShowing
+            uiContext.isBatteryPopoverActive = isShowing
             if !isShowing {
                 hideTask?.cancel()
                 popoverMode = .preview
             }
         }
         .onDisappear {
-            vm.isBatteryPopoverActive = false
+            uiContext.isBatteryPopoverActive = false
             hideTask?.cancel()
         }
     }
@@ -201,7 +201,7 @@ private struct WeatherFooter: View {
 }
 
 struct WeatherView: View {
-    @Environment(NotchViewModel.self) var vm
+    @Environment(PluginUIContext.self) var uiContext
     @Environment(\.pluginManager) var pluginManager
     @Environment(\.settings) var settings
     var body: some View {
@@ -225,8 +225,8 @@ struct WeatherView: View {
         .onAppear {
             pluginManager?.services.weather.checkLocationAuthorization()
         }
-        .onChange(of: vm.notchState) { _, _ in
-            if vm.notchState == .open {
+        .onChange(of: uiContext.notchState) { _, _ in
+            if uiContext.notchState == .open {
                 pluginManager?.services.weather.fetchWeather()
             }
         }
@@ -296,5 +296,5 @@ struct WeatherMenuBarSummary: View {
     WeatherView()
         .frame(width: 330, height: 190)
         .background(.black)
-        .environment(NotchViewModel())
+        .environment(PluginUIContext())
 }

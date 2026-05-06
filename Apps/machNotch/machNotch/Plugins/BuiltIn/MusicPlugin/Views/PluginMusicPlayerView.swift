@@ -12,7 +12,7 @@ import Defaults
 struct PluginMusicPlayerView: View {
     let plugin: MusicPlugin
     let albumArtNamespace: Namespace.ID?
-    @Environment(NotchViewModel.self) var vm
+    @Environment(PluginUIContext.self) var uiContext
     @Environment(\.cornerRadiusInsets) var cornerRadiusInsets
 
     private var openEdgeSafeInset: CGFloat {
@@ -40,7 +40,7 @@ struct PluginAlbumArtView: View {
     let service: any MusicServiceProtocol
     let albumArtNamespace: Namespace.ID?
 
-    @Environment(NotchViewModel.self) var vm
+    @Environment(PluginUIContext.self) var uiContext
     @Environment(\.settings) var settings
 
     var body: some View {
@@ -48,7 +48,7 @@ struct PluginAlbumArtView: View {
             // Suppress lighting glow during transition — the blur/rotate decoration
             // creates ghost artifacts while the shell is still morphing.
             // Only appears once the notch has settled into its final state.
-            if settings.lightingEffect && !vm.phase.isTransitioning {
+            if settings.lightingEffect && !uiContext.phase.isTransitioning {
                 albumArtBackground
             }
             albumArtButton

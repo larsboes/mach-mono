@@ -13,7 +13,7 @@ struct MusicLiveActivity: View {
     var frequencyBands: [Float] = []
 
     // Environment Dependencies
-    @Environment(NotchViewModel.self) var vm
+    @Environment(PluginUIContext.self) var uiContext
     @Environment(\.settings) var settings
     @Environment(\.albumArtNamespace) var albumArtNamespace: Namespace.ID?
     @Environment(\.displayClosedNotchHeight) var displayClosedNotchHeight
@@ -76,7 +76,7 @@ struct MusicLiveActivity: View {
 
             Rectangle()
                 .fill(Color.clear)
-                .frame(width: max(0, vm.closedNotchSize.width - self.edgeSafeInset * 2))
+                .frame(width: max(0, uiContext.closedNotchSize.width - self.edgeSafeInset * 2))
 
             HStack {
                 AudioSpectrumView(

@@ -186,7 +186,7 @@ struct BatteryStatusView: View {
     @State private var isHoveringPopover: Bool = false
     @State private var hideTask: Task<Void, Never>?
 
-    @Environment(NotchViewModel.self) var vm
+    @Environment(PluginUIContext.self) var uiContext
     @Environment(\.settings) var settings
 
     init(
@@ -276,7 +276,7 @@ struct BatteryStatusView: View {
             }
         }
         .onChange(of: showPopupMenu) {
-            vm.isBatteryPopoverActive = showPopupMenu
+            uiContext.isBatteryPopoverActive = showPopupMenu
         }
         .onDisappear {
             hideTask?.cancel()
@@ -320,3 +320,4 @@ struct BatteryStatusView: View {
     }
     .background(.black)
 }
+

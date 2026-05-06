@@ -63,8 +63,8 @@ extension ShelfActionService {
 
 @MainActor
 final class ShelfContextMenuHandler {
-    static func present(event: NSEvent, in view: NSView, item: ShelfItem, service: ShelfServiceProtocol, quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService) {
-        ensureContextMenuSelection(item: item, service: service)
+    static func present(event: NSEvent, in view: NSView, item: ShelfItem, service: ShelfServiceProtocol, selection: ShelfSelectionModel, quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService) {
+        ensureContextMenuSelection(item: item, service: service, selection: selection)
         let menu = NSMenu()
 
         func addMenuItem(title: String) {
@@ -72,7 +72,6 @@ final class ShelfContextMenuHandler {
             menu.addItem(mi)
         }
 
-        let selection = service.selection
         let selectedItems = selection.selectedItems(in: service.items)
         let selectedFileURLs = selectedItems.compactMap { $0.fileURL }
         let selectedLinkURLs: [URL] = selectedItems.compactMap { itm in
@@ -129,17 +128,16 @@ final class ShelfContextMenuHandler {
         menu.addItem(NSMenuItem.separator())
         addMenuItem(title: "Remove")
 
-        let actionTarget = ShelfMenuActionTarget(item: item, view: view, service: service, quickLookService: quickLookService, quickShareService: quickShareService)
-        wireMenuTargets(menu: menu, target: actionTarget)
+        let target = ShelfMenuActionTarget(item: item, view: view, service: service, selection: selection, quickLookService: quickLookService, quickShareService: quickShareService)
+        wireMenuTargets(menu: menu, target: target)
 
-        menu.retainActionTarget(actionTarget)
+        menu.retainActionTarget(target)
         NSMenu.popUpContextMenu(menu, with: event, for: view)
     }
 
     // MARK: - Private Helpers
 
-    private static func ensureContextMenuSelection(item: ShelfItem, service: ShelfServiceProtocol) {
-        let selection = service.selection
+    private static func ensureContextMenuSelection(item: ShelfItem, service: ShelfServiceProtocol, selection: ShelfSelectionModel) {
         if !selection.isSelected(item.id) { selection.selectSingle(item) }
     }
 

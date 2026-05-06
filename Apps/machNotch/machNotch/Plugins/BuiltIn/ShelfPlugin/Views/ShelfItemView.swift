@@ -14,12 +14,9 @@ struct ShelfItemView: View {
     let shelfService: ShelfServiceProtocol
     let quickLookService: any QuickLookServiceProtocol
     let quickShareService: QuickShareService
-    @Environment(NotchViewModel.self) var vm
+    @Environment(PluginUIContext.self) var uiContext
     @Environment(\.settings) var settings
-
-    private var selection: ShelfSelectionModel {
-        shelfService.selection
-    }
+    @Environment(ShelfSelectionModel.self) private var selection
 
     @State private var viewModel: ShelfItemViewModel
     @State private var showStack = false
@@ -60,10 +57,10 @@ struct ShelfItemView: View {
                         DragPreviewView(thumbnail: viewModel.thumbnail ?? item.icon, displayName: item.displayName)
                     },
                     onRightClick: { event, view in
-                        viewModel.handleRightClick(event: event, view: view, service: shelfService, quickLookService: quickLookService, quickShareService: quickShareService)
+                        viewModel.handleRightClick(event: event, view: view, service: shelfService, selection: selection, quickLookService: quickLookService, quickShareService: quickShareService)
                     },
                     onClick: { event, nsview in
-                        viewModel.handleClick(event: event, view: nsview, items: shelfService.items, service: shelfService, quickLookService: quickLookService, quickShareService: quickShareService)
+                        viewModel.handleClick(event: event, view: nsview, items: shelfService.items, service: shelfService, selection: selection, quickLookService: quickLookService, quickShareService: quickShareService)
                     }
                 )
             } else {
@@ -74,7 +71,7 @@ struct ShelfItemView: View {
             }
         }
         .onChange(of: viewModel.isDropTargeted) { _, targeted in
-            vm.dragDetectorTargeting = targeted
+            uiContext.dragDetectorTargeting = targeted
             Task { @MainActor in
                 try? await Task.sleep(for: .milliseconds(50))
                 debouncedDropTarget = targeted

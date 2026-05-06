@@ -35,27 +35,26 @@ final class ShelfItemViewModel {
     }
 
     // MARK: - Actions
-    func handleClick(event: NSEvent, view: NSView, items: [ShelfItem], service: ShelfServiceProtocol, quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService) {
-        let selection = service.selection
+    func handleClick(event: NSEvent, view: NSView, items: [ShelfItem], service: ShelfServiceProtocol, selection: ShelfSelectionModel, quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService) {
         let flags = event.modifierFlags
         if flags.contains(.shift) {
             selection.shiftSelect(to: item, in: items)
         } else if flags.contains(.command) {
             selection.toggle(item)
         } else if flags.contains(.control) {
-            handleRightClick(event: event, view: view, service: service, quickLookService: quickLookService, quickShareService: quickShareService)
+            handleRightClick(event: event, view: view, service: service, selection: selection, quickLookService: quickLookService, quickShareService: quickShareService)
         } else {
             if !selection.isSelected(item.id) { selection.selectSingle(item) }
         }
-        if event.clickCount == 2 { handleDoubleClick(items: items, service: service) }
+        if event.clickCount == 2 { handleDoubleClick(items: items, service: service, selection: selection) }
     }
 
-    func handleRightClick(event: NSEvent, view: NSView, service: ShelfServiceProtocol, quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService) {
-        ShelfContextMenuHandler.present(event: event, in: view, item: item, service: service, quickLookService: quickLookService, quickShareService: quickShareService)
+    func handleRightClick(event: NSEvent, view: NSView, service: ShelfServiceProtocol, selection: ShelfSelectionModel, quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService) {
+        ShelfContextMenuHandler.present(event: event, in: view, item: item, service: service, selection: selection, quickLookService: quickLookService, quickShareService: quickShareService)
     }
 
-    func handleDoubleClick(items: [ShelfItem], service: ShelfServiceProtocol) {
-        let selected = service.selection.selectedItems(in: items)
+    func handleDoubleClick(items: [ShelfItem], service: ShelfServiceProtocol, selection: ShelfSelectionModel) {
+        let selected = selection.selectedItems(in: items)
         service.fileHandler.open(items: selected, with: nil)
     }
 }

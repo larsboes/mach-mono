@@ -33,6 +33,7 @@ final class ShelfPlugin: NotchPlugin, ExportablePlugin {
 
     var shelfService: (any ShelfServiceProtocol)?
     private var settings: PluginSettings?
+    let selection = ShelfSelectionModel()
 
     // MARK: - Initialization
 
@@ -63,6 +64,7 @@ final class ShelfPlugin: NotchPlugin, ExportablePlugin {
             // ShelfView uses Environment(\.pluginManager) to access services
             // It also needs NotchViewModel from environment, which NotchHomeView provides
             ShelfView()
+                .environment(selection)
         }
     }
 

@@ -5,7 +5,7 @@ import SwiftUI
 /// When "Present" is pressed, the notch closes and TeleprompterClosedView takes over.
 struct TeleprompterExpandedView: View {
     @Bindable var state: TeleprompterState
-    @Environment(NotchViewModel.self) var vm
+    @Environment(PluginUIContext.self) var uiContext
 
     var body: some View {
         VStack(spacing: 0) {
@@ -38,8 +38,8 @@ struct TeleprompterExpandedView: View {
         .onDisappear {
             state.timerManager.micMonitor.stopMonitoring()
         }
-        .onChange(of: vm.notchState) {
-            if vm.notchState == .closed {
+        .onChange(of: uiContext.notchState) {
+            if uiContext.notchState == .closed {
                 state.timerManager.micMonitor.stopMonitoring()
             }
         }
@@ -145,7 +145,7 @@ struct TeleprompterExpandedView: View {
     // MARK: - Actions
 
     private func startPresentation() {
-        vm.close(force: true)
+        uiContext.close(force: true)
         state.startPresentation()
     }
 

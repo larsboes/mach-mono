@@ -54,6 +54,7 @@ struct DraggableClickHandler<Content: View>: NSViewRepresentable {
         var settings: (any NotchSettings)?
         weak var viewModel: ShelfItemViewModel?
         var service: (any ShelfServiceProtocol)?
+        var selection: ShelfSelectionModel?
         var getDragPreview: (() -> NSImage)?
         var onRightClick: ((NSEvent, NSView) -> Void)?
         var onClick: ((NSEvent, NSView) -> Void)?
@@ -87,8 +88,8 @@ struct DraggableClickHandler<Content: View>: NSViewRepresentable {
         }
 
         private func startDragSession(with event: NSEvent) {
-            guard let item, let service else { return }
-            let selectedItems = service.selection.selectedItems(in: service.items)
+            guard let item, let service, let selection else { return }
+            let selectedItems = selection.selectedItems(in: service.items)
             let itemsToDrag = (selectedItems.count > 1 && selectedItems.contains { $0.id == item.id })
                 ? selectedItems : [item]
             draggedItems = itemsToDrag
@@ -137,11 +138,11 @@ struct DraggableClickHandler<Content: View>: NSViewRepresentable {
         }
 
         func draggingSession(_ session: NSDraggingSession, willBeginAt screenPoint: NSPoint) {
-            service?.selection.beginDrag()
+            selection?.beginDrag()
         }
 
         func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
-            service?.selection.endDrag()
+            selection?.endDrag()
             draggedURLs.forEach { $0.stopAccessingSecurityScopedResource() }
             draggedURLs.removeAll()
             if settings?.autoRemoveShelfItems == true && !operation.isEmpty {

@@ -78,7 +78,7 @@ struct WeekDayPicker: View {
 }
 
 struct CalendarView: View {
-    @Environment(NotchViewModel.self) var vm
+    @Environment(PluginUIContext.self) var uiContext
     @Environment(\.settings) var settings
     @Environment(\.pluginManager) var pluginManager
     @State private var selectedDate = Date()
@@ -123,7 +123,7 @@ struct CalendarView: View {
                 await pluginManager?.services.calendar.updateCurrentDate(selectedDate)
             }
         }
-        .onChange(of: vm.notchState) { _, _ in
+        .onChange(of: uiContext.notchState) { _, _ in
             Task {
                 await pluginManager?.services.calendar.updateCurrentDate(Date.now)
                 selectedDate = Date.now

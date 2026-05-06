@@ -186,55 +186,15 @@ struct NotchContentRouter: View {
                 case .home:
                     NotchHomeView(albumArtNamespace: albumArtNamespace)
                         .frame(maxWidth: CGFloat.infinity, maxHeight: CGFloat.infinity, alignment: .top)
-                case .shelf:
-                    if let pluginManager {
-                        pluginManager.expandedPanelView(for: PluginID.shelf)
-                            .environment(vm)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                case .notifications:
-                    if let pluginManager {
-                        pluginManager.expandedPanelView(for: PluginID.notifications)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                case .clipboard:
-                    if let pluginManager {
-                        pluginManager.expandedPanelView(for: PluginID.clipboard)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                case .weather:
-                    if let pluginManager {
-                        pluginManager.expandedPanelView(for: PluginID.weather)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
                 case .notes:
                     if let pluginManager {
                         NotesView(manager: pluginManager.services.notesManager)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
-                case .habitTracker:
+                default:
                     if let pluginManager {
-                        pluginManager.expandedPanelView(for: PluginID.habitTracker)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                case .pomodoro:
-                    if let pluginManager {
-                        pluginManager.expandedPanelView(for: PluginID.pomodoro)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                case .teleprompter:
-                    if let pluginManager {
-                        pluginManager.expandedPanelView(for: PluginID.teleprompter)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                case .systemStats:
-                    if let pluginManager {
-                        pluginManager.expandedPanelView(for: PluginID.systemStats)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                case .brief:
-                    if let pluginManager {
-                        pluginManager.expandedPanelView(for: PluginID.brief)
+                        pluginManager.expandedPanelView(for: view.id)
+                            .environment(vm) // Provide vm because Shelf uses it
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                 }

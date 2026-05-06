@@ -11,7 +11,7 @@ struct PluginMusicControlsView: View {
     let service: any MusicServiceProtocol
     let plugin: MusicPlugin
 
-    @Environment(NotchViewModel.self) var vm
+    @Environment(PluginUIContext.self) var uiContext
     @Environment(\.settings) var settings
     @Environment(\.bindableSettings) var bindableSettings
 
@@ -57,7 +57,7 @@ struct PluginMusicControlsView: View {
                     IsolatedLyricsView(
                         service: service,
                         width: geo.size.width,
-                        isActive: vm.notchState == .open && service.playbackRate > 0
+                        isActive: uiContext.notchState == .open && service.playbackRate > 0
                     )
                 }
             }
@@ -69,7 +69,7 @@ struct PluginMusicControlsView: View {
         IsolatedScrubberView(
             service: service,
             settings: settings,
-            isActive: vm.notchState == .open && service.playbackRate > 0
+            isActive: uiContext.notchState == .open && service.playbackRate > 0
         )
     }
 

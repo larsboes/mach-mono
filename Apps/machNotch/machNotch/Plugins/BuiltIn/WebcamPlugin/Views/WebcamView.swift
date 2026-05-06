@@ -9,7 +9,7 @@ import AVFoundation
 import SwiftUI
 
 struct CameraPreviewView: View {
-    @Environment(NotchViewModel.self) var vm
+    @Environment(PluginUIContext.self) var uiContext
     @Environment(\.settings) var settings
     let webcamManager: any WebcamServiceProtocol
     

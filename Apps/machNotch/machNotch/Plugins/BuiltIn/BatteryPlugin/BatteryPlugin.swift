@@ -109,7 +109,7 @@ final class BatteryPlugin: NotchPlugin, PositionedPlugin {
 
 private struct PluginBatteryClosedView: View {
     let snapshot: BatterySnapshot
-    @Environment(NotchViewModel.self) var vm
+    @Environment(PluginUIContext.self) var uiContext
 
     var body: some View {
         HStack(spacing: 0) {
@@ -121,7 +121,7 @@ private struct PluginBatteryClosedView: View {
 
             Rectangle()
                 .fill(Color.black)
-                .frame(width: vm.closedNotchSize.width + 10)
+                .frame(width: uiContext.closedNotchSize.width + 10)
 
             HStack {
                 BatteryStatusView(snapshot: snapshot, isForNotification: true)
@@ -167,3 +167,4 @@ private struct BatteryMenuBarSummary: View {
         }
     }
 }
+

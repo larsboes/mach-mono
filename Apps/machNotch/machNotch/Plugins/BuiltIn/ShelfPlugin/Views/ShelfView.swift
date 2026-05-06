@@ -9,12 +9,9 @@ import SwiftUI
 import AppKit
 
 struct ShelfView: View {
-    @Environment(NotchViewModel.self) var vm
+    @Environment(PluginUIContext.self) var uiContext
     @Environment(\.pluginManager) var pluginManager
-    
-    private var selection: ShelfSelectionModel {
-        pluginManager?.services.shelf.selection ?? ShelfSelectionModel()
-    }
+    @Environment(ShelfSelectionModel.self) private var selection
     
     private var quickLookService: any QuickLookServiceProtocol {
         guard let pluginManager else { preconditionFailure("pluginManager required") }
@@ -31,14 +28,14 @@ struct ShelfView: View {
     private let spacing: CGFloat = 8
 
     var body: some View {
-        @Bindable var vm = vm
-        
+        @Bindable var context = uiContext
+
         HStack(spacing: 12) {
             FileShareView()
                 .aspectRatio(1, contentMode: .fit)
-                .environment(vm)
+                .environment(uiContext)
             panel
-                .onDrop(of: [.fileURL, .url, .utf8PlainText, .plainText, .data], isTargeted: $vm.dragDetectorTargeting) { providers in
+                .onDrop(of: [.fileURL, .url, .utf8PlainText, .plainText, .data], isTargeted: Bindable(uiContext).dragDetectorTargeting) { providers in
                     handleDrop(providers: providers)
                 }
         }
@@ -51,7 +48,7 @@ struct ShelfView: View {
     
     private func handleDrop(providers: [NSItemProvider]) -> Bool {
         guard !selection.isDragging else { return false }
-        vm.dropEvent = true
+        uiContext.dropEvent = true
         shelfService.load(providers)
         return true
     }
@@ -78,7 +75,7 @@ struct ShelfView: View {
     var panel: some View {
         RoundedRectangle(cornerRadius: 16)
             .stroke(
-                vm.dragDetectorTargeting
+                uiContext.dragDetectorTargeting
                     ? Color.accentColor.opacity(0.9)
                     : Color.white.opacity(0.1),
                 style: StrokeStyle(lineWidth: 3, lineCap: .round, dash: [10])
@@ -88,15 +85,14 @@ struct ShelfView: View {
                     .padding()
             }
             .transaction { transaction in
-                transaction.animation = vm.animation
+                transaction.animation = nil
             }
             .contentShape(Rectangle())
             .onTapGesture { selection.clear() }
     }
 
     var content: some View {
-        @Bindable var vm = vm
-        return Group {
+        Group {
             if shelfService.isEmpty {
                 VStack(spacing: 10) {
                     Image(systemName: "tray.and.arrow.down")
@@ -115,13 +111,13 @@ struct ShelfView: View {
                     LazyHStack(spacing: spacing) {
                         ForEach(shelfService.items) { item in
                             ShelfItemView(item: item, shelfService: shelfService, quickLookService: quickLookService, quickShareService: quickShareService)
-                                .environment(vm)
+                                .environment(uiContext)
                         }
                     }
                 }
                 .padding(-spacing)
                 .scrollIndicators(.never)
-                .onDrop(of: [.fileURL, .url, .utf8PlainText, .plainText, .data], isTargeted: $vm.dragDetectorTargeting) { providers in
+                .onDrop(of: [.fileURL, .url, .utf8PlainText, .plainText, .data], isTargeted: Bindable(uiContext).dragDetectorTargeting) { providers in
                     handleDrop(providers: providers)
                 }
             }

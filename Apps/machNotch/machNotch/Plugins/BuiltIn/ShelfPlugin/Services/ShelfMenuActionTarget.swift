@@ -13,16 +13,18 @@ final class ShelfMenuActionTarget: NSObject {
     let item: ShelfItem
     weak var view: NSView?
     let service: ShelfServiceProtocol
+    let selection: ShelfSelectionModel
     let quickLookService: any QuickLookServiceProtocol
     let quickShareService: QuickShareService
 
     // Keep associated objects (like accessory view handlers) without magic keys
     static var sliderHandlerAssoc = AssociatedObject<AnyObject>()
 
-    init(item: ShelfItem, view: NSView, service: ShelfServiceProtocol, quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService) {
+    init(item: ShelfItem, view: NSView, service: ShelfServiceProtocol, selection: ShelfSelectionModel, quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService) {
         self.item = item
         self.view = view
         self.service = service
+        self.selection = selection
         self.quickLookService = quickLookService
         self.quickShareService = quickShareService
     }
@@ -37,14 +39,14 @@ final class ShelfMenuActionTarget: NSObject {
         }
 
         if let appURL = sender.representedObject as? URL {
-            let selected = service.selection.selectedItems(in: service.items)
+            let selected = selection.selectedItems(in: service.items)
             fileHandler.open(items: selected, with: appURL)
             return
         }
 
         switch title {
         case "Quick Look":
-            let selected = service.selection.selectedItems(in: service.items)
+            let selected = selection.selectedItems(in: service.items)
             let urls: [URL] = selected.compactMap { item in
                 if let fileURL = item.fileURL {
                     return fileURL
@@ -59,30 +61,30 @@ final class ShelfMenuActionTarget: NSObject {
             }
 
         case "Open":
-            let selected = service.selection.selectedItems(in: service.items)
+            let selected = selection.selectedItems(in: service.items)
             fileHandler.open(items: selected, with: nil)
 
         case "Share…":
-            let selected = service.selection.selectedItems(in: service.items)
+            let selected = selection.selectedItems(in: service.items)
             quickShareService.share(items: selected, from: view, service: service)
 
         case "Rename":
-            let selected = service.selection.selectedItems(in: service.items)
+            let selected = selection.selectedItems(in: service.items)
             if selected.count == 1, let single = selected.first { showRenameDialog(for: single) }
 
         case "Show in Finder":
-            let selected = service.selection.selectedItems(in: service.items)
+            let selected = selection.selectedItems(in: service.items)
             fileHandler.showInFinder(items: selected, service: service)
 
         case "Copy Path":
-            let selected = service.selection.selectedItems(in: service.items)
+            let selected = selection.selectedItems(in: service.items)
             fileHandler.copyPath(items: selected)
 
         case "Copy":
             handleCopy()
 
         case "Remove":
-            let selected = service.selection.selectedItems(in: service.items)
+            let selected = selection.selectedItems(in: service.items)
             for it in selected { ShelfActionService.remove(it, service: service) }
 
         case "Remove Background":
@@ -95,7 +97,7 @@ final class ShelfMenuActionTarget: NSObject {
             handleCreatePDF()
 
         case "Compress":
-            let selected = service.selection.selectedItems(in: service.items)
+            let selected = selection.selectedItems(in: service.items)
             fileHandler.compress(items: selected, service: service)
 
         default:
@@ -106,7 +108,7 @@ final class ShelfMenuActionTarget: NSObject {
     // MARK: - Copy
 
     func handleCopy() {
-        let selected = service.selection.selectedItems(in: service.items)
+        let selected = selection.selectedItems(in: service.items)
         let pb = NSPasteboard.general
 
         ShelfActionService.stopAccessingCopiedURLs()
@@ -138,7 +140,7 @@ final class ShelfMenuActionTarget: NSObject {
 
     @MainActor
     func handleRemoveBackground() {
-        let selected = service.selection.selectedItems(in: service.items)
+        let selected = selection.selectedItems(in: service.items)
         let imageURLs = selected.compactMap { $0.fileURL }.filter { service.imageProcessor.isImageFile($0) }
 
         guard let imageURL = imageURLs.first else { return }
@@ -154,7 +156,7 @@ final class ShelfMenuActionTarget: NSObject {
 
     @MainActor
     func handleCreatePDF() {
-        let selected = service.selection.selectedItems(in: service.items)
+        let selected = selection.selectedItems(in: service.items)
         service.imageProcessor.createPDF(from: selected, service: service) { error in
             if let error = error {
                 print("PDF Creation Failed: \(error.localizedDescription)")

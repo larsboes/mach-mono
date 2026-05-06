@@ -14,7 +14,7 @@ extension ShelfMenuActionTarget {
 
     @MainActor
     func showConvertImageDialog() {
-        let selected = service.selection.selectedItems(in: service.items)
+        let selected = selection.selectedItems(in: service.items)
         let imageURLs = selected.compactMap { $0.fileURL }.filter { service.imageProcessor.isImageFile($0) }
 
         guard let imageURL = imageURLs.first else { return }
