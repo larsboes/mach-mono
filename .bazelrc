@@ -13,6 +13,8 @@ build:ci --noapple_generate_dsym
 build:ci --test_output=errors
 # Saturate all available cores on the runner.
 build:ci --jobs=HOST_CPUS
+# Enforce strict lockfile mode in CI to prevent stealth dependency drift.
+build:ci --lockfile_mode=error
 # Separate content-addressed cache for downloaded external repos.
 # Keyed on MODULE.bazel + Package.resolved so it survives BUILD file changes.
 build:ci --repository_cache=~/.cache/bazel-repos

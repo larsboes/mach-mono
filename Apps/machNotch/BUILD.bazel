@@ -1,5 +1,5 @@
 load("@rules_swift//swift:swift.bzl", "swift_library", "swift_test")
-load("@rules_apple//apple:macos.bzl", "macos_application", "macos_unit_test")
+load("@rules_apple//apple:macos.bzl", "macos_application", "macos_unit_test", "macos_xpc_service")
 load("@rules_apple//apple:resources.bzl", "apple_resource_group")
 load("@rules_apple//apple:apple.bzl", "apple_dynamic_framework_import")
 
@@ -91,10 +91,18 @@ macos_unit_test(
     deps = [":machNotchTests_Lib"],
 )
 
-# TODO: Embed MachNotchXPCHelper as an XPC service bundle.
-# MachNotchXPCHelper_Lib is compiled separately for now to surface errors.
-# Full embedding requires wiring via xpc_services attribute once rules_apple
-# supports this cleanly.
+macos_xpc_service(
+    name = "MachNotchXPCHelper",
+    bundle_id = "com.larsboes.machNotch.MachNotchXPCHelper",
+    infoplists = [
+        "MachNotchXPCHelper/Info.plist",
+        "MachNotchXPCHelper/bazel_xpc_info.plist",
+    ],
+    minimum_os_version = "26.0",
+    entitlements = "MachNotchXPCHelper/MachNotchXPCHelper.entitlements",
+    deps = [":MachNotchXPCHelper_Lib"],
+)
+
 macos_application(
     name = "machNotch",
     bundle_id = "com.larsboes.machNotch",
@@ -103,7 +111,9 @@ macos_application(
         "bazel_info.plist",
     ],
     minimum_os_version = "26.0",
+    entitlements = "machNotch/machNotch.entitlements",
     deps = [":machNotch_App"],
     resources = [":machNotch_Resources"],
+    xpc_services = [":MachNotchXPCHelper"],
     visibility = ["//visibility:public"],
 )
