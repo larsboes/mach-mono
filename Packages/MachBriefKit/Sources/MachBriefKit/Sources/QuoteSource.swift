@@ -7,9 +7,14 @@ public struct QuoteSource: BriefSource {
     private let scheduler: DailyScheduler
     private let quotes: [QuoteItem]
 
-    public init(scheduler: DailyScheduler = DailyScheduler(), quotes: [QuoteItem]? = nil) {
+    public init(
+        scheduler: DailyScheduler = DailyScheduler(),
+        language: BriefLanguage = .english,
+        quotes: [QuoteItem]? = nil
+    ) {
         self.scheduler = scheduler
-        self.quotes = quotes ?? BundleJSON.load("quotes", fallback: Self.fallbackQuotes)
+        let resourceName = language.id == "de" ? "quotes_de" : "quotes"
+        self.quotes = quotes ?? BundleJSON.load(resourceName, fallback: Self.fallbackQuotes)
     }
 
     public func entry(for slot: DailySlot, date: Date) async -> BriefEntry {
