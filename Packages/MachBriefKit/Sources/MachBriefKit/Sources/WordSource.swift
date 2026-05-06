@@ -29,18 +29,21 @@ public struct WordSource: BriefSource {
     private let scheduler: DailyScheduler
     private let words: [WordItem]
     private let dictionaryClient: any DictionaryAPIClientProtocol
+    private let entryCache: DictionaryEntryCache
     private let language: BriefLanguage
 
     public init(
         scheduler: DailyScheduler = DailyScheduler(),
         dictionaryClient: any DictionaryAPIClientProtocol = DictionaryAPIClient(),
         language: BriefLanguage = .english,
+        entryCache: DictionaryEntryCache = .shared,
         words: [WordItem]? = nil,
         customWordsURL: URL? = nil
     ) {
         self.scheduler = scheduler
         self.dictionaryClient = dictionaryClient
         self.language = language
+        self.entryCache = entryCache
         self.words = words
             ?? Self.loadCustomWords(from: customWordsURL)
             ?? BundleJSON.load(language.wordResourceName, fallback: Self.fallbackWords(for: language))
@@ -49,23 +52,45 @@ public struct WordSource: BriefSource {
     public func entry(for slot: DailySlot, date: Date) async -> BriefEntry {
         let seed = scheduler.stableSeed(for: date, slot: slot, sourceID: id)
         let item = words[seed % max(words.count, 1)]
-        let enriched = await dictionaryClient.lookup(word: item.word, languageCode: language.dictionaryCode)
-        let partOfSpeech = enriched?.partOfSpeech ?? item.partOfSpeech
-        let definition = enriched?.definition ?? item.definition
-        let phonetic = enriched?.phonetic ?? item.phonetic
-        let example = enriched?.example ?? item.example
-        return BriefEntry(
+
+        // 1. Cache hit — no network needed
+        if let cached = await entryCache.lookup(word: item.word, languageCode: language.dictionaryCode) {
+            return makeEntry(from: cached, slot: slot, date: date)
+        }
+
+        // 2. Live API — enriches definition, phonetic, part-of-speech, example
+        let api = await dictionaryClient.lookup(word: item.word, languageCode: language.dictionaryCode)
+
+        let resolved = WordItem(
+            word: item.word,
+            definition: api?.definition ?? item.definition,
+            partOfSpeech: api?.partOfSpeech ?? item.partOfSpeech,
+            phonetic: api?.phonetic ?? item.phonetic,
+            example: api?.example ?? item.example
+        )
+
+        // Cache only when API succeeded — offline fallback stays uncached
+        if api != nil {
+            await entryCache.store(resolved, languageCode: language.dictionaryCode)
+        }
+
+        return makeEntry(from: resolved, slot: slot, date: date)
+    }
+
+    private func makeEntry(from item: WordItem, slot: DailySlot, date: Date) -> BriefEntry {
+        BriefEntry(
             sourceID: id,
             slot: slot,
             title: item.word,
-            subtitle: [partOfSpeech.map { "(\($0).)" }, phonetic].compactMap { $0 }.joined(separator: " "),
-            body: definition,
+            subtitle: [item.partOfSpeech.map { "(\($0).)" }, item.phonetic]
+                .compactMap { $0 }.joined(separator: " "),
+            body: item.definition,
             metadata: [
                 "kind": "word",
                 "language": language.id,
-                "partOfSpeech": partOfSpeech ?? "",
-                "phonetic": phonetic ?? "",
-                "example": example ?? "",
+                "partOfSpeech": item.partOfSpeech ?? "",
+                "phonetic": item.phonetic ?? "",
+                "example": item.example ?? "",
             ].filter { !$0.value.isEmpty },
             revealedAt: date
         )
@@ -77,30 +102,23 @@ extension WordSource {
         guard let url,
               let data = try? Data(contentsOf: url),
               let words = try? JSONDecoder().decode([WordItem].self, from: data),
-              !words.isEmpty else {
-            return nil
-        }
+              !words.isEmpty else { return nil }
         return words
     }
 
     static func fallbackWords(for language: BriefLanguage) -> [WordItem] {
-        switch language.id {
-        case "de":
-            return fallbackGermanWords
-        default:
-            return fallbackWords
-        }
+        language.id == "de" ? fallbackGermanWords : fallbackEnglishWords
     }
 
-    static let fallbackWords: [WordItem] = [
-        .init(word: "serendipity", definition: "The occurrence of events by chance in a happy way.", partOfSpeech: "noun", phonetic: "/ˌserənˈdipədē/", example: "A little serendipity led her to the right book."),
-        .init(word: "lucid", definition: "Expressed clearly; easy to understand.", partOfSpeech: "adjective", phonetic: "/ˈlo͞osəd/", example: "His lucid explanation made the idea feel simple."),
-        .init(word: "steadfast", definition: "Resolutely or dutifully firm and unwavering.", partOfSpeech: "adjective", phonetic: "/ˈstedˌfast/", example: "She stayed steadfast through the long revision.")
+    static let fallbackEnglishWords: [WordItem] = [
+        .init(word: "serendipity", definition: "The occurrence of events by chance in a happy way.", partOfSpeech: "noun"),
+        .init(word: "lucid", definition: "Expressed clearly; easy to understand.", partOfSpeech: "adjective"),
+        .init(word: "steadfast", definition: "Resolutely firm and unwavering.", partOfSpeech: "adjective"),
     ]
 
     static let fallbackGermanWords: [WordItem] = [
-        .init(word: "Fernweh", definition: "Die Sehnsucht nach fernen Orten und neuen Erfahrungen.", partOfSpeech: "Substantiv", phonetic: "/FEHRN-vey/", example: "Nach dem langen Winter spuerte sie wieder Fernweh."),
-        .init(word: "achtsam", definition: "Bewusst aufmerksam, ruhig und gegenwaertig.", partOfSpeech: "Adjektiv", phonetic: "/AKHT-zahm/", example: "Ein achtsamer Morgen veraendert den ganzen Tag."),
-        .init(word: "zuversichtlich", definition: "Von Vertrauen und positiver Erwartung getragen.", partOfSpeech: "Adjektiv", phonetic: "/TSOO-fer-zikh-tlikh/", example: "Er blieb zuversichtlich, obwohl der Weg offen war.")
+        .init(word: "Fernweh", definition: "Die Sehnsucht nach fernen Orten und neuen Erfahrungen.", partOfSpeech: "Substantiv"),
+        .init(word: "achtsam", definition: "Bewusst aufmerksam, ruhig und gegenwärtig.", partOfSpeech: "Adjektiv"),
+        .init(word: "Augenblick", definition: "Der gegenwärtige Moment; ein flüchtiger Zeitpunkt.", partOfSpeech: "Substantiv"),
     ]
 }
