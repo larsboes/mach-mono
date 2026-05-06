@@ -243,7 +243,6 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
         // Emit events when playback state changes + drive audio capture.
         // Prepend current state so capture starts immediately if music is already playing.
         service.playbackStatePublisher
-            .prepend(service.playbackState)
             .sink { [weak self] playbackState in
                 guard let self = self else { return }
                 let event = MusicPlaybackChangedEvent(

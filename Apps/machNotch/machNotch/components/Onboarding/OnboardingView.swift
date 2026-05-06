@@ -28,13 +28,41 @@ struct OnboardingView: View {
     let onFinish: () -> Void
     let onOpenSettings: () -> Void
 
+    func advanceAfterRequest(_ permission: PermissionType, next: OnboardingStep) async {
+        await PermissionStateStore.shared.markRequested(permission)
+        withAnimation(.easeInOut(duration: 0.6)) { step = next }
+    }
+
+    func checkPermissionAndAdvance(_ permission: PermissionType, next: OnboardingStep) async {
+        if await PermissionStateStore.shared.hasRequested(permission) {
+            withAnimation(.easeInOut(duration: 0.6)) { step = next }
+        } else {
+            // Logic to stay on current step to request
+        }
+    }
+
     var body: some View {
         ZStack {
             switch step {
             case .welcome:
                 WelcomeView {
-                    withAnimation(.easeInOut(duration: 0.6)) {
-                        step = .cameraPermission
+                    Task {
+                        let permissions: [(PermissionType, OnboardingStep)] = [
+                            (.camera, .cameraPermission),
+                            (.calendar, .calendarPermission),
+                            (.reminders, .remindersPermission),
+                            (.weather, .weatherPermission),
+                            (.accessibility, .accessibilityPermission)
+                        ]
+                        
+                        var nextStep: OnboardingStep = .musicPermission
+                        for (perm, s) in permissions.reversed() {
+                            if !(await PermissionStateStore.shared.hasRequested(perm)) {
+                                nextStep = s
+                            }
+                        }
+                        
+                        withAnimation(.easeInOut(duration: 0.6)) { step = nextStep }
                     }
                 }
                 .transition(.opacity)
@@ -48,15 +76,11 @@ struct OnboardingView: View {
                     onAllow: {
                         Task {
                             await requestCameraPermission()
-                            withAnimation(.easeInOut(duration: 0.6)) {
-                                step = .calendarPermission
-                            }
+                            await advanceAfterRequest(.camera, next: .calendarPermission)
                         }
                     },
                     onSkip: {
-                        withAnimation(.easeInOut(duration: 0.6)) {
-                            step = .calendarPermission
-                        }
+                        Task { await advanceAfterRequest(.camera, next: .calendarPermission) }
                     }
                 )
                 .transition(.opacity)
@@ -69,16 +93,12 @@ struct OnboardingView: View {
                     privacyNote: "Your calendar data is only used to show your events and is never shared.",
                     onAllow: {
                         Task {
-                                await requestCalendarPermission()
-                                withAnimation(.easeInOut(duration: 0.6)) {
-                                    step = .remindersPermission
-                                }
+                            await requestCalendarPermission()
+                            await advanceAfterRequest(.calendar, next: .remindersPermission)
                         }
                     },
                     onSkip: {
-                            withAnimation(.easeInOut(duration: 0.6)) {
-                                step = .remindersPermission
-                            }
+                        Task { await advanceAfterRequest(.calendar, next: .remindersPermission) }
                     }
                 )
                 .transition(.opacity)
@@ -92,15 +112,11 @@ struct OnboardingView: View {
                         onAllow: {
                             Task {
                                 await requestRemindersPermission()
-                                withAnimation(.easeInOut(duration: 0.6)) {
-                                    step = .weatherPermission
-                                }
+                                await advanceAfterRequest(.reminders, next: .weatherPermission)
                             }
                         },
                         onSkip: {
-                            withAnimation(.easeInOut(duration: 0.6)) {
-                                step = .weatherPermission
-                            }
+                            Task { await advanceAfterRequest(.reminders, next: .weatherPermission) }
                         }
                     )
                     .transition(.opacity)
@@ -114,15 +130,11 @@ struct OnboardingView: View {
                         onAllow: {
                             Task {
                                 requestWeatherPermission()
-                                withAnimation(.easeInOut(duration: 0.6)) {
-                                    step = .accessibilityPermission
-                                }
+                                await advanceAfterRequest(.weather, next: .accessibilityPermission)
                             }
                         },
                         onSkip: {
-                            withAnimation(.easeInOut(duration: 0.6)) {
-                                step = .accessibilityPermission
-                            }
+                            Task { await advanceAfterRequest(.weather, next: .accessibilityPermission) }
                         }
                     )
                     .transition(.opacity)
@@ -136,15 +148,11 @@ struct OnboardingView: View {
                     onAllow: {
                         Task {
                             await requestAccessibilityPermission()
-                            withAnimation(.easeInOut(duration: 0.6)) {
-                                step = .musicPermission
-                            }
+                            await advanceAfterRequest(.accessibility, next: .musicPermission)
                         }
                     },
                     onSkip: {
-                        withAnimation(.easeInOut(duration: 0.6)) {
-                            step = .musicPermission
-                        }
+                        Task { await advanceAfterRequest(.accessibility, next: .musicPermission) }
                     }
                 )
                 .transition(.opacity)

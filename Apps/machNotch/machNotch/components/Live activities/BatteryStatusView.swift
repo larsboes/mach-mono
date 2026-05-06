@@ -30,10 +30,8 @@ struct BatteryView: View {
             return .yellow
         } else if levelBattery <= 20 && !isCharging && !isPluggedIn {
             return .red
-        } else if isCharging || isPluggedIn || levelBattery == 100 {
-            return .green
         } else {
-            return .white
+            return .green
         }
     }
 

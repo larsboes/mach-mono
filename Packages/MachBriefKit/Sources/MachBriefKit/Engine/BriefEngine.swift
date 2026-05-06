@@ -25,6 +25,8 @@ public struct BriefEngine: Sendable {
         if sourceID == "word" {
             let customURL = settings.customWordListPath.map { URL(fileURLWithPath: $0) }
             return await WordSource(language: settings.wordLanguage, customWordsURL: customURL).entry(for: slot, date: date)
+        } else if sourceID == "mood" {
+            return await MoodCheckInSource(language: settings.wordLanguage).entry(for: slot, date: date)
         }
         let source = sources[sourceID] ?? sources["quote"] ?? QuoteSource()
         return await source.entry(for: slot, date: date)
