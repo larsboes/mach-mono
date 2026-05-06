@@ -265,7 +265,10 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
                     track: self.musicService?.currentTrack
                 )
                 self.eventBus?.emit(event)
-                let t = Task { @MainActor [weak self] in
+                // Task.detached breaks task-local inheritance from XCTest's _observeErrors
+                // context, preventing _swift_task_dealloc_specific LIFO order violations
+                // on macOS 26 beta when this task outlives the test's async setUp teardown.
+                let t = Task.detached { @MainActor [weak self] in
                     guard !Task.isCancelled, let self else { return }
                     if playbackState.isPlaying {
                         await self.startAudioCapture()

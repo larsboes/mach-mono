@@ -35,7 +35,7 @@ extension NotchViewModel {
 
                 if notchState == .closed {
                     withAnimation(.smooth) {
-                        hideOnClosed = shouldHide
+                        self.hideOnClosed = shouldHide
                     }
                 } else {
                     hideOnClosed = shouldHide

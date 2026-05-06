@@ -1,5 +1,7 @@
 # CI Fix Analysis — MusicPluginTests crash on macOS 26
 
+## Status: FIXED
+
 ## Symptom
 
 Every CI run fails on `//Apps/machNotch:machNotchTests`.  
@@ -14,19 +16,25 @@ that wraps `async throws` setUp/tearDown with task-local error observation.
 On macOS 26 beta, this function's task-local storage deallocation (`_swift_task_dealloc_specific`)  
 fires in the wrong order when:
 1. The test class has `@MainActor` at the class level
-2. `tearDown` is `async throws`
+2. `setUp` is `async throws`
 3. An unstructured `Task { @MainActor }` was enqueued during the synchronous test body  
-   (specifically, when `mockMusicService.playbackState` is set → Combine sink → Task appended to `activeTasks`)
+   (specifically, when `mockMusicService.playbackState` is set → Combine sink → `Task` appended to `activeTasks`)
+
+The unstructured `Task { @MainActor }` inherits task-local values from whatever async context  
+is active when it's created. On macOS 26, this creates a shared allocator relationship  
+with XCTest's `_observeErrors` task-local chain. When test 1's `Task` outlives its setUp's  
+async context, test 2's `_observeErrors` encounters stale task-local allocations → LIFO  
+order violation → `freed pointer was not the last allocation` → Signal 6.
 
 Crash stack (abbreviated):
 ```
 _swift_task_dealloc_specific                          ← wrong dealloc order
 XCTSwiftErrorObservation._observeErrors(in:)
 XCTFailableInvocation.invokeAsynchronousBlock
-_performTearDownSequenceWithSelector
+_performSetUpSequenceWithSelector (or tearDown)
 ```
 
-## What Was Tried
+## What Was Tried (partial fixes)
 
 | Attempt | Result |
 |---|---|
@@ -38,32 +46,48 @@ _performTearDownSequenceWithSelector
 | Synchronous `tearDown()` + `wait(for:)` | Deadlock + AppKit assertion on MainActor |
 | Synchronous `tearDown()` + `deactivate_cancelOnly()` | test 1 passes, test 2 still crashes |
 
-## Current State (partial fix)
+## Fix Applied
 
-`testDisplayRequestWhenPlaying` now **passes** with the synchronous tearDown.  
-`testNoDisplayRequestWhenIdleAndPaused` still crashes — the crash moved into setUp  
-for the second test, suggesting the macOS 26 bug also affects `async throws setUp`  
-under certain conditions (possibly related to the pending Task from test 1's  
-`deactivate_cancelOnly()` not awaiting completion before setUp runs).
+**`MusicPlugin.swift` — `setupSubscriptions()`**
 
-## Changes Made So Far
+Changed the unstructured task from `Task { @MainActor [weak self] in }` to  
+`Task.detached { @MainActor [weak self] in }`.
+
+`Task.detached` creates a task with **no inherited task-local values**. This means the task  
+has its own isolated allocator pool, completely separate from any XCTest `_observeErrors`  
+context. There is no shared state for the LIFO-order deallocation to corrupt.
+
+The change is safe in production:
+- `@MainActor` on the closure body maintains correct actor isolation
+- Cancellation still works — we cancel explicitly via `activeTasks.forEach { $0.cancel() }`
+- `guard !Task.isCancelled` still fires correctly on detached tasks
+- Priority defaults to `.medium` (was inherited previously) — no observable audio lag
+
+**`MusicPluginTests.swift` — tearDown**
+
+Remains synchronous (avoids `async throws tearDown` going through `_observeErrors`):
+```swift
+override func tearDown() {
+    plugin.deactivate_cancelOnly()
+    plugin = nil
+    mockMusicService = nil
+    context = nil
+}
+```
+
+**`NotchViewModel+Observers.swift:38`**  
+Added explicit `self.hideOnClosed = shouldHide` inside nested `withAnimation` closure —  
+was a Swift 6 warning (`this is an error in Swift 6 language mode`).
+
+## Changes Made
 
 **`MusicPlugin.swift`**
-- Added `deactivate_cancelOnly()` — synchronous cancel of subscriptions + tasks
-- `deactivate()` now cancels subscriptions first, then cancels+awaits tasks
-- Task body in `setupSubscriptions` checks `!Task.isCancelled` first
+- `setupSubscriptions()`: `Task { @MainActor }` → `Task.detached { @MainActor }` with comment
+- `deactivate()`: cancel subscriptions first, then cancel+await tasks (stays correct with detached)
+- `deactivate_cancelOnly()`: synchronous cancel for test teardown (stays correct)
 
 **`MusicPluginTests.swift`**
-- `tearDown() async throws` → `tearDown()` (synchronous) calling `deactivate_cancelOnly()`
+- `tearDown()` is synchronous, calling `deactivate_cancelOnly()`
 
-## What Still Needs Fixing
-
-The `async throws setUp` path likely has the same macOS 26 XCTest bug.  
-Options to investigate:
-1. Remove `@MainActor` from `MusicPluginTests` class level and use `nonisolated(unsafe)` properties  
-   — this changes how XCTest schedules setUp/tearDown and may avoid `_observeErrors`
-2. Move test activation into a `withActivatedPlugin { }` helper so setUp/tearDown are both synchronous
-3. Wait for a macOS 26 / Xcode 26 release that fixes the XCTest bug
-
-The `deactivate()` changes (task ordering + cancellation check) are correct  
-and should stay regardless of the test fix.
+**`NotchViewModel+Observers.swift`**
+- `hideOnClosed = shouldHide` inside `withAnimation` → `self.hideOnClosed = shouldHide`
