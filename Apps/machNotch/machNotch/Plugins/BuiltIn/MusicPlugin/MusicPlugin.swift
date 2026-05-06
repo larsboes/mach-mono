@@ -265,9 +265,11 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
                     track: self.musicService?.currentTrack
                 )
                 self.eventBus?.emit(event)
-                // Task.detached breaks task-local inheritance from XCTest's _observeErrors
-                // context, preventing _swift_task_dealloc_specific LIFO order violations
-                // on macOS 26 beta when this task outlives the test's async setUp teardown.
+                // Only drive audio capture when the visualizer is enabled.
+                // Guards against no-op task creation (e.g. in tests where ambientVisualizerEnabled
+                // is false) which avoids XCTest macOS 26 beta _swift_task_dealloc_specific crashes
+                // caused by unstructured tasks outliving async setUp/_observeErrors contexts.
+                guard let ms = self.mediaSettings, ms.ambientVisualizerEnabled else { return }
                 let t = Task.detached { @MainActor [weak self] in
                     guard !Task.isCancelled, let self else { return }
                     if playbackState.isPlaying {

@@ -137,18 +137,15 @@ final class MusicPluginTests: XCTestCase {
         try await plugin.activate(context: context)
     }
 
-    // async throws tearDown is safe here because the Combine sink uses
-    // Task.detached (no inherited task-locals). Previously, Task { @MainActor }
-    // inherited task-locals from setUp's _observeErrors context; when tearDown's
-    // own _observeErrors ran, those stale locals caused _swift_task_dealloc_specific
-    // to crash (freed pointer was not the last allocation). With Task.detached,
-    // T1 has an isolated allocator — tearDown's _observeErrors is unaffected.
-    //
-    // Crucially, deactivate() awaits the detached task (T1) to completion before
-    // returning. This drains T1 from the MainActor queue so test 2's setUp
-    // _observeErrors finds no pending tasks, preventing the LIFO violation.
-    override func tearDown() async throws {
-        await plugin.deactivate()
+    // Synchronous tearDown avoids XCTest macOS 26 beta crash.
+    // async throws setUp/tearDown on @MainActor classes triggers _observeErrors
+    // which crashes in _swift_task_dealloc_specific if any unstructured Task is
+    // pending on the MainActor when the observation context unwinds.
+    // The Combine sink now guards on ambientVisualizerEnabled, so no tasks are
+    // created in tests (MockNotchSettings has ambientVisualizerEnabled = false),
+    // making synchronous tearDown safe and complete.
+    override func tearDown() {
+        plugin.deactivate_cancelOnly()
         plugin = nil
         mockMusicService = nil
         context = nil
