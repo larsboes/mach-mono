@@ -19,8 +19,6 @@ final class ShelfService: ShelfServiceProtocol {
         didSet { schedulePersistence() }
     }
     
-    let selection = ShelfSelectionModel()
-    
     var isLoading: Bool = false
     
     var isEmpty: Bool { items.isEmpty }

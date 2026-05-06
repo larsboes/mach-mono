@@ -213,11 +213,13 @@ struct CalendarEventStartingSoonEvent: PluginEvent {
     let type = PluginEventType.calendarEventStartingSoon
     let sourcePluginId = PluginID.calendar
     let timestamp = Date()
-    let event: EventModel
+    let eventId: String
+    let eventTitle: String
     let startsIn: TimeInterval
 
-    init(event: EventModel, startsIn: TimeInterval) {
-        self.event = event
+    init(eventId: String, eventTitle: String, startsIn: TimeInterval) {
+        self.eventId = eventId
+        self.eventTitle = eventTitle
         self.startsIn = startsIn
     }
 }
@@ -227,10 +229,12 @@ struct ShelfItemAddedEvent: PluginEvent {
     let type = PluginEventType.shelfItemAdded
     let sourcePluginId = PluginID.shelf
     let timestamp = Date()
-    let item: ShelfItem
+    let itemId: UUID
+    let itemDisplayName: String
 
-    init(item: ShelfItem) {
-        self.item = item
+    init(itemId: UUID, itemDisplayName: String) {
+        self.itemId = itemId
+        self.itemDisplayName = itemDisplayName
     }
 }
 

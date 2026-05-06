@@ -29,6 +29,8 @@ import SwiftUI
     let services: any NotchServiceProvider
     var shelfService: ShelfServiceProtocol?
 
+    let uiContext = PluginUIContext()
+
     weak var window: NSWindow?
 
     // MARK: - Navigation (per-screen; multi-display independent)
@@ -91,10 +93,22 @@ import SwiftUI
 
     // MARK: - Drag / drop targeting
 
-    var dragDetectorTargeting: Bool = false
+    var dragDetectorTargeting: Bool {
+        get { uiContext.dragDetectorTargeting }
+        set { uiContext.dragDetectorTargeting = newValue }
+    }
+    
     var generalDropTargeting: Bool = false
-    var dropZoneTargeting: Bool = false
-    var dropEvent: Bool = false
+    
+    var dropZoneTargeting: Bool {
+        get { uiContext.dropZoneTargeting }
+        set { uiContext.dropZoneTargeting = newValue }
+    }
+    
+    var dropEvent: Bool {
+        get { uiContext.dropEvent }
+        set { uiContext.dropEvent = newValue }
+    }
 
     var anyDropZoneTargeting: Bool {
         dropZoneTargeting || dragDetectorTargeting || generalDropTargeting
@@ -207,6 +221,11 @@ import SwiftUI
             settings: displaySettings,
             screenUUID: screenUUID
         )
+        
+        uiContext.notchSize = sizeCalculator.notchSize
+        uiContext.closedNotchSize = sizeCalculator.closedNotchSize
+        uiContext.notchState = notchState
+        uiContext.phase = phase
 
         hoverController.updateHoverZone(screenUUID: screenUUID)
 
@@ -268,6 +287,9 @@ import SwiftUI
     }
 
     func syncAnimationState(animated: Bool = false) {
+        uiContext.phase = phase
+        uiContext.notchState = notchState
+        
         guard !phase.isTransitioning else { return }
 
         let targetProgress: CGFloat = phase.isVisible ? 1 : 0

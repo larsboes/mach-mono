@@ -2,11 +2,11 @@
 //  Constants.swift
 //  machNotch
 //
-//  App infrastructure constants — paths, spacing, notification names, data types.
+//  App infrastructure constants — paths, notification names, data types.
 //
 
-import SwiftUI
 import Defaults
+import Foundation
 
 // MARK: - File System Paths
 let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first

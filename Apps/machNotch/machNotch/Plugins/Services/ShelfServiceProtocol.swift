@@ -15,9 +15,6 @@ protocol ShelfServiceProtocol: Observable, Sendable {
     /// The current list of items in the shelf
     var items: [ShelfItem] { get }
     
-    /// The selection model for shelf items
-    var selection: ShelfSelectionModel { get }
-    
     /// Image processor helper
     var imageProcessor: any ShelfImageProcessorProtocol { get }
     
