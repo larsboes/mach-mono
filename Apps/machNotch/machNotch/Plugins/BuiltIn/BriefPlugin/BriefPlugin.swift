@@ -2,7 +2,7 @@
 //  BriefPlugin.swift
 //  machNotch
 //
-//  Daily text brief — deterministic per-slot entry shown in the closed notch.
+//  Daily text brief — word, quote, fact, and mantra shown in a 4-panel hover view.
 //
 
 import MachBriefKit
@@ -17,7 +17,7 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
 
     let metadata = PluginMetadata(
         name: "Brief",
-        description: "Shows the current mach.brief word, fact, quote, mantra, or mood prompt.",
+        description: "Word, quote, fact, and mantra — all in one hover panel.",
         icon: "text.book.closed",
         category: .productivity
     )
@@ -26,8 +26,9 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
     private(set) var state: PluginState = .inactive
     var closedNotchPosition: ClosedNotchPosition { .right }
 
-    private var cachedEntry: BriefEntry?
+    private(set) var allEntries: [String: BriefEntry] = [:]
     private let engine = BriefEngine()
+    private let panelSources = ["word", "quote", "fact", "mantra"]
     @ObservationIgnored private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Lifecycle
@@ -35,34 +36,44 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
     func activate(context: PluginContext) async throws {
         _ = context
         state = .activating
-        await reloadEntry()
+        await reloadEntries()
         state = .active
-        
+
         NotificationCenter.default.publisher(for: NSNotification.Name("briefSettingsDidChange"))
             .sink { [weak self] _ in
-                Task { @MainActor in
-                    await self?.reloadEntry()
-                }
+                Task { @MainActor in await self?.reloadEntries() }
             }
             .store(in: &cancellables)
     }
 
     func deactivate() async {
         cancellables.removeAll()
-        cachedEntry = nil
+        allEntries = [:]
         state = .inactive
     }
-    
-    private func reloadEntry() async {
+
+    private func reloadEntries() async {
         let now = Date()
         let settings = BriefSettingsCoding.load()
-        cachedEntry = await engine.entry(for: now, settings: settings)
+        var fetched: [String: BriefEntry] = [:]
+        await withTaskGroup(of: (String, BriefEntry).self) { group in
+            for sourceID in panelSources {
+                group.addTask {
+                    let entry = await self.engine.entry(for: sourceID, date: now, settings: settings)
+                    return (sourceID, entry)
+                }
+            }
+            for await (sourceID, entry) in group {
+                fetched[sourceID] = entry
+            }
+        }
+        allEntries = fetched
     }
 
     // MARK: - Display
 
     var displayRequest: DisplayRequest? {
-        guard isEnabled, state.isActive, cachedEntry != nil else { return nil }
+        guard isEnabled, state.isActive, !allEntries.isEmpty else { return nil }
         return DisplayRequest(priority: .background, category: DisplayRequest.utility)
     }
 
@@ -75,11 +86,11 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
 
     @ViewBuilder
     func closedNotchContent() -> some View {
-        if let entry = cachedEntry {
+        if let entry = allEntries["word"] {
             HStack(spacing: 6) {
-                Image(systemName: BriefSourceRegistry.descriptor(for: entry.sourceID).systemImage)
+                Image(systemName: "textformat.abc")
                     .font(.caption)
-                Text(entry.sourceID == "word" ? entry.title.lowercased() : entry.title)
+                Text(entry.title.lowercased())
                     .font(.caption)
                     .lineLimit(1)
             }
@@ -89,55 +100,6 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
 
     @ViewBuilder
     func expandedPanelContent() -> some View {
-        if let entry = cachedEntry {
-            if entry.sourceID == "word" {
-                VStack(alignment: .leading, spacing: 10) {
-                    Label("Word of the day", systemImage: "textformat.abc")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Color(red: 0.45, green: 0.58, blue: 0.55))
-                    Text(entry.title.lowercased())
-                        .font(.system(size: 34, weight: .bold, design: .serif))
-                    if let subtitle = entry.subtitle, !subtitle.isEmpty {
-                        Text(subtitle)
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                    }
-                    if let body = entry.body, !body.isEmpty {
-                        Text(body)
-                            .font(.callout)
-                            .foregroundStyle(.primary)
-                    }
-                    if let example = entry.metadata["example"] {
-                        Text(example)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .padding(.top, 4)
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .padding(16)
-            } else {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(BriefSourceRegistry.descriptor(for: entry.sourceID).displayName)
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                    Text(entry.title)
-                        .font(.headline)
-                    if let subtitle = entry.subtitle, !subtitle.isEmpty {
-                        Text(subtitle)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    if let body = entry.body, !body.isEmpty {
-                        Text(body)
-                            .font(.callout)
-                            .foregroundStyle(.primary)
-                            .padding(.top, 4)
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .padding(16)
-            }
-        }
+        BriefExpandedView(entries: allEntries, sources: panelSources)
     }
 }

@@ -20,8 +20,17 @@ public struct BriefEngine: Sendable {
         await entry(for: scheduler.slot(for: date), date: date, settings: settings)
     }
 
+    public func entry(for sourceID: String, date: Date, settings: BriefSettings) async -> BriefEntry {
+        let slot = scheduler.slot(for: date)
+        return await resolvedEntry(sourceID: sourceID, slot: slot, date: date, settings: settings)
+    }
+
     public func entry(for slot: DailySlot, date: Date, settings: BriefSettings) async -> BriefEntry {
         let sourceID = settings.sourceID(for: slot)
+        return await resolvedEntry(sourceID: sourceID, slot: slot, date: date, settings: settings)
+    }
+
+    private func resolvedEntry(sourceID: String, slot: DailySlot, date: Date, settings: BriefSettings) async -> BriefEntry {
         if sourceID == "word" {
             let customURL = settings.customWordListPath.map { URL(fileURLWithPath: $0) }
             return await WordSource(language: settings.wordLanguage, customWordsURL: customURL).entry(for: slot, date: date)
