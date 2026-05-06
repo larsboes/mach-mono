@@ -1,6 +1,6 @@
 # CI Fix Analysis — MusicPluginTests crash on macOS 26
 
-## Status: FIXED
+## Status: FIXED (two-part fix applied)
 
 ## Symptom
 
@@ -11,83 +11,87 @@ Every CI run fails on `//Apps/machNotch:machNotchTests`.
 
 **macOS 26 / Xcode 26 beta bug in XCTest.**
 
-`XCTSwiftErrorObservation._observeErrors(in:)` is XCTest's internal mechanism  
-that wraps `async throws` setUp/tearDown with task-local error observation.  
-On macOS 26 beta, this function's task-local storage deallocation (`_swift_task_dealloc_specific`)  
-fires in the wrong order when:
-1. The test class has `@MainActor` at the class level
-2. `setUp` is `async throws`
-3. An unstructured `Task { @MainActor }` was enqueued during the synchronous test body  
-   (specifically, when `mockMusicService.playbackState` is set → Combine sink → `Task` appended to `activeTasks`)
-
-The unstructured `Task { @MainActor }` inherits task-local values from whatever async context  
-is active when it's created. On macOS 26, this creates a shared allocator relationship  
-with XCTest's `_observeErrors` task-local chain. When test 1's `Task` outlives its setUp's  
-async context, test 2's `_observeErrors` encounters stale task-local allocations → LIFO  
-order violation → `freed pointer was not the last allocation` → Signal 6.
-
-Crash stack (abbreviated):
+Crash stack:
 ```
-_swift_task_dealloc_specific                          ← wrong dealloc order
+_swift_task_dealloc_specific
 XCTSwiftErrorObservation._observeErrors(in:)
 XCTFailableInvocation.invokeAsynchronousBlock
-_performSetUpSequenceWithSelector (or tearDown)
+_shouldContinueAfterPerformingSetUpSequenceWithSelector
 ```
 
-## What Was Tried (partial fixes)
+`_observeErrors(in:)` allocates a task-local slot and expects to free it LIFO. The crash
+"freed pointer was not the last allocation" means `_observeErrors` is trying to free
+its slot, but a NEWER allocation is still live on the same task's local-storage stack.
 
-| Attempt | Result |
-|---|---|
-| Cancel + removeAll in deactivate | No change — crash still in tearDown |
-| `guard !Task.isCancelled` in task body | No change — tasks aren't the root cause |
-| Cancel subscriptions before tasks in deactivate | No change |
-| Await tasks (`for task in tasks { _ = await task.value }`) | No change |
-| `tearDown() async` (drop throws) | Compile error — base class is `async throws` |
-| Synchronous `tearDown()` + `wait(for:)` | Deadlock + AppKit assertion on MainActor |
-| Synchronous `tearDown()` + `deactivate_cancelOnly()` | test 1 passes, test 2 still crashes |
+**Two-part mechanism:**
+
+1. `testDisplayRequestWhenPlaying` body sets `mockMusicService.playbackState = PlaybackState(isPlaying: true)`.
+   This fires the Combine publisher → `setupSubscriptions()` sink → an unstructured
+   `Task { @MainActor }` (T1) is created and appended to `activeTasks`.
+
+2. T1 was created with `Task { }` — it **inherits task-local values** from the enclosing
+   async context (setUp's `_observeErrors` chain). This creates a linked reference from
+   T1's task-local storage into setUp's task-local allocator.
+
+3. Synchronous tearDown cancelled T1 but didn't AWAIT it. T1 was still pending on the
+   MainActor queue when test 2's setUp started.
+
+4. Test 2's setUp `_observeErrors` allocates a new slot. T1 is still alive and its
+   inherited task-local reference points into a reused/corrupted portion of the
+   task-local arena. When `_observeErrors` tries to free its slot (LIFO), the allocator
+   finds the ordering wrong → CRASH.
+
+## Why Task.detached Alone Didn't Fix It
+
+Changing to `Task.detached` breaks task-local inheritance (T1 gets an isolated allocator).
+This makes tearDown's `_observeErrors` safe. But T1 is still **pending on the MainActor
+queue** when test 2 setUp starts. The crash still occurs during test 2's setUp
+`_observeErrors` because T1, while detached, somehow still conflicts with the
+allocator ordering when it runs concurrently during `_observeErrors`'s cleanup.
+
+The correct fix requires BOTH parts:
 
 ## Fix Applied
 
-**`MusicPlugin.swift` — `setupSubscriptions()`**
+### Part 1: Task.detached in setupSubscriptions()
 
-Changed the unstructured task from `Task { @MainActor [weak self] in }` to  
+`MusicPlugin.swift` — changed `Task { @MainActor [weak self] in }` to  
 `Task.detached { @MainActor [weak self] in }`.
 
-`Task.detached` creates a task with **no inherited task-local values**. This means the task  
-has its own isolated allocator pool, completely separate from any XCTest `_observeErrors`  
-context. There is no shared state for the LIFO-order deallocation to corrupt.
+`Task.detached` creates a task with NO inherited task-locals. This makes T1's allocator
+completely isolated from any XCTest `_observeErrors` chain. Teardown's `_observeErrors`
+is no longer corrupted by T1's presence while T1 is pending.
 
-The change is safe in production:
-- `@MainActor` on the closure body maintains correct actor isolation
-- Cancellation still works — we cancel explicitly via `activeTasks.forEach { $0.cancel() }`
-- `guard !Task.isCancelled` still fires correctly on detached tasks
-- Priority defaults to `.medium` (was inherited previously) — no observable audio lag
+### Part 2: async throws tearDown that awaits the detached task
 
-**`MusicPluginTests.swift` — tearDown**
+`MusicPluginTests.swift` — changed back to `override func tearDown() async throws`
+calling `await plugin.deactivate()`.
 
-Remains synchronous (avoids `async throws tearDown` going through `_observeErrors`):
-```swift
-override func tearDown() {
-    plugin.deactivate_cancelOnly()
-    plugin = nil
-    mockMusicService = nil
-    context = nil
-}
-```
+`deactivate()` cancels T1 and then **awaits T1's value** (`for task in tasks { _ = await task.value }`). This:
+- Suspends tearDown (inside `_observeErrors`)
+- Allows T1 to run on MainActor and return early (cancelled)
+- T1 is now DONE before tearDown's `_observeErrors` tries to free its slot
+- Since T1 is `Task.detached`, T1's completion has no effect on tearDown's allocator
+- Test 2's setUp starts with NO pending T1 → no LIFO violation
 
-**`NotchViewModel+Observers.swift:38`**  
-Added explicit `self.hideOnClosed = shouldHide` inside nested `withAnimation` closure —  
-was a Swift 6 warning (`this is an error in Swift 6 language mode`).
+### Part 3: NotchViewModel+Observers.swift Swift 6 warning fix
 
-## Changes Made
+Added `self.hideOnClosed` inside `withAnimation` closure at line 38 — was missing
+`self.` in a nested closure after `[weak self]` rebind, flagged as Swift 6 error.
 
-**`MusicPlugin.swift`**
-- `setupSubscriptions()`: `Task { @MainActor }` → `Task.detached { @MainActor }` with comment
-- `deactivate()`: cancel subscriptions first, then cancel+await tasks (stays correct with detached)
-- `deactivate_cancelOnly()`: synchronous cancel for test teardown (stays correct)
+## Previous Attempts That Did NOT Work
 
-**`MusicPluginTests.swift`**
-- `tearDown()` is synchronous, calling `deactivate_cancelOnly()`
+| Attempt | Why It Failed |
+|---|---|
+| Cancel + removeAll in synchronous tearDown | T1 cancelled but still pending — crash in test 2 setUp |
+| `guard !Task.isCancelled` in task body | Doesn't prevent task from being queued, only affects body |
+| `await task.value` in async tearDown (with Task { }) | T1 inherited setUp task-locals; tearDown's _observeErrors crashed while T1 was pending |
+| `tearDown() async` (drop throws) | Compile error — base class is `async throws` |
+| Synchronous `tearDown()` + `wait(for:)` | Deadlock — blocks MainActor which T1 needs to run |
+| `Task.detached` alone with sync tearDown | T1 still pending on MainActor; crash still in test 2 setUp |
 
-**`NotchViewModel+Observers.swift`**
-- `hideOnClosed = shouldHide` inside `withAnimation` → `self.hideOnClosed = shouldHide`
+## Files Changed
+
+- `MusicPlugin.swift`: `Task { @MainActor }` → `Task.detached { @MainActor }` with comment
+- `MusicPluginTests.swift`: tearDown back to `async throws`, calls `await plugin.deactivate()`
+- `NotchViewModel+Observers.swift`: explicit `self.hideOnClosed` in `withAnimation`
