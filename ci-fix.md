@@ -9,85 +9,73 @@ CI fails on `//Apps/machNotch:machNotchTests`.
 
 ## Root Cause
 
-**macOS 26 / Xcode 26 beta bug in XCTest (macOS 26.3 build 25D125).**
+**Two-part macOS 26 / Xcode 26 beta (25D125) failure.**
 
-Crash stack:
+### Crash 1: `_swift_task_dealloc_specific` (Signal 6)
+`XCTSwiftErrorObservation._observeErrors` wraps `async throws` test methods with
+task-local error observation. It crashes on the 2nd+ test with LIFO order violation.
+
+**Root cause:** `QuickShareService.init()` creates `Task { await discoverAvailableProviders() }`.
+This Task **inherits task-local values** from the creating context (the test method's
+`_observeErrors` scope). The inherited chain outlives `_observeErrors`, leaving stale
+task-local allocations when the 2nd test's `_observeErrors` runs.
+
+### Crash 2: `NSInternalInconsistencyException` / `swift_task_localValuePopImpl` (Signal 11)
+`discoverAvailableProviders()` calls `ShareServiceFinder.findApplicableServices()` which
+calls `NSSharingServicePicker.showRelativeToRect:ofView:` → `NSRemoteViewController` →
+`NSServiceViewController.currentAppIsViewService` which throws:
 ```
-_swift_task_dealloc_specific          ← LIFO violation in task-local allocator
-XCTSwiftErrorObservation._observeErrors(in:)
-XCTFailableInvocation.invokeWithAsynchronousWait
-invokeInvocation:withTestMethodConvention  (or _shouldContinueAfterPerformingSetUpSequenceWithSelector)
+NSInternalInconsistencyException: 'invoked too early to return meaningful value'
 ```
-
-`_observeErrors(in:)` wraps every `async throws` function (setUp, tearDown, test methods)
-with task-local error observation. It allocates a slot and expects to free it LIFO.
-
-**The actual culprit: `QuickShareService.init()`**
-
-`TestNotchServiceProvider.init()` creates a real `QuickShareService(...)`:
-```swift
-self.quickShare = QuickShareService(
-    temporaryFileStorage: stubTempStorage,
-    sharingStateManager: stubSharing
-)
-```
-
-`QuickShareService.init()` creates an unstructured `Task { await discoverAvailableProviders() }`.
-This Task **inherits task-local values** from its creation context — which is inside the
-test's `_observeErrors` scope. The task outlives `_observeErrors`, leaving a stale
-reference into the `_observeErrors` task-local allocator.
-
-When the SECOND `_observeErrors` call runs (for test 2), the task-local allocator
-finds T_QS's stale allocation violating LIFO order → crash.
-
-This is why:
-- Test 1 always passes (first `_observeErrors` call works)
-- Test 2 always crashes (second call finds stale T_QS allocation)
-- All earlier fix attempts failed (they targeted the Combine sink Task, not T_QS)
+This NSException thrown from `Task.detached` running on MainActor corrupts the Swift
+async task machinery, causing `swift_task_localValuePopImpl` null ptr dereference.
 
 ## Fix Applied
 
 **`QuickShareService.swift` — init:**
-Changed `Task { await discoverAvailableProviders() }` to:
+Added `discoverOnInit: Bool = true` parameter. When `false`, no Task is created:
 ```swift
-Task.detached { [weak self] in
-    await self?.discoverAvailableProviders()
+init(temporaryFileStorage:, sharingStateManager:, discoverOnInit: Bool = true) {
+    ...
+    guard discoverOnInit else { return }
+    Task.detached { [weak self] in await self?.discoverAvailableProviders() }
 }
 ```
 
-`Task.detached` creates a task with NO inherited task-local values (isolated allocator).
-T_QS's allocator is completely separate from any `_observeErrors` context.
-The task still runs correctly — `await self?.discoverAvailableProviders()` hops to
-MainActor as before.
+`Task.detached` is also retained (correct for production: no inherited task-locals).
 
-**`MusicPlugin.swift` — setupSubscriptions():**
-Added `guard let ms = self.mediaSettings, ms.ambientVisualizerEnabled else { return }`
-before audio capture Task creation. The Combine sink Task is now only created when the
-visualizer is actually enabled — eliminates another potential `_observeErrors` inheritor.
-Uses `Task.detached` for the same reason (no inherited task-locals when it IS created).
+**`MusicPluginTests.swift` — TestNotchServiceProvider:**
+```swift
+self.quickShare = QuickShareService(
+    temporaryFileStorage: stubTempStorage,
+    sharingStateManager: stubSharing,
+    discoverOnInit: false  ← no AppKit UI work in headless tests
+)
+```
 
-**`MusicPluginTests.swift`:**
-Restructured from `async throws setUp` + synchronous tests to self-contained
-`async throws` test methods. This makes tests match the `ExportCoordinatorTests`
-pattern and doesn't rely on XCTest's setUp/tearDown `_observeErrors` machinery.
+**Other changes (necessary context):**
+- `MusicPlugin.setupSubscriptions()`: guard audio Task on `ambientVisualizerEnabled`
+  and use `Task.detached` — eliminates a secondary potential task-local inheritor
+- `MusicPluginTests.swift`: self-contained `async throws` test methods (no setUp/tearDown)
+  — avoids XCTest `_observeErrors` bug with repeated async setUp invocations
+- `NotchViewModel+Observers.swift` line 38: `self.hideOnClosed` in `withAnimation`
+  closure — was a Swift 6 error
 
-**`NotchViewModel+Observers.swift` line 38:**
-Added `self.hideOnClosed` in nested `withAnimation` closure — was a Swift 6 error.
-
-## All Attempts Made
+## All Fix Attempts Made
 
 | Attempt | Why Failed |
 |---|---|
-| Cancel T1 in sync tearDown | T_QS still inheriting, still pending → crash |
-| Task.detached for Combine sink T1 | T_QS (QuickShare) still inheriting → crash |
-| Guard ambientVisualizerEnabled (no T1) | T_QS still inheriting → crash |
-| async throws tearDown + await deactivate | T_QS in tearDown _observeErrors → crash |
-| Remove async setUp; self-contained tests | T_QS still created via QuickShare init → crash |
-| **Task.detached for QuickShareService.init** | **T_QS has isolated allocator → no LIFO violation** |
+| Sync tearDown + `deactivate_cancelOnly()` | T_QS still inheriting/crashing in test 2 setUp |
+| `Task.detached` for Combine sink | T_QS (QuickShare) still inheriting → crash |
+| Guard audio Task on `ambientVisualizerEnabled` | T_QS still present → crash |
+| async throws tearDown + `await deactivate()` | tearDown's own `_observeErrors` crashed |
+| Self-contained async throws test methods | T_QS still present → crash |
+| `Task.detached` for QuickShareService.init | T_QS no longer inherits, but AppKit exception from discovery crashes via Signal 11 |
+| **`discoverOnInit: false` in tests + self-contained tests** | **No Task created, no AppKit work** |
 
 ## Files Changed
 
-- `QuickShareService.swift`: `Task { }` → `Task.detached { [weak self] }` in init
-- `MusicPlugin.swift`: guard audio Task on `ambientVisualizerEnabled`; use `Task.detached`
-- `MusicPluginTests.swift`: self-contained `async throws` test methods (no setUp/tearDown)
+- `QuickShareService.swift`: `discoverOnInit: Bool = true` param; `Task.detached` in production
+- `MusicPlugin.swift`: guard audio Task on `ambientVisualizerEnabled`; `Task.detached`
+- `MusicPluginTests.swift`: `discoverOnInit: false`; self-contained `async throws` tests
 - `NotchViewModel+Observers.swift`: explicit `self.hideOnClosed` in `withAnimation`

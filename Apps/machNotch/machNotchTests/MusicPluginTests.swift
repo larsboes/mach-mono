@@ -94,7 +94,8 @@ final class TestNotchServiceProvider: NotchServiceProvider {
         self.quickLook = StubQuickLookService()
         self.quickShare = QuickShareService(
             temporaryFileStorage: stubTempStorage,
-            sharingStateManager: stubSharing
+            sharingStateManager: stubSharing,
+            discoverOnInit: false
         )
         self.notifications = StubNotificationService()
         self.systemNotificationObserver = StubSystemNotificationObserver()

@@ -31,13 +31,18 @@ class QuickShareService {
     private let temporaryFileStorage: any TemporaryFileStorageServiceProtocol
     private let sharingStateManager: any SharingServiceProtocol
 
-    init(temporaryFileStorage: any TemporaryFileStorageServiceProtocol, sharingStateManager: any SharingServiceProtocol) {
+    init(
+        temporaryFileStorage: any TemporaryFileStorageServiceProtocol,
+        sharingStateManager: any SharingServiceProtocol,
+        discoverOnInit: Bool = true
+    ) {
         self.temporaryFileStorage = temporaryFileStorage
         self.sharingStateManager = sharingStateManager
-        // Task.detached avoids inheriting task-local values from the calling context.
-        // In tests, init runs inside XCTest's _observeErrors async context; inheriting
-        // those task-locals causes _swift_task_dealloc_specific LIFO violations on
-        // macOS 26 beta when the init task outlives the _observeErrors scope.
+        // Task.detached: avoids inheriting task-locals from the caller context.
+        // discoverOnInit=false in tests: NSSharingServicePicker.showRelativeToRect throws
+        // NSInternalInconsistencyException ("invoked too early") in headless test processes,
+        // which corrupts the Swift async task machinery via macOS 26 XCTest _observeErrors.
+        guard discoverOnInit else { return }
         Task.detached { [weak self] in
             await self?.discoverAvailableProviders()
         }
