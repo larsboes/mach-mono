@@ -34,8 +34,12 @@ class QuickShareService {
     init(temporaryFileStorage: any TemporaryFileStorageServiceProtocol, sharingStateManager: any SharingServiceProtocol) {
         self.temporaryFileStorage = temporaryFileStorage
         self.sharingStateManager = sharingStateManager
-        Task {
-            await discoverAvailableProviders()
+        // Task.detached avoids inheriting task-local values from the calling context.
+        // In tests, init runs inside XCTest's _observeErrors async context; inheriting
+        // those task-locals causes _swift_task_dealloc_specific LIFO violations on
+        // macOS 26 beta when the init task outlives the _observeErrors scope.
+        Task.detached { [weak self] in
+            await self?.discoverAvailableProviders()
         }
     }
     
