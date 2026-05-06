@@ -137,8 +137,13 @@ final class MusicPluginTests: XCTestCase {
         try await plugin.activate(context: context)
     }
 
-    override func tearDown() async throws {
-        await plugin.deactivate()
+    // Synchronous override avoids XCTest Xcode 26 beta crash:
+    // `async throws tearDown` on @MainActor test classes triggers
+    // XCTFailableInvocation / XCTSwiftErrorObservation._observeErrors which
+    // faults in _swift_task_dealloc_specific. Cancelling Combine subscriptions
+    // and tasks synchronously is sufficient — ARC releases the rest.
+    override func tearDown() {
+        plugin.deactivate_cancelOnly()
         plugin = nil
         mockMusicService = nil
         context = nil

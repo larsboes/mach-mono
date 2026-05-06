@@ -117,10 +117,25 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
         state = .active
     }
 
-    func deactivate() async {
+    // Synchronous cancel for test teardown — avoids async tearDown which crashes
+    // in XCTest on macOS 26 beta (XCTFailableInvocation / _observeErrors bug).
+    func deactivate_cancelOnly() {
+        cancellables.removeAll()
         activeTasks.forEach { $0.cancel() }
         activeTasks.removeAll()
+        state = .inactive
+    }
+
+    func deactivate() async {
+        // Cancel subscriptions first so no new tasks can be enqueued.
         cancellables.removeAll()
+        // Capture, clear, cancel, then await — ensures no pending tasks remain
+        // when XCTest's teardown machinery runs (prevents task-local storage
+        // deallocation order violations on macOS 26).
+        let tasks = activeTasks
+        activeTasks.removeAll()
+        tasks.forEach { $0.cancel() }
+        for task in tasks { _ = await task.value }
         await stopAudioCapture()
         audioCaptureService = nil
         fftProcessor = nil
@@ -251,7 +266,7 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
                 )
                 self.eventBus?.emit(event)
                 let t = Task { @MainActor [weak self] in
-                    guard let self else { return }
+                    guard !Task.isCancelled, let self else { return }
                     if playbackState.isPlaying {
                         await self.startAudioCapture()
                     } else {
