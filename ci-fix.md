@@ -9,88 +9,69 @@ CI fails on `//Apps/machNotch:machNotchTests`.
 
 ## Root Cause
 
-**macOS 26 / Xcode 26 beta bug in XCTest.**
+**macOS 26 / Xcode 26 beta bug in XCTest (macOS 26.3 build 25D125).**
 
 Crash stack:
 ```
-_swift_task_dealloc_specific
+_swift_task_dealloc_specific          ← LIFO violation in task-local allocator
 XCTSwiftErrorObservation._observeErrors(in:)
 XCTFailableInvocation.invokeAsynchronousBlock
-_shouldContinueAfterPerformingSetUpSequenceWithSelector  (or TearDown variant)
+_shouldContinueAfterPerformingSetUpSequenceWithSelector
 ```
 
-`_observeErrors(in:)` allocates a task-local slot (LIFO) and must free it last. The crash
-"freed pointer was not the last allocation" fires when an unstructured Task that was
-created during the test body is still pending on the MainActor when `_observeErrors`
-tries to dealloc its slot — corrupting LIFO order.
+`async throws setUp` on a `@MainActor` XCTestCase subclass triggers `_observeErrors`
+for EVERY test in the class. The first call succeeds. The second call corrupts the
+task-local LIFO allocator and crashes in `_swift_task_dealloc_specific`.
 
-**The trigger chain:**
+This happens regardless of what the setUp body contains. We confirmed:
+- With no unstructured Tasks created
+- With `Task.detached` (no inherited task-locals)
+- With await-on-task inside async tearDown
 
-1. `testDisplayRequestWhenPlaying` sets `mockMusicService.playbackState = PlaybackState(isPlaying: true)`.
-2. Combine `didSet` fires `_playbackStateSubject.send(playbackState)`.
-3. `setupSubscriptions()`'s sink creates an unstructured `Task { @MainActor }` (T1).
-4. Synchronous tearDown cancels T1 but cannot await it — T1 remains pending on MainActor.
-5. Any subsequent `_observeErrors` context (setUp or tearDown of next test) crashes when
-   T1's presence corrupts the task-local deallocation order.
+ALL crash on the second test. This is a pure XCTest bug.
 
-**What makes this bug unavoidable when using `async throws setUp/tearDown`:**
-- Awaiting T1 in an async tearDown also crashes — tearDown's own `_observeErrors` is
-  destabilized by T1 being pending when it enters.
-- `Task.detached` (breaks task-local inheritance) alone is insufficient — T1 still
-  disrupts `_observeErrors` allocator ordering while pending.
-- This is a confirmed XCTest beta bug specific to macOS 26.3 (25D125).
+`async throws test methods` do NOT trigger this bug. `ExportCoordinatorTests` is
+evidence: it has 7 `async throws` test methods on a `@MainActor` class with no
+setUp/tearDown, and all pass.
 
 ## Fix Applied
 
-**Root fix: Don't create T1 when there's nothing to do.**
+**Restructure MusicPluginTests to eliminate `async throws setUp` entirely.**
 
-`startAudioCapture()` already guards on `ambientVisualizerEnabled && mode == .realAudio`.
-In tests, `MockNotchSettings.ambientVisualizerEnabled = false`, so the task body is a
-no-op. Adding the same guard BEFORE task creation prevents T1 from being enqueued at all.
+Instead of setUp/tearDown, each test is self-contained:
 
-**`MusicPlugin.swift` — `setupSubscriptions()` Combine sink:**
 ```swift
-self.eventBus?.emit(event)
-guard let ms = self.mediaSettings, ms.ambientVisualizerEnabled else { return }
-let t = Task.detached { @MainActor [weak self] in
-    ...
-}
-self.activeTasks.append(t)
-```
+private func makeActivatedPlugin() async throws -> (MusicPlugin, MockMusicService) { ... }
 
-`Task.detached` is kept for production (correct actor isolation, no inherited task-locals).
-The `ambientVisualizerEnabled` guard is correct behavior: don't drive audio capture when
-the visualizer is disabled. Tests with the default mock (disabled) never create T1.
-
-**`MusicPluginTests.swift` — tearDown remains synchronous:**
-```swift
-override func tearDown() {
-    plugin.deactivate_cancelOnly()
-    plugin = nil
-    ...
+func testDisplayRequestWhenPlaying() async throws {
+    let (plugin, mock) = try await makeActivatedPlugin()
+    defer { plugin.deactivate_cancelOnly() }
+    // test body
 }
 ```
 
-Since no tasks are created in tests, synchronous tearDown is complete and correct.
-No async `_observeErrors` wrapping needed.
+`async throws test methods` on `@MainActor` do not trigger the `_observeErrors` bug.
+Each test activates and deactivates its own plugin instance.
 
-**`NotchViewModel+Observers.swift` line 38:**  
-Added `self.hideOnClosed` in nested `withAnimation` closure — was a Swift 6 error.
+**Also applied:** `MusicPlugin.setupSubscriptions()` guards audio task creation on
+`ambientVisualizerEnabled` — prevents no-op Tasks (and was the initial fix attempt).
+`Task.detached` is kept for production correctness (no inherited task-locals).
+
+**`NotchViewModel+Observers.swift` line 38:** Added `self.` in nested `withAnimation`
+closure — was a Swift 6 error.
 
 ## All Attempts Made
 
 | Attempt | Result |
 |---|---|
-| `guard !Task.isCancelled` in task body | No change |
-| Cancel+removeAll in synchronous tearDown | Test 1 passes; tests 2-3 crash in setUp |
-| `await task.value` in async tearDown (Task { }) | Crashes — T1 inherits task-locals from setUp's _observeErrors |
-| Synchronous tearDown + wait(for:) | Deadlock — blocks MainActor |
-| `Task.detached` alone with sync tearDown | Tests 2-3 still crash in setUp |
-| async throws tearDown + await deactivate() + Task.detached | All tests crash in tearDown's own _observeErrors |
-| **Guard on ambientVisualizerEnabled + sync tearDown** | **✓ No tasks created in tests → no crash** |
+| Synchronous tearDown + `deactivate_cancelOnly()` | Test 1 passes; tests 2-3 crash in setUp |
+| `Task.detached` alone | Tests 2-3 still crash (inherited task-locals not the cause) |
+| async throws tearDown + `await deactivate()` | All tests crash in tearDown _observeErrors |
+| Guard task on `ambientVisualizerEnabled` | Test 1 passes; test 2 still crashes (no tasks, bug is in setUp machinery) |
+| **Remove async throws setUp; self-contained async throws tests** | **✓ Bug never triggered** |
 
 ## Files Changed
 
-- `MusicPlugin.swift`: guard task creation on `ambientVisualizerEnabled`; keep `Task.detached`
-- `MusicPluginTests.swift`: synchronous tearDown calling `deactivate_cancelOnly()`
+- `MusicPlugin.swift`: guard audio Task on `ambientVisualizerEnabled`; use `Task.detached`
+- `MusicPluginTests.swift`: remove setUp/tearDown; each test is self-contained `async throws`
 - `NotchViewModel+Observers.swift`: explicit `self.hideOnClosed` in `withAnimation`
