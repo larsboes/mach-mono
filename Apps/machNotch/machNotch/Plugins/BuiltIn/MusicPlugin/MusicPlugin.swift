@@ -71,7 +71,8 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
     private var settings: PluginSettings?
     private(set) var mediaSettings: (any MediaSettings)?
     private var eventBus: PluginEventBus?
-    private var cancellables = Set<AnyCancellable>()
+    @ObservationIgnored private var cancellables = Set<AnyCancellable>()
+    @ObservationIgnored private var activeTasks: [Task<Void, Never>] = []
 
     // Audio pipeline — backing storage for MusicPlugin+AudioPipeline.swift
     var audioCaptureService: (any AudioCaptureServiceProtocol)?
@@ -110,13 +111,15 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
 
         // Start capture immediately if music is already playing
         if musicService?.playbackState.isPlaying == true {
-            Task { await startAudioCapture() }
+            activeTasks.append(Task { await self.startAudioCapture() })
         }
 
         state = .active
     }
 
     func deactivate() async {
+        activeTasks.forEach { $0.cancel() }
+        activeTasks.removeAll()
         cancellables.removeAll()
         await stopAudioCapture()
         audioCaptureService = nil
@@ -248,7 +251,7 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
                     track: self.musicService?.currentTrack
                 )
                 self.eventBus?.emit(event)
-                Task { @MainActor [weak self] in
+                let t = Task { @MainActor [weak self] in
                     guard let self else { return }
                     if playbackState.isPlaying {
                         await self.startAudioCapture()
@@ -256,6 +259,7 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
                         await self.stopAudioCapture()
                     }
                 }
+                self.activeTasks.append(t)
             }
             .store(in: &cancellables)
 
