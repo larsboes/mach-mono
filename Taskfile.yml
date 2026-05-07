@@ -1,0 +1,45 @@
+version: "3"
+
+vars:
+  CERT: "Apple Development: ilars.boes@gmail.com (SVHPB8QYPH)"
+  DEST: "{{.HOME}}/Applications/machNotch.app"
+  ZIP: "bazel-bin/Apps/machNotch/machNotch.zip"
+  UNZIP_TMP: "/tmp/machNotch-install"
+
+tasks:
+  run:
+    desc: Build, sign with dev cert, install to ~/Applications, and launch
+    deps: [install]
+    cmds:
+      - task: kill
+      - open "{{.DEST}}"
+      - echo "✓ machNotch launched from {{.DEST}}"
+
+  build:
+    desc: Build machNotch with Bazel
+    cmds:
+      - bazelisk build //Apps/machNotch:machNotch
+
+  install:
+    desc: Build, unzip, sign and install to ~/Applications
+    deps: [build]
+    cmds:
+      - mkdir -p "{{.HOME}}/Applications"
+      - rm -rf "{{.DEST}}" "{{.UNZIP_TMP}}"
+      - mkdir -p "{{.UNZIP_TMP}}"
+      - unzip -q "{{.ZIP}}" -d "{{.UNZIP_TMP}}"
+      - mv "{{.UNZIP_TMP}}/machNotch.app" "{{.DEST}}"
+      - rm -rf "{{.UNZIP_TMP}}"
+      - codesign --force --deep --sign "{{.CERT}}" "{{.DEST}}"
+      - echo "✓ Installed and signed at {{.DEST}}"
+
+  kill:
+    desc: Kill the running machNotch instance
+    cmds:
+      - cmd: killall -9 machNotch
+        ignore_error: true
+
+  test:
+    desc: Run all tests
+    cmds:
+      - bazelisk test //Apps/machNotch:machNotchTests //Packages/MachBriefKit:MachBriefKitTests
