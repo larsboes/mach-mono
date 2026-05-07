@@ -32,11 +32,11 @@ tasks:
     desc: "notch: build and install to ~/Applications (skips if zip unchanged)"
     deps: [build]
     vars:
-      SENTINEL: "/tmp/machNotch.installed_zip_hash"
+      SENTINEL: "{{.HOME}}/Library/Caches/com.larsboes.mach/notch_zip_hash"
       NEW_HASH:
         sh: md5 "{{.NOTCH_ZIP}}" | awk '{print $NF}'
       OLD_HASH:
-        sh: cat /tmp/machNotch.installed_zip_hash 2>/dev/null || echo "none"
+        sh: cat "{{.HOME}}/Library/Caches/com.larsboes.mach/notch_zip_hash" 2>/dev/null || echo "none"
     cmds:
       - |
         if [ "{{.NEW_HASH}}" = "{{.OLD_HASH}}" ]; then
@@ -50,7 +50,8 @@ tasks:
           mv "{{.UNZIP_TMP}}/machNotch.app" "{{.NOTCH_DEST}}"
           rm -rf "{{.UNZIP_TMP}}"
           codesign --force --deep --sign "{{.CERT}}" "{{.NOTCH_DEST}}"
-          echo "{{.NEW_HASH}}" > /tmp/machNotch.installed_zip_hash
+          mkdir -p "{{.HOME}}/Library/Caches/com.larsboes.mach"
+          echo "{{.NEW_HASH}}" > "{{.HOME}}/Library/Caches/com.larsboes.mach/notch_zip_hash"
           echo "✓ Installed and signed at {{.NOTCH_DEST}}"
         fi
 

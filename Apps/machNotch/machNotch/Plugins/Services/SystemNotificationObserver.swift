@@ -40,11 +40,12 @@ final class SystemNotificationObserver: SystemNotificationObserverProtocol {
     func startObserving() {
         guard !isObserving else { return }
         guard AXIsProcessTrusted() else {
-            print("[SystemNotificationObserver] Accessibility not trusted — requesting permission")
-            let options: NSDictionary = [
-                "AXTrustedCheckOptionPrompt": true
-            ]
-            AXIsProcessTrustedWithOptions(options)
+            // Defer the system dialog so it doesn't interrupt the notch startup animation
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(2))
+                let options: NSDictionary = ["AXTrustedCheckOptionPrompt": true]
+                AXIsProcessTrustedWithOptions(options)
+            }
             return
         }
 
