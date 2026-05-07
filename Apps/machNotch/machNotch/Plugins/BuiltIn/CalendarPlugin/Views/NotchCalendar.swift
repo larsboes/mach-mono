@@ -147,49 +147,25 @@ struct EmptyEventsView: View {
         if let service = pluginManager?.services.calendar {
             switch service.calendarAuthorizationStatus {
             case .notDetermined:
-                VStack(spacing: 8) {
-                    Image(systemName: "calendar.badge.exclamationmark")
-                        .font(.title)
-                        .foregroundColor(.orange)
-                    Text("Calendar Access Required")
-                        .font(.subheadline)
-                        .foregroundColor(.white)
-                    Button(action: {
-                        Task { await service.checkCalendarAuthorization() }
-                    }) {
-                        Text("Grant Access")
-                            .font(.caption)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.effectiveAccent(from: settings))
-                            .foregroundColor(.white)
-                            .cornerRadius(6)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
+                calendarAccessView(
+                    icon: "calendar.badge.exclamationmark",
+                    iconColor: .orange,
+                    label: "Calendar access needed",
+                    buttonLabel: "Grant Access",
+                    action: { Task { await service.checkCalendarAuthorization() } }
+                )
             case .denied, .restricted:
-                VStack(spacing: 8) {
-                    Image(systemName: "calendar.badge.exclamationmark")
-                        .font(.title)
-                        .foregroundColor(.red)
-                    Text("Calendar Access Denied")
-                        .font(.subheadline)
-                        .foregroundColor(.white)
-                    Button(action: {
+                calendarAccessView(
+                    icon: "calendar.badge.exclamationmark",
+                    iconColor: .secondary,
+                    label: "Access denied",
+                    buttonLabel: "Open Settings",
+                    action: {
                         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars") {
                             NSWorkspace.shared.open(url)
                         }
-                    }) {
-                        Text("Open Settings")
-                            .font(.caption)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color(white: 0.3))
-                            .foregroundColor(.white)
-                            .cornerRadius(6)
                     }
-                    .buttonStyle(PlainButtonStyle())
-                }
+                )
             default:
                 noEventsContent
             }
@@ -199,17 +175,47 @@ struct EmptyEventsView: View {
     }
 
     private var noEventsContent: some View {
-        VStack {
+        VStack(spacing: 4) {
             Image(systemName: "calendar.badge.checkmark")
-                .font(.title)
-                .foregroundColor(Color(white: 0.65))
+                .font(.headline)
+                .foregroundColor(Color(white: 0.45))
             Text(Calendar.current.isDateInToday(selectedDate) ? "No events today" : "No events")
-                .font(.subheadline)
-                .foregroundColor(.white)
-            Text("Enjoy your free time!")
                 .font(.caption)
-                .foregroundColor(Color(white: 0.65))
+                .foregroundColor(Color(white: 0.55))
         }
+    }
+
+    @ViewBuilder
+    private func calendarAccessView(
+        icon: String,
+        iconColor: Color,
+        label: String,
+        buttonLabel: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: icon)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(iconColor)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(label)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Button(action: action) {
+                    Text(buttonLabel)
+                        .font(.caption.weight(.medium))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(Color.white.opacity(0.1))
+                        .foregroundStyle(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 8)
+        .padding(.top, 6)
     }
 }
 
