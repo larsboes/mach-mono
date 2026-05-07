@@ -74,7 +74,9 @@ import SwiftUI
     func syncBackgroundServices() {
         let restartables: [any BackgroundServiceRestartable] = [
             services.battery as? BackgroundServiceRestartable,
-            services.bluetoothManager as? BackgroundServiceRestartable,
+            // Only monitor Bluetooth when the sneakpeek feature is enabled —
+            // avoids the system permission prompt for users who don't use it.
+            settings.enableBluetoothSneakPeek ? services.bluetoothManager as? BackgroundServiceRestartable : nil,
         ].compactMap { $0 }
 
         for service in restartables {

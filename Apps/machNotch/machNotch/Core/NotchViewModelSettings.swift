@@ -20,6 +20,7 @@ protocol NotchViewModelSettings {
     var openShelfByDefault: Bool { get }
     var musicLiveActivityEnabled: Bool { get }
     var showPowerStatusNotifications: Bool { get }
+    var enableBluetoothSneakPeek: Bool { get }
 }
 
 /// Default implementation that delegates to a NotchSettings instance
@@ -40,4 +41,5 @@ struct DefaultNotchViewModelSettings: NotchViewModelSettings {
     var openShelfByDefault: Bool { source.openShelfByDefault }
     var musicLiveActivityEnabled: Bool { source.musicLiveActivityEnabled }
     var showPowerStatusNotifications: Bool { source.showPowerStatusNotifications }
+    var enableBluetoothSneakPeek: Bool { source.enableBluetoothSneakPeek }
 }

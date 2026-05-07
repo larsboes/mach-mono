@@ -521,6 +521,7 @@ final class StubAIService: AITextGenerationService {
     var allCalendars: [CalendarModel] = []
     var eventCalendars: [CalendarModel] = []
     var reminderLists: [CalendarModel] = []
+    func refreshAuthorizationStatus() {}
     func checkCalendarAuthorization() async {}
     func checkReminderAuthorization() async {}
     func updateCurrentDate(_ date: Date) async {}

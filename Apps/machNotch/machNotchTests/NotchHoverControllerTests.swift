@@ -21,6 +21,7 @@ struct MockNotchViewModelSettings: NotchViewModelSettings {
     var openShelfByDefault: Bool = false
     var musicLiveActivityEnabled: Bool = true
     var showPowerStatusNotifications: Bool = true
+    var enableBluetoothSneakPeek: Bool = false
 }
 
 // MARK: - Tests

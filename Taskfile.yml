@@ -29,26 +29,29 @@ tasks:
       - bazelisk build //Apps/machNotch:machNotch
 
   install:
-    desc: "notch: build and install to ~/Applications (skips copy if binary unchanged)"
+    desc: "notch: build and install to ~/Applications (skips if zip unchanged)"
     deps: [build]
     vars:
+      SENTINEL: "/tmp/machNotch.installed_zip_hash"
       NEW_HASH:
-        sh: unzip -p "{{.NOTCH_ZIP}}" "machNotch.app/Contents/MacOS/machNotch" 2>/dev/null | md5 | tr -d ' \n'
+        sh: md5 "{{.NOTCH_ZIP}}" | awk '{print $NF}'
       OLD_HASH:
-        sh: md5 "{{.NOTCH_BIN}}" 2>/dev/null | awk '{print $NF}' || echo "none"
+        sh: cat /tmp/machNotch.installed_zip_hash 2>/dev/null || echo "none"
     cmds:
       - |
         if [ "{{.NEW_HASH}}" = "{{.OLD_HASH}}" ]; then
-          echo "✓ Binary unchanged — skipping install (TCC permissions intact)"
+          echo "✓ Zip unchanged — skipping install (TCC permissions intact)"
         else
-          echo "Binary changed — installing..."
+          echo "New build detected — installing..."
           mkdir -p "{{.HOME}}/Applications"
           rm -rf "{{.NOTCH_DEST}}" "{{.UNZIP_TMP}}"
           mkdir -p "{{.UNZIP_TMP}}"
           unzip -q "{{.NOTCH_ZIP}}" -d "{{.UNZIP_TMP}}"
           mv "{{.UNZIP_TMP}}/machNotch.app" "{{.NOTCH_DEST}}"
           rm -rf "{{.UNZIP_TMP}}"
-          echo "✓ Installed at {{.NOTCH_DEST}}"
+          codesign --force --deep --sign "{{.CERT}}" "{{.NOTCH_DEST}}"
+          echo "{{.NEW_HASH}}" > /tmp/machNotch.installed_zip_hash
+          echo "✓ Installed and signed at {{.NOTCH_DEST}}"
         fi
 
   kill:
