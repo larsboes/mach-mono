@@ -153,21 +153,37 @@ graph TD
 
 ## Getting Started
 
-**Build (Bazel):**
+### Prerequisites
+
+| Tool | Install |
+|------|---------|
+| [Bazelisk](https://github.com/bazelbuild/bazelisk) | `brew install bazelisk` |
+| [Task](https://taskfile.dev) | `brew install go-task` |
+| Xcode 16+ | Mac App Store |
+| Apple Developer account | For code signing (free tier is fine) |
+
+### mach.notch
+
+`task run` is the canonical launch command. It builds, signs with your Apple Developer cert, installs to `~/Applications/machNotch.app`, and opens it. Running from a stable signed path means macOS remembers permissions across every rebuild — no re-prompting.
 
 ```bash
 git clone https://github.com/larsboes/mach-mono.git
 cd mach-mono
-bazel build //Apps/machNotch:machNotch
-bazel build //Apps/machBrief:machBrief
+
+task run     # build → sign → install to ~/Applications → launch
+task kill    # terminate the running instance
+task test    # run all tests
 ```
 
-<details>
-<summary><strong>Build & Run: mach.brief</strong></summary>
+> **First run:** macOS will prompt for permissions (accessibility, screen recording, microphone, etc.) once. After that, `task run` rebuilds and relaunches without any prompts.
+
+> **Signing:** `task run` signs with whichever `Apple Development` certificate is in your keychain. If you have multiple, update `CERT` in `Taskfile.yml` to match `security find-identity -v -p codesigning`.
+
+### mach.brief
 
 ```bash
-bazel build //Apps/machBrief:machBrief
-ditto -x -k "$(bazel cquery //Apps/machBrief:machBrief --output=files | head -1)" /tmp
+bazelisk build //Apps/machBrief:machBrief
+ditto -x -k "$(bazelisk cquery //Apps/machBrief:machBrief --output=files | head -1)" /tmp
 open /tmp/machBrief.app
 ```
 
@@ -175,36 +191,22 @@ open /tmp/machBrief.app
 ```bash
 killall machBrief
 ```
-</details>
 
-<details>
-<summary><strong>Build & Run: mach.notch</strong></summary>
+### Tests
 
 ```bash
-bazel build //Apps/machNotch:machNotch
-ditto -x -k "$(bazel cquery //Apps/machNotch:machNotch --output=files | head -1)" /tmp
-open /tmp/machNotch.app
+task test
+# or directly:
+bazelisk test //Apps/machNotch:machNotchTests //Packages/MachBriefKit:MachBriefKitTests
 ```
 
-**To terminate:**
-```bash
-killall machNotch
-```
-</details>
-
-**Run tests:**
-
-```bash
-bazel test //...
-```
-
-**IDE (Xcode — navigation only):**
+### IDE (Xcode — navigation only)
 
 ```bash
 open mach-mono.xcworkspace
 ```
 
-Xcode is for code navigation and editing. Build and test via Bazel.
+Xcode is for code navigation and editing only. Build and test via Bazel / Task.
 
 ---
 
