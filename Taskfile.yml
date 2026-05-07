@@ -2,44 +2,86 @@ version: "3"
 
 vars:
   CERT: "Apple Development: ilars.boes@gmail.com (SVHPB8QYPH)"
-  DEST: "{{.HOME}}/Applications/machNotch.app"
-  ZIP: "bazel-bin/Apps/machNotch/machNotch.zip"
-  UNZIP_TMP: "/tmp/machNotch-install"
+  UNZIP_TMP: "/tmp/mach-install"
+
+  NOTCH_DEST: "{{.HOME}}/Applications/machNotch.app"
+  NOTCH_ZIP: "bazel-bin/Apps/machNotch/machNotch.zip"
+
+  BRIEF_DEST: "{{.HOME}}/Applications/machBrief.app"
+  BRIEF_ZIP: "bazel-bin/Apps/machBrief/machBrief.zip"
 
 tasks:
+  # ── mach.notch ────────────────────────────────────────────────────────────
+
   run:
-    desc: Build, sign with dev cert, install to ~/Applications, and launch
+    desc: "notch: build, sign, install to ~/Applications, launch"
     deps: [install]
     cmds:
       - task: kill
-      - open "{{.DEST}}"
-      - echo "✓ machNotch launched from {{.DEST}}"
+      - open "{{.NOTCH_DEST}}"
+      - echo "✓ machNotch launched from {{.NOTCH_DEST}}"
 
   build:
-    desc: Build machNotch with Bazel
+    desc: "notch: build with Bazel"
     cmds:
       - bazelisk build //Apps/machNotch:machNotch
 
   install:
-    desc: Build, unzip, sign and install to ~/Applications
+    desc: "notch: build, unzip, sign and install to ~/Applications"
     deps: [build]
     cmds:
       - mkdir -p "{{.HOME}}/Applications"
-      - rm -rf "{{.DEST}}" "{{.UNZIP_TMP}}"
+      - rm -rf "{{.NOTCH_DEST}}" "{{.UNZIP_TMP}}"
       - mkdir -p "{{.UNZIP_TMP}}"
-      - unzip -q "{{.ZIP}}" -d "{{.UNZIP_TMP}}"
-      - mv "{{.UNZIP_TMP}}/machNotch.app" "{{.DEST}}"
+      - unzip -q "{{.NOTCH_ZIP}}" -d "{{.UNZIP_TMP}}"
+      - mv "{{.UNZIP_TMP}}/machNotch.app" "{{.NOTCH_DEST}}"
       - rm -rf "{{.UNZIP_TMP}}"
-      - codesign --force --deep --sign "{{.CERT}}" "{{.DEST}}"
-      - echo "✓ Installed and signed at {{.DEST}}"
+      - codesign --force --deep --sign "{{.CERT}}" "{{.NOTCH_DEST}}"
+      - echo "✓ Installed and signed at {{.NOTCH_DEST}}"
 
   kill:
-    desc: Kill the running machNotch instance
+    desc: "notch: kill the running instance"
     cmds:
       - cmd: killall -9 machNotch
         ignore_error: true
 
+  # ── mach.brief ────────────────────────────────────────────────────────────
+
+  brief:run:
+    desc: "brief: build, sign, install to ~/Applications, launch"
+    deps: [brief:install]
+    cmds:
+      - task: brief:kill
+      - open "{{.BRIEF_DEST}}"
+      - echo "✓ machBrief launched from {{.BRIEF_DEST}}"
+
+  brief:build:
+    desc: "brief: build with Bazel"
+    cmds:
+      - bazelisk build //Apps/machBrief:machBrief
+
+  brief:install:
+    desc: "brief: build, unzip, sign and install to ~/Applications"
+    deps: [brief:build]
+    cmds:
+      - mkdir -p "{{.HOME}}/Applications"
+      - rm -rf "{{.BRIEF_DEST}}" "{{.UNZIP_TMP}}"
+      - mkdir -p "{{.UNZIP_TMP}}"
+      - unzip -q "{{.BRIEF_ZIP}}" -d "{{.UNZIP_TMP}}"
+      - mv "{{.UNZIP_TMP}}/machBrief.app" "{{.BRIEF_DEST}}"
+      - rm -rf "{{.UNZIP_TMP}}"
+      - codesign --force --deep --sign "{{.CERT}}" "{{.BRIEF_DEST}}"
+      - echo "✓ Installed and signed at {{.BRIEF_DEST}}"
+
+  brief:kill:
+    desc: "brief: kill the running instance"
+    cmds:
+      - cmd: killall -9 machBrief
+        ignore_error: true
+
+  # ── shared ────────────────────────────────────────────────────────────────
+
   test:
-    desc: Run all tests
+    desc: "Run all tests"
     cmds:
       - bazelisk test //Apps/machNotch:machNotchTests //Packages/MachBriefKit:MachBriefKitTests

@@ -182,14 +182,8 @@ task test    # run all tests
 ### mach.brief
 
 ```bash
-bazelisk build //Apps/machBrief:machBrief
-ditto -x -k "$(bazelisk cquery //Apps/machBrief:machBrief --output=files | head -1)" /tmp
-open /tmp/machBrief.app
-```
-
-**To terminate:**
-```bash
-killall machBrief
+task brief:run     # build → sign → install to ~/Applications → launch
+task brief:kill    # terminate the running instance
 ```
 
 ### Tests
