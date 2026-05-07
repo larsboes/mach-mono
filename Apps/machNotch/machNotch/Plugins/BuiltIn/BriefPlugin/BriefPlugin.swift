@@ -29,6 +29,7 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
     private let engine = BriefEngine()
     private let panelSources = ["word", "quote", "fact", "mantra"]
     @ObservationIgnored private var cancellables = Set<AnyCancellable>()
+    @ObservationIgnored private var reloadTask: Task<Void, Never>?
 
     // MARK: - Lifecycle
 
@@ -39,16 +40,25 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
         state = .active
 
         NotificationCenter.default.publisher(for: NSNotification.Name("briefSettingsDidChange"))
-            .sink { [weak self] _ in
-                Task { @MainActor in await self?.reloadEntries() }
-            }
+            .sink { [weak self] _ in self?.scheduleReload() }
             .store(in: &cancellables)
     }
 
     func deactivate() async {
         cancellables.removeAll()
+        reloadTask?.cancel()
+        reloadTask = nil
         allEntries = [:]
         state = .inactive
+    }
+
+    private func scheduleReload() {
+        reloadTask?.cancel()
+        reloadTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(150))
+            guard !Task.isCancelled else { return }
+            await self?.reloadEntries()
+        }
     }
 
     private func reloadEntries() async {

@@ -13,6 +13,13 @@ public protocol DictionaryAPIClientProtocol: Sendable {
 }
 
 public struct DictionaryAPIClient: DictionaryAPIClientProtocol {
+    private static let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 4
+        config.timeoutIntervalForResource = 4
+        return URLSession(configuration: config)
+    }()
+
     public init() {}
 
     public func lookup(word: String, languageCode: String = "en") async -> DictionaryWordDetail? {
@@ -21,7 +28,7 @@ public struct DictionaryAPIClient: DictionaryAPIClientProtocol {
             return nil
         }
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await Self.session.data(from: url)
             let decoded = try JSONDecoder().decode([DictionaryResponse].self, from: data)
             guard let first = decoded.first else { return nil }
             let meaning = first.meanings.first

@@ -58,7 +58,10 @@ struct BriefSettingsView: View {
         .formStyle(.grouped)
         .onChange(of: settings) { _, newValue in
             BriefSettingsCoding.save(newValue)
-            NotificationCenter.default.post(name: NSNotification.Name("briefSettingsDidChange"), object: nil)
+            // Post after a short delay so rapid picker interactions coalesce into one reload
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                NotificationCenter.default.post(name: NSNotification.Name("briefSettingsDidChange"), object: nil)
+            }
         }
     }
     
