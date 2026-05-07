@@ -6,6 +6,7 @@ vars:
 
   NOTCH_DEST: "{{.HOME}}/Applications/machNotch.app"
   NOTCH_ZIP: "bazel-bin/Apps/machNotch/machNotch.zip"
+  NOTCH_BIN: "{{.HOME}}/Applications/machNotch.app/Contents/MacOS/machNotch"
 
   BRIEF_DEST: "{{.HOME}}/Applications/machBrief.app"
   BRIEF_ZIP: "bazel-bin/Apps/machBrief/machBrief.zip"
@@ -14,7 +15,7 @@ tasks:
   # ── mach.notch ────────────────────────────────────────────────────────────
 
   run:
-    desc: "notch: build, sign, install to ~/Applications, launch"
+    desc: "notch: build, install (only if changed), launch"
     deps: [install]
     cmds:
       - task: kill
@@ -23,22 +24,32 @@ tasks:
       - echo "✓ machNotch launched from {{.NOTCH_DEST}}"
 
   build:
-    desc: "notch: build with Bazel"
+    desc: "notch: build with Bazel (dev signing via --config=local)"
     cmds:
       - bazelisk build //Apps/machNotch:machNotch
 
   install:
-    desc: "notch: build, unzip, sign and install to ~/Applications"
+    desc: "notch: build and install to ~/Applications (skips copy if binary unchanged)"
     deps: [build]
+    vars:
+      NEW_HASH:
+        sh: unzip -p "{{.NOTCH_ZIP}}" "machNotch.app/Contents/MacOS/machNotch" 2>/dev/null | md5 | tr -d ' \n'
+      OLD_HASH:
+        sh: md5 "{{.NOTCH_BIN}}" 2>/dev/null | awk '{print $NF}' || echo "none"
     cmds:
-      - mkdir -p "{{.HOME}}/Applications"
-      - rm -rf "{{.NOTCH_DEST}}" "{{.UNZIP_TMP}}"
-      - mkdir -p "{{.UNZIP_TMP}}"
-      - unzip -q "{{.NOTCH_ZIP}}" -d "{{.UNZIP_TMP}}"
-      - mv "{{.UNZIP_TMP}}/machNotch.app" "{{.NOTCH_DEST}}"
-      - rm -rf "{{.UNZIP_TMP}}"
-      - codesign --force --deep --sign "{{.CERT}}" "{{.NOTCH_DEST}}"
-      - echo "✓ Installed and signed at {{.NOTCH_DEST}}"
+      - |
+        if [ "{{.NEW_HASH}}" = "{{.OLD_HASH}}" ]; then
+          echo "✓ Binary unchanged — skipping install (TCC permissions intact)"
+        else
+          echo "Binary changed — installing..."
+          mkdir -p "{{.HOME}}/Applications"
+          rm -rf "{{.NOTCH_DEST}}" "{{.UNZIP_TMP}}"
+          mkdir -p "{{.UNZIP_TMP}}"
+          unzip -q "{{.NOTCH_ZIP}}" -d "{{.UNZIP_TMP}}"
+          mv "{{.UNZIP_TMP}}/machNotch.app" "{{.NOTCH_DEST}}"
+          rm -rf "{{.UNZIP_TMP}}"
+          echo "✓ Installed at {{.NOTCH_DEST}}"
+        fi
 
   kill:
     desc: "notch: kill the running instance"
@@ -49,7 +60,7 @@ tasks:
   # ── mach.brief ────────────────────────────────────────────────────────────
 
   brief:run:
-    desc: "brief: build, sign, install to ~/Applications, launch"
+    desc: "brief: build, install (only if changed), launch"
     deps: [brief:install]
     cmds:
       - task: brief:kill
@@ -58,12 +69,12 @@ tasks:
       - echo "✓ machBrief launched from {{.BRIEF_DEST}}"
 
   brief:build:
-    desc: "brief: build with Bazel"
+    desc: "brief: build with Bazel (dev signing via --config=local)"
     cmds:
       - bazelisk build //Apps/machBrief:machBrief
 
   brief:install:
-    desc: "brief: build, unzip, sign and install to ~/Applications"
+    desc: "brief: build and install to ~/Applications"
     deps: [brief:build]
     cmds:
       - mkdir -p "{{.HOME}}/Applications"
@@ -72,8 +83,7 @@ tasks:
       - unzip -q "{{.BRIEF_ZIP}}" -d "{{.UNZIP_TMP}}"
       - mv "{{.UNZIP_TMP}}/machBrief.app" "{{.BRIEF_DEST}}"
       - rm -rf "{{.UNZIP_TMP}}"
-      - codesign --force --deep --sign "{{.CERT}}" "{{.BRIEF_DEST}}"
-      - echo "✓ Installed and signed at {{.BRIEF_DEST}}"
+      - echo "✓ Installed at {{.BRIEF_DEST}}"
 
   brief:kill:
     desc: "brief: kill the running instance"
