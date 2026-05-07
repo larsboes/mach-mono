@@ -130,6 +130,7 @@ struct CalendarView: View {
             }
         }
         .onAppear {
+            pluginManager?.services.calendar.refreshAuthorizationStatus()
             Task {
                 await pluginManager?.services.calendar.updateCurrentDate(Date.now)
                 selectedDate = Date.now
@@ -193,29 +194,23 @@ struct EmptyEventsView: View {
         buttonLabel: String,
         action: @escaping () -> Void
     ) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: icon)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(iconColor)
-            VStack(alignment: .leading, spacing: 4) {
-                Text(label)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Button(action: action) {
-                    Text(buttonLabel)
-                        .font(.caption.weight(.medium))
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(Color.white.opacity(0.1))
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
-                }
-                .buttonStyle(.plain)
+        VStack(spacing: 8) {
+            Label(label, systemImage: icon)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Button(action: action) {
+                Text(buttonLabel)
+                    .font(.caption.weight(.semibold))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 7)
+                    .background(Color.white.opacity(0.12))
+                    .foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
             }
+            .buttonStyle(.plain)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 8)
-        .padding(.top, 6)
+        .frame(maxWidth: .infinity)
+        .padding(.top, 8)
     }
 }
 

@@ -13,6 +13,7 @@ protocol CalendarServiceProtocol: Observable {
     var eventCalendars: [CalendarModel] { get }
     var reminderLists: [CalendarModel] { get }
     
+    func refreshAuthorizationStatus()
     func checkCalendarAuthorization() async
     func checkReminderAuthorization() async
     func updateCurrentDate(_ date: Date) async

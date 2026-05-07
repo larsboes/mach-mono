@@ -71,6 +71,12 @@ class CalendarService: CalendarServiceProtocol {
         updateSelectedCalendars()
     }
     
+    /// Read current authorization status without prompting — safe to call on every view appear.
+    func refreshAuthorizationStatus() {
+        calendarAuthorizationStatus = EKEventStore.authorizationStatus(for: .event)
+        reminderAuthorizationStatus = EKEventStore.authorizationStatus(for: .reminder)
+    }
+
     func checkCalendarAuthorization() async {
         let status = EKEventStore.authorizationStatus(for: .event)
         self.calendarAuthorizationStatus = status
