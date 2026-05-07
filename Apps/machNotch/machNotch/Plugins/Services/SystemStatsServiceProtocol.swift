@@ -200,6 +200,12 @@ final class SystemStatsService: SystemStatsServiceProtocol {
         let elapsed = sample.timestamp.timeIntervalSince(previous.timestamp)
         guard elapsed > 0 else { return (0, 0) }
 
+        // Guard against counter reset or interface change causing underflow
+        guard sample.receivedBytes >= previous.receivedBytes,
+              sample.sentBytes >= previous.sentBytes else {
+            previousNetworkSample = sample
+            return (0, 0)
+        }
         let down = Double(sample.receivedBytes - previous.receivedBytes) / elapsed
         let up = Double(sample.sentBytes - previous.sentBytes) / elapsed
         return (max(0, down), max(0, up))
