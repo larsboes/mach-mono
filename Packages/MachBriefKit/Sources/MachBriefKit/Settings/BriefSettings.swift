@@ -90,11 +90,11 @@ public enum BriefSettingsCoding {
         return settings
     }
 
-    public static func load(from defaults: UserDefaults = .standard) -> BriefSettings {
+    public static func load(from defaults: UserDefaults = MachSharedDefaults.suite) -> BriefSettings {
         decode(defaults.string(forKey: userDefaultsKey) ?? "")
     }
 
-    public static func save(_ settings: BriefSettings, to defaults: UserDefaults = .standard) {
+    public static func save(_ settings: BriefSettings, to defaults: UserDefaults = MachSharedDefaults.suite) {
         defaults.set(encode(settings), forKey: userDefaultsKey)
     }
 }

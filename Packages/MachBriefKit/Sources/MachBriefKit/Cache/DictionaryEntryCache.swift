@@ -28,7 +28,7 @@ public actor DictionaryEntryCache {
     }
 
     private static func load() -> [String: WordItem] {
-        guard let data = UserDefaults.standard.data(forKey: storageKey),
+        guard let data = MachSharedDefaults.suite.data(forKey: storageKey),
               let decoded = try? JSONDecoder().decode([String: WordItem].self, from: data)
         else { return [:] }
         return decoded
@@ -36,6 +36,6 @@ public actor DictionaryEntryCache {
 
     private static func persist(_ cache: [String: WordItem]) {
         guard let data = try? JSONEncoder().encode(cache) else { return }
-        UserDefaults.standard.set(data, forKey: storageKey)
+        MachSharedDefaults.suite.set(data, forKey: storageKey)
     }
 }

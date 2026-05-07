@@ -18,6 +18,7 @@ swift_library(
 macos_extension(
     name = "machBriefWidget",
     bundle_id = "mach.brief.widget",
+    entitlements = "machBriefWidget/machBriefWidget.entitlements",
     infoplists = ["machBriefWidget/Info.plist"],
     minimum_os_version = "26.0",
     deps = [":machBriefWidget_Lib"],
@@ -26,6 +27,7 @@ macos_extension(
 macos_application(
     name = "machBrief",
     bundle_id = "mach.brief",
+    entitlements = "machBrief/machBrief.entitlements",
     infoplists = ["machBrief/Info.plist"],
     minimum_os_version = "26.0",
     deps = [":machBrief_Lib"],
