@@ -18,6 +18,7 @@ tasks:
     deps: [install]
     cmds:
       - task: kill
+      - sleep 1
       - open "{{.NOTCH_DEST}}"
       - echo "✓ machNotch launched from {{.NOTCH_DEST}}"
 
@@ -52,6 +53,7 @@ tasks:
     deps: [brief:install]
     cmds:
       - task: brief:kill
+      - sleep 1
       - open "{{.BRIEF_DEST}}"
       - echo "✓ machBrief launched from {{.BRIEF_DEST}}"
 
