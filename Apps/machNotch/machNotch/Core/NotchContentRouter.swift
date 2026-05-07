@@ -40,11 +40,11 @@ struct NotchContentRouter: View {
             case .open(let view):
                 openContent(view)
 
-            case .sneakPeek(let type, let value, let icon):
+            case .sneakPeek:
                 // Handled in closedContent for now, but enum allows top-level state
                 EmptyView()
 
-            case .expanding(let type):
+            case .expanding:
                 // Expanding view content (future implementation)
                 EmptyView()
             }

@@ -69,6 +69,8 @@ final class WeatherService: NSObject, WeatherServiceProtocol, CLLocationManagerD
             #endif
         case _ where locationAuthorizationStatus.grantsWeatherLocationAccess:
             startUpdatingWeather()
+        case .authorizedAlways:
+            startUpdatingWeather()
         case .denied, .restricted:
             errorMessage = "Location access denied"
         @unknown default:
@@ -242,7 +244,7 @@ private struct WeatherKitWeatherProvider: WeatherProvider {
             low: daily?.lowTemperature.converted(to: .celsius).value
                 ?? current.temperature.converted(to: .celsius).value,
             precipitationChance: daily?.precipitationChance,
-            precipitationAmount: daily?.precipitationAmount.converted(to: .millimeters).value,
+            precipitationAmount: daily?.precipitationAmount.converted(to: .millimeters).value, // TODO: migrate to precipitationAmountByType
             uvIndex: current.uvIndex.value,
             location: "Current Location",
             lastUpdated: current.date,

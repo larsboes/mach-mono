@@ -93,7 +93,6 @@ extension ShelfMenuActionTarget {
             if response == .OK, let appURL = panel.url {
                 Task {
                     do {
-                        let config = NSWorkspace.OpenConfiguration()
                         if alwaysCheckbox.state == .on, let bundleID = Bundle(url: appURL)?.bundleIdentifier {
                             if let contentType = (try? fileURL.resourceValues(forKeys: [.contentTypeKey]))?.contentType {
                                 let status = LSSetDefaultRoleHandlerForContentType(contentType.identifier as CFString, LSRolesMask.all, bundleID as CFString)
@@ -106,10 +105,11 @@ extension ShelfMenuActionTarget {
 
                         if needsSecurityScope {
                             _ = try await fileURL.accessSecurityScopedResource { accessibleURL in
-                                try await NSWorkspace.shared.open([accessibleURL], withApplicationAt: appURL, configuration: config)
+                                // Create config inside the Sendable closure to avoid capturing non-Sendable NSWorkspace.OpenConfiguration
+                                try await NSWorkspace.shared.open([accessibleURL], withApplicationAt: appURL, configuration: NSWorkspace.OpenConfiguration())
                             }
                         } else {
-                            try await NSWorkspace.shared.open([fileURL], withApplicationAt: appURL, configuration: config)
+                            try await NSWorkspace.shared.open([fileURL], withApplicationAt: appURL, configuration: NSWorkspace.OpenConfiguration())
                         }
                     } catch {
                         print("Failed to open with application: \(error.localizedDescription)")
