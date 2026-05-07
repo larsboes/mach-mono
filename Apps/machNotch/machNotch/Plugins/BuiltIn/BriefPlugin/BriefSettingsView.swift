@@ -11,14 +11,25 @@ struct BriefSettingsView: View {
     
     var body: some View {
         Form {
-            Section(header: Text("General")) {
-                Toggle("Enable Notifications", isOn: $settings.notificationsEnabled)
-                
-                Picker("Word Language", selection: $settings.wordLanguageID) {
+            Section(header: Text("Vocabulary")) {
+                Picker("Language", selection: $settings.wordLanguageID) {
                     ForEach(BriefLanguage.supported) { lang in
                         Text(lang.displayName).tag(lang.id)
                     }
                 }
+                Picker("Level", selection: Binding(
+                    get: { settings.vocabularyLevel },
+                    set: { settings.vocabularyLevel = $0 }
+                )) {
+                    Text("All words").tag(Optional<VocabularyLevel>.none)
+                    ForEach(VocabularyLevel.allCases, id: \.self) { level in
+                        Text(level.displayName).tag(Optional(level))
+                    }
+                }
+            }
+
+            Section(header: Text("General")) {
+                Toggle("Enable Notifications", isOn: $settings.notificationsEnabled)
             }
             
             Section(header: Text("Slot Assignments")) {

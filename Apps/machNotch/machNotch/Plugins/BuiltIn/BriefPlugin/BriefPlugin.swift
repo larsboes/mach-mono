@@ -2,8 +2,6 @@
 //  BriefPlugin.swift
 //  machNotch
 //
-//  Daily text brief — word, quote, fact, and mantra shown in a 4-panel hover view.
-//
 
 import MachBriefKit
 import SwiftUI
@@ -27,6 +25,7 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
     var closedNotchPosition: ClosedNotchPosition { .right }
 
     private(set) var allEntries: [String: BriefEntry] = [:]
+    private(set) var needsLevelOnboarding: Bool = true
     private let engine = BriefEngine()
     private let panelSources = ["word", "quote", "fact", "mantra"]
     @ObservationIgnored private var cancellables = Set<AnyCancellable>()
@@ -55,6 +54,7 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
     private func reloadEntries() async {
         let now = Date()
         let settings = BriefSettingsCoding.load()
+        needsLevelOnboarding = settings.vocabularyLevel == nil
         var fetched: [String: BriefEntry] = [:]
         await withTaskGroup(of: (String, BriefEntry).self) { group in
             for sourceID in panelSources {
@@ -70,10 +70,17 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
         allEntries = fetched
     }
 
+    func setVocabularyLevel(_ level: VocabularyLevel) {
+        var settings = BriefSettingsCoding.load()
+        settings.vocabularyLevel = level
+        BriefSettingsCoding.save(settings)
+        NotificationCenter.default.post(name: NSNotification.Name("briefSettingsDidChange"), object: nil)
+    }
+
     // MARK: - Display
 
     var displayRequest: DisplayRequest? {
-        guard isEnabled, state.isActive, !allEntries.isEmpty else { return nil }
+        guard isEnabled, state.isActive else { return nil }
         return DisplayRequest(priority: .background, category: DisplayRequest.utility)
     }
 
@@ -100,6 +107,12 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
 
     @ViewBuilder
     func expandedPanelContent() -> some View {
-        BriefExpandedView(entries: allEntries, sources: panelSources)
+        if needsLevelOnboarding {
+            VocabularyLevelPickerView { [weak self] level in
+                self?.setVocabularyLevel(level)
+            }
+        } else {
+            BriefExpandedView(entries: allEntries, sources: panelSources)
+        }
     }
 }

@@ -6,19 +6,22 @@ public struct WordItem: Codable, Sendable {
     public let partOfSpeech: String?
     public let phonetic: String?
     public let example: String?
+    public let level: VocabularyLevel?
 
     public init(
         word: String,
         definition: String? = nil,
         partOfSpeech: String? = nil,
         phonetic: String? = nil,
-        example: String? = nil
+        example: String? = nil,
+        level: VocabularyLevel? = nil
     ) {
         self.word = word
         self.definition = definition
         self.partOfSpeech = partOfSpeech
         self.phonetic = phonetic
         self.example = example
+        self.level = level
     }
 }
 
@@ -36,6 +39,7 @@ public struct WordSource: BriefSource {
         scheduler: DailyScheduler = DailyScheduler(),
         dictionaryClient: any DictionaryAPIClientProtocol = DictionaryAPIClient(),
         language: BriefLanguage = .english,
+        vocabularyLevel: VocabularyLevel? = nil,
         entryCache: DictionaryEntryCache = .shared,
         words: [WordItem]? = nil,
         customWordsURL: URL? = nil
@@ -44,9 +48,15 @@ public struct WordSource: BriefSource {
         self.dictionaryClient = dictionaryClient
         self.language = language
         self.entryCache = entryCache
-        self.words = words
+        let allWords = words
             ?? Self.loadCustomWords(from: customWordsURL)
             ?? BundleJSON.load(language.wordResourceName, fallback: Self.fallbackWords(for: language))
+        if let level = vocabularyLevel {
+            let filtered = allWords.filter { $0.level == nil || $0.level == level }
+            self.words = filtered.isEmpty ? allWords : filtered
+        } else {
+            self.words = allWords
+        }
     }
 
     public func entry(for slot: DailySlot, date: Date) async -> BriefEntry {

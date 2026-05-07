@@ -7,6 +7,7 @@ public struct BriefSettings: Codable, Equatable, Sendable {
     public var customWordListPath: String?
     public var notificationsEnabled: Bool
     public var obsidianNotePath: String?
+    public var vocabularyLevel: VocabularyLevel?
 
     public init(
         enabledSourceIDs: Set<String> = Set(BriefSourceRegistry.defaultSourceIDs),
@@ -14,7 +15,8 @@ public struct BriefSettings: Codable, Equatable, Sendable {
         wordLanguageID: String = BriefLanguage.defaultLanguage.id,
         customWordListPath: String? = nil,
         notificationsEnabled: Bool = false,
-        obsidianNotePath: String? = nil
+        obsidianNotePath: String? = nil,
+        vocabularyLevel: VocabularyLevel? = nil
     ) {
         self.enabledSourceIDs = enabledSourceIDs
         self.slotAssignments = slotAssignments
@@ -22,6 +24,7 @@ public struct BriefSettings: Codable, Equatable, Sendable {
         self.customWordListPath = customWordListPath
         self.notificationsEnabled = notificationsEnabled
         self.obsidianNotePath = obsidianNotePath
+        self.vocabularyLevel = vocabularyLevel
     }
 
     public static let defaultSlotAssignments: [DailySlot: String] = [
