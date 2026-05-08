@@ -60,7 +60,7 @@ jobs:
     needs: [preparation, build]
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.ref_name }}
 
@@ -183,7 +183,7 @@ jobs:
           name: homebrew-cask-${{ env.VERSION }}
           path: mach-notch*.rb
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: larsboes/mach-mono
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}

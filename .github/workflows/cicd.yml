@@ -23,7 +23,7 @@ jobs:
     runs-on: macos-latest
     steps:
     - name: Code Checkout
-      uses: actions/checkout@v6.0.2
+      uses: actions/checkout@v6
     - name: Build machNotch
       run: |
         xcodebuild -project Apps/machNotch/machNotch.xcodeproj \
@@ -36,7 +36,7 @@ jobs:
     name: Test
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Test machNotch
       run: |
         xcodebuild -project Apps/machNotch/machNotch.xcodeproj \
@@ -48,6 +48,6 @@ jobs:
     name: Architecture Check
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Run architecture checks
       run: bash .github/scripts/arch-check.sh
