@@ -19,32 +19,10 @@ final class NowPlayingController: MediaControllerProtocol {
     // MARK: - Properties
     var playbackState: PlaybackState = .init(
         bundleIdentifier: "com.apple.Music"
-    ) {
-        didSet { _playbackStateSubject.send(playbackState) }
-    }
-
-    var currentTime: Double = 0 {
-        didSet { _progressSubject.send((currentTime, duration)) }
-    }
-    var duration: Double = 0 {
-        didSet { _progressSubject.send((currentTime, duration)) }
-    }
-
-    @ObservationIgnored
-    private let _playbackStateSubject = CurrentValueSubject<PlaybackState, Never>(
-        .init(bundleIdentifier: "com.apple.Music")
     )
 
-    @ObservationIgnored
-    private let _progressSubject = PassthroughSubject<(currentTime: Double, duration: Double), Never>()
-
-    var playbackStatePublisher: AnyPublisher<PlaybackState, Never> {
-        _playbackStateSubject.eraseToAnyPublisher()
-    }
-
-    var progressPublisher: AnyPublisher<(currentTime: Double, duration: Double), Never> {
-        _progressSubject.eraseToAnyPublisher()
-    }
+    var currentTime: Double = 0
+    var duration: Double = 0
 
     var supportsVolumeControl: Bool {
         let bundleID = playbackState.bundleIdentifier
@@ -183,8 +161,8 @@ final class NowPlayingController: MediaControllerProtocol {
     private func setupNowPlayingObserver() async {
         let process = Process()
         let frameworkPath = Bundle.main.privateFrameworksPath?.appending("/MediaRemoteAdapter.framework")
-        print("Script URL: \(String(describing: Bundle.main.url(forResource: "mediaremote-adapter", withExtension: "pl")))")
-        print("Framework Path: \(String(describing: frameworkPath))")
+        Logger.log("Script URL: \(String(describing: Bundle.main.url(forResource: "mediaremote-adapter", withExtension: "pl")))", category: .debug)
+        Logger.log("Framework Path: \(String(describing: frameworkPath))", category: .debug)
         guard
             let scriptURL = Bundle.main.url(forResource: "mediaremote-adapter", withExtension: "pl"),
             let frameworkPath = frameworkPath,

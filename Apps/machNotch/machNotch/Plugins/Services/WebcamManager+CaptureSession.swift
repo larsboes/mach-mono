@@ -29,8 +29,8 @@ extension WebcamManager {
 
                 guard let videoDevice = discoverySession.devices.first else {
                     NSLog("No video devices available")
-                    DispatchQueue.main.async {
-                        self.isSessionRunning = false
+                    Task { @MainActor in
+self.isSessionRunning = false
                         self.cameraAvailable = false
                     }
                     completion(false)
@@ -60,8 +60,8 @@ extension WebcamManager {
 
                 self.sessionContainer.session = session
 
-                DispatchQueue.main.async {
-                    self.cameraAvailable = true
+                Task { @MainActor in
+self.cameraAvailable = true
                     let previewLayer = AVCaptureVideoPreviewLayer(session: session)
                     previewLayer.videoGravity = .resizeAspectFill
                     self.previewLayer = previewLayer
@@ -71,8 +71,8 @@ extension WebcamManager {
                 NSLog("Capture session setup completed successfully")
             } catch {
                 NSLog("Failed to setup capture session: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    self.isSessionRunning = false
+                Task { @MainActor in
+self.isSessionRunning = false
                     self.cameraAvailable = false
                     self.previewLayer = nil
                 }
@@ -96,8 +96,8 @@ extension WebcamManager {
             }
             existingSession.commitConfiguration()
             self.sessionContainer.session = nil
-            DispatchQueue.main.async {
-                self.previewLayer = nil
+            Task { @MainActor in
+self.previewLayer = nil
             }
         }
     }
@@ -115,8 +115,8 @@ extension WebcamManager {
 
     nonisolated func updateSessionState() {
         let isRunning = self.sessionContainer.session?.isRunning ?? false
-        DispatchQueue.main.async {
-            self.isSessionRunning = isRunning
+        Task { @MainActor in
+self.isSessionRunning = isRunning
         }
     }
 }

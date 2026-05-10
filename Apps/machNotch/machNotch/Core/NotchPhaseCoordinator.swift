@@ -28,8 +28,6 @@ protocol NotchPhaseDelegate: AnyObject {
     var isHoveringNotch: Bool { get }
     
     func syncWindowState()
-    func startHoverHeartbeat()
-    func stopHoverHeartbeat()
     func handleHoverSignal(_ signal: HoverSignal)
     func syncAnimationState(animated: Bool)
     func syncBackgroundServices()
@@ -82,7 +80,7 @@ protocol NotchPhaseDelegate: AnyObject {
             self.phase = .open
             delegate.hoverController.setNotchOpen(true)
             delegate.syncWindowState()
-            delegate.startHoverHeartbeat()
+            delegate.hoverController.startHeartbeat()
         }
 
         // Content reveals independently — shell leads, content follows
@@ -104,7 +102,7 @@ protocol NotchPhaseDelegate: AnyObject {
 
         delegate.hoverController.cancelPendingOpen()
         delegate.hoverController.setNotchOpen(false)
-        delegate.stopHoverHeartbeat()
+        delegate.hoverController.stopHeartbeat()
 
         // Reset transient state before animation starts
         delegate.isBatteryPopoverActive = false
@@ -184,7 +182,7 @@ protocol NotchPhaseDelegate: AnyObject {
         // Start hover heartbeat if not already running
         delegate.hoverController.setNotchOpen(true)
         delegate.syncWindowState()
-        delegate.startHoverHeartbeat()
+        delegate.hoverController.startHeartbeat()
 
         let closedSize = delegate.effectiveClosedNotchSize
         let openSize = openNotchSize

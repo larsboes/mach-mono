@@ -67,8 +67,8 @@ struct CameraPreviewView: View {
                 webcamManager.startSession()
             }
         case .denied, .restricted:
-            DispatchQueue.main.async {
-                let alert = NSAlert()
+            Task { @MainActor in
+let alert = NSAlert()
                 alert.messageText = "Camera Access Required"
                 alert.informativeText = "Please allow camera access in System Settings to use the mirror feature."
                 alert.addButton(withTitle: "Open System Settings")
@@ -84,8 +84,9 @@ struct CameraPreviewView: View {
             isRequestingAuthorization = true
             webcamManager.checkAndRequestVideoAuthorization()
             // Reset the request flag after a reasonable delay
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                isRequestingAuthorization = false
+            Task { @MainActor in
+    try? await Task.sleep(nanoseconds: 2000000000)
+isRequestingAuthorization = false
             }
         @unknown default:
             break

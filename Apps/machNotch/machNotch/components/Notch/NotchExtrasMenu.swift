@@ -72,8 +72,9 @@ struct NotchExtrasMenu: View {
     var hide: some View {
         NotchMenuButton(
             action: {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                    // vm.openMusic()
+                Task { @MainActor in
+    try? await Task.sleep(nanoseconds: 250000000)
+// vm.openMusic()
                 }
             },
             icon: Image(systemName: "arrow.down.forward.and.arrow.up.backward"),
@@ -84,9 +85,11 @@ struct NotchExtrasMenu: View {
     var close: some View {
         NotchMenuButton(
             action: {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                        NSApp.terminate(nil)
+                Task { @MainActor in
+    try? await Task.sleep(nanoseconds: 250000000)
+Task { @MainActor in
+    try? await Task.sleep(nanoseconds: 250000000)
+NSApp.terminate(nil)
                     }
                 }
             },

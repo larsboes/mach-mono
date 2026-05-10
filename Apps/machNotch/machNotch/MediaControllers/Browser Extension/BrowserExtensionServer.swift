@@ -45,9 +45,9 @@ final class BrowserExtensionServer {
 
             listener.start(queue: .main)
             self.listener = listener
-            print("[BrowserExtensionServer] Started on port \(port)")
+            Logger.log("[BrowserExtensionServer] Started on port \(port)", category: .network)
         } catch {
-            print("[BrowserExtensionServer] Failed to start listener: \(error)")
+            Logger.log("[BrowserExtensionServer] Failed to start listener: \(error)", category: .error)
         }
     }
 

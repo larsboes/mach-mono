@@ -57,7 +57,7 @@ actor ThumbnailService: ThumbnailServiceProtocol {
     }
     
     private func generateQuickLookThumbnail(for url: URL, size: CGSize) async -> CGImage? {
-        let scale = await MainActor.run { NSScreen.main?.backingScaleFactor ?? 2.0 }
+        let scale = await MainActor.run { (NSScreen.main ?? NSScreen.screens.first)?.backingScaleFactor ?? 2.0 }
         
         return await url.accessSecurityScopedResource { scopedURL -> CGImage? in
             let request = QLThumbnailGenerator.Request(

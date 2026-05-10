@@ -17,11 +17,14 @@ final class AppObjectGraph {
     let eventBus = PluginEventBus()
     let settings = DefaultsNotchSettings()
     let spaceManager = NotchSpaceManager()
+    let permissionStore = PermissionStateStore()
     let settingsWindowController = SettingsWindowController()
     lazy var coordinator = NotchViewCoordinator(settings: settings, xpcHelper: XPCHelperClient.shared)
     lazy var localAPIServerController = LocalAPIServerController(
         eventBus: eventBus,
         pluginManager: pluginManager,
+        // [unowned self] is safe: AppObjectGraph owns LocalAPIServerController via lazy
+        // var, so the controller cannot outlive the graph.
         viewModelProvider: { [unowned self] in self.vm }
     )
 
@@ -185,17 +188,9 @@ final class AppObjectGraph {
     // MARK: - Notification Observer Setup
 
     func setupNotificationObservers(
-        screenConfigSelector: Selector,
         target: AnyObject
     ) -> (observers: [Any], screenLocked: Any?, screenUnlocked: Any?) {
         var observers: [Any] = []
-
-        NotificationCenter.default.addObserver(
-            target,
-            selector: screenConfigSelector,
-            name: NSApplication.didChangeScreenParametersNotification,
-            object: nil
-        )
 
         observers.append(NotificationCenter.default.addObserver(
             forName: Notification.Name.selectedScreenChanged, object: nil, queue: nil

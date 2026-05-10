@@ -128,11 +128,13 @@ private struct NSViewHost: NSViewRepresentable {
     
     func makeNSView(context: Context) -> NSView {
         let v = NSView(frame: .zero)
-        DispatchQueue.main.async { self.view = v }
+        Task { @MainActor in
+self.view = v }
         return v
     }
     
     func updateNSView(_ nsView: NSView, context: Context) {
-        DispatchQueue.main.async { self.view = nsView }
+        Task { @MainActor in
+self.view = nsView }
     }
 }

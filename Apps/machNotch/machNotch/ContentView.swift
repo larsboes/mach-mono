@@ -37,34 +37,6 @@ struct ContentView: View {
         return false
     }
 
-    // MARK: - State Observation
-
-    private struct StateSnapshot: Equatable {
-        let helloAnimationRunning: Bool
-        let notchState: NotchState
-        let currentView: NotchViews
-        let sneakPeekShow: Bool
-        let expandingViewShow: Bool
-        let isPlaying: Bool
-        let isPlayerIdle: Bool
-        let activePluginId: String?
-        let pluginActivationGeneration: Int
-    }
-
-    private var currentStateSnapshot: StateSnapshot {
-        StateSnapshot(
-            helloAnimationRunning: coordinator.helloAnimationRunning,
-            notchState: vm.notchState,
-            currentView: vm.currentView,
-            sneakPeekShow: coordinator.sneakPeek.show,
-            expandingViewShow: coordinator.expandingView.show,
-            isPlaying: musicService.playbackState.isPlaying,
-            isPlayerIdle: musicService.isPlayerIdle,
-            activePluginId: pluginManager?.highestPriorityClosedNotchPlugin(),
-            pluginActivationGeneration: pluginManager?.pluginActivationGeneration ?? 0
-        )
-    }
-
     var body: some View {
         @Bindable var vm = vm
         let _ = {
@@ -92,10 +64,6 @@ struct ContentView: View {
                 )
                     .environment(\.contentProgress, contentProgress)
                     .environment(\.isNotchClosing, vm.phase == .closing)
-                    .onAppear {
-                        updateStateMachine()
-                    }
-                    .onChange(of: currentStateSnapshot) { _, _ in updateStateMachine() }
                     .onDrop(of: [.fileURL, .url, .utf8PlainText, .plainText, .data], delegate: GeneralDropTargetDelegate(isTargeted: $vm.generalDropTargeting))
                     .frame(width: computedChinWidth, alignment: .top)
                     // Smooth width changes when closed (music ears, battery, face).
@@ -182,28 +150,6 @@ struct ContentView: View {
                 }
             }
         }
-    }
-
-    private func updateStateMachine() {
-        // Sync plugin preferred height for notch sizing
-        if let activePluginId = pluginManager?.highestPriorityClosedNotchPlugin(),
-           let plugin = pluginManager?.plugin(id: activePluginId),
-           let preferredHeight = plugin.displayRequest?.preferredHeight {
-            vm.pluginPreferredHeight = preferredHeight
-        } else {
-            vm.pluginPreferredHeight = nil
-        }
-
-        let input = NotchStateMachine.createInput(
-            notchState: vm.notchState,
-            currentView: vm.currentView,
-            coordinator: coordinator,
-            musicService: musicService,
-            pluginManager: pluginManager,
-            hideOnClosed: vm.hideOnClosed,
-            settings: settings
-        )
-        stateMachine.update(with: input)
     }
 
     @ViewBuilder

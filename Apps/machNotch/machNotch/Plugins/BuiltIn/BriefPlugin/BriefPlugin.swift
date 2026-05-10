@@ -7,6 +7,10 @@ import MachBriefKit
 import SwiftUI
 import Combine
 
+extension Notification.Name {
+    static let briefSettingsDidChange = Notification.Name("briefSettingsDidChange")
+}
+
 @MainActor
 @Observable
 final class BriefPlugin: NotchPlugin, PositionedPlugin {
@@ -26,6 +30,7 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
 
     private(set) var allEntries: [String: BriefEntry] = [:]
     private(set) var needsLevelOnboarding: Bool = true
+    private(set) var currentLanguageID: String = BriefLanguage.defaultLanguage.id
     private let engine = BriefEngine()
     private let panelSources = ["word", "quote", "fact", "mantra"]
     @ObservationIgnored private var cancellables = Set<AnyCancellable>()
@@ -39,7 +44,7 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
         await reloadEntries()
         state = .active
 
-        NotificationCenter.default.publisher(for: NSNotification.Name("briefSettingsDidChange"))
+        NotificationCenter.default.publisher(for: .briefSettingsDidChange)
             .sink { [weak self] _ in self?.scheduleReload() }
             .store(in: &cancellables)
     }
@@ -65,6 +70,7 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
         let now = Date()
         let settings = BriefSettingsCoding.load()
         needsLevelOnboarding = settings.vocabularyLevel == nil
+        currentLanguageID = settings.wordLanguageID
         var fetched: [String: BriefEntry] = [:]
         await withTaskGroup(of: (String, BriefEntry).self) { group in
             for sourceID in panelSources {
@@ -80,11 +86,18 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
         allEntries = fetched
     }
 
+    func setLanguage(_ id: String) {
+        var settings = BriefSettingsCoding.load()
+        settings.wordLanguageID = id
+        BriefSettingsCoding.save(settings)
+        NotificationCenter.default.post(name: .briefSettingsDidChange, object: nil)
+    }
+
     func setVocabularyLevel(_ level: VocabularyLevel) {
         var settings = BriefSettingsCoding.load()
         settings.vocabularyLevel = level
         BriefSettingsCoding.save(settings)
-        NotificationCenter.default.post(name: NSNotification.Name("briefSettingsDidChange"), object: nil)
+        NotificationCenter.default.post(name: .briefSettingsDidChange, object: nil)
     }
 
     // MARK: - Display
@@ -122,7 +135,12 @@ final class BriefPlugin: NotchPlugin, PositionedPlugin {
                 self?.setVocabularyLevel(level)
             }
         } else {
-            BriefExpandedView(entries: allEntries, sources: panelSources)
+            BriefExpandedView(
+                entries: allEntries,
+                sources: panelSources,
+                languageID: currentLanguageID,
+                onLanguageChange: { [weak self] id in self?.setLanguage(id) }
+            )
         }
     }
 }

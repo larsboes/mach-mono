@@ -108,8 +108,8 @@ import Foundation
         }
         if !volumes.isEmpty {
             let avg = max(0, min(1, volumes.reduce(0, +) / Float32(volumes.count)))
-            DispatchQueue.main.async {
-                if self.rawVolume != avg {
+            Task { @MainActor in
+if self.rawVolume != avg {
                     if self.didInitialFetch {
                         self.lastChangeAt = Date()
                     }
@@ -132,8 +132,8 @@ import Foundation
                 var mSize = sizeNeeded
                 if AudioObjectGetPropertyData(deviceID, &muteAddr, 0, nil, &mSize, &muted) == noErr {
                     let newMuted = muted != 0
-                    DispatchQueue.main.async {
-                        if self.isMuted != newMuted { self.lastChangeAt = Date() }
+                    Task { @MainActor in
+if self.isMuted != newMuted { self.lastChangeAt = Date() }
                         self.isMuted = newMuted
                     }
                 }
@@ -200,8 +200,8 @@ import Foundation
     }
 
     func publish(volume: Float32, muted: Bool, touchDate: Bool) {
-        DispatchQueue.main.async {
-            if touchDate { self.lastChangeAt = Date() }
+        Task { @MainActor in
+if touchDate { self.lastChangeAt = Date() }
             self.rawVolume = volume
             self.isMuted = muted
         }

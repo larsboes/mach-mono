@@ -176,7 +176,7 @@ struct NotchContentRouter: View {
                 .frame(height: max(
                     54, // Increased from 44 to prevent cutoff
                     (NSScreen.screen(withUUID: coordinator.selectedScreenUUID)?.safeAreaInsets.top
-                        ?? NSScreen.main?.safeAreaInsets.top
+                        ?? (NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first)?.safeAreaInsets.top
                         ?? 0) + 10 // Add some breathing room
                 ))
 

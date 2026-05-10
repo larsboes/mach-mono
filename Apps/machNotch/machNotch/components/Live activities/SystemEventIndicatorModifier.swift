@@ -13,8 +13,8 @@ struct SystemEventIndicatorModifier: View {
     @Binding var eventType: SneakContentType
     @Binding var value: CGFloat {
         didSet {
-            DispatchQueue.main.async {
-                self.sendEventBack(value)
+            Task { @MainActor in
+self.sendEventBack(value)
             }
         }
     }

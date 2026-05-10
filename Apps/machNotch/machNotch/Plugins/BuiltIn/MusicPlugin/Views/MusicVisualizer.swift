@@ -35,7 +35,7 @@ class AudioSpectrum: NSView {
         if frame.width < totalWidth {
             frame.size = CGSize(width: totalWidth, height: totalHeight)
         }
-        let scale = NSScreen.main?.backingScaleFactor ?? 2.0
+        let scale = (NSScreen.main ?? NSScreen.screens.first)?.backingScaleFactor ?? 2.0
         for i in 0..<barCount {
             let xPosition = CGFloat(i) * (barWidth + spacing)
             let barLayer = CAGradientLayer()

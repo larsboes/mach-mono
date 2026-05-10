@@ -12,11 +12,14 @@
   <a href="https://github.com/larsboes/mach-mono/stargazers">
     <img src="https://img.shields.io/github/stars/larsboes/mach-mono?style=social" alt="GitHub stars"/>
   </a>
+  <a href="https://github.com/larsboes/mach-mono/actions/workflows/cicd.yml">
+    <img src="https://github.com/larsboes/mach-mono/actions/workflows/cicd.yml/badge.svg?branch=main" alt="CI status"/>
+  </a>
   <a href="https://github.com/larsboes/mach-mono/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg" alt="License: GPL v3"/>
   </a>
   <img src="https://img.shields.io/badge/Platform-macOS%2026%2B-lightgrey?logo=apple" alt="macOS 26+"/>
-  <img src="https://img.shields.io/badge/Swift-6%20(next)-orange?logo=swift" alt="Swift 6 next"/>
+  <img src="https://img.shields.io/badge/Swift-6.3-orange?logo=swift" alt="Swift 6.3"/>
   <img src="https://img.shields.io/badge/Bazel-Build-43A047?logo=bazel&logoColor=white" alt="Bazel Build"/>
 </p>
 
@@ -53,6 +56,7 @@ Documentation and agent configuration are layered so facts do not drift across t
 | **Structured facts** (workspace, schemes, products, policies) | [`repo.yaml`](repo.yaml) |
 | **Agent guidelines** (architectural rules, conventions, workflows) | [`docs/AGENT-GUIDELINES.md`](docs/AGENT-GUIDELINES.md) |
 | **Docs hub** (architecture, PRDs, ADRs, guides, tooling map) | [`docs/README.md`](docs/README.md) |
+| **Per-app instructions** (DDD layout, plugins, code standards) | [`Apps/machNotch/CLAUDE.md`](Apps/machNotch/CLAUDE.md) |
 
 Tool-specific entrypoints ([`CLAUDE.md`](CLAUDE.md), [`GEMINI.md`](GEMINI.md), [`AGENTS.md`](AGENTS.md)) only **point at** the canonical guidelines; they are not separate sources of truth. See *Where the overall model is defined* in [`docs/README.md`](docs/README.md) for the full map.
 
@@ -155,38 +159,36 @@ graph TD
 
 ### Prerequisites
 
-| Tool | Install |
-|------|---------|
-| [Bazelisk](https://github.com/bazelbuild/bazelisk) | `brew install bazelisk` |
-| [Task](https://taskfile.dev) | `brew install go-task` |
-| Xcode 16+ | Mac App Store |
-| Apple Developer account | For code signing (free tier is fine) |
+| Tool | Why | Install |
+|------|-----|---------|
+| **macOS 26+** | Required system version | — |
+| **Xcode 26+** | Bundled SDKs and toolchain | Mac App Store |
+| [**Bazelisk**](https://github.com/bazelbuild/bazelisk) | Wraps Bazel, auto-pins to `.bazelversion` (currently `7.6.1`) — no separate Bazel install | `brew install bazelisk` |
+| [**Task**](https://taskfile.dev) | Thin wrapper over the canonical Bazel commands (`task run`, `task test`, …) | `brew install go-task` |
+| **Apple ID** | Code signing — the free tier works (see [sideloading guide](docs/guides/sideloading.md)) | — |
 
 ### mach.notch
 
-`task run` is the canonical launch command. It builds, signs with your Apple Developer cert, installs to `~/Applications/machNotch.app`, and opens it. Running from a stable signed path means macOS remembers permissions across every rebuild — no re-prompting.
+`task run` is the canonical launch command. It builds with Bazel, signs with your Apple Development cert, installs to `~/Applications/machNotch.app` (only when the build actually changed), and opens it. Installing to a stable signed path means macOS keeps the granted TCC permissions across every rebuild — no re-prompting on iteration.
 
 ```bash
 git clone https://github.com/larsboes/mach-mono.git
 cd mach-mono
 
-task run     # build → sign → install to ~/Applications → launch
-task kill    # terminate the running instance
-task test    # run all tests
+task run         # build → sign → install (if changed) → launch
+task kill        # terminate the running instance
+task notch:test  # run machNotch tests only
 ```
-
-> **First run:** macOS will prompt for permissions (accessibility, screen recording, microphone, etc.) once. After that, `task run` rebuilds and relaunches without any prompts.
-
-> **Signing:** `task run` signs with whichever `Apple Development` certificate is in your keychain. If you have multiple, update `CERT` in `Taskfile.yml` to match `security find-identity -v -p codesigning`.
 
 ### mach.brief
 
 ```bash
-task brief:run     # build → sign → install to ~/Applications → launch
-task brief:kill    # terminate the running instance
+task brief:run    # build → install → launch
+task brief:kill   # terminate the running instance
+task brief:test   # run MachBriefKit tests only
 ```
 
-### Tests
+### All tests
 
 ```bash
 task test
@@ -202,25 +204,68 @@ open mach-mono.xcworkspace
 
 Xcode is for code navigation and editing only. Build and test via Bazel / Task.
 
+<details>
+<summary><strong>Detailed setup, signing, and troubleshooting</strong></summary>
+
+#### Build only (no install / sign)
+
+If you just want to verify a build compiles, skip `task run` and call Bazel directly:
+
+```bash
+bazelisk build //Apps/machNotch:machNotch
+bazelisk build //Apps/machBrief:machBrief
+```
+
+#### Code-signing setup
+
+`task run` signs the app bundle with `Apple Development: <you>`. List the identities in your keychain:
+
+```bash
+security find-identity -v -p codesigning
+```
+
+If you have more than one, update `CERT` in [`Taskfile.yml`](Taskfile.yml) to match the one you want to use. **No paid Apple Developer account?** The free Apple ID flow works — see the [sideloading guide](docs/guides/sideloading.md).
+
+#### First-run permissions
+
+On first launch macOS will prompt for the permissions each plugin needs:
+
+| Permission | Used by |
+|------------|---------|
+| Accessibility | Gestures, hover detection, media-key interception |
+| Screen Recording | The notch overlay window itself |
+| Microphone | Teleprompter monitoring |
+| Calendar | Calendar plugin (read-only) |
+| Notifications | Notification mirror plugin |
+
+The install sentinel at `~/Library/Caches/com.larsboes.mach/notch_zip_hash` skips the install step when the binary hasn't changed, so prompts only fire when there is a *real* change to the bundle.
+
+#### Troubleshooting
+
+| Symptom | Fix |
+|---------|-----|
+| `codesign: no identity found` | Pick another cert from `security find-identity` and update `CERT` in `Taskfile.yml`, or follow the [sideloading guide](docs/guides/sideloading.md) for the free-tier flow. |
+| Permissions reset after every rebuild | The binary changed, so the sentinel triggered a re-install. Expect *one* prompt cycle per real change. |
+| Xcode shows red errors but Bazel builds fine | Trust Bazel — Xcode is for navigation only. |
+| First build is very slow | Bazel is fetching `rules_apple` / `rules_swift` toolchains. Subsequent builds reuse the disk cache. |
+| `error -600` when opening the app right after `task kill` | `task run` already inserts a `sleep 1` after kill; re-run if you hit it manually. |
+
+#### What you don't need
+
+No CocoaPods, no Carthage, no SPM at the repo root for development. All targets, tests, and CI run through Bazel + Bzlmod (see [ADR 0007](docs/decisions/0007-native-bazel-builds.md)). The root [`Package.swift`](Package.swift) exists only as input to `rules_swift_package_manager`.
+
+</details>
+
 ---
 
 ## Roadmap
 
 - [x] `mach.notch` — notch utility (shipped)
 - [~] `mach.brief` — standalone daily brief app + [`MachBriefKit`](Packages/MachBriefKit) (in development)
-- [~] `Brief` notch plugin — daily brief snippet in the closed notch via MachBriefKit (in development)
-- [ ] `mach.window` — window snapping + DockDoor-style hover peek
-- [ ] `mach.bar` — menu bar companion (OneMenu-inspired)
-- [x] `HabitTracker` plugin — daily habits with streaks and progress rings (shipped)
-- [~] `SystemStats` plugin — CPU/GPU/RAM/disk/network rings in the notch (in progress)
-- [ ] `PreventSleep` plugin — IOKit sleep prevention toggle
-- [ ] `ExternalBrightness` plugin — DDC monitor brightness control
-- [ ] `ColorPicker` plugin — screen color sampler with history
-- [ ] `FocusMode` plugin — active Focus indicator in notch
-- [ ] `MenuBar` plugin — absorb menu bar icons into the notch
-- [ ] Shared `MachUI` package — design system across all apps
+- [~] `SystemStats` plugin — CPU/GPU/RAM/disk/network rings (in progress)
+- [ ] `mach.window`, `mach.bar`, plus more notch plugins (PreventSleep, ExternalBrightness, ColorPicker, FocusMode, MenuBar) and shared `MachUI` package
 
-See [`docs/prds/machNotch.md`](docs/prds/machNotch.md) for the full implementation plan and [`docs/README.md`](docs/README.md) for the documentation index.
+The full, prioritised plan with phases and debt triage lives in [`docs/prds/machNotch.md`](docs/prds/machNotch.md). The doc index is at [`docs/README.md`](docs/README.md).
 
 ---
 
@@ -252,6 +297,28 @@ All system requirements, including minimum OS versions (macOS/iOS) and Swift lan
 
 ## License
 
-`mach-mono` is released under the **GNU General Public License v3.0** — see [LICENSE](LICENSE) for the full terms.
+The repo currently mixes licenses — read carefully before forking or vendoring.
 
-This project incorporates code from [boring.notch](https://github.com/TheBoredTeam/boring.notch) (GPL v3). Derivative works must remain GPL v3 and open source.
+| Component | License | Target |
+|---|---|---|
+| `mach-mono` (root) + [`Apps/machNotch`](Apps/machNotch) | **GPL-3.0** (inherited from boring.notch) | MIT (after the cleansing migration completes) |
+| [`Apps/machBrief`](Apps/machBrief) | MIT | — |
+| [`Packages/MachBriefKit`](Packages/MachBriefKit) | MIT | — |
+| [`Packages/MacroVisionKit`](Packages/MacroVisionKit) | MIT | — |
+
+Full GPL-3.0 text: [LICENSE](LICENSE). Per-package licenses live next to each package.
+
+### What GPL-3.0 means for you
+
+- You may **use, modify, and redistribute** machNotch.
+- Distributed binaries must come with **source** for any modifications, under GPL-3.0.
+- Plugins compiled into the machNotch app fall under GPL-3.0 (linking).
+- Contributions to machNotch will be GPL-3.0 until the migration described below completes.
+
+### The MIT migration
+
+`machNotch` inherited GPL-3.0 from [boring.notch](https://github.com/TheBoredTeam/boring.notch). The long-term plan is to relicense the root and machNotch as **MIT** once the boring.notch-derived code has been cleanly reimplemented. New apps and packages already start MIT; new clean-slate code in machNotch should be written without copying from upstream so it can be relicensed without further rework.
+
+Decision record: [ADR 0003 — License policy](docs/decisions/0003-license-policy.md).
+Migration plan: [machNotch PRD § License Migration](docs/prds/machNotch.md#license-migration--gpl-v3--mit).
+Current and target license state per component is also tracked machine-readably in [`repo.yaml`](repo.yaml).

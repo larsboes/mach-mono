@@ -44,33 +44,3 @@ protocol ViewCoordinating: AnyObject, NotchAnimationStateProviding {
     func toggleSneakPeek(status: Bool, type: SneakContentType, duration: TimeInterval, value: CGFloat, icon: String)
     func toggleExpandingView(status: Bool, type: SneakContentType, value: CGFloat, browser: BrowserType)
 }
-
-// MARK: - State Machine Input Factory
-
-extension NotchStateMachine {
-    /// Create input from current app state. Lives here because it depends on service protocols.
-    static func createInput(
-        notchState: NotchState,
-        currentView: NotchViews,
-        coordinator: any NotchAnimationStateProviding,
-        musicService: any MusicServiceProtocol,
-        pluginManager: PluginManager?,
-        hideOnClosed: Bool,
-        settings: NotchSettings
-    ) -> NotchStateInput {
-        NotchStateInput(
-            notchState: notchState,
-            currentView: currentView,
-            helloAnimationRunning: coordinator.helloAnimationRunning,
-            sneakPeek: coordinator.sneakPeek,
-            expandingView: coordinator.expandingView,
-            activePluginId: pluginManager?.highestPriorityClosedNotchPlugin(),
-            isPlayerIdle: musicService.isPlayerIdle,
-            isPlaying: musicService.playbackState.isPlaying,
-            hideOnClosed: hideOnClosed,
-            showInlineHUD: settings.inlineHUD,
-            showNotHumanFace: settings.showNotHumanFace,
-            sneakPeekStyle: settings.sneakPeekStyles
-        )
-    }
-}

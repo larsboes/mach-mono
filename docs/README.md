@@ -78,6 +78,7 @@ These files should **point to** the table above, not restate it.
 - [`decisions/0005-weather-provider-strategy.md`](decisions/0005-weather-provider-strategy.md)
 - [`decisions/0006-deferred-native-bazel-builds.md`](decisions/0006-deferred-native-bazel-builds.md) *(superseded by 0007)*
 - [`decisions/0007-native-bazel-builds.md`](decisions/0007-native-bazel-builds.md)
+- [`decisions/0008-test-isolation-under-xctest-async.md`](decisions/0008-test-isolation-under-xctest-async.md)
 
 ## Maintenance rules
 

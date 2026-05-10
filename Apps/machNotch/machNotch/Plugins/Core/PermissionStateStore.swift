@@ -6,10 +6,10 @@
 import Foundation
 
 public actor PermissionStateStore {
-    public static let shared = PermissionStateStore()
+    static let shared = PermissionStateStore()
     private let defaults = UserDefaults.standard
 
-    private init() {}
+    init() {}
 
     private func key(for permission: PermissionType) -> String {
         return "hasRequested_\(permission.rawValue)"

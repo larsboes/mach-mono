@@ -45,8 +45,9 @@ class MachNotchXPCHelper: NSObject, MachNotchXPCHelperProtocol {
             }
 
             let replyBox = BoolReplyBox(reply)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                autoreleasepool {
+            Task { @MainActor in
+    try? await Task.sleep(nanoseconds: 500000000)
+autoreleasepool {
                     replyBox.send(AXIsProcessTrusted())
                 }
             }

@@ -44,8 +44,8 @@ import AppKit
             }
 
         case .denied, .restricted:
-            DispatchQueue.main.async {
-                NSApp.setActivationPolicy(.regular)
+            Task { @MainActor in
+NSApp.setActivationPolicy(.regular)
                 NSApp.activate(ignoringOtherApps: true)
 
                 let alert = NSAlert()
@@ -67,8 +67,9 @@ import AppKit
         case .notDetermined:
             isRequestingAuthorization = true
             webcamService.checkAndRequestVideoAuthorization()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                self.isRequestingAuthorization = false
+            Task { @MainActor in
+    try? await Task.sleep(nanoseconds: 2000000000)
+self.isRequestingAuthorization = false
             }
 
         default:

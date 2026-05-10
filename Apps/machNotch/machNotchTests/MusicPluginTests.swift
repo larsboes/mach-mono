@@ -500,6 +500,7 @@ final class StubAIService: AITextGenerationService {
 @MainActor @Observable final class StubNotesService: NotesServiceProtocol {
     var notes: [NoteItem] = []
     func addNote(title: String, content: String) {}
+    func updateNote(_ note: NoteItem) {}
     func deleteNote(_ note: NoteItem) {}
 }
 

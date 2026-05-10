@@ -17,9 +17,9 @@ final class NotchStateMachineTests: XCTestCase {
     /// Creates a default input with all options disabled for isolation testing
     func makeDefaultInput() -> NotchStateInput {
         NotchStateInput(
+            isHelloAnimationRunning: false,
             notchState: .closed,
             currentView: .home,
-            helloAnimationRunning: false,
             sneakPeek: SneakPeekState(show: false, type: .music, value: 0.0, icon: ""),
             expandingView: ExpandedItem(show: false, type: .battery, value: 0),
             activePluginId: nil,
@@ -44,7 +44,7 @@ final class NotchStateMachineTests: XCTestCase {
         let stateMachine = makeStateMachine()
 
         var input = makeDefaultInput()
-        input.helloAnimationRunning = true
+        input.isHelloAnimationRunning = true
         // Enable everything else to ensure hello animation takes priority
         input.notchState = .open
         input.isPlaying = true

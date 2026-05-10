@@ -1,0 +1,7 @@
+# Bazel package marker so other BUILD files can `load("//tools:defs.bzl", ...)`.
+# No targets are defined here — this directory only exposes shared `.bzl` constants.
+
+exports_files(
+    ["defs.bzl"],
+    visibility = ["//visibility:public"],
+)

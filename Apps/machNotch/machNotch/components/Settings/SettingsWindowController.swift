@@ -111,7 +111,7 @@ class SettingsWindowController: NSWindowController {
         NSApp.activate(ignoringOtherApps: true)
 
         // Force window to front after activation
-        DispatchQueue.main.async { [weak self] in
+        Task { @MainActor [weak self] in
             self?.window?.makeKeyAndOrderFront(nil)
         }
     }

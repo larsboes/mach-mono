@@ -14,32 +14,9 @@ import SwiftUI
 final class BrowserMediaController: MediaControllerProtocol {
     private var cancellables = Set<AnyCancellable>()
 
-    var playbackState = PlaybackState(bundleIdentifier: "com.google.Chrome") {
-        didSet { _playbackStateSubject.send(playbackState) }
-    }
-
-    private(set) var currentTime: Double = 0 {
-        didSet { _progressSubject.send((currentTime, duration)) }
-    }
-    private(set) var duration: Double = 0 {
-        didSet { _progressSubject.send((currentTime, duration)) }
-    }
-
-    @ObservationIgnored
-    private let _playbackStateSubject = CurrentValueSubject<PlaybackState, Never>(
-        PlaybackState(bundleIdentifier: "com.google.Chrome")
-    )
-    
-    @ObservationIgnored
-    private let _progressSubject = PassthroughSubject<(currentTime: Double, duration: Double), Never>()
-
-    var playbackStatePublisher: AnyPublisher<PlaybackState, Never> {
-        _playbackStateSubject.eraseToAnyPublisher()
-    }
-
-    var progressPublisher: AnyPublisher<(currentTime: Double, duration: Double), Never> {
-        _progressSubject.eraseToAnyPublisher()
-    }
+    var playbackState = PlaybackState(bundleIdentifier: "com.google.Chrome")
+    private(set) var currentTime: Double = 0
+    private(set) var duration: Double = 0
 
     var supportsVolumeControl: Bool { false }
     var supportsFavorite: Bool { false }
@@ -76,6 +53,7 @@ final class BrowserMediaController: MediaControllerProtocol {
         
         playbackState = newState
     }
+
 
     func play() async { server.sendCommand(BrowserMediaCommand(command: "play")) }
     func pause() async { server.sendCommand(BrowserMediaCommand(command: "pause")) }

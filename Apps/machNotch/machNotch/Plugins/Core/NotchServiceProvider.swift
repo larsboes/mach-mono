@@ -26,6 +26,7 @@ protocol NotchServiceProvider: MediaServiceProvider, SystemServiceProvider,
 protocol NotesServiceProtocol: AnyObject, Observable {
     var notes: [NoteItem] { get }
     func addNote(title: String, content: String)
+    func updateNote(_ note: NoteItem)
     func deleteNote(_ note: NoteItem)
 }
 

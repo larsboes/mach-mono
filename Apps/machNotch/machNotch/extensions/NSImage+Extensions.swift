@@ -18,8 +18,8 @@ extension NSImage {
     func averageColor(completion: @escaping (NSColor?) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {
             guard let cgImage = self.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
-                DispatchQueue.main.async {
-                    completion(nil)
+                Task { @MainActor in
+completion(nil)
                 }
                 return
             }
@@ -35,8 +35,8 @@ extension NSImage {
                                           bytesPerRow: width * 4,
                                           space: CGColorSpaceCreateDeviceRGB(),
                                           bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else {
-                DispatchQueue.main.async {
-                    completion(nil)
+                Task { @MainActor in
+completion(nil)
                 }
                 return
             }
@@ -44,8 +44,8 @@ extension NSImage {
             context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
             
             guard let data = context.data else {
-                DispatchQueue.main.async {
-                    completion(nil)
+                Task { @MainActor in
+completion(nil)
                 }
                 return
             }
@@ -97,8 +97,8 @@ extension NSImage {
                 finalColor = color
             }
             
-            DispatchQueue.main.async {
-                completion(finalColor)
+            Task { @MainActor in
+completion(finalColor)
             }
         }
         

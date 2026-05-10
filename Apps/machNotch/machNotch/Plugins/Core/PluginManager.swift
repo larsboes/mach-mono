@@ -25,7 +25,7 @@ final class PluginManager {
     private var pluginOrder: [String] = []
 
     /// Service container for dependency injection
-    let services: ServiceContainer
+    let services: any NotchServiceProvider
 
     /// Incremented each time a plugin activates or deactivates.
     /// ContentView observes this to re-evaluate the state machine after plugin lifecycle changes.
@@ -72,7 +72,7 @@ final class PluginManager {
     private let mediaSettings: any MediaSettings
 
     init(
-        services: ServiceContainer,
+        services: any NotchServiceProvider,
         eventBus: PluginEventBus,
         appState: AppStateProviding,
         mediaSettings: any MediaSettings,

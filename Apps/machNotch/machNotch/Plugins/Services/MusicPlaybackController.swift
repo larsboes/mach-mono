@@ -126,24 +126,14 @@ final class MusicPlaybackController {
         }
 
         if let controller = newController {
-            controller.playbackStatePublisher
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] state in
-                    guard let self = self,
-                          self.activeController === controller else { return }
-                    self.updateFromPlaybackState(state)
+            // Monitor for changes using observation
+            withObservationTracking {
+                _ = controller.playbackState
+            } onChange: {
+                Task { @MainActor in
+                    self.updateFromPlaybackState(controller.playbackState)
                 }
-                .store(in: &controllerCancellables)
-
-            controller.progressPublisher
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] progress in
-                    guard let self = self,
-                          self.activeController === controller else { return }
-                    if progress.currentTime != self.elapsedTime { self.elapsedTime = progress.currentTime }
-                    if progress.duration != self.songDuration { self.songDuration = progress.duration }
-                }
-                .store(in: &controllerCancellables)
+            }
         }
 
         return newController

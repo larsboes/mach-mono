@@ -21,12 +21,12 @@ Bazel (Bzlmod) is the primary build and orchestration layer for this monorepo. X
 ## Phase 2: machBrief Integration
 1. [x] **machBrief BUILD.bazel:** Defined `macos_application` + `macos_extension` targets.
 2. [x] **MachBriefKit Bazel Tests:** Added `swift_test` coverage at `//Packages/MachBriefKit:MachBriefKitTests`.
-3. [ ] **XPC Service Bundling:** Wire `MachNotchXPCHelper` as embedded XPC bundle in machNotch app target.
-4. [ ] **Code Signing:** Configure codesign entitlements and provisioning for both apps.
+3. [x] **XPC Service Bundling:** `MachNotchXPCHelper` is wired as an embedded `macos_xpc_service` via `xpc_services` in `Apps/machNotch/BUILD.bazel`.
+4. [x] **Code Signing:** Local builds sign via `task run` (Apple Development cert); CI signs Bazel output via `codesign --deep` in `build_reusable.yml`.
 
 ## Phase 3: CI/CD
-- [ ] Replace Xcode-based CI with `bazel build` + `bazel test` in GitHub Actions.
-- [ ] Cache remote build results.
+- [x] Replace Xcode-based CI with `bazel build` + `bazel test` in GitHub Actions (cicd.yml fully on `bazelisk --config=ci`).
+- [x] Cache remote build results — `~/.cache/bazel-repos` + `~/.cache/bazel` keyed on `MODULE.bazel` / `Package.resolved` / BUILD files.
 
 ## Phase 4: iOS / Cross-Platform
 - [ ] Create `ios_application` targets reusing `Packages/` modules.

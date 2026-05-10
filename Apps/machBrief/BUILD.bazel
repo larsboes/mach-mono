@@ -1,11 +1,13 @@
 load("@rules_swift//swift:swift.bzl", "swift_library")
 load("@rules_apple//apple:macos.bzl", "macos_application", "macos_extension")
+load("//tools:defs.bzl", "MINIMUM_MACOS_VERSION")
 
 swift_library(
     name = "machBriefWidget_Lib",
     srcs = glob(["machBriefWidget/**/*.swift"]),
     module_name = "machBriefWidget",
     deps = ["//Packages/MachBriefKit"],
+    visibility = ["//visibility:private"],
 )
 
 swift_library(
@@ -13,6 +15,7 @@ swift_library(
     srcs = glob(["machBrief/**/*.swift"]),
     module_name = "machBrief",
     deps = ["//Packages/MachBriefKit"],
+    visibility = ["//visibility:private"],
 )
 
 macos_extension(
@@ -20,7 +23,7 @@ macos_extension(
     bundle_id = "mach.brief.widget",
     entitlements = "machBriefWidget/machBriefWidget.entitlements",
     infoplists = ["machBriefWidget/Info.plist"],
-    minimum_os_version = "26.0",
+    minimum_os_version = MINIMUM_MACOS_VERSION,
     deps = [":machBriefWidget_Lib"],
 )
 
@@ -29,7 +32,7 @@ macos_application(
     bundle_id = "mach.brief",
     entitlements = "machBrief/machBrief.entitlements",
     infoplists = ["machBrief/Info.plist"],
-    minimum_os_version = "26.0",
+    minimum_os_version = MINIMUM_MACOS_VERSION,
     deps = [":machBrief_Lib"],
     extensions = [":machBriefWidget"],
     visibility = ["//visibility:public"],

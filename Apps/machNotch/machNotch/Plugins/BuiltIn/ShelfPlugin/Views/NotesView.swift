@@ -61,8 +61,19 @@ struct NoteRow: View {
     let note: NoteItem
     var manager: any NotesServiceProtocol
     @State private var isHovering = false
-    
+    @State private var isEditing = false
+    @State private var editTitle = ""
+    @State private var editContent = ""
+
     var body: some View {
+        if isEditing {
+            editingRow
+        } else {
+            displayRow
+        }
+    }
+
+    private var displayRow: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack {
                 Text(note.title)
@@ -70,20 +81,61 @@ struct NoteRow: View {
                     .fontWeight(.bold)
                 Spacer()
                 if isHovering {
-                    Button(action: { manager.deleteNote(note) }) {
-                        Image(systemName: "trash")
-                            .foregroundColor(.red)
+                    HStack(spacing: 6) {
+                        Button {
+                            editTitle = note.title
+                            editContent = note.content
+                            isEditing = true
+                        } label: {
+                            Image(systemName: "pencil")
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        Button { manager.deleteNote(note) } label: {
+                            Image(systemName: "trash")
+                                .foregroundColor(.red)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
-                    .buttonStyle(PlainButtonStyle())
                 }
             }
             Text(note.content)
                 .font(.caption)
                 .lineLimit(2)
+                .foregroundStyle(.secondary)
         }
         .padding(8)
         .background(Color.white.opacity(isHovering ? 0.1 : 0))
         .cornerRadius(8)
         .onHover { isHovering = $0 }
+    }
+
+    private var editingRow: some View {
+        VStack(spacing: 6) {
+            TextField("Title", text: $editTitle)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .font(.subheadline.bold())
+            TextEditor(text: $editContent)
+                .frame(height: 60)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .font(.caption)
+            HStack {
+                Button("Cancel") { isEditing = false }
+                    .buttonStyle(PlainButtonStyle())
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Button("Save") {
+                    var updated = note
+                    updated.title = editTitle
+                    updated.content = editContent
+                    manager.updateNote(updated)
+                    isEditing = false
+                }
+                .buttonStyle(BorderedButtonStyle())
+            }
+        }
+        .padding(8)
+        .background(Color.white.opacity(0.1))
+        .cornerRadius(8)
     }
 }

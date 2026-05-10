@@ -2,6 +2,22 @@ load("@rules_swift//swift:swift.bzl", "swift_library", "swift_test")
 load("@rules_apple//apple:macos.bzl", "macos_application", "macos_unit_test", "macos_xpc_service")
 load("@rules_apple//apple:resources.bzl", "apple_resource_group")
 load("@rules_apple//apple:apple.bzl", "apple_dynamic_framework_import")
+load("@rules_apple//apple:versioning.bzl", "apple_bundle_version")
+load("//tools:defs.bzl", "MINIMUM_MACOS_VERSION")
+
+# Versioning. Reads `BUILD_EMBED_LABEL` injected via `--embed_label="machNotch_<ver>_build_<n>"`
+# (CI passes it from the release tag). Local builds without `--embed_label` use the fallback.
+apple_bundle_version(
+    name = "machNotchVersion",
+    build_label_pattern = "machNotch_{version}_build_{build}",
+    build_version = "{version}.{build}",
+    capture_groups = {
+        "build": "\\d+",
+        "version": "\\d+\\.\\d+(?:\\.\\d+)?",
+    },
+    fallback_build_label = "machNotch_0.0.0_build_0",
+    short_version_string = "{version}",
+)
 
 # Pre-built MediaRemote adapter framework — provides private NowPlaying API.
 apple_dynamic_framework_import(
@@ -31,6 +47,7 @@ swift_library(
     srcs = glob(["MachNotchXPCHelper/**/*.swift"]),
     module_name = "MachNotchXPCHelper",
     deps = [],
+    visibility = ["//visibility:private"],
 )
 
 _SHARED_DEPS = [
@@ -62,6 +79,7 @@ swift_library(
     ),
     module_name = "machNotch",
     deps = _SHARED_DEPS,
+    visibility = ["//visibility:private"],
 )
 
 # App entry point — only linked into the final macos_application.
@@ -75,6 +93,7 @@ swift_library(
     ),
     module_name = "machNotch",
     deps = [":MediaRemoteAdapter"] + _SHARED_DEPS,
+    visibility = ["//visibility:private"],
 )
 
 swift_library(
@@ -82,12 +101,13 @@ swift_library(
     srcs = glob(["machNotchTests/**/*.swift"]),
     deps = [":machNotch_Lib"],
     testonly = True,
+    visibility = ["//visibility:private"],
 )
 
 macos_unit_test(
     name = "machNotchTests",
     bundle_id = "com.larsboes.machNotchTests",
-    minimum_os_version = "26.0",
+    minimum_os_version = MINIMUM_MACOS_VERSION,
     deps = [":machNotchTests_Lib"],
 )
 
@@ -98,8 +118,9 @@ macos_xpc_service(
         "MachNotchXPCHelper/Info.plist",
         "MachNotchXPCHelper/bazel_xpc_info.plist",
     ],
-    minimum_os_version = "26.0",
+    minimum_os_version = MINIMUM_MACOS_VERSION,
     entitlements = "MachNotchXPCHelper/MachNotchXPCHelper.entitlements",
+    version = ":machNotchVersion",
     deps = [":MachNotchXPCHelper_Lib"],
 )
 
@@ -110,8 +131,10 @@ macos_application(
         "machNotch/Info.plist",
         "bazel_info.plist",
     ],
-    minimum_os_version = "26.0",
+    minimum_os_version = MINIMUM_MACOS_VERSION,
     entitlements = "machNotch/machNotch.entitlements",
+    stamp = 1,
+    version = ":machNotchVersion",
     deps = [":machNotch_App"],
     resources = [":machNotch_Resources"],
     xpc_services = [":MachNotchXPCHelper"],

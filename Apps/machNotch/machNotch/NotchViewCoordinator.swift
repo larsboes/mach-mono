@@ -19,7 +19,7 @@ import SwiftUI
 
     var settings: any CoordinatorSettings
 
-    var selectedScreenUUID: String = NSScreen.main?.displayUUID ?? ""
+    var selectedScreenUUID: String = (NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first)?.displayUUID ?? ""
 
     var optionKeyPressed: Bool = true
     private var accessibilityObserver: Any?
@@ -89,15 +89,15 @@ import SwiftUI
                 self.settings.preferredScreenUUID = uuid
                 NSLog("Migrated display preference from name '\(legacyName)' to UUID '\(uuid)'")
             } else {
-                self.settings.preferredScreenUUID = NSScreen.main?.displayUUID
+                self.settings.preferredScreenUUID = (NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first)?.displayUUID
                 NSLog("Could not find display named '\(legacyName)', falling back to main screen")
             }
             UserDefaults.standard.removeObject(forKey: "preferred_screen_name")
         } else if self.settings.preferredScreenUUID == nil {
-            self.settings.preferredScreenUUID = NSScreen.main?.displayUUID
+            self.settings.preferredScreenUUID = (NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first)?.displayUUID
         }
 
-        selectedScreenUUID = settings.preferredScreenUUID ?? NSScreen.main?.displayUUID ?? ""
+        selectedScreenUUID = settings.preferredScreenUUID ?? (NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first)?.displayUUID ?? ""
 
         setupObservers()
         setupInitialState()

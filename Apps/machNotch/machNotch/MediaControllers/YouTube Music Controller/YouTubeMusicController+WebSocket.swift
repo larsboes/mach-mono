@@ -10,7 +10,7 @@ import Foundation
 extension YouTubeMusicController {
     func setupWebSocketIfPossible(token: String) async {
         guard let wsURL = WebSocketURLBuilder.buildURL(from: configuration.baseURL) else {
-            print("[YouTubeMusicController] Failed to build WebSocket URL")
+            Logger.log("[YouTubeMusicController] Failed to build WebSocket URL", category: .error)
             return
         }
 
@@ -29,7 +29,7 @@ extension YouTubeMusicController {
             stopPeriodicUpdates() // WebSocket will provide real-time updates
             reconnectDelay = configuration.reconnectDelay.lowerBound
         } catch {
-            print("[YouTubeMusicController] WebSocket connection failed: \(error)")
+            Logger.log("[YouTubeMusicController] WebSocket connection failed: \(error)", category: .error)
             await scheduleReconnect()
         }
     }

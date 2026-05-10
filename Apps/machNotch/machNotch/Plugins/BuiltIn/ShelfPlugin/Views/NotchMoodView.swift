@@ -59,8 +59,9 @@ struct NotchMoodView: View {
             withAnimation(.easeInOut(duration: 0.1)) {
                 blink = true
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation(.easeInOut(duration: 0.1)) {
+            Task { @MainActor in
+    try? await Task.sleep(nanoseconds: 100000000)
+withAnimation(.easeInOut(duration: 0.1)) {
                     blink = false
                 }
             }

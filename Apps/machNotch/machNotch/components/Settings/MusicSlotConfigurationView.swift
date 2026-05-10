@@ -48,12 +48,14 @@ struct MusicSlotConfigurationView: View {
                             slotPreview(for: slot)
                                 .frame(maxWidth: 44)
                                 .onDrag {
-                                    DispatchQueue.main.async { draggedSlot = slot }
+                                    Task { @MainActor in
+draggedSlot = slot }
                                     return NSItemProvider(object: NSString(string: "slot:\(index)"))
                                 }
                                 .onDrop(of: [UTType.plainText.identifier], isTargeted: nil) { providers in
                                     let handled = handleDrop(providers, toIndex: index)
-                                    DispatchQueue.main.async { draggedSlot = nil }
+                                    Task { @MainActor in
+draggedSlot = nil }
                                     return handled
                                 }
                         } else {
@@ -61,7 +63,8 @@ struct MusicSlotConfigurationView: View {
                                 .frame(maxWidth: 44)
                                 .onDrop(of: [UTType.plainText.identifier], isTargeted: nil) { providers in
                                     let handled = handleDrop(providers, toIndex: index)
-                                    DispatchQueue.main.async { draggedSlot = nil }
+                                    Task { @MainActor in
+draggedSlot = nil }
                                     return handled
                                 }
                         }

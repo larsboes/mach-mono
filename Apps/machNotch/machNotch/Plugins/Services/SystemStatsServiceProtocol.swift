@@ -9,17 +9,22 @@ import Observation
 
 struct SystemStats: Equatable, Sendable {
     let cpuUsage: Double
+    let cpuUserPercent: Double
+    let cpuSystemPercent: Double
     let ramUsage: Double
+    let ramUsedBytes: Double
+    let ramTotalBytes: Double
     let diskUsage: Double
+    let diskUsedBytes: Double
+    let diskTotalBytes: Double
     let networkDownBytesPerSecond: Double
     let networkUpBytesPerSecond: Double
 
     static let zero = SystemStats(
-        cpuUsage: 0,
-        ramUsage: 0,
-        diskUsage: 0,
-        networkDownBytesPerSecond: 0,
-        networkUpBytesPerSecond: 0
+        cpuUsage: 0, cpuUserPercent: 0, cpuSystemPercent: 0,
+        ramUsage: 0, ramUsedBytes: 0, ramTotalBytes: 0,
+        diskUsage: 0, diskUsedBytes: 0, diskTotalBytes: 0,
+        networkDownBytesPerSecond: 0, networkUpBytesPerSecond: 0
     )
 }
 
@@ -37,7 +42,7 @@ protocol SystemStatsServiceProtocol: Observable {
 @MainActor
 @Observable
 final class SystemStatsService: SystemStatsServiceProtocol {
-    private static let historyLimit = 60
+    private static let historyLimit = 120
 
     var stats: SystemStats = .zero
     private(set) var history: [SystemStats] = []
@@ -87,12 +92,22 @@ final class SystemStatsService: SystemStatsServiceProtocol {
     }
 
     func refresh() {
+        let cpu = readCPUStats()
+        let ram = readRAMStats()
+        let disk = readDiskStats()
+        let net = readNetworkRates()
         let latest = SystemStats(
-            cpuUsage: readCPUUsage(),
-            ramUsage: readRAMUsage(),
-            diskUsage: readDiskUsage(),
-            networkDownBytesPerSecond: readNetworkRates().down,
-            networkUpBytesPerSecond: readNetworkRates().up
+            cpuUsage: cpu.total,
+            cpuUserPercent: cpu.user,
+            cpuSystemPercent: cpu.system,
+            ramUsage: ram.usage,
+            ramUsedBytes: ram.usedBytes,
+            ramTotalBytes: ram.totalBytes,
+            diskUsage: disk.usage,
+            diskUsedBytes: disk.usedBytes,
+            diskTotalBytes: disk.totalBytes,
+            networkDownBytesPerSecond: net.down,
+            networkUpBytesPerSecond: net.up
         )
         stats = latest
         appendHistory(latest)
@@ -110,7 +125,7 @@ final class SystemStatsService: SystemStatsServiceProtocol {
         }
     }
 
-    private func readCPUUsage() -> Double {
+    private func readCPUStats() -> (total: Double, user: Double, system: Double) {
         var info = host_cpu_load_info()
         var count = mach_msg_type_number_t(
             MemoryLayout<host_cpu_load_info_data_t>.stride / MemoryLayout<integer_t>.stride
@@ -122,7 +137,9 @@ final class SystemStatsService: SystemStatsServiceProtocol {
             }
         }
 
-        guard result == KERN_SUCCESS else { return stats.cpuUsage }
+        guard result == KERN_SUCCESS else {
+            return (stats.cpuUsage, stats.cpuUserPercent, stats.cpuSystemPercent)
+        }
 
         let ticks = CPUTicks(
             user: UInt64(info.cpu_ticks.0),
@@ -133,7 +150,7 @@ final class SystemStatsService: SystemStatsServiceProtocol {
 
         guard let previous = previousCPUTicks else {
             previousCPUTicks = ticks
-            return stats.cpuUsage
+            return (stats.cpuUsage, stats.cpuUserPercent, stats.cpuSystemPercent)
         }
 
         previousCPUTicks = ticks
@@ -144,11 +161,16 @@ final class SystemStatsService: SystemStatsServiceProtocol {
         let nice = ticks.nice - previous.nice
         let total = user + system + idle + nice
 
-        guard total > 0 else { return stats.cpuUsage }
-        return clamp(Double(total - idle) / Double(total))
+        guard total > 0 else { return (stats.cpuUsage, stats.cpuUserPercent, stats.cpuSystemPercent) }
+        let dTotal = Double(total)
+        return (
+            clamp(Double(total - idle) / dTotal),
+            clamp(Double(user) / dTotal),
+            clamp(Double(system) / dTotal)
+        )
     }
 
-    private func readRAMUsage() -> Double {
+    private func readRAMStats() -> (usage: Double, usedBytes: Double, totalBytes: Double) {
         var info = vm_statistics64()
         var count = mach_msg_type_number_t(
             MemoryLayout<vm_statistics64_data_t>.stride / MemoryLayout<integer_t>.stride
@@ -160,17 +182,20 @@ final class SystemStatsService: SystemStatsServiceProtocol {
             }
         }
 
-        guard result == KERN_SUCCESS else { return stats.ramUsage }
+        guard result == KERN_SUCCESS else {
+            return (stats.ramUsage, stats.ramUsedBytes, stats.ramTotalBytes)
+        }
 
         let pageSize = Double(getpagesize())
         let usedPages = Double(info.active_count + info.wire_count + info.compressor_page_count)
         let totalBytes = Double(ProcessInfo.processInfo.physicalMemory)
 
-        guard totalBytes > 0 else { return stats.ramUsage }
-        return clamp((usedPages * pageSize) / totalBytes)
+        guard totalBytes > 0 else { return (stats.ramUsage, stats.ramUsedBytes, stats.ramTotalBytes) }
+        let usedBytes = usedPages * pageSize
+        return (clamp(usedBytes / totalBytes), usedBytes, totalBytes)
     }
 
-    private func readDiskUsage() -> Double {
+    private func readDiskStats() -> (usage: Double, usedBytes: Double, totalBytes: Double) {
         do {
             let attributes = try FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory())
             guard
@@ -178,12 +203,14 @@ final class SystemStatsService: SystemStatsServiceProtocol {
                 let free = attributes[.systemFreeSize] as? NSNumber,
                 total.doubleValue > 0
             else {
-                return stats.diskUsage
+                return (stats.diskUsage, stats.diskUsedBytes, stats.diskTotalBytes)
             }
 
-            return clamp((total.doubleValue - free.doubleValue) / total.doubleValue)
+            let totalBytes = total.doubleValue
+            let usedBytes = totalBytes - free.doubleValue
+            return (clamp(usedBytes / totalBytes), usedBytes, totalBytes)
         } catch {
-            return stats.diskUsage
+            return (stats.diskUsage, stats.diskUsedBytes, stats.diskTotalBytes)
         }
     }
 

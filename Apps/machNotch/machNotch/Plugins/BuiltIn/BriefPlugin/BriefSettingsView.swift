@@ -59,8 +59,9 @@ struct BriefSettingsView: View {
         .onChange(of: settings) { _, newValue in
             BriefSettingsCoding.save(newValue)
             // Post after a short delay so rapid picker interactions coalesce into one reload
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                NotificationCenter.default.post(name: NSNotification.Name("briefSettingsDidChange"), object: nil)
+            Task { @MainActor in
+    try? await Task.sleep(nanoseconds: 300000000)
+NotificationCenter.default.post(name: .briefSettingsDidChange, object: nil)
             }
         }
     }

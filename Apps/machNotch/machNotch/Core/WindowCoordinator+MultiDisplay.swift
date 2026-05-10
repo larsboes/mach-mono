@@ -10,7 +10,7 @@ import SwiftUI
 
 extension WindowCoordinator {
     func adjustMultiDisplayWindows(changeAlpha: Bool) {
-        let currentScreenUUIDs = Set(NSScreen.screens.compactMap { $0.displayUUID })
+        let currentScreenUUIDs = Set(ScreenDisplayRegistry.shared.screensByUUID.keys)
 
         // Remove windows for screens that no longer exist
         for uuid in windows.keys where !currentScreenUUIDs.contains(uuid) {
@@ -23,7 +23,7 @@ extension WindowCoordinator {
         }
 
         // Create or update windows for all screens
-        for screen in NSScreen.screens {
+        for screen in ScreenDisplayRegistry.shared.currentScreens {
             guard let uuid = screen.displayUUID else { continue }
 
             if windows[uuid] == nil {
@@ -54,7 +54,7 @@ extension WindowCoordinator {
         if let preferredScreen = NSScreen.screen(withUUID: coordinator.preferredScreenUUID ?? "") {
             coordinator.selectedScreenUUID = coordinator.preferredScreenUUID ?? ""
             selectedScreen = preferredScreen
-        } else if settings.automaticallySwitchDisplay, let mainScreen = NSScreen.main,
+        } else if settings.automaticallySwitchDisplay, let mainScreen = NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first,
                   let mainUUID = mainScreen.displayUUID {
             coordinator.selectedScreenUUID = mainUUID
             selectedScreen = mainScreen

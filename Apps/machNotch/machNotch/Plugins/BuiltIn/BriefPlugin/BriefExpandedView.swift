@@ -9,6 +9,8 @@ import SwiftUI
 struct BriefExpandedView: View {
     let entries: [String: BriefEntry]
     let sources: [String]
+    let languageID: String
+    let onLanguageChange: (String) -> Void
 
     @State private var activeSource: String = "word"
 
@@ -51,9 +53,32 @@ struct BriefExpandedView: View {
                 .animation(.spring(response: 0.22, dampingFraction: 0.8), value: isActive)
             }
             Spacer()
+            languageToggle
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
+    }
+
+    // MARK: - Language toggle
+
+    private var languageToggle: some View {
+        HStack(spacing: 2) {
+            ForEach(BriefLanguage.supported) { lang in
+                let isActive = languageID == lang.id
+                Text(lang.id.uppercased())
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(isActive ? .white : Color(white: 0.45))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 4)
+                    .background(
+                        RoundedRectangle(cornerRadius: 5, style: .continuous)
+                            .fill(isActive ? Color(white: 1, opacity: 0.12) : .clear)
+                    )
+                    .contentShape(Rectangle())
+                    .onTapGesture { onLanguageChange(lang.id) }
+                    .animation(.spring(response: 0.22, dampingFraction: 0.8), value: isActive)
+            }
+        }
     }
 
     // MARK: - Content area

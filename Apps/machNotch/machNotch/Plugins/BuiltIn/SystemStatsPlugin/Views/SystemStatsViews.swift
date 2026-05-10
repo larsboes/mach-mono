@@ -50,6 +50,8 @@ struct SystemStatsExpandedView: View {
     let history: [SystemStats]
     let configuration: SystemStatsConfiguration
 
+    @State private var hoveredCard: String?
+
     var body: some View {
         VStack(spacing: 10) {
             Label("System Stats", systemImage: "gauge.with.dots.needle.50percent")
@@ -62,7 +64,8 @@ struct SystemStatsExpandedView: View {
                         title: "CPU",
                         value: stats.cpuUsage,
                         history: history.map(\.cpuUsage),
-                        color: .cyan
+                        color: .cyan,
+                        hoverDetail: "User \(SystemStatsFormatter.percent(stats.cpuUserPercent))  ·  Sys \(SystemStatsFormatter.percent(stats.cpuSystemPercent))  ·  Idle \(SystemStatsFormatter.percent(max(0, 1 - stats.cpuUsage)))"
                     )
                 }
                 if configuration.showRAM {
@@ -70,7 +73,8 @@ struct SystemStatsExpandedView: View {
                         title: "Memory",
                         value: stats.ramUsage,
                         history: history.map(\.ramUsage),
-                        color: .purple
+                        color: .purple,
+                        hoverDetail: "\(SystemStatsFormatter.gigabytes(stats.ramUsedBytes)) used  of  \(SystemStatsFormatter.gigabytes(stats.ramTotalBytes))"
                     )
                 }
                 if configuration.showDisk {
@@ -78,7 +82,8 @@ struct SystemStatsExpandedView: View {
                         title: "Disk",
                         value: stats.diskUsage,
                         history: history.map(\.diskUsage),
-                        color: .orange
+                        color: .orange,
+                        hoverDetail: "\(SystemStatsFormatter.gigabytes(stats.diskUsedBytes)) used  ·  \(SystemStatsFormatter.gigabytes(stats.diskTotalBytes - stats.diskUsedBytes)) free"
                     )
                 }
                 if configuration.showNetwork {
@@ -99,8 +104,9 @@ struct SystemStatsExpandedView: View {
         ]
     }
 
-    private func metricCard(title: String, value: Double, history: [Double], color: Color) -> some View {
-        HStack(spacing: 12) {
+    private func metricCard(title: String, value: Double, history: [Double], color: Color, hoverDetail: String) -> some View {
+        let isHovered = hoveredCard == title
+        return HStack(spacing: 12) {
             SystemMetricRing(label: title.uppercased(), value: value, color: color, size: 38)
 
             VStack(alignment: .leading, spacing: 6) {
@@ -113,18 +119,32 @@ struct SystemStatsExpandedView: View {
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                 }
 
-                SystemStatsSparkline(values: history, color: color)
-                    .frame(height: 24)
+                ZStack(alignment: .leading) {
+                    SystemStatsSparkline(values: history, color: color)
+                        .opacity(isHovered ? 0 : 1)
+                    Text(hoverDetail)
+                        .font(.system(size: 9, weight: .medium, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.72))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .opacity(isHovered ? 1 : 0)
+                }
+                .frame(height: 24)
+                .animation(.easeInOut(duration: 0.16), value: isHovered)
             }
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, minHeight: 64, maxHeight: 70)
         .background(.white.opacity(0.055), in: RoundedRectangle(cornerRadius: 14))
+        .onHover { hovering in hoveredCard = hovering ? title : nil }
     }
 
     private var networkCard: some View {
-        HStack(spacing: 12) {
+        let isHovered = hoveredCard == "Network"
+        let peakDown = history.map(\.networkDownBytesPerSecond).max() ?? 0
+        let peakUp = history.map(\.networkUpBytesPerSecond).max() ?? 0
+        return HStack(spacing: 12) {
             ZStack {
                 Circle()
                     .fill(.white.opacity(0.06))
@@ -144,11 +164,23 @@ struct SystemStatsExpandedView: View {
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                 }
 
-                SystemStatsSparkline(
-                    values: normalizedNetworkHistory(\.networkDownBytesPerSecond),
-                    color: .green
-                )
+                ZStack(alignment: .leading) {
+                    SystemStatsSparkline(
+                        values: normalizedNetworkHistory(\.networkDownBytesPerSecond),
+                        color: .green
+                    )
+                    .opacity(isHovered ? 0 : 1)
+
+                    HStack(spacing: 8) {
+                        Text("Peak ↓ \(SystemStatsFormatter.rate(peakDown))")
+                        Text("Peak ↑ \(SystemStatsFormatter.rate(peakUp))")
+                    }
+                    .font(.system(size: 9, weight: .medium, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.72))
+                    .opacity(isHovered ? 1 : 0)
+                }
                 .frame(height: 20)
+                .animation(.easeInOut(duration: 0.16), value: isHovered)
 
                 HStack(spacing: 10) {
                     networkPill("Down", "arrow.down", stats.networkDownBytesPerSecond, .green)
@@ -160,6 +192,7 @@ struct SystemStatsExpandedView: View {
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity, minHeight: 64, maxHeight: 70)
         .background(.white.opacity(0.055), in: RoundedRectangle(cornerRadius: 14))
+        .onHover { hovering in hoveredCard = hovering ? "Network" : nil }
     }
 
     private func networkPill(_ title: String, _ icon: String, _ value: Double, _ color: Color) -> some View {
@@ -272,6 +305,10 @@ private struct SystemStatsSparkline: View {
 private enum SystemStatsFormatter {
     static func percent(_ value: Double) -> String {
         "\(Int((value * 100).rounded()))%"
+    }
+
+    static func gigabytes(_ bytes: Double) -> String {
+        String(format: "%.1f GB", bytes / 1_073_741_824)
     }
 
     static func compactRate(_ bytesPerSecond: Double) -> String {

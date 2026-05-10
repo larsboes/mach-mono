@@ -39,14 +39,6 @@ extension NotchViewModel {
         }
     }
 
-    func startHoverHeartbeat() {
-        hoverController.startHeartbeat()
-    }
-
-    func stopHoverHeartbeat() {
-        hoverController.stopHeartbeat()
-    }
-
     // MARK: - Tracking-area hints
 
     func handleHoverSignal(_ signal: HoverSignal) {

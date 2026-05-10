@@ -171,7 +171,6 @@ If you need help or have questions:
 - Check the project documentation
 - Search existing issues for similar questions
 - Open a new issue with the "question" label
-- Join our [community Discord server](https://discord.com/servers/mach-notch-1269588937320566815)
 
 ---
 

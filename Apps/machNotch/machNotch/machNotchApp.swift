@@ -153,9 +153,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             pluginManager: pluginManager,
             settings: graph.settings
         )
+        
+        ScreenDisplayRegistry.shared.onScreensChanged = { [weak self] in
+            self?.screenConfigurationDidChange()
+        }
 
         let result = graph.setupNotificationObservers(
-            screenConfigSelector: #selector(screenConfigurationDidChange),
             target: self
         )
         observers = result.observers
@@ -180,13 +183,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         if coordinator.firstLaunch {
-            DispatchQueue.main.async {
-                self.showOnboardingWindow()
+            Task { @MainActor in
+self.showOnboardingWindow()
             }
         } else if pluginManager.services.music.isNowPlayingDeprecated
             && graph.settings.mediaController == .nowPlaying {
-            DispatchQueue.main.async {
-                self.showOnboardingWindow(step: .musicPermission)
+            Task { @MainActor in
+self.showOnboardingWindow(step: .musicPermission)
             }
         }
 
@@ -235,7 +238,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         previousScreens = currentScreens
 
         if screensChanged {
-            DispatchQueue.main.async { [weak self] in
+            Task { @MainActor [weak self] in
                 guard let self else { return }
                 syncNotchHeightIfNeeded(settings: self.graph.settings)
                 self.graph.cleanupWindows()
@@ -262,6 +265,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             window.contentView = NSHostingView(
                 rootView: OnboardingView(
                     step: step,
+                    permissionStore: self.graph.permissionStore,
                     onFinish: {
                         window.orderOut(nil)
                         window.close()

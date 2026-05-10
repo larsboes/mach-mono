@@ -95,7 +95,17 @@ tasks:
       - cmd: killall -9 machBrief
         ignore_error: true
 
+  brief:test:
+    desc: "brief: run MachBriefKit tests"
+    cmds:
+      - bazelisk test //Packages/MachBriefKit:MachBriefKitTests
+
   # ── shared ────────────────────────────────────────────────────────────────
+
+  notch:test:
+    desc: "notch: run machNotch tests"
+    cmds:
+      - bazelisk test //Apps/machNotch:machNotchTests
 
   test:
     desc: "Run all tests"

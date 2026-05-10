@@ -12,8 +12,7 @@ import Combine
 /// All concrete implementations must be `@Observable @MainActor`.
 @MainActor
 protocol MediaControllerProtocol: AnyObject {
-    var playbackStatePublisher: AnyPublisher<PlaybackState, Never> { get }
-    var progressPublisher: AnyPublisher<(currentTime: Double, duration: Double), Never> { get }
+    var playbackState: PlaybackState { get }
     
     var currentTime: Double { get }
     var duration: Double { get }

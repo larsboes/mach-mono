@@ -25,16 +25,17 @@ private let calendarService = CalendarDataProvider()
 struct OnboardingView: View {
     @State var step: OnboardingStep = .welcome
     @Environment(NotchViewCoordinator.self) var coordinator
+    let permissionStore: PermissionStateStore
     let onFinish: () -> Void
     let onOpenSettings: () -> Void
 
     func advanceAfterRequest(_ permission: PermissionType, next: OnboardingStep) async {
-        await PermissionStateStore.shared.markRequested(permission)
+        await permissionStore.markRequested(permission)
         withAnimation(.easeInOut(duration: 0.6)) { step = next }
     }
 
     func checkPermissionAndAdvance(_ permission: PermissionType, next: OnboardingStep) async {
-        if await PermissionStateStore.shared.hasRequested(permission) {
+        if await permissionStore.hasRequested(permission) {
             withAnimation(.easeInOut(duration: 0.6)) { step = next }
         } else {
             // Logic to stay on current step to request
@@ -54,18 +55,17 @@ struct OnboardingView: View {
                             (.weather, .weatherPermission),
                             (.accessibility, .accessibilityPermission)
                         ]
-                        
+
                         var nextStep: OnboardingStep = .musicPermission
                         for (perm, s) in permissions.reversed() {
-                            if !(await PermissionStateStore.shared.hasRequested(perm)) {
+                            if !(await permissionStore.hasRequested(perm)) {
                                 nextStep = s
                             }
                         }
-                        
+
                         withAnimation(.easeInOut(duration: 0.6)) { step = nextStep }
                     }
-                }
-                .transition(.opacity)
+                }                .transition(.opacity)
 
             case .cameraPermission:
                 PermissionRequestView(

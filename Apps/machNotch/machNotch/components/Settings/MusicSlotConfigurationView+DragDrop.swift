@@ -19,12 +19,12 @@ extension MusicSlotConfigurationView {
                 sendableProvider.provider.loadObject(ofClass: NSString.self) { @Sendable item, error in
                     if let nsstring = item as? NSString {
                         let raw = nsstring as String
-                        DispatchQueue.main.async {
-                            self.processDropString(raw, toIndex: toIndex)
+                        Task { @MainActor in
+self.processDropString(raw, toIndex: toIndex)
                         }
                     } else if let str = item as? String {
-                        DispatchQueue.main.async {
-                            self.processDropString(str, toIndex: toIndex)
+                        Task { @MainActor in
+self.processDropString(str, toIndex: toIndex)
                         }
                     }
                 }
@@ -44,8 +44,8 @@ extension MusicSlotConfigurationView {
                 sendableProvider.provider.loadObject(ofClass: NSString.self) { @Sendable item, error in
                     if let nsstring = item as? NSString {
                         let raw = nsstring as String
-                        DispatchQueue.main.async {
-                            if raw.hasPrefix("slot:") {
+                        Task { @MainActor in
+if raw.hasPrefix("slot:") {
                                 let from = Int(raw.replacingOccurrences(of: "slot:", with: "")) ?? -1
                                 guard from >= 0 && from < self.fixedSlotCount else { return }
                                 var slots = self.settings.musicControlSlots
@@ -56,8 +56,8 @@ extension MusicSlotConfigurationView {
                             }
                         }
                     } else if let str = item as? String {
-                        DispatchQueue.main.async {
-                            if str.hasPrefix("slot:") {
+                        Task { @MainActor in
+if str.hasPrefix("slot:") {
                                 let from = Int(str.replacingOccurrences(of: "slot:", with: "")) ?? -1
                                 guard from >= 0 && from < self.fixedSlotCount else { return }
                                 var slots = self.settings.musicControlSlots

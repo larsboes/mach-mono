@@ -35,8 +35,8 @@ extension NotchViewModel {
     }
 
     private func promptOpenCameraPrivacySettings() {
-        DispatchQueue.main.async {
-            NSApp.setActivationPolicy(.regular)
+        Task { @MainActor in
+NSApp.setActivationPolicy(.regular)
             NSApp.activate(ignoringOtherApps: true)
 
             let alert = NSAlert()
@@ -58,8 +58,10 @@ extension NotchViewModel {
     private func requestInitialCameraAuthorization() {
         isRequestingAuthorization = true
         services.webcam.checkAndRequestVideoAuthorization()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
-            self?.isRequestingAuthorization = false
+        Task { @MainActor [weak self] in
+            
+    try? await Task.sleep(nanoseconds: 2000000000)
+self?.isRequestingAuthorization = false
         }
     }
 }

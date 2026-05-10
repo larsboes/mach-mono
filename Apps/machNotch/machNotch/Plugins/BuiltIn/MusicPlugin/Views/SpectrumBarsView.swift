@@ -38,7 +38,7 @@ final class SpectrumBarsRenderer: NSView {
         barLayers.forEach { $0.removeFromSuperlayer() }
         barLayers.removeAll()
 
-        let scale = NSScreen.main?.backingScaleFactor ?? 2.0
+        let scale = (NSScreen.main ?? NSScreen.screens.first)?.backingScaleFactor ?? 2.0
         for _ in 0..<barCount {
             let bar = CAGradientLayer()
             bar.anchorPoint = CGPoint(x: 0.5, y: 1.0)

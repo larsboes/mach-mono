@@ -26,25 +26,8 @@ final class WindowCoordinator {
     let detector: FullscreenMediaDetector
     let spaceManager: NotchSpaceManager
     var isScreenLocked: Bool = false
-    private var windowScreenDidChangeObserver: Any?
     var onDragDetectorsNeedSetup: (() -> Void)?
     var showSettingsWindow: (() -> Void)?
-
-    // Display Reconfiguration Callback
-    private let displayCallback: CGDisplayReconfigurationCallBack = { display, flags, userInfo in
-        guard let userInfo = userInfo else { return }
-        let coordinator = Unmanaged<WindowCoordinator>.fromOpaque(userInfo).takeUnretainedValue()
-        
-        if flags.contains(.beginConfigurationFlag) {
-            // Potential optimization: could pause layout during reconfiguration
-        } else {
-            // Reconfiguration finished - trigger update
-            Task { @MainActor in
-                coordinator.adjustWindowPosition()
-                coordinator.onDragDetectorsNeedSetup?()
-            }
-        }
-    }
 
     // MARK: - Initialization
     init(
@@ -61,15 +44,8 @@ final class WindowCoordinator {
         self.pluginManager = pluginManager
         self.detector = detector
         self.spaceManager = spaceManager
-        
-        // Register display reconfiguration callback
-        CGDisplayRegisterReconfigurationCallback(displayCallback, Unmanaged.passUnretained(self).toOpaque())
     }
     
-    deinit {
-        CGDisplayRemoveReconfigurationCallback(displayCallback, Unmanaged.passUnretained(self).toOpaque())
-    }
-
     // MARK: - Window Lifecycle
     func cleanupWindows(shouldInvert: Bool = false) {
         let shouldCleanupMulti = shouldInvert ? !settings.showOnAllDisplays : settings.showOnAllDisplays
@@ -85,10 +61,6 @@ final class WindowCoordinator {
         } else if let window = window {
             window.close()
             spaceManager.notchSpace.unregister(window)
-            if let obs = windowScreenDidChangeObserver {
-                NotificationCenter.default.removeObserver(obs)
-                windowScreenDidChangeObserver = nil
-            }
             self.window = nil
         }
     }
@@ -129,16 +101,6 @@ final class WindowCoordinator {
         viewModel.setHoverWindow(window)
         viewModel.setupHoverController()
 
-        windowScreenDidChangeObserver = NotificationCenter.default.addObserver(
-            forName: NSWindow.didChangeScreenNotification,
-            object: window,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.onDragDetectorsNeedSetup?()
-            }
-        }
-
         return window
     }
 
@@ -176,7 +138,7 @@ final class WindowCoordinator {
 
     func viewModel(at point: NSPoint) -> NotchViewModel {
         if settings.showOnAllDisplays {
-            for screen in NSScreen.screens {
+            for screen in ScreenDisplayRegistry.shared.currentScreens {
                 if screen.frame.contains(point) {
                     if let uuid = screen.displayUUID, let screenViewModel = viewModels[uuid] {
                         return screenViewModel

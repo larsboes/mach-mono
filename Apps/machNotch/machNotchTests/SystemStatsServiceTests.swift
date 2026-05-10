@@ -44,13 +44,13 @@ final class SystemStatsServiceTests: XCTestCase {
         XCTAssertEqual(service.history.last, service.stats)
     }
 
-    func testHistoryKeepsLastSixtySamples() {
+    func testHistoryKeepsLastOneHundredTwentySamples() {
         let service = SystemStatsService(refreshInterval: 3)
 
-        for _ in 0..<75 {
+        for _ in 0..<130 {
             service.refresh()
         }
 
-        XCTAssertEqual(service.history.count, 60)
+        XCTAssertEqual(service.history.count, 120)
     }
 }

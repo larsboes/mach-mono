@@ -59,7 +59,7 @@ final class FaceService: FaceServiceProtocol {
         resetIdleTimer()
         
         // Calculate offset based on screen center
-        guard let screen = NSScreen.main else { return }
+        guard let screen = NSScreen.main ?? NSScreen.screens.first else { return }
         
         let screenFrame = screen.frame
         let centerX = screenFrame.midX

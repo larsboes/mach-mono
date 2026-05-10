@@ -72,8 +72,9 @@ struct MarqueeText: View {
                     self.textSize = CGSize(width: size.width / 2, height: NSFont.preferredFont(forTextStyle: nsFont).pointSize)
                     self.animate = false
                     self.offset = 0
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-                        if needsScrolling {
+                    Task { @MainActor in
+    try? await Task.sleep(nanoseconds: 10000000)
+if needsScrolling {
                             self.animate = true
                             self.offset = -(textSize.width + 10)
                             

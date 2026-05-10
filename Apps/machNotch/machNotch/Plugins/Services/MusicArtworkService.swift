@@ -110,8 +110,8 @@ final class MusicArtworkService {
 
     func calculateAverageColor() {
         albumArt.averageColor { [weak self] color in
-            DispatchQueue.main.async {
-                let newColor = color ?? .white
+            Task { @MainActor in
+let newColor = color ?? .white
                 self?.avgColor = newColor
                 self?.avgColorSubject.send(newColor)
             }

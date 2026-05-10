@@ -30,39 +30,28 @@ enum NotchDisplayState: Equatable, Sendable {
     }
 }
 
-// MARK: - State Machine Input
+// MARK: - State Machine
 
-/// All inputs needed to determine the current display state.
-/// Extracted from various sources (coordinator, music manager, settings, etc.)
+/// Centralizes state determination logic.
+/// This class extracts the complex if-else chains from ContentView into a testable component.
 struct NotchStateInput: Equatable {
-    // Core state
+    var isHelloAnimationRunning: Bool
     var notchState: NotchState
     var currentView: NotchViews
-
-    // Coordinator state
-    var helloAnimationRunning: Bool
     var sneakPeek: SneakPeekState
     var expandingView: ExpandedItem
-    
-    // The ID of the plugin that should be shown in the closed notch (from PluginManager)
     var activePluginId: String?
-
-    // Music state (Legacy - to be removed once MusicPlugin is fully autonomous)
     var isPlayerIdle: Bool
     var isPlaying: Bool
-
-    // View model state
     var hideOnClosed: Bool
-
-    // Settings (can be injected for testing)
     var showInlineHUD: Bool
     var showNotHumanFace: Bool
     var sneakPeekStyle: SneakPeekStyle
-
+    
     static func == (lhs: NotchStateInput, rhs: NotchStateInput) -> Bool {
+        lhs.isHelloAnimationRunning == rhs.isHelloAnimationRunning &&
         lhs.notchState == rhs.notchState &&
         lhs.currentView == rhs.currentView &&
-        lhs.helloAnimationRunning == rhs.helloAnimationRunning &&
         lhs.sneakPeek.show == rhs.sneakPeek.show &&
         lhs.sneakPeek.type == rhs.sneakPeek.type &&
         lhs.expandingView.show == rhs.expandingView.show &&
@@ -77,42 +66,91 @@ struct NotchStateInput: Equatable {
     }
 }
 
-// MARK: - State Machine
-
-/// Centralizes state determination logic.
-/// This class extracts the complex if-else chains from ContentView into a testable component.
 @MainActor
 @Observable
 class NotchStateMachine {
     private(set) var displayState: NotchDisplayState = .closed(content: .idle)
-    private(set) var lastInput: NotchStateInput?
 
-    /// Settings provider - can be injected for testing
-    private let settings: NotchSettings?
+    /// Dependencies
+    private weak var viewModel: NotchViewModel?
+    private weak var coordinator: (any ViewCoordinating)?
+    private weak var pluginManager: PluginManager?
+    private let settings: NotchSettings
+    
+    @ObservationIgnored nonisolated(unsafe) private var observationTask: Task<Void, Never>?
 
-    /// Production initializer (singleton)
-    private init() {
-        self.settings = nil
+    /// Production initializer
+    init(
+        viewModel: NotchViewModel,
+        coordinator: any ViewCoordinating,
+        pluginManager: PluginManager,
+        settings: NotchSettings
+    ) {
+        self.viewModel = viewModel
+        self.coordinator = coordinator
+        self.pluginManager = pluginManager
+        self.settings = settings
+        
+        startObserving()
     }
-
+    
     /// Testable initializer with injected settings
     init(settings: NotchSettings) {
         self.settings = settings
+        self.viewModel = nil
+        self.coordinator = nil
+        self.pluginManager = nil
+    }
+    
+    deinit {
+        observationTask?.cancel()
     }
 
     /// Manually transition to a state (for testing computed properties like chinWidth)
     func transition(to state: NotchDisplayState) {
         displayState = state
     }
+    
+    private func startObserving() {
+        observationTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                guard let self else { return }
+                withObservationTracking {
+                    self.update()
+                } onChange: {
+                    Task { @MainActor [weak self] in
+                        self?.startObserving()
+                    }
+                }
+                
+                try? await Task.sleep(for: .seconds(86400))
+            }
+        }
+    }
+
+    func getCurrentInput(forcingClosed: Bool = false) -> NotchStateInput {
+        return NotchStateInput(
+            isHelloAnimationRunning: coordinator?.helloAnimationRunning ?? false,
+            notchState: forcingClosed ? .closed : (viewModel?.notchState ?? .closed),
+            currentView: viewModel?.currentView ?? .home,
+            sneakPeek: coordinator?.sneakPeek ?? SneakPeekState(show: false, type: .music, value: 0, icon: ""),
+            expandingView: coordinator?.expandingView ?? ExpandedItem(show: false, type: .battery, value: 0),
+            activePluginId: pluginManager?.highestPriorityClosedNotchPlugin(),
+            isPlayerIdle: pluginManager?.services.music.isPlayerIdle ?? true,
+            isPlaying: pluginManager?.services.music.playbackState.isPlaying ?? false,
+            hideOnClosed: viewModel?.hideOnClosed ?? false,
+            showInlineHUD: settings.inlineHUD,
+            showNotHumanFace: settings.showNotHumanFace,
+            sneakPeekStyle: settings.sneakPeekStyles
+        )
+    }
 
     /// Compute the display state based on current inputs.
-    /// This mirrors the logic from ContentView.NotchLayout() but in a testable form.
-    func computeDisplayState(from input: NotchStateInput) -> NotchDisplayState {
-        // Store input for debugging
-        lastInput = input
-
+    func computeDisplayState(from input: NotchStateInput? = nil) -> NotchDisplayState {
+        let input = input ?? getCurrentInput()
+        
         // Priority 1: Hello animation
-        if input.helloAnimationRunning {
+        if input.isHelloAnimationRunning {
             return .helloAnimation
         }
 
@@ -123,7 +161,7 @@ class NotchStateMachine {
 
         // From here, we're in closed state
 
-        // Priority 3: Inline HUD (non-music, non-battery sneak peek with inline HUD enabled)
+        // Priority 3: Inline HUD
         if input.sneakPeek.show &&
            input.showInlineHUD &&
            input.sneakPeek.type != .music &&
@@ -135,7 +173,7 @@ class NotchStateMachine {
             ))
         }
 
-        // Priority 4: Standard sneak peek (non-inline HUD)
+        // Priority 4: Standard sneak peek
         if input.sneakPeek.show &&
            !input.showInlineHUD &&
            input.sneakPeek.type != .music &&
@@ -147,7 +185,7 @@ class NotchStateMachine {
             ))
         }
 
-        // Priority 5: Music sneak peek (standard style)
+        // Priority 5: Music sneak peek
         if input.sneakPeek.show &&
            input.sneakPeek.type == .music &&
            !input.hideOnClosed &&
@@ -159,16 +197,14 @@ class NotchStateMachine {
             ))
         }
 
-        // Priority 6: Active Plugin Content (replaces MusicLiveActivity and BatteryNotification)
-        // Checks if a plugin requested display and explicit sneak peek isn't overriding it
+        // Priority 6: Active Plugin Content
         if let pluginId = input.activePluginId,
            !input.hideOnClosed,
            !input.expandingView.show || input.expandingView.type == .music || input.expandingView.type == .battery {
             return .closed(content: .plugin(pluginId))
         }
 
-        // Priority 5: Face animation (when not playing and face enabled)
-        // Legacy check relying on input.isPlayerIdle - eventually Face should be a plugin too
+        // Priority 5: Face animation
         if !input.expandingView.show &&
            !input.isPlaying &&
            input.isPlayerIdle &&
@@ -177,27 +213,29 @@ class NotchStateMachine {
             return .closed(content: .face)
         }
 
-
-
-        // Default: idle
         return .closed(content: .idle)
     }
 
     /// Update the display state and publish changes
-    func update(with input: NotchStateInput) {
-        let newState = computeDisplayState(from: input)
+    func update() {
+        let newState = computeDisplayState()
         if displayState != newState {
             displayState = newState
+        }
+        
+        // Sync plugin preferred height for notch sizing
+        if let activePluginId = pluginManager?.highestPriorityClosedNotchPlugin(),
+           let plugin = pluginManager?.plugin(id: activePluginId),
+           let preferredHeight = plugin.displayRequest?.preferredHeight {
+            viewModel?.pluginPreferredHeight = preferredHeight
+        } else {
+            viewModel?.pluginPreferredHeight = nil
         }
     }
 
     /// Determines what would be shown if the notch were forced to its closed state.
-    /// This is used by NotchContentRouter to provide seamless cross-fades during transitions (no black gap).
     var hypotheticalClosedState: NotchDisplayState {
-        guard let input = lastInput else { return .closed(content: .idle) }
-        var closedInput = input
-        closedInput.notchState = .closed
-        return computeDisplayState(from: closedInput)
+        return computeDisplayState(from: getCurrentInput(forcingClosed: true))
     }
 }
 

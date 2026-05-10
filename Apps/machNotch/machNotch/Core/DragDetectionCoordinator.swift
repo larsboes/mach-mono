@@ -58,7 +58,7 @@ final class DragDetectionCoordinator {
         } else {
             let preferredScreen: NSScreen? = windowCoordinator?.window?.screen
                 ?? NSScreen.screen(withUUID: coordinator.selectedScreenUUID)
-                ?? NSScreen.main
+                ?? NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first
 
             if let screen = preferredScreen {
                 setupDragDetectorForScreen(screen)

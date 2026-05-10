@@ -281,9 +281,7 @@ import SwiftUI
     }
 
     func syncWindowState() {
-        if let machWindow = window as? NotchWindow {
-            machWindow.isNotchOpen = phase.isInteractive
-        } else if let skyLightWindow = window as? NotchSkyLightWindow {
+        if let skyLightWindow = window as? NotchSkyLightWindow {
             skyLightWindow.isNotchOpen = phase.isInteractive
         }
     }

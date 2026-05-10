@@ -148,6 +148,10 @@ class NotchSkyLightWindow: NSPanel {
     
     private var observers: Set<AnyCancellable> = []
     
+    deinit {
+        observers.removeAll()
+    }
+    
     /// Dynamic canBecomeKey: only accept key status when notch is open.
     /// This enables button clicks while preventing focus stealing when closed.
     override var canBecomeKey: Bool { isNotchOpen }
@@ -161,5 +165,15 @@ class NotchSkyLightWindow: NSPanel {
             return // swallow
         }
         super.keyDown(with: event)
+    }
+
+    /// Intercept Control+Tab (and other modifier+Tab combos) via the key-equivalent path.
+    /// macOS routes modifier+Tab through performKeyEquivalent: before keyDown:, so the
+    /// keyDown swallow above doesn't fire — causing the same panel-deactivation glitch.
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        if event.keyCode == 48 { // Tab key
+            return true // swallow
+        }
+        return super.performKeyEquivalent(with: event)
     }
 }

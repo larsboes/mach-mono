@@ -63,3 +63,13 @@ bazel-*
 !.cursor/.gitkeep
 !.cursor/rules/
 !.cursor/rules/**
+
+# Agent Memory
+MEMORY/WORK/*/
+
+# Stray top-level scripts and screenshots — keep root clean.
+# If you actually need to track an image, place it under docs/images/ or resources/.
+/image.png
+/replace_async.py
+/test_screen.swift
+/Plans/

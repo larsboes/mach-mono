@@ -58,7 +58,8 @@ import SwiftUI
     // MARK: - Camera Management
     func checkAndRequestVideoAuthorization() {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
-        DispatchQueue.main.async { self.authorizationStatus = status }
+        Task { @MainActor in
+self.authorizationStatus = status }
 
         switch status {
         case .authorized: checkCameraAvailability()
@@ -84,7 +85,8 @@ import SwiftUI
             position: .unspecified
         ).devices
         let hasAvailableDevices = !availableDevices.isEmpty
-        DispatchQueue.main.async { self.cameraAvailable = hasAvailableDevices }
+        Task { @MainActor in
+self.cameraAvailable = hasAvailableDevices }
     }
 
     @objc private func deviceWasDisconnected(notification: Notification) {
@@ -95,7 +97,8 @@ import SwiftUI
             Task { @MainActor in
                 self.isSessionRunning = self.sessionContainer.session?.isRunning ?? false
             }
-            DispatchQueue.main.async { self.cameraAvailable = false }
+            Task { @MainActor in
+self.cameraAvailable = false }
         }
     }
 
@@ -123,7 +126,8 @@ import SwiftUI
     func stopSession() {
         sessionQueue.async { [weak self] in
             guard let self = self else { return }
-            DispatchQueue.main.async { self.isSessionRunning = false }
+            Task { @MainActor in
+self.isSessionRunning = false }
             self.cleanupExistingSession()
             NSLog("Capture session stopped and cleaned up")
         }

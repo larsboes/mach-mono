@@ -11,10 +11,6 @@ on:
       build_number:
         required: false
         type: string
-      xcode_version:
-        required: false
-        type: string
-        default: "16.4.1"
       code_sign_identity:
         required: false
         type: string
@@ -29,7 +25,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-26
     permissions:
       contents: write
     env:
@@ -41,14 +37,26 @@ jobs:
       BUILD_NUMBER_INPUT: ${{ inputs.build_number }}
       DEVELOPMENT_TEAM: ${{ vars.DEVELOPMENT_TEAM_ID }}
       CODE_SIGN_IDENTITY: ${{ inputs.code_sign_identity }}
-      XCODE_VERSION: ${{ inputs.xcode_version }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.head_ref }}
 
-      - name: Resolve Swift packages
-        run: xcodebuild -resolvePackageDependencies -project ${{ env.PROJECT_PATH }}
+      - name: Cache Bazel repositories
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: ~/.cache/bazel-repos
+          key: bazel-repos-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved') }}
+          restore-keys: |
+            bazel-repos-${{ runner.os }}-
+
+      - name: Cache Bazel outputs
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: ~/.cache/bazel
+          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved', '.bazelrc', 'Apps/machNotch/BUILD.bazel', 'Apps/machBrief/BUILD.bazel', 'tools/defs.bzl') }}
+          restore-keys: |
+            bazel-${{ runner.os }}-
 
       - name: Install Apple certificate
         env:
@@ -65,85 +73,17 @@ jobs:
           security import "$CERT_PATH" -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KC"
           security list-keychain -d user -s "$KC"
 
-      - name: Select Xcode ${{ env.XCODE_VERSION }}
+      - name: Build and sign with Bazel
         run: |
-          XCODE_PATH="/Applications/Xcode_${XCODE_VERSION}.app"
-          if [[ ! -d "$XCODE_PATH" ]]; then
-            echo "::error::Xcode ${XCODE_VERSION} not found at ${XCODE_PATH}"
-            echo "Available Xcode versions:"
-            ls -d /Applications/Xcode*.app 2>/dev/null || echo "  (none found)"
-            exit 1
-          fi
-          sudo xcode-select -s "$XCODE_PATH"
-          xcodebuild -version
+          # Fall back to safe defaults so non-tag manual_build runs still parse the embed label.
+          VERSION="${VERSION_INPUT:-0.0.0}"
+          BUILD_NUMBER="${BUILD_NUMBER_INPUT:-${GITHUB_RUN_NUMBER:-0}}"
+          bazelisk build --config=ci //Apps/machNotch:machNotch \
+            --stamp \
+            --embed_label="machNotch_${VERSION}_build_${BUILD_NUMBER}"
 
-      - name: Set version and build number
-        run: |
-          PBXPROJ="${{ env.PROJECT_PATH }}/project.pbxproj"
-          VERSION="${{ env.VERSION_INPUT }}"
-          BUILD_NUMBER_INPUT="${{ env.BUILD_NUMBER_INPUT }}"
-          if [[ -z "$BUILD_NUMBER_INPUT" ]]; then
-            BUILD_NUMBER="$GITHUB_RUN_NUMBER"
-          else
-            BUILD_NUMBER="$BUILD_NUMBER_INPUT"
-          fi
-          if [[ -n "$VERSION" ]]; then
-            sed -i '' "s/MARKETING_VERSION = [^;]*/MARKETING_VERSION = ${VERSION}/g" "$PBXPROJ"
-          fi
-          sed -i '' "s/CURRENT_PROJECT_VERSION = [^;]*/CURRENT_PROJECT_VERSION = ${BUILD_NUMBER}/g" "$PBXPROJ"
-
-      - name: Commit version changes
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add "${{ env.PROJECT_PATH }}/project.pbxproj"
-          VERSION="${{ env.VERSION_INPUT }}"
-          BUILD_NUMBER_INPUT="${{ env.BUILD_NUMBER_INPUT }}"
-          if [[ -z "$BUILD_NUMBER_INPUT" ]]; then
-            BUILD_NUMBER="$GITHUB_RUN_NUMBER"
-          else
-            BUILD_NUMBER="$BUILD_NUMBER_INPUT"
-          fi
-          if [[ -n "$VERSION" ]]; then
-            COMMIT_MSG="Set version to v${VERSION} (build ${BUILD_NUMBER})"
-          else
-            COMMIT_MSG="Set build number to ${BUILD_NUMBER}"
-          fi
-          git commit -m "$COMMIT_MSG" || true
-          git push origin "HEAD:${{ inputs.head_ref }}" || true
-
-      - name: Build and archive
-        run: |
-          xcodebuild clean archive \
-            -project ${{ env.PROJECT_PATH }} \
-            -scheme ${{ env.PROJECT_NAME }} \
-            -archivePath ${{ env.PROJECT_NAME }} \
-            -destination "generic/platform=macOS" \
-            DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
-            CODE_SIGN_IDENTITY="$CODE_SIGN_IDENTITY" \
-            ONLY_ACTIVE_ARCH=NO \
-            -allowProvisioningUpdates
-
-      - name: Export app
-        run: |
-          cat > "$RUNNER_TEMP/export_options.plist" <<PLIST
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>method</key>
-            <string>${{ env.EXPORT_METHOD }}</string>
-            <key>signingStyle</key>
-            <string>automatic</string>
-            <key>teamID</key>
-            <string>${DEVELOPMENT_TEAM}</string>
-          </dict>
-          </plist>
-          PLIST
-          xcodebuild -exportArchive \
-            -archivePath "${{ env.PROJECT_NAME }}.xcarchive" \
-            -exportPath Release \
-            -exportOptionsPlist "$RUNNER_TEMP/export_options.plist"
+          APP_PATH="bazel-bin/Apps/machNotch/machNotch.app"
+          codesign --deep --force --sign "$CODE_SIGN_IDENTITY" "$APP_PATH"
 
       - name: Verify generate_appcast exists
         run: |
@@ -153,24 +93,25 @@ jobs:
 
       - name: Create DMG
         run: |
+          mkdir -p Release
           VENV_DIR="$RUNNER_TEMP/venv"
           python3 -m venv "$VENV_DIR"
           source "$VENV_DIR/bin/activate"
           pip install --upgrade pip setuptools wheel "dmgbuild[badge_icons]"
           chmod +x "${{ env.APP_DIR }}/Configuration/dmg/create_dmg.sh"
           "${{ env.APP_DIR }}/Configuration/dmg/create_dmg.sh" \
-            "Release/${{ env.PROJECT_NAME }}.app" \
+            "bazel-bin/Apps/machNotch/machNotch.app" \
             "Release/${{ env.PROJECT_NAME }}.dmg" \
             "${{ env.PROJECT_NAME }} ${{ env.VERSION_INPUT }}"
 
       - name: Upload DMG
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ env.PROJECT_NAME }}.dmg
           path: Release/${{ env.PROJECT_NAME }}.dmg
 
       - name: Upload .app
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ env.PROJECT_NAME }}.app
-          path: Release/${{ env.PROJECT_NAME }}.app
+          path: bazel-bin/Apps/machNotch/${{ env.PROJECT_NAME }}.app

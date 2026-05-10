@@ -16,34 +16,12 @@ final class YouTubeMusicController: MediaControllerProtocol {
     // MARK: - Properties
     var playbackState = PlaybackState(
         bundleIdentifier: YouTubeMusicConfiguration.default.bundleIdentifier
-    ) {
-        didSet { _playbackStateSubject.send(playbackState) }
-    }
-
-    var currentTime: Double = 0 {
-        didSet { _progressSubject.send((currentTime, duration)) }
-    }
-    var duration: Double = 0 {
-        didSet { _progressSubject.send((currentTime, duration)) }
-    }
-
-    var artworkFetchTask: Task<Void, Never>?
-
-    @ObservationIgnored
-    private let _playbackStateSubject = CurrentValueSubject<PlaybackState, Never>(
-        PlaybackState(bundleIdentifier: YouTubeMusicConfiguration.default.bundleIdentifier)
     )
 
-    @ObservationIgnored
-    private let _progressSubject = PassthroughSubject<(currentTime: Double, duration: Double), Never>()
+    var currentTime: Double = 0
+    var duration: Double = 0
 
-    var playbackStatePublisher: AnyPublisher<PlaybackState, Never> {
-        _playbackStateSubject.eraseToAnyPublisher()
-    }
-
-    var progressPublisher: AnyPublisher<(currentTime: Double, duration: Double), Never> {
-        _progressSubject.eraseToAnyPublisher()
-    }
+    var artworkFetchTask: Task<Void, Never>?
 
     var supportsVolumeControl: Bool {
         return true
@@ -62,7 +40,7 @@ final class YouTubeMusicController: MediaControllerProtocol {
             try? await Task.sleep(for: .milliseconds(150))
             await updatePlaybackInfo()
         } catch {
-            print("[YouTubeMusicController] Failed to set favorite: \(error)")
+            Logger.log("[YouTubeMusicController] Failed to set favorite: \(error)", category: .error)
         }
     }
 
@@ -165,7 +143,7 @@ final class YouTubeMusicController: MediaControllerProtocol {
         } catch YouTubeMusicError.authenticationRequired {
             await authManager.invalidateToken()
         } catch {
-            print("[YouTubeMusicController] Failed to update playback info: \(error)")
+            Logger.log("[YouTubeMusicController] Failed to update playback info: \(error)", category: .error)
         }
     }
 
@@ -284,7 +262,7 @@ final class YouTubeMusicController: MediaControllerProtocol {
         } catch YouTubeMusicError.authenticationRequired {
             await authManager.invalidateToken()
         } catch {
-            print("[YouTubeMusicController] Command failed: \(error)")
+            Logger.log("[YouTubeMusicController] Command failed: \(error)", category: .error)
         }
     }
 

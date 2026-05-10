@@ -16,7 +16,8 @@ extension NSScreen {
         }
         let displayID = CGDirectDisplayID(number.uint32Value)
         guard let uuid = CGDisplayCreateUUIDFromDisplayID(displayID) else {
-            return nil
+            // Fallback for displays that do not provide a UUID (e.g. Sidecar, DisplayLink, some docks)
+            return String(displayID)
         }
         let uuidString = CFUUIDCreateString(nil, uuid.takeRetainedValue()) as String
         return uuidString
@@ -24,63 +25,11 @@ extension NSScreen {
     
     /// Find a screen by its UUID
     @MainActor static func screen(withUUID uuid: String) -> NSScreen? {
-        return NSScreenUUIDCache.shared.screen(forUUID: uuid)
+        return ScreenDisplayRegistry.shared.screen(forUUID: uuid)
     }
     
     /// Get UUID to NSScreen mapping for all screens
     @MainActor static var screensByUUID: [String: NSScreen] {
-        return NSScreenUUIDCache.shared.allScreens
-    }
-}
-
-/// Cache for UUID to NSScreen mappings to avoid repeated lookups
-@MainActor
-final class NSScreenUUIDCache {
-    static let shared = NSScreenUUIDCache()
-    
-    private var cache: [String: NSScreen] = [:]
-    private var observer: Any?
-    
-    private init() {
-        rebuildCache()
-        setupObserver()
-    }
-    
-    deinit {
-        if let observer = observer {
-            NotificationCenter.default.removeObserver(observer)
-        }
-    }
-    
-    private func setupObserver() {
-        observer = NotificationCenter.default.addObserver(
-            forName: NSApplication.didChangeScreenParametersNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.rebuildCache()
-            }
-        }
-    }
-    
-    private func rebuildCache() {
-        var newCache: [String: NSScreen] = [:]
-        
-        for screen in NSScreen.screens {
-            if let uuid = screen.displayUUID {
-                newCache[uuid] = screen
-            }
-        }
-        
-        cache = newCache
-    }
-    
-    func screen(forUUID uuid: String) -> NSScreen? {
-        return cache[uuid]
-    }
-    
-    var allScreens: [String: NSScreen] {
-        return cache
+        return ScreenDisplayRegistry.shared.screensByUUID
     }
 }

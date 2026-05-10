@@ -13,35 +13,13 @@ import SwiftUI
 @MainActor
 final class AppleMusicController: MediaControllerProtocol {
     // MARK: - Properties
-    private var playbackState: PlaybackState = PlaybackState(
+    private(set) var playbackState: PlaybackState = PlaybackState(
         bundleIdentifier: "com.apple.Music",
         playbackRate: 1
-    ) {
-        didSet { _playbackStateSubject.send(playbackState) }
-    }
-
-    private(set) var currentTime: Double = 0 {
-        didSet { _progressSubject.send((currentTime, duration)) }
-    }
-    private(set) var duration: Double = 0 {
-        didSet { _progressSubject.send((currentTime, duration)) }
-    }
-
-    @ObservationIgnored
-    private let _playbackStateSubject = CurrentValueSubject<PlaybackState, Never>(
-        PlaybackState(bundleIdentifier: "com.apple.Music", playbackRate: 1)
     )
 
-    @ObservationIgnored
-    private let _progressSubject = PassthroughSubject<(currentTime: Double, duration: Double), Never>()
-
-    var playbackStatePublisher: AnyPublisher<PlaybackState, Never> {
-        _playbackStateSubject.eraseToAnyPublisher()
-    }
-
-    var progressPublisher: AnyPublisher<(currentTime: Double, duration: Double), Never> {
-        _progressSubject.eraseToAnyPublisher()
-    }
+    private(set) var currentTime: Double = 0
+    private(set) var duration: Double = 0
 
     var supportsVolumeControl: Bool {
         return true

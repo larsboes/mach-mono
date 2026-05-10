@@ -3,10 +3,6 @@
 <!-- Bazel build supplement: provides keys that Xcode injects via build settings. -->
 <plist version="1.0">
 <dict>
-    <key>CFBundleVersion</key>
-    <string>1</string>
-    <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
     <key>CFBundleExecutable</key>
     <string>machNotch</string>
     <key>CFBundleName</key>

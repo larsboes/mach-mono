@@ -244,8 +244,8 @@ struct Advanced: View {
     
     private func forceUiUpdate() {
         // Force refresh the UI
-        DispatchQueue.main.async {
-            NotificationCenter.default.post(name: .accentColorChanged, object: nil)
+        Task { @MainActor in
+NotificationCenter.default.post(name: .accentColorChanged, object: nil)
         }
     }
     

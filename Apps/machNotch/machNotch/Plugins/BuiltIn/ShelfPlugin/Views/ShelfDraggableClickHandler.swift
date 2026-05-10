@@ -43,7 +43,7 @@ struct DraggableClickHandler<Content: View>: NSViewRepresentable {
     private func renderDragPreview() -> NSImage {
         let content = dragPreviewContent()
         let renderer = ImageRenderer(content: content)
-        renderer.scale = NSScreen.main?.backingScaleFactor ?? 2.0
+        renderer.scale = (NSScreen.main ?? NSScreen.screens.first)?.backingScaleFactor ?? 2.0
         return renderer.nsImage ?? viewModel.thumbnail ?? item.icon
     }
 
