@@ -80,3 +80,18 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Run architecture checks
         run: bash .github/scripts/arch-check.sh
+
+  skills-check:
+    name: Skills Sync Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Verify skills are in sync
+        run: |
+          bash tools/sync-skills.sh
+          if ! git diff --exit-code --quiet .gemini/skills/ .cursor/skills/; then
+            echo ""
+            echo "Skills are out of sync. Run 'task skills:sync' locally and commit the result."
+            exit 1
+          fi
+          echo "All skill targets are in sync with .claude/skills/"

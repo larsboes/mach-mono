@@ -1,3 +1,7 @@
+> **Skills are the operative layer.** Concise, actionable agent rules live in `.claude/skills/` (auto-synced to `.gemini/skills/` and `.cursor/skills/`). This file is the full human-readable reference — prose, diagrams, and code examples that skills distil from. When rules conflict, the skills take precedence.
+>
+> Run `task skills:sync` after editing any skill. Run `task skills:check` to verify sync.
+
 # machNotch Plugin Architecture
 
 > **Adapter note:** Canonical architecture docs live in `docs/architecture/overview.md`, and canonical repo facts live in `repo.yaml`. Keep this file as an agent-focused quick reference, not an independent source of truth.

@@ -1,7 +1,7 @@
-# Project Guidelines
+# Gemini Agent Guidelines
 
-This project utilizes centralized agent guidelines. All behavioral, architectural, and procedural rules are maintained in:
+Skills live in `.gemini/skills/` — **do not edit there directly.**
 
-[docs/AGENT-GUIDELINES.md](docs/AGENT-GUIDELINES.md)
+**Source of truth:** `.claude/skills/` — edit skills there, then run `task skills:sync` to propagate.
 
-Agents (Gemini, Claude, etc.) should treat this file as their primary source of truth.
+Full reference: [`docs/AGENT-GUIDELINES.md`](docs/AGENT-GUIDELINES.md) · [`AGENTS.md`](AGENTS.md) · [`repo.yaml`](repo.yaml)
