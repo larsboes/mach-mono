@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mach — macOS utilities</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0d14;
+      --surface:  #13131f;
+      --border:   #1e1e2e;
+      --text:     #e2e2f0;
+      --muted:    #6b6b8a;
+      --accent:   #7c6ff7;
+      --accent2:  #5b8af7;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 80px 24px 60px;
+    }
+
+    header {
+      text-align: center;
+      max-width: 560px;
+      margin-bottom: 72px;
+    }
+
+    .wordmark {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      background: linear-gradient(135deg, var(--text) 30%, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+    }
+
+    .tagline {
+      font-size: 17px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .apps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      width: 100%;
+      max-width: 680px;
+      margin-bottom: 72px;
+    }
+
+    .app-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color 0.2s;
+    }
+
+    .app-card:hover { border-color: var(--accent); }
+
+    .app-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .notch-icon { background: linear-gradient(135deg, #1a1a2e, #2a1a4e); }
+    .brief-icon { background: linear-gradient(135deg, #1a2e1a, #1a4e2a); }
+
+    .app-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      font-family: "SF Mono", "Fira Code", monospace;
+    }
+
+    .app-status {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+
+    .status-active   { background: rgba(124,111,247,.15); color: var(--accent); }
+    .status-building { background: rgba(91,138,247,.15);  color: var(--accent2); }
+
+    .app-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .links {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 64px;
+    }
+
+    .link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 9px 18px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .link:hover { color: var(--text); border-color: var(--accent); }
+
+    .link svg { flex-shrink: 0; opacity: .7; }
+
+    footer {
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    footer a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <p class="wordmark">mach-mono</p>
+    <h1>Focused utilities<br>for macOS</h1>
+    <p class="tagline">A suite of small, opinionated apps that stay out of your way — until you need them.</p>
+  </header>
+
+  <div class="apps">
+    <div class="app-card">
+      <div class="app-icon notch-icon">◉</div>
+      <p class="app-name">mach.notch</p>
+      <span class="app-status status-active">Active</span>
+      <p class="app-desc">Reclaims the MacBook notch as an interactive widget hub. Music, calendar, webcam, shelf, system stats — as plugins. Everything is opt-in.</p>
+    </div>
+    <div class="app-card">
+      <div class="app-icon brief-icon">◈</div>
+      <p class="app-name">mach.brief</p>
+      <span class="app-status status-building">In development</span>
+      <p class="app-desc">A minimal daily briefing widget for macOS and iOS. Surfaces what matters — calendar, tasks, weather — without noise.</p>
+    </div>
+  </div>
+
+  <div class="links">
+    <a class="link" href="https://github.com/larsboes/mach-mono">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      GitHub
+    </a>
+    <a class="link" href="appcast.xml">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V2zm4.5 5.5a.5.5 0 000 1h3a.5.5 0 000-1h-3zm0 2a.5.5 0 000 1h3a.5.5 0 000-1h-3zM8 4a1 1 0 100 2 1 1 0 000-2z"/></svg>
+      Appcast
+    </a>
+    <a class="link" href="https://github.com/larsboes/mach-mono/releases">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm.5 4.5v4.793l3.146 3.147-.707.707L7.5 9.793V4.5h1z"/></svg>
+      Releases
+    </a>
+  </div>
+
+  <footer>
+    mach.notch is GPL-3.0 · mach.brief and libraries are MIT<br>
+    <a href="https://github.com/larsboes/mach-mono/blob/main/LICENSE">License</a> · <a href="https://github.com/larsboes/mach-mono/issues">Issues</a>
+  </footer>
+
+</body>
+</html>
