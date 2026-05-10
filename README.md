@@ -45,19 +45,21 @@ This monorepo adheres to a strict **Minimalistic Aesthetic**.
 
 See [`docs/roadmaps/bazel.md`](docs/roadmaps/bazel.md) and [`docs/decisions/0007-native-bazel-builds.md`](docs/decisions/0007-native-bazel-builds.md).
 
-## Current Blockers (last update: 10.05.2026)
+## Critical Blockers (last update: 10.05.2026)
 
-- Notch expands randomly some (few) times - rootcase unknown for now
-- habit tracker interface buggy
-- music display interface fine but not clean (music timeline missing currently)
-- teleprompter not clean
+*   **Notch stability:** Intermittent random expansion (root cause unknown).
+*   **Music UI:** Music display is functional but requires significant cleanup and timeline implementation.
+
+*Tracking Issues: [issue tracker](https://github.com/larsboes/mach-mono/issues).*
 
 ## Background
 
-This Repo heavily relies on Agentic Coding. It grew organically out of curiousity for features and functionality -> so code & architecture quality varies a lot. Hardening the reliability and improving the code quality are the next big steps after some feature hardening. My priority are the working features in the first place because it's - to be fair - just a nice to have quality of life addition.
-For me this is also a playground to experiment with Monorepo setup, Swift, OSS, etc. .
-I took heavy inspiration from existing Notch-Projects as listed below, but want to reengineer a lot. :)
-If you plan to visit the codebase or want to contribute, you'll see the clanker's work but don't judge 'em, judge me for using them not properly / well guided. (another goal for the future: ai-ready repo)
+This repo heavily relies on **Agentic Coding**. It grew organically out of curiosity for features and functionality, so code and architectural quality varies. Hardening reliability and improving code quality are the next big steps, but my priority remains on working features—after all, these are just quality-of-life additions.
+
+For me, this is a playground to experiment with monorepo setups, Swift, and open-source practices. I took heavy inspiration from the existing Notch projects listed below, but my goal is to reengineer them significantly. :) 
+
+If you plan to explore the codebase or contribute, you'll see the "clanker's" work. Please don't judge the agents—judge me for not guiding them properly. My long-term goal is to make this a truly "AI-ready" repository.
+
 
 ### Documentation model
 
