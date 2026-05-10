@@ -44,9 +44,9 @@ struct NotchHomeView: View {
         return count
     }
     
+    private let musicPlayerReservedWidth: CGFloat = 330
+
     private var itemWidth: CGFloat {
-        // Space reserved for the music player + controls
-        let musicPlayerReservedWidth: CGFloat = 330
         // Calculate max width for side-plugins before overflowing the 860 total width
         let maxAvailableWidth: CGFloat = 860 - 64 - musicPlayerReservedWidth // 860 width, 64 total padding (32 each side)
         if additionalItemsCount == 0 { return maxAvailableWidth }

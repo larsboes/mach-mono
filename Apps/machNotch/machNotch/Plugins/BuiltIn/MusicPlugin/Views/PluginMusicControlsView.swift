@@ -29,6 +29,7 @@ struct PluginMusicControlsView: View {
         }
         .buttonStyle(PlainButtonStyle())
         .padding(.trailing, 8)
+        .frame(maxWidth: .infinity)
     }
 
     private var songInfo: some View {

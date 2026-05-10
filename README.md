@@ -30,8 +30,6 @@
 This monorepo adheres to a strict **Minimalistic Aesthetic**. 
 
 > **Core Principles:** Clarity, Cohesion, Tech-Forward, Subtlety.
-> 
-> See [docs/AGENT-GUIDELINES.md](docs/AGENT-GUIDELINES.md) for full design guidelines.
 
 ---
 
@@ -46,6 +44,20 @@ This monorepo adheres to a strict **Minimalistic Aesthetic**.
 > "We go Bazel or we go home!"
 
 See [`docs/roadmaps/bazel.md`](docs/roadmaps/bazel.md) and [`docs/decisions/0007-native-bazel-builds.md`](docs/decisions/0007-native-bazel-builds.md).
+
+## Current Blockers (last update: 10.05.2026)
+
+- Notch expands randomly some (few) times - rootcase unknown for now
+- habit tracker interface buggy
+- music display interface fine but not clean (music timeline missing currently)
+- teleprompter not clean
+
+## Background
+
+This Repo heavily relies on Agentic Coding. It grew organically out of curiousity for features and functionality -> so code & architecture quality varies a lot. Hardening the reliability and improving the code quality are the next big steps after some feature hardening. My priority are the working features in the first place because it's - to be fair - just a nice to have quality of life addition.
+For me this is also a playground to experiment with Monorepo setup, Swift, OSS, etc. .
+I took heavy inspiration from existing Notch-Projects as listed below, but want to reengineer a lot. :)
+If you plan to visit the codebase or want to contribute, you'll see the clanker's work but don't judge 'em, judge me for using them not properly / well guided. (another goal for the future: ai-ready repo)
 
 ### Documentation model
 

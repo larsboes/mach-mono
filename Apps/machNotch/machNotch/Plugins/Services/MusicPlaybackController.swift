@@ -37,6 +37,9 @@ final class MusicPlaybackController {
     @ObservationIgnored public private(set) var isNowPlayingDeprecated: Bool = false
     private let mediaControllerCapabilities: any MediaControllerCapabilityProviding
     var activeController: (any MediaControllerProtocol)?
+    // Incremented each time a new controller is created so that observation loops
+    // belonging to a replaced controller stop re-registering themselves.
+    @ObservationIgnored private var observationGeneration: Int = 0
     private var settings: any MediaSettings
     var isPlaying = false
     var isPlayerIdle: Bool = true
@@ -107,6 +110,7 @@ final class MusicPlaybackController {
             controllerCancellables.removeAll()
             activeController = nil
         }
+        observationGeneration += 1
 
         let newController: (any MediaControllerProtocol)?
 
@@ -126,17 +130,26 @@ final class MusicPlaybackController {
         }
 
         if let controller = newController {
-            // Monitor for changes using observation
-            withObservationTracking {
-                _ = controller.playbackState
-            } onChange: {
-                Task { @MainActor in
-                    self.updateFromPlaybackState(controller.playbackState)
-                }
-            }
+            startObservingController(controller, generation: observationGeneration)
         }
 
         return newController
+    }
+
+    // withObservationTracking fires exactly once; re-register after each change so
+    // every subsequent playbackState mutation (new track, play/pause, artwork) is
+    // forwarded upstream. The generation guard ensures loops from replaced
+    // controllers don't keep propagating stale state.
+    private func startObservingController(_ controller: any MediaControllerProtocol, generation: Int) {
+        withObservationTracking {
+            _ = controller.playbackState
+        } onChange: { [weak self] in
+            Task { @MainActor [weak self] in
+                guard let self, self.observationGeneration == generation else { return }
+                self.updateFromPlaybackState(controller.playbackState)
+                self.startObservingController(controller, generation: generation)
+            }
+        }
     }
 
     private func setActiveControllerBasedOnPreference() {

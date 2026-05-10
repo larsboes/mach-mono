@@ -124,6 +124,13 @@ struct ContentView: View {
         .preferredColorScheme(.dark)
         .environment(vm)
         .environment(vm.uiContext)
+        .onChange(of: pluginManager?.highestPriorityClosedNotchPlugin()) { _, pluginId in
+            if let id = pluginId, let req = pluginManager?.plugin(id: id)?.displayRequest {
+                vm.pluginPreferredHeight = req.preferredHeight
+            } else {
+                vm.pluginPreferredHeight = nil
+            }
+        }
         .onChange(of: vm.anyDropZoneTargeting) { _, isTargeted in
             anyDropDebounceTask?.cancel()
 

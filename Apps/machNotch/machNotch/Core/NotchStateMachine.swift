@@ -128,6 +128,24 @@ class NotchStateMachine {
         }
     }
 
+    /// Update the display state and publish changes
+    func update() {
+        let newState = computeDisplayState()
+        if displayState != newState {
+            displayState = newState
+        }
+        
+        // Sync plugin preferred height for notch sizing
+        if let activePluginId = pluginManager?.highestPriorityClosedNotchPlugin(),
+           let plugin = pluginManager?.plugin(id: activePluginId),
+           let preferredHeight = plugin.displayRequest?.preferredHeight {
+            viewModel?.pluginPreferredHeight = preferredHeight
+        } else {
+            viewModel?.pluginPreferredHeight = nil
+        }
+    }
+
+
     func getCurrentInput(forcingClosed: Bool = false) -> NotchStateInput {
         return NotchStateInput(
             isHelloAnimationRunning: coordinator?.helloAnimationRunning ?? false,
@@ -214,23 +232,6 @@ class NotchStateMachine {
         }
 
         return .closed(content: .idle)
-    }
-
-    /// Update the display state and publish changes
-    func update() {
-        let newState = computeDisplayState()
-        if displayState != newState {
-            displayState = newState
-        }
-        
-        // Sync plugin preferred height for notch sizing
-        if let activePluginId = pluginManager?.highestPriorityClosedNotchPlugin(),
-           let plugin = pluginManager?.plugin(id: activePluginId),
-           let preferredHeight = plugin.displayRequest?.preferredHeight {
-            viewModel?.pluginPreferredHeight = preferredHeight
-        } else {
-            viewModel?.pluginPreferredHeight = nil
-        }
     }
 
     /// Determines what would be shown if the notch were forced to its closed state.
