@@ -23,6 +23,12 @@
   <img src="https://img.shields.io/badge/Bazel-Build-43A047?logo=bazel&logoColor=white" alt="Bazel Build"/>
 </p>
 
+<p align="center">
+  <img src="docs/images/mach-notch-closed.png" alt="Mach Notch Closed" width="300"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="docs/images/mach-notch-expanded.png" alt="Mach Notch Expanded" width="300"/>
+</p>
+
 ---
 
 ## Design System
@@ -237,6 +243,10 @@ bazelisk build //Apps/machBrief:machBrief
 ```bash
 security find-identity -v -p codesigning
 ```
+
+<p align="center">
+  <img src="docs/images/mach-signing-setup.png" alt="Signing Setup" width="500"/>
+</p>
 
 If you have more than one, update `CERT` in [`Taskfile.yml`](Taskfile.yml) to match the one you want to use. **No paid Apple Developer account?** The free Apple ID flow works — see the [sideloading guide](docs/guides/sideloading.md).
 
