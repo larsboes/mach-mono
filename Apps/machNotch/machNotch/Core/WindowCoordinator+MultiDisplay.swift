@@ -34,7 +34,12 @@ extension WindowCoordinator {
                     services: pluginManager.services,
                     displaySettings: settings
                 )
-                let stateMachine = NotchStateMachine(settings: settings)
+                let stateMachine = NotchStateMachine(
+                    viewModel: viewModel,
+                    coordinator: coordinator,
+                    pluginManager: pluginManager,
+                    settings: settings
+                )
                 let window = createNotchWindow(for: screen, with: viewModel, stateMachine: stateMachine)
 
                 windows[uuid] = window

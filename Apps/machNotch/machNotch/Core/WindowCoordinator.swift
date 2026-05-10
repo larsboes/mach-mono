@@ -19,7 +19,12 @@ final class WindowCoordinator {
     var viewModels: [String: NotchViewModel] = [:]
     var stateMachines: [String: NotchStateMachine] = [:]
     let primaryViewModel: NotchViewModel
-    lazy var primaryStateMachine: NotchStateMachine = NotchStateMachine(settings: settings)
+    lazy var primaryStateMachine: NotchStateMachine = NotchStateMachine(
+        viewModel: primaryViewModel,
+        coordinator: coordinator,
+        pluginManager: pluginManager,
+        settings: settings
+    )
     let coordinator: NotchViewCoordinator
     let settings: NotchSettings
     let pluginManager: PluginManager
