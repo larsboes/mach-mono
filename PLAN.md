@@ -124,7 +124,7 @@ Reuse the `ObsidianSink` pattern from `MachBriefKit`. When a note is created or 
 
 ### Notes — Buggy State Investigation
 
-Lars reports an intermittent weird visual state in the notes tab. Needs a repro case to debug.
+- [x] Lars reports an intermittent weird visual state in the notes tab. *Fixed: Traced to `WindowCoordinator` squishing the notch on `cmd+tab` and `NotchStateMachine` forcing Music layout during Battery expansion events.*
 
 ---
 

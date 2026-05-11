@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 *   **Aggressive Content Absorption**: Content exit animation is now much more aggressive, creating a satisfying "absorbed into the notch" effect.
 
 ### 🐛 Bug Fixes & Refinements
+*   **UI State & Expansion Bugs**: Fixed a horizontal bounce after closing (due to stale phase checks), prevented the Battery expansion from stretching the Music plugin to 640px, and fixed the notch squishing when switching apps via `Cmd+Tab`.
+*   **Timeline Sync**: Mapped `duration` and `currentTime` from the active media controller to fix the timeline UI getting stuck at 0.
+*   **Shelf Drag and Drop**: Fixed an issue where dragging files out of the shelf would fail due to missing selection state context.
+*   **Accessibility Prompts**: Disabled automatic accessibility prompts on launch and settings load to prevent aggressive system popups.
+*   **Browser Media Controller**: Added support for browser extension media controls with SoundCloud metadata extraction.
 *   **External display fix**: Fixed notch not appearing on external (non-notch) displays when "Show on all displays" is enabled. The `.transient` collection behavior caused macOS to hide windows on non-notch screens.
 *   **Duplicate init call**: Removed duplicate `configureWindow()` call in `NotchSkyLightWindow` init.
 *   **Build regressions**: Fixed MusicService, SpotifyController, YouTubeMusicController, NowPlayingController, and PlaybackState regressions after efficiency refactor.
