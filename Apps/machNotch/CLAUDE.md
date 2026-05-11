@@ -86,13 +86,15 @@ machNotch/
 |-----------|------|-------------|
 | **NotchViewModel** | Per-screen state, notch open/close, sizing delegation | Shared UI state |
 | **NotchViewCoordinator** | Shared cross-screen state (sneakPeek, expandingView, helloAnimation) | Per-screen state |
+| **WindowCoordinator** | Multi-display window lifecycle and app activation (use `updateNotchSize()` on app switch) | Direct `notchSize` overwrites |
 | **NotchSizeCalculator** | ALL closed-notch sizing via `ClosedNotchInput` struct | Service dependencies |
-| **NotchStateMachine** | Display state determination (pure domain) | UI, services |
+| **NotchStateMachine** | Display state determination (pure domain). Must prioritize layouts (e.g., Battery expanding views) over lower-priority plugins. | UI, services |
 | **NotchContentRouter** | Which content to show for each display state | State determination |
 
 ## Sizing Subsystem
 
 `NotchSizeCalculator` is the single source of truth for closed notch geometry. It receives a `ClosedNotchInput` value type (no service deps) and computes `effectiveClosedNotchSize`, `effectiveClosedNotchHeight`, `chinHeight`. NotchViewModel constructs the input and delegates.
+**Note:** When calculating closed sizes, rely on target properties without strictly requiring `phase == .closed`. Restricting size calculations to the terminal closed phase causes sudden width bounces at the end of animations.
 
 ## Files to Not Touch
 - `Plugins/Core/NotchPlugin.swift` — stable protocol
