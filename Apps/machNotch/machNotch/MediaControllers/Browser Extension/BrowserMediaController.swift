@@ -17,6 +17,7 @@ final class BrowserMediaController: MediaControllerProtocol {
     var playbackState = PlaybackState(bundleIdentifier: "com.google.Chrome")
     private(set) var currentTime: Double = 0
     private(set) var duration: Double = 0
+    private var lastArtworkURL: String?
 
     var supportsVolumeControl: Bool { false }
     var supportsFavorite: Bool { false }
@@ -50,6 +51,22 @@ final class BrowserMediaController: MediaControllerProtocol {
         newState.playbackRate = browserState.playbackRate
         newState.bundleIdentifier = browserState.bundleIdentifier
         newState.lastUpdated = Date()
+        
+        if browserState.artworkURL != lastArtworkURL {
+            lastArtworkURL = browserState.artworkURL
+            if let urlString = browserState.artworkURL, let url = URL(string: urlString) {
+                Task {
+                    if let (data, _) = try? await URLSession.shared.data(from: url) {
+                        await MainActor.run {
+                            self.playbackState.artwork = data
+                            self.playbackState.lastUpdated = Date()
+                        }
+                    }
+                }
+            } else {
+                newState.artwork = nil
+            }
+        }
         
         playbackState = newState
     }

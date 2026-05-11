@@ -17,6 +17,7 @@ struct BrowserMediaState: Codable {
     let duration: Double
     let playbackRate: Double
     let bundleIdentifier: String
+    let artworkURL: String?
 }
 
 // MARK: - Swift -> Browser (Outgoing)
