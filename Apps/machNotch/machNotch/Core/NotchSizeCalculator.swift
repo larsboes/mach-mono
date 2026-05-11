@@ -92,7 +92,7 @@ struct ClosedNotchInput {
 
         if input.expandingViewType == .battery && input.expandingViewActive && input.showPowerStatusNotifications {
             size.width = 640
-        } else if input.closedEarsActive && input.phase == .closed {
+        } else if input.closedEarsActive {
             size.width += (2 * max(0, baseSize.height - 12) + 20)
         }
 

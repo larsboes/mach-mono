@@ -43,8 +43,8 @@ final class SystemNotificationObserver: SystemNotificationObserverProtocol {
             // Defer the system dialog so it doesn't interrupt the notch startup animation
             Task { @MainActor in
                 try? await Task.sleep(for: .seconds(2))
-                let options: NSDictionary = ["AXTrustedCheckOptionPrompt": true]
-                AXIsProcessTrustedWithOptions(options)
+                let options: NSDictionary = ["AXTrustedCheckOptionPrompt": false]
+                _ = AXIsProcessTrustedWithOptions(options)
             }
             return
         }

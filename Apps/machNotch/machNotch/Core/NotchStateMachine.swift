@@ -215,14 +215,19 @@ class NotchStateMachine {
             ))
         }
 
+        // Priority 5.5: Battery Expanding View
+        if input.expandingView.show && input.expandingView.type == .battery && !input.hideOnClosed {
+            return .closed(content: .plugin(PluginID.battery))
+        }
+
         // Priority 6: Active Plugin Content
         if let pluginId = input.activePluginId,
            !input.hideOnClosed,
-           !input.expandingView.show || input.expandingView.type == .music || input.expandingView.type == .battery {
+           !input.expandingView.show || input.expandingView.type == .music {
             return .closed(content: .plugin(pluginId))
         }
 
-        // Priority 5: Face animation
+        // Priority 7: Face animation
         if !input.expandingView.show &&
            !input.isPlaying &&
            input.isPlayerIdle &&

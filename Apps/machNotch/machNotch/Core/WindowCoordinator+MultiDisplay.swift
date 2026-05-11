@@ -71,7 +71,7 @@ extension WindowCoordinator {
         }
 
         primaryViewModel.screenUUID = selectedScreen.displayUUID
-        primaryViewModel.notchSize = getClosedNotchSize(settings: settings, screenUUID: selectedScreen.displayUUID)
+        primaryViewModel.updateNotchSize()
 
         if window == nil {
             window = createNotchWindow(for: selectedScreen, with: primaryViewModel, stateMachine: primaryStateMachine)

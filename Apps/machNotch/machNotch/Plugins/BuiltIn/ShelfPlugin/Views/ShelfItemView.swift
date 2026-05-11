@@ -53,6 +53,7 @@ struct ShelfItemView: View {
                     settings: settings,
                     viewModel: viewModel,
                     service: shelfService,
+                    selection: selection,
                     dragPreviewContent: {
                         DragPreviewView(thumbnail: viewModel.thumbnail ?? item.icon, displayName: item.displayName)
                     },

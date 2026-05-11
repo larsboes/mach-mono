@@ -127,6 +127,8 @@ final class MusicPlaybackController {
             newController = SpotifyController()
         case .youtubeMusic:
             newController = YouTubeMusicController()
+        case .browser:
+            newController = BrowserMediaController(server: BrowserExtensionServer.shared)
         }
 
         if let controller = newController {
@@ -173,6 +175,11 @@ final class MusicPlaybackController {
 
     func updateFromPlaybackState(_ state: PlaybackState) {
         playbackStateSubject.send(state)
+        
+        if let controller = activeController {
+            if self.songDuration != controller.duration { self.songDuration = controller.duration }
+            if self.elapsedTime != controller.currentTime { self.elapsedTime = controller.currentTime }
+        }
 
         if state.isPlaying != isPlaying {
             withAnimation(.smooth) {

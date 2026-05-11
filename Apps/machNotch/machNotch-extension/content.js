@@ -2,14 +2,13 @@ let activeVideo = null;
 let lastState = {};
 let pollInterval = null;
 
-function findActiveVideo() {
-    const videos = Array.from(document.querySelectorAll('video'));
-    if (videos.length === 0) return null;
-    // Naive approach: Find the first playing video or the longest one
-    const playingVideo = videos.find(v => !v.paused && v.duration > 0);
-    if (playingVideo) return playingVideo;
+function findActiveMedia() {
+    const media = Array.from(document.querySelectorAll('video, audio'));
+    if (media.length === 0) return null;
+    const playingMedia = media.find(v => !v.paused && v.duration > 0);
+    if (playingMedia) return playingMedia;
 
-    return videos.sort((a, b) => b.duration - a.duration)[0];
+    return media.sort((a, b) => b.duration - a.duration)[0];
 }
 
 function getMediaMetadata() {
@@ -33,12 +32,20 @@ function getMediaMetadata() {
         const artistEl = document.querySelector('span.subtitle.ytmusic-player-bar');
         if (artistEl) artist = artistEl.innerText;
     }
+    
+    // SoundCloud Specific
+    if (window.location.hostname.includes("soundcloud.com")) {
+        const titleEl = document.querySelector('.playbackSoundBadge__titleLink');
+        const artistEl = document.querySelector('.playbackSoundBadge__titleContextContainer');
+        if (titleEl) title = titleEl.innerText;
+        if (artistEl) artist = artistEl.innerText;
+    }
 
     return { title, artist, album: "" };
 }
 
 function pollAndBroadcast() {
-    activeVideo = findActiveVideo();
+    activeVideo = findActiveMedia();
     if (!activeVideo) return;
 
     const metadata = getMediaMetadata();
@@ -52,6 +59,8 @@ function pollAndBroadcast() {
         playbackRate: activeVideo.playbackRate,
         bundleIdentifier: navigator.userAgent.includes("Chrome") ? "com.google.Chrome" : "com.apple.Safari"
     };
+
+    console.log("Media State Broadcast:", currentState);
 
     // Only broadcast if playing or if state changed significantly
     if (currentState.currentTime !== lastState.currentTime ||
@@ -74,7 +83,7 @@ pollInterval = setInterval(pollAndBroadcast, 500);
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "MEDIA_COMMAND") {
         const cmd = message.payload;
-        if (!activeVideo) activeVideo = findActiveVideo();
+        if (!activeVideo) activeVideo = findActiveMedia();
         if (!activeVideo) return;
 
         if (cmd.command === "play") {

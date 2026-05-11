@@ -22,9 +22,7 @@ struct PluginMusicControlsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             songInfo
-            if service.songDuration > 0 {
-                musicSliderWithTimes
-            }
+            musicSliderWithTimes
             playbackControls
         }
         .buttonStyle(PlainButtonStyle())
@@ -58,7 +56,7 @@ struct PluginMusicControlsView: View {
                     IsolatedLyricsView(
                         service: service,
                         width: geo.size.width,
-                        isActive: uiContext.notchState == .open && service.playbackRate > 0
+                        isActive: uiContext.notchState == .open
                     )
                 }
             }
@@ -70,7 +68,7 @@ struct PluginMusicControlsView: View {
         IsolatedScrubberView(
             service: service,
             settings: settings,
-            isActive: uiContext.notchState == .open && service.playbackRate > 0
+            isActive: uiContext.notchState == .open
         )
     }
 

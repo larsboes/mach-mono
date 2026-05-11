@@ -14,6 +14,7 @@ struct DraggableClickHandler<Content: View>: NSViewRepresentable {
     let settings: NotchSettings
     let viewModel: ShelfItemViewModel
     let service: ShelfServiceProtocol
+    let selection: ShelfSelectionModel
     @ViewBuilder let dragPreviewContent: () -> Content
     let onRightClick: (NSEvent, NSView) -> Void
     let onClick: (NSEvent, NSView) -> Void
@@ -24,6 +25,7 @@ struct DraggableClickHandler<Content: View>: NSViewRepresentable {
         view.settings = settings
         view.viewModel = viewModel
         view.service = service
+        view.selection = selection
         view.getDragPreview = { self.renderDragPreview() }
         view.onRightClick = onRightClick
         view.onClick = onClick
@@ -35,6 +37,7 @@ struct DraggableClickHandler<Content: View>: NSViewRepresentable {
         nsView.settings = settings
         nsView.viewModel = viewModel
         nsView.service = service
+        nsView.selection = selection
         nsView.getDragPreview = { self.renderDragPreview() }
         nsView.onRightClick = onRightClick
         nsView.onClick = onClick
