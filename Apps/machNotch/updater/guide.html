@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guide — mach.notch</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0d14;
+      --surface:  #13131f;
+      --border:   #1e1e2e;
+      --text:     #e2e2f0;
+      --muted:    #6b6b8a;
+      --accent:   #7c6ff7;
+      --accent2:  #5b8af7;
+      --green:    #4caf82;
+      --orange:   #e0874a;
+      --yellow:   #d4a843;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 24px 80px;
+    }
+
+    /* ── Nav ── */
+    nav {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 0 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 64px;
+    }
+    .nav-brand { font-size: 13px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
+    .nav-brand:hover { color: var(--text); }
+    .nav-links { display: flex; gap: 24px; list-style: none; }
+    .nav-links a { font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; padding-bottom: 28px; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); border-bottom-color: var(--accent); }
+
+    /* ── Page header ── */
+    .page-header { width: 100%; max-width: 720px; margin-bottom: 56px; }
+    .page-header h1 { font-size: 36px; font-weight: 700; letter-spacing: -.03em; background: linear-gradient(135deg, var(--text) 30%, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 12px; }
+    .page-header p { font-size: 15px; color: var(--muted); line-height: 1.6; }
+
+    /* ── Install steps ── */
+    .steps { width: 100%; max-width: 720px; margin-bottom: 60px; }
+    .steps-title { font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 20px; }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 12px;
+    }
+
+    .step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .step-body { flex: 1; }
+    .step-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .step-desc  { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .step-desc a { color: var(--accent); text-decoration: none; }
+    .step-desc a:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .step-desc code { font-family: "SF Mono", "Fira Code", monospace; font-size: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; color: var(--text); }
+
+    .connector {
+      width: 2px;
+      height: 20px;
+      background: var(--border);
+      margin-left: 17px;
+      margin-bottom: 0;
+    }
+
+    /* ── Permissions grid ── */
+    .permissions { width: 100%; max-width: 720px; margin-bottom: 60px; }
+    .permissions-title { font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 20px; }
+
+    .perm-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 10px;
+    }
+
+    .perm-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .perm-badge {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      padding: 2px 7px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .perm-required { background: rgba(224,135,74,.18); color: var(--orange); }
+    .perm-optional { background: rgba(107,107,138,.15); color: var(--muted); }
+
+    .perm-info { min-width: 0; }
+    .perm-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .perm-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* ── Tips ── */
+    .tips { width: 100%; max-width: 720px; margin-bottom: 60px; }
+    .tips-title { font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 20px; }
+
+    .tip-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .tip-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.55;
+      display: flex;
+      gap: 12px;
+      align-items: baseline;
+    }
+    .tip-item::before { content: '→'; color: var(--accent); flex-shrink: 0; font-weight: 600; }
+    .tip-item strong { color: var(--text); }
+
+    /* ── CTA strip ── */
+    .cta-strip {
+      width: 100%;
+      max-width: 720px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-bottom: 60px;
+    }
+
+    .cta-text h3 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+    .cta-text p  { font-size: 14px; color: var(--muted); }
+
+    .btn-sm {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 10px;
+      transition: opacity .2s;
+      white-space: nowrap;
+    }
+    .btn-sm:hover { opacity: .85; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-brand" href="index.html">mach-mono</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="changelog.html">Changelog</a></li>
+      <li><a href="guide.html" class="active">Guide</a></li>
+    </ul>
+  </nav>
+
+  <div class="page-header">
+    <h1>Getting started</h1>
+    <p>From download to first hover in under 2 minutes.</p>
+  </div>
+
+  <!-- Install steps -->
+  <div class="steps">
+    <p class="steps-title">Installation</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <p class="step-title">Download</p>
+        <p class="step-desc">
+          Grab the latest <code>machNotch.dmg</code> from the
+          <a href="https://github.com/larsboes/mach-mono/releases/latest">GitHub Releases page</a>.
+          Requires macOS 26 or later.
+        </p>
+      </div>
+    </div>
+    <div class="connector"></div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <p class="step-title">Install</p>
+        <p class="step-desc">
+          Open the DMG, drag <strong>mach.notch</strong> to your Applications folder,
+          then eject the disk image. Launch from Applications or Spotlight.
+        </p>
+      </div>
+    </div>
+    <div class="connector"></div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <p class="step-title">Grant Accessibility access</p>
+        <p class="step-desc">
+          On first launch, macOS will ask for Accessibility permission — this is the only
+          required permission. Click <strong>Open System Settings</strong>, find
+          <strong>mach.notch</strong> in the list, and toggle it on. The app needs this to
+          detect your cursor hovering over the notch and to intercept media keys.
+        </p>
+      </div>
+    </div>
+    <div class="connector"></div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <p class="step-title">Hover to open</p>
+        <p class="step-desc">
+          Move your cursor over the notch at the top of your screen — it expands.
+          Move away and it closes. Open <strong>Settings</strong> (gear icon in the notch header,
+          or from the menu bar icon) to enable plugins and customise behaviour.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Permissions -->
+  <div class="permissions">
+    <p class="permissions-title">Permissions</p>
+    <div class="perm-grid">
+
+      <div class="perm-card">
+        <span class="perm-badge perm-required">Required</span>
+        <div class="perm-info">
+          <p class="perm-name">Accessibility</p>
+          <p class="perm-desc">Mouse tracking for hover-to-open and media key interception. Without this the notch won't respond.</p>
+        </div>
+      </div>
+
+      <div class="perm-card">
+        <span class="perm-badge perm-optional">Optional</span>
+        <div class="perm-info">
+          <p class="perm-name">Calendar &amp; Reminders</p>
+          <p class="perm-desc">Needed by the Calendar plugin to show your events and reminders. Grant when prompted or in System Settings → Privacy.</p>
+        </div>
+      </div>
+
+      <div class="perm-card">
+        <span class="perm-badge perm-optional">Optional</span>
+        <div class="perm-info">
+          <p class="perm-name">Location</p>
+          <p class="perm-desc">Used by the Weather plugin for automatic location detection. You can also enter a location manually.</p>
+        </div>
+      </div>
+
+      <div class="perm-card">
+        <span class="perm-badge perm-optional">Optional</span>
+        <div class="perm-info">
+          <p class="perm-name">Camera</p>
+          <p class="perm-desc">Required only if you enable the Webcam plugin for quick mirror mode.</p>
+        </div>
+      </div>
+
+      <div class="perm-card">
+        <span class="perm-badge perm-optional">Optional</span>
+        <div class="perm-info">
+          <p class="perm-name">Microphone</p>
+          <p class="perm-desc">Used by the Teleprompter plugin for mic-level monitoring during recording sessions.</p>
+        </div>
+      </div>
+
+      <div class="perm-card">
+        <span class="perm-badge perm-optional">Optional</span>
+        <div class="perm-info">
+          <p class="perm-name">Notifications</p>
+          <p class="perm-desc">Allows the Notifications plugin to forward system alerts into the notch panel.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Tips -->
+  <div class="tips">
+    <p class="tips-title">Tips</p>
+    <ul class="tip-list">
+      <li class="tip-item"><span><strong>Enable only what you use.</strong> Each plugin is opt-in in Settings → Plugins. Start with Music and Calendar; add others as you go.</span></li>
+      <li class="tip-item"><span><strong>Multiple displays.</strong> Enable "Show on all displays" in Settings → General to get the notch widget on external monitors too.</span></li>
+      <li class="tip-item"><span><strong>Keyboard shortcut.</strong> Assign a global shortcut in Settings → Shortcuts to toggle the notch open/close without touching the mouse.</span></li>
+      <li class="tip-item"><span><strong>Hover delay.</strong> If the notch opens too easily, increase the hover delay in Settings → General.</span></li>
+      <li class="tip-item"><span><strong>Local API.</strong> Advanced users can drive mach.notch programmatically via the built-in HTTP server. See the <a href="https://github.com/larsboes/mach-mono">repo README</a> for details.</span></li>
+    </ul>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-strip">
+    <div class="cta-text">
+      <h3>Build a plugin</h3>
+      <p>Every feature in mach.notch is a plugin. The same API is open to you.</p>
+    </div>
+    <a class="btn-sm" href="https://github.com/larsboes/mach-mono/blob/main/docs/guides/plugin-development.md">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M5.854 4.854a.5.5 0 10-.708-.708l-3.5 3.5a.5.5 0 000 .708l3.5 3.5a.5.5 0 00.708-.708L2.707 8l3.147-3.146zm4.292 0a.5.5 0 01.708-.708l3.5 3.5a.5.5 0 010 .708l-3.5 3.5a.5.5 0 01-.708-.708L13.293 8l-3.147-3.146z"/></svg>
+      Plugin guide
+    </a>
+  </div>
+
+</body>
+</html>

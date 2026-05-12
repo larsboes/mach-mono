@@ -5,6 +5,7 @@
 //  Created by Alexander on 2025-12-29.
 //
 
+import Defaults
 import Foundation
 import SQLite
 
@@ -69,19 +70,33 @@ final class NotesManager {
             let insert = notesTable.insert(self.title <- title, self.content <- content, timestamp <- Date())
             try db?.run(insert)
             fetchNotes()
+            writeToObsidian(title: title, content: content)
         } catch {
             print("NotesManager: Failed to add note: \(error)")
         }
     }
-    
+
     func updateNote(_ note: NoteItem) {
         do {
             let target = notesTable.filter(id == note.id)
             try db?.run(target.update(title <- note.title, content <- note.content))
             fetchNotes()
+            writeToObsidian(title: note.title, content: note.content)
         } catch {
             print("NotesManager: Failed to update note: \(error)")
         }
+    }
+
+    private func writeToObsidian(title: String, content: String) {
+        guard Defaults[.obsidianSyncEnabled],
+              let vaultPath = Defaults[.obsidianVaultPath],
+              !vaultPath.isEmpty else { return }
+        let vaultURL = URL(fileURLWithPath: vaultPath)
+        let illegalChars = CharacterSet(charactersIn: "/\\:*?\"<>|")
+        let safeTitle = title.components(separatedBy: illegalChars).joined(separator: "-")
+        let fileURL = vaultURL.appendingPathComponent("\(safeTitle).md")
+        let markdown = "# \(title)\n\n\(content)\n"
+        try? markdown.write(to: fileURL, atomically: true, encoding: .utf8)
     }
     
     func deleteNote(_ note: NoteItem) {

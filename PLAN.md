@@ -111,16 +111,37 @@ Phase 3 requires Phase 1 (shared `.bazelrc` CI config).
 
 ---
 
+## GitHub Pages Site (`Apps/machNotch/updater/`)
+
+The public site at `larsboes.github.io/mach-mono`. Served from `Apps/machNotch/updater/` via `static.yml`. Currently a single `index.html` with no download button, no screenshots, no subpages.
+
+### Phase 1 — Homepage improvements `[COMPLETE]`
+- [x] Download CTA button linking to latest release
+- [x] Plugin grid showcasing all built-in plugins
+- [x] Screenshots section using existing docs/images
+- [x] Nav bar linking to changelog and guide
+
+### Phase 2 — Changelog page (`/changelog.html`) `[COMPLETE]`
+- [x] Styled changelog matching site aesthetic
+- [x] Shows what's in the upcoming release + version history structure
+
+### Phase 3 — Getting started page (`/guide.html`) `[COMPLETE]`
+- [x] Install steps (download → drag → permissions → hover)
+- [x] Permissions guide (Accessibility required; Calendar, Camera, Mic optional)
+- [x] Nav to changelog and back to home
+
+---
+
 ## Planned Features
 
 Features scoped and agreed but not yet scheduled.
 
-### Notes — Obsidian Integration
+### Notes — Obsidian Integration `[COMPLETE]`
 
 Reuse the `ObsidianSink` pattern from `MachBriefKit`. When a note is created or updated, write a markdown file to a configurable vault path. Needs:
-- [ ] `obsidianVaultPath: String?` setting in `NotesManager` (persisted to UserDefaults)
-- [ ] Write/update `.md` file on `addNote` / `updateNote`
-- [ ] Settings UI toggle + path picker in the notes settings view
+- [x] `obsidianVaultPath: String?` setting in `NotesManager` (persisted to UserDefaults)
+- [x] Write/update `.md` file on `addNote` / `updateNote`
+- [x] Settings UI toggle + path picker in the notes settings view
 
 ### Notes — Buggy State Investigation
 
@@ -153,9 +174,8 @@ Findings from a parallel-agent audit of the full `Apps/machNotch` tree. Ranked b
 - [x] **Fix `NotchSkyLightWindow` Combine leak** — `observers: Set<AnyCancellable>` populated at lines 90–106, never cleared in `deinit` or `orderOut`. Add `deinit { observers.removeAll() }`.
 - [x] **Multi-display UUID single source of truth** — UUID state lives in `WindowCoordinator.swift:18` (keyed dict), `WindowCoordinator+MultiDisplay.swift:13` (rebuilds per call), and `NSScreenUUIDCache.shared` — three independent listeners for `NSScreen` changes with no handshake. Consolidate into a `ScreenDisplayRegistry` service.
 - [x] **`NSScreen.main` nil assumption** — `WindowCoordinator+MultiDisplay.swift:57` assumes `NSScreen.main` is non-nil; silently fails to place window on headless/boot edge cases. Guard with `?? NSScreen.screens.first`.
-- [ ] **Coordinator clarity rule** — 6+ Coordinator/Controller/Manager types with fuzzy "who closes the notch" ownership. Codify: only `NotchPhaseCoordinator` mutates phase; hover/gesture/drag call `vm.requestOpen()` / `vm.requestClose(reason:)`. Enforce by making phase setters `fileprivate`.
-- [ ] **Extract stub services into `CommonTestStubs.swift`** — `MusicPluginTests.swift:255–545` alone has 35 duplicate stubs. ~500 LOC reduction across test suite.
-- [ ] **`HabitTrackerPlugin`/`PomodoroPlugin` direct coordinator coupling** — `HabitExpandedView.swift:9`, `PomodoroExpandedView.swift:10` use `@Environment(NotchViewCoordinator.self)` — concrete infrastructure in plugin views. Move needed actions into `PluginUIContext`.
-- [ ] **`PluginEventBus` untyped escape hatch** — `PluginEventBus.swift:36–38` still accepts `[String: any Sendable]` data dict. Remove generic fallback; require concrete `PluginEvent` types.
-- [ ] **`MockNotchSettings` missing `@MainActor`** — protocol is main-isolated; mock is not (`MockNotchSettings.swift:11`). Will fail under Swift 6 strict concurrency.
-.swift:11`). Will fail under Swift 6 strict concurrency.
+- [x] **Coordinator clarity rule** — `NotchPhaseCoordinator.phase` is now `private(set)`. Only internal open/close/scrub methods mutate it.
+- [x] **Extract stub services into `CommonTestStubs.swift`** — all `Stub*` types, `TestNotchServiceProvider`, `MockMusicService`, and `MockAppState` moved out of `MusicPluginTests.swift` into shared `CommonTestStubs.swift`. Future test files can reuse without redefining.
+- [x] **`HabitTrackerPlugin`/`PomodoroPlugin` direct coordinator coupling** — migrated to `@Environment(PluginUIContext.self)`; `isScrollableViewPresented` added to `PluginUIContext`.
+- [x] **`PluginEventBus` untyped escape hatch** — removed `emit(_:from:data:)` overload and `data` field from `GenericPluginEvent`. Callers use concrete event types.
+- [x] **`MockNotchSettings` missing `@MainActor`** — added `@MainActor` annotation.

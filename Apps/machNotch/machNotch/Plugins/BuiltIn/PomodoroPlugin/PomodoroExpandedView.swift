@@ -7,7 +7,6 @@ import SwiftUI
 
 struct PomodoroExpandedView: View {
     let plugin: PomodoroPlugin
-    @Environment(NotchViewCoordinator.self) var coordinator
     private var timer: PomodoroTimer { plugin.timer }
     
     var body: some View {

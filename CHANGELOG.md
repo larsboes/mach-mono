@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### ✨ New Features
+*   **Obsidian Sync for Notes**: Notes can now sync to an Obsidian vault. Enable in Settings → Shelf → Notes, select your vault folder, and every `addNote`/`updateNote` writes a `{title}.md` file there.
+
+### 🧹 Repo / Maintenance
+*   **File size violations resolved**: `SystemStatsViews.swift`, `MusicPlugin.swift`, and `NotchViewModel.swift` were all over the 300-line hard limit. Private components extracted to `SystemStatsComponents.swift`; view builders and export logic extracted to `MusicPlugin+Views.swift` and `MusicPlugin+Export.swift`; sync helpers moved to `NotchViewModel+Sync.swift`.
+*   **Test coverage expanded**: Added `PomodoroPluginTests` (timer state machine, session cycling), `HabitTrackerPluginTests` (CRUD, streaks, completion rates), and `PluginMetadataTests` (Calendar, Weather, Shelf, Clipboard, Notifications, Teleprompter, Webcam lifecycle + metadata). All tests pass.
+*   **Dependabot covers Swift packages**: Weekly PRs for Swift package updates (was GitHub Actions only).
+*   **Stable CI channel**: `test-stable` job runs tests on macOS 15 (`continue-on-error: true`) as a canary against non-beta runtime.
+*   **Swift format lint in CI**: `swift-format lint` job reports style issues (non-blocking) to surface drift over time.
+*   **Commit message hook**: `.githooks/commit-msg` enforces Conventional Commits. Activate with `git config core.hooksPath .githooks`.
+*   **CODEOWNERS**: `.github/CODEOWNERS` routes PR review for core architecture and CI paths.
+*   **License migration checklist**: `docs/decisions/0003-license-policy.md` now includes a file-by-file GPL→MIT migration checklist.
+*   **`.swift-format` config**: Project-level Swift format configuration added to root.
+
+### 🏗 Architecture
+*   **Plugin isolation**: `HabitExpandedView` and `PomodoroExpandedView` no longer import `NotchViewCoordinator`. `isScrollableViewPresented` moved to `PluginUIContext`; `ContentView` reads it from there.
+*   **Typed event bus**: Removed `PluginEventBus.emit(_:from:data:)` convenience overload and `GenericPluginEvent.data` field. Callers must use concrete `PluginEvent` types.
+*   **Test stubs extracted**: All `Stub*` types, `TestNotchServiceProvider`, `MockMusicService`, and `MockAppState` moved from `MusicPluginTests.swift` into shared `CommonTestStubs.swift`. Future tests reuse without copy-paste.
+*   **Phase ownership**: `NotchPhaseCoordinator.phase` is now `private(set)` — only the coordinator's own open/close/scrub methods mutate phase.
+*   **Swift 6 readiness**: `MockNotchSettings` annotated `@MainActor` to match the `NotchSettings` protocol isolation.
+
 ### 🧹 Repo Hygiene
 *   **Root README refresh**: Updated root documentation from stale `machNotch` paths to the current `Apps/machNotch/` layout.
 *   **Build command clarity**: Documented the current root-relative build command using `Apps/machNotch/machNotch.xcodeproj` and noted that plain root `xcodebuild` is not available until a root workspace/project/package exists.

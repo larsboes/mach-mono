@@ -97,6 +97,16 @@ import Defaults
         set { Defaults[.openWeatherMapApiKey] = newValue }
     }
 
+    // MARK: - Notes / Obsidian Settings
+    var obsidianSyncEnabled: Bool {
+        get { Defaults[.obsidianSyncEnabled] }
+        set { Defaults[.obsidianSyncEnabled] = newValue }
+    }
+    var obsidianVaultPath: String? {
+        get { Defaults[.obsidianVaultPath] }
+        set { Defaults[.obsidianVaultPath] = newValue }
+    }
+
     // MARK: - Calendar Settings
     var enableHaptics: Bool {
         get { Defaults[.enableHaptics] }

@@ -116,6 +116,48 @@ struct Shelf: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
+
+            Section {
+                Toggle(isOn: $settings.obsidianSyncEnabled) {
+                    Label("Sync notes to Obsidian", systemImage: "diamond")
+                }
+
+                if settings.obsidianSyncEnabled {
+                    HStack {
+                        Text(settings.obsidianVaultPath ?? "No vault selected")
+                            .foregroundColor(settings.obsidianVaultPath == nil ? .secondary : .primary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        Button("Choose…") {
+                            let panel = NSOpenPanel()
+                            panel.canChooseFiles = false
+                            panel.canChooseDirectories = true
+                            panel.allowsMultipleSelection = false
+                            panel.message = "Select your Obsidian vault folder"
+                            if panel.runModal() == .OK {
+                                settings.obsidianVaultPath = panel.url?.path
+                            }
+                        }
+                        .buttonStyle(.borderless)
+
+                        if settings.obsidianVaultPath != nil {
+                            Button(action: { settings.obsidianVaultPath = nil }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.secondary)
+                            }
+                            .buttonStyle(.borderless)
+                        }
+                    }
+                }
+            } header: {
+                Text("Notes")
+            } footer: {
+                Text("When enabled, each note is written as a Markdown file inside your vault folder.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
         }
         .accentColor(.effectiveAccent(from: settings))
         .navigationTitle("Shelf")

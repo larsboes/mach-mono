@@ -53,14 +53,20 @@ You can contribute in many ways: writing code, improving documentation, reportin
 
 ### Making Changes
 
-1. **Make your changes**: Implement your feature or bug fix. Write clean, well-documented code.
-2. **Test your changes**: Ensure your changes work as expected and don't break existing functionality.
-3. **Commit your changes**:
+1. **Activate the commit hook** (once per clone):
    ```bash
-   git add .
-   git commit -m "Add descriptive commit message"
+   git config core.hooksPath .githooks
    ```
-   Write clear, concise commit messages that explain what your changes do and why.
+
+2. **Make your changes**: Implement your feature or bug fix. Write clean, well-documented code.
+3. **Test your changes**: Ensure your changes work as expected and don't break existing functionality.
+4. **Commit your changes** using [Conventional Commits](https://www.conventionalcommits.org/) format:
+   ```bash
+   git commit -m "feat(music): add lyrics scroll animation"
+   git commit -m "fix(ci): correct bazelrc cache key"
+   git commit -m "chore(deps): update Sparkle to 2.9.0"
+   ```
+   Types: `feat` · `fix` · `chore` · `docs` · `refactor` · `test` · `style` · `ci` · `perf` · `revert`
 
 4. **Keep your branch up to date**:
    Regularly sync your branch with the latest changes from `main` to avoid conflicts.

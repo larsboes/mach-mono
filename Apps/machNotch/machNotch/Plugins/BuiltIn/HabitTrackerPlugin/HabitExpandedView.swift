@@ -6,7 +6,7 @@
 import SwiftUI
 
 struct HabitExpandedView: View {
-    @Environment(NotchViewCoordinator.self) var coordinator
+    @Environment(PluginUIContext.self) var uiContext
     let plugin: HabitTrackerPlugin
     private var store: HabitStore { plugin.store }
     
@@ -56,10 +56,10 @@ struct HabitExpandedView: View {
         .padding(.vertical, 4)
         .frame(maxWidth: .infinity)
         .onAppear {
-            coordinator.isScrollableViewPresented = true
+            uiContext.isScrollableViewPresented = true
         }
         .onDisappear {
-            coordinator.isScrollableViewPresented = false
+            uiContext.isScrollableViewPresented = false
         }
     }
 }

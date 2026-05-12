@@ -17,6 +17,7 @@ struct ContentView: View {
     @Environment(\.settings) var settings
 
     @Environment(NotchViewCoordinator.self) var coordinator
+    @Environment(PluginUIContext.self) var uiContext
     @Environment(NotchStateMachine.self) var stateMachine
     @Environment(\.showSettingsWindow) var showSettingsWindow
 
@@ -85,10 +86,10 @@ struct ContentView: View {
                             vm.handleHoverSignal(signal)
                         }
                     }
-                    .panGesture(direction: .down, disabled: !settings.enableGestures || coordinator.isScrollableViewPresented) { translation, phase in
+                    .panGesture(direction: .down, disabled: !settings.enableGestures || uiContext.isScrollableViewPresented) { translation, phase in
                         handleDownGesture(translation: translation, phase: phase)
                     }
-                    .panGesture(direction: .up, disabled: !settings.closeGestureEnabled || !settings.enableGestures || coordinator.isScrollableViewPresented) { translation, phase in
+                    .panGesture(direction: .up, disabled: !settings.closeGestureEnabled || !settings.enableGestures || uiContext.isScrollableViewPresented) { translation, phase in
                         handleUpGesture(translation: translation, phase: phase)
                     }
                     .onReceive(NotificationCenter.default.publisher(for: .sharingDidFinish)) { _ in

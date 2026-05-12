@@ -18,6 +18,7 @@ public final class PluginUIContext {
     public internal(set) var notchSize: CGSize = .zero
 
     // Two-way bindings for plugin interactions
+    public var isScrollableViewPresented: Bool = false
     public var dragDetectorTargeting: Bool = false
     public var dropZoneTargeting: Bool = false
     public var dropEvent: Bool = false

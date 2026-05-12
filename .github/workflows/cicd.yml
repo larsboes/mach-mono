@@ -73,6 +73,51 @@ jobs:
             //Packages/MachBriefKit:MachBriefKitTests \
             //Apps/machNotch:machNotchTests
 
+  test-stable:
+    name: Test (macOS 15 — stable channel)
+    runs-on: macos-15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Cache Bazel repositories
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: ~/.cache/bazel-repos
+          key: bazel-repos-${{ runner.os }}-macos15-${{ hashFiles('MODULE.bazel', 'Package.resolved') }}
+          restore-keys: |
+            bazel-repos-${{ runner.os }}-macos15-
+
+      - name: Cache Bazel outputs
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: ~/.cache/bazel
+          key: bazel-${{ runner.os }}-macos15-${{ hashFiles('MODULE.bazel', 'Package.resolved', '.bazelrc') }}
+          restore-keys: |
+            bazel-${{ runner.os }}-macos15-
+
+      - name: Run tests (stable macOS)
+        run: |
+          bazelisk test --config=ci \
+            //Packages/MachBriefKit:MachBriefKitTests \
+            //Apps/machNotch:machNotchTests
+
+  swift-format:
+    name: Swift Format Lint
+    runs-on: macos-26
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Install swift-format
+        run: brew install swift-format
+      - name: Lint Swift formatting
+        run: |
+          swift-format lint --recursive --parallel \
+            Apps/machNotch/machNotch/ \
+            Packages/MachBriefKit/Sources/ \
+            Packages/MacroVisionKit/Sources/ \
+            2>&1 | head -100
+
   arch-check:
     name: Architecture Check
     runs-on: ubuntu-latest

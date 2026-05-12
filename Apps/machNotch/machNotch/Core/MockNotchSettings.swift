@@ -8,6 +8,7 @@
 
 import Foundation
 
+@MainActor
 final class MockNotchSettings: NotchSettings {
     nonisolated init() {}
 
@@ -114,6 +115,10 @@ final class MockNotchSettings: NotchSettings {
     var notchHeightMode: WindowHeightMode = .matchRealNotchSize
     var inactiveNotchHeight: Double = 23.0
     var useInactiveNotchHeight: Bool = false
+
+    // MARK: - Notes Settings
+    var obsidianSyncEnabled: Bool = false
+    var obsidianVaultPath: String? = nil
 
     // MARK: - Widget Settings
     var showMirror: Bool = false

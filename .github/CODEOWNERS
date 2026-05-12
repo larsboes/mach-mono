@@ -1,0 +1,10 @@
+# Default owner for all files
+* @larsboes
+
+# Core architecture — extra review weight
+Apps/machNotch/machNotch/Core/ @larsboes
+Apps/machNotch/machNotch/Plugins/Core/ @larsboes
+Apps/machNotch/machNotch/ViewModel/ @larsboes
+
+# CI/CD and release pipeline
+.github/ @larsboes

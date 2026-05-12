@@ -171,4 +171,8 @@ extension Defaults.Keys {
 
     // MARK: AI
     static let enableAI = Key<Bool>("enableAI", default: true)
+
+    // MARK: Notes / Obsidian
+    static let obsidianSyncEnabled = Key<Bool>("obsidianSyncEnabled", default: false)
+    static let obsidianVaultPath = Key<String?>("obsidianVaultPath", default: nil)
 }

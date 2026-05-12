@@ -1,0 +1,23 @@
+#!/bin/sh
+# Enforces Conventional Commits format: type(scope): description
+# Activate with: git config core.hooksPath .githooks
+
+commit_msg=$(cat "$1")
+
+# Allow merge commits, fixup, and squash commits
+case "$commit_msg" in
+  Merge*|Revert*|fixup!*|squash!*) exit 0 ;;
+esac
+
+pattern="^(feat|fix|chore|docs|refactor|test|style|ci|perf|revert)(\(.+\))?: .{1,100}"
+if ! echo "$commit_msg" | grep -qE "$pattern"; then
+  echo ""
+  echo "  Bad commit message: \"$commit_msg\""
+  echo ""
+  echo "  Expected: type(scope): short description"
+  echo "  Types:    feat | fix | chore | docs | refactor | test | style | ci | perf | revert"
+  echo "  Examples: feat(music): add lyrics scroll animation"
+  echo "            fix(ci): correct bazelrc cache key"
+  echo ""
+  exit 1
+fi

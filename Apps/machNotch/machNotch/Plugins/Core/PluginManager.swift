@@ -137,7 +137,7 @@ final class PluginManager {
             try await plugin.activate(context: context)
             plugin.isEnabled = true
             pluginActivationGeneration += 1
-            eventBus.emit(.pluginActivated, from: id)
+            eventBus.emit(GenericPluginEvent(type: .pluginActivated, sourcePluginId: id))
         } catch {
             throw PluginError.activationFailed(error.localizedDescription)
         }
@@ -149,7 +149,7 @@ final class PluginManager {
 
         await plugin.deactivate()
         plugin.isEnabled = false
-        eventBus.emit(.pluginDeactivated, from: id)
+        eventBus.emit(GenericPluginEvent(type: .pluginDeactivated, sourcePluginId: id))
     }
 
     /// Toggle plugin enabled state

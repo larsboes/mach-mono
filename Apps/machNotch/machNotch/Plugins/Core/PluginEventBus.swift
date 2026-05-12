@@ -32,12 +32,6 @@ final class PluginEventBus: Observable {
         eventSubject.send(event)
     }
 
-    /// Emit a simple event with just a type
-    func emit(_ type: PluginEventType, from pluginId: String, data: [String: any Sendable] = [:]) {
-        let event = GenericPluginEvent(type: type, sourcePluginId: pluginId, data: data)
-        eventSubject.send(event)
-    }
-
     // MARK: - Subscribing to Events
 
     /// Subscribe to all events of a specific type.
@@ -147,18 +141,15 @@ struct GenericPluginEvent: PluginEvent {
     let type: PluginEventType
     let sourcePluginId: String
     let timestamp: Date
-    let data: [String: any Sendable]
 
     init(
         type: PluginEventType,
         sourcePluginId: String,
-        timestamp: Date = Date(),
-        data: [String: any Sendable] = [:]
+        timestamp: Date = Date()
     ) {
         self.type = type
         self.sourcePluginId = sourcePluginId
         self.timestamp = timestamp
-        self.data = data
     }
 }
 

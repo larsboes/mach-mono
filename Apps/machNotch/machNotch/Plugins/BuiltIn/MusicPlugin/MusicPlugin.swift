@@ -174,72 +174,11 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
         guard isEnabled, state.isActive,
             let service = musicService,
             service.playbackState.isPlaying || !service.isPlayerIdle,
-            // Use settings to check if Live Activity is enabled
             settings?.get("showLiveActivity", default: true) ?? true
         else {
             return nil
         }
-
         return DisplayRequest(priority: .high, category: DisplayRequest.music)
-    }
-
-    @ViewBuilder
-    func closedNotchContent() -> some View {
-        if isEnabled, state.isActive, let service = musicService {
-            MusicLiveActivity(service: service, frequencyBands: frequencyBands)
-        }
-    }
-
-    @ViewBuilder
-    func expandedPanelContent() -> some View {
-        if isEnabled, state.isActive {
-            MusicExpandedViewWrapper(plugin: self)
-        }
-    }
-
-    @ViewBuilder
-    func settingsContent() -> some View {
-        Media()
-    }
-
-    @ViewBuilder
-    func menuBarView() -> some View {
-        if isEnabled, state.isActive, let info = nowPlaying {
-            Section(info.track.title) {
-                Text(info.track.artist)
-            }
-            Button(info.isPlaying ? "Pause" : "Play") {
-                Task { [weak self] in await self?.togglePlayPause() }
-            }
-            Button("Next Track") {
-                Task { [weak self] in await self?.next() }
-            }
-        }
-    }
-
-    // MARK: - ExportablePlugin
-
-    var supportedExportFormats: [ExportFormat] { [.json] }
-
-    func exportData(format: ExportFormat) async throws -> Data {
-        guard format == .json else {
-            throw PluginError.exportFailed("Unsupported format: \(format.displayName)")
-        }
-        guard let service = musicService else {
-            throw PluginError.exportFailed("Music service unavailable")
-        }
-        let snapshot = MusicExportSnapshot(
-            track: service.currentTrack,
-            isPlaying: service.playbackState.isPlaying,
-            progress: service.progress,
-            volume: service.volume,
-            isShuffled: service.isShuffled,
-            exportedAt: Date()
-        )
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        encoder.dateEncodingStrategy = .iso8601
-        return try encoder.encode(snapshot)
     }
 
     // MARK: - Private Methods
@@ -296,24 +235,3 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
     }
 }
 
-// MARK: - Export DTO
-
-private struct MusicExportSnapshot: Codable {
-    let track: TrackInfo?
-    let isPlaying: Bool
-    let progress: Double
-    let volume: Double
-    let isShuffled: Bool
-    let exportedAt: Date
-}
-
-// MARK: - View Wrappers
-
-struct MusicExpandedViewWrapper: View {
-    let plugin: MusicPlugin
-    @Environment(\.albumArtNamespace) var namespace: Namespace.ID?
-
-    var body: some View {
-        PluginMusicPlayerView(plugin: plugin, albumArtNamespace: namespace)
-    }
-}

@@ -37,7 +37,7 @@ protocol NotchPhaseDelegate: AnyObject {
 @Observable final class NotchPhaseCoordinator {
     weak var delegate: (any NotchPhaseDelegate)?
     
-    var phase: NotchPhase = .closed {
+    private(set) var phase: NotchPhase = .closed {
         didSet {
             guard phase != oldValue else { return }
             delegate?.syncAnimationState(animated: true)
