@@ -39,6 +39,10 @@ jobs:
           restore-keys: |
             bazel-${{ runner.os }}-
 
+      - name: Regenerate Bazel lockfile
+        if: github.actor == 'dependabot[bot]'
+        run: bazelisk mod deps --lockfile_mode=update
+
       - name: Build all apps
         run: |
           bazelisk build --config=ci \
@@ -66,6 +70,10 @@ jobs:
           key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved', '.bazelrc', 'Apps/machNotch/BUILD.bazel', 'Packages/MachBriefKit/BUILD.bazel') }}
           restore-keys: |
             bazel-${{ runner.os }}-
+
+      - name: Regenerate Bazel lockfile
+        if: github.actor == 'dependabot[bot]'
+        run: bazelisk mod deps --lockfile_mode=update
 
       - name: Run tests
         run: |
@@ -95,6 +103,10 @@ jobs:
           key: bazel-${{ runner.os }}-macos15-${{ hashFiles('MODULE.bazel', 'Package.resolved', '.bazelrc') }}
           restore-keys: |
             bazel-${{ runner.os }}-macos15-
+
+      - name: Regenerate Bazel lockfile
+        if: github.actor == 'dependabot[bot]'
+        run: bazelisk mod deps --lockfile_mode=update
 
       - name: Run tests (stable macOS)
         run: |
