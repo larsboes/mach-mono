@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roadmap — mach</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0d14;
+      --surface:  #13131f;
+      --border:   #1e1e2e;
+      --text:     #e2e2f0;
+      --muted:    #6b6b8a;
+      --accent:   #7c6ff7;
+      --accent2:  #5b8af7;
+      --green:    #4caf82;
+      --orange:   #e0874a;
+      --blue:     #5b8af7;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 24px 80px;
+    }
+
+    /* ── Nav ── */
+    nav {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 0 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 64px;
+    }
+    .nav-brand { font-size: 13px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
+    .nav-brand:hover { color: var(--text); }
+    .nav-links { display: flex; gap: 24px; list-style: none; }
+    .nav-links a { font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; padding-bottom: 28px; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); border-bottom-color: var(--accent); }
+
+    /* ── Page header ── */
+    .page-header { width: 100%; max-width: 720px; margin-bottom: 56px; }
+    .page-header h1 { font-size: 36px; font-weight: 700; letter-spacing: -.03em; background: linear-gradient(135deg, var(--text) 30%, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 12px; }
+    .page-header p { font-size: 15px; color: var(--muted); line-height: 1.6; }
+    .page-header p a { color: var(--accent); text-decoration: none; }
+    .page-header p a:hover { text-decoration: underline; }
+
+    /* ── Section ── */
+    .section {
+      width: 100%;
+      max-width: 720px;
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 0 40px;
+      margin-bottom: 56px;
+    }
+    .section + .section {
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-label {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      padding-top: 4px;
+    }
+    .section-icon {
+      font-size: 18px;
+      line-height: 1;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      color: var(--text);
+    }
+    .section-label.active .section-title { color: var(--green); }
+    .section-label.planned .section-title { color: var(--orange); }
+    .section-label.launched .section-title { color: var(--blue); }
+
+    /* ── Cards ── */
+    .cards { display: flex; flex-direction: column; gap: 10px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      transition: border-color .2s;
+    }
+    .card:hover { border-color: #2e2e44; }
+
+    .card-body { flex: 1; min-width: 0; }
+    .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .card-desc { font-size: 13px; color: var(--muted); line-height: 1.55; }
+
+    .card-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .card-tag {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .04em;
+      color: var(--muted);
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+    }
+    .card-link {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      opacity: 0.5;
+      transition: opacity .2s;
+    }
+    .card-link:hover { opacity: 1; }
+
+    /* ── Launched date groups ── */
+    .launched-group { margin-bottom: 24px; }
+    .launched-group:last-child { margin-bottom: 0; }
+    .launched-date {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 10px;
+      letter-spacing: .02em;
+    }
+
+    /* ── Empty state ── */
+    .empty {
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 32px 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 540px) {
+      .section { grid-template-columns: 1fr; gap: 20px 0; }
+      .section-label { flex-direction: row; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-brand" href="index.html">mach-mono</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="changelog.html">Changelog</a></li>
+      <li><a href="roadmap.html" class="active">Roadmap</a></li>
+      <li><a href="guide.html">Guide</a></li>
+    </ul>
+  </nav>
+
+  <header class="page-header">
+    <h1>Roadmap</h1>
+    <p>What's being built, what's next, and what has shipped.<br>
+       For individual release notes see the <a href="changelog.html">Changelog</a>.
+       Have a request? <a href="https://github.com/larsboes/mach-mono/issues">Open an issue</a>.</p>
+  </header>
+
+  <!-- In Development -->
+  <div class="section">
+    <div class="section-label active">
+      <span class="section-icon">↑</span>
+      <span class="section-title">In Development</span>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title">Obsidian Vault Sync</div>
+          <div class="card-desc">Notes created in the Shelf plugin write to a configurable Obsidian vault folder as Markdown files, kept in sync on every save.</div>
+        </div>
+        <div class="card-meta"><span class="card-tag">Shelf</span></div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title">Teleprompter Pro</div>
+          <div class="card-desc">Full-featured teleprompter with countdown, mic monitoring, hover-to-pause, keyboard control, and AI text refinement via Ollama.</div>
+        </div>
+        <div class="card-meta"><span class="card-tag">Plugin</span></div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title">Habit Tracker</div>
+          <div class="card-desc">Daily habit tracking with streaks, progress rings, and persistent storage — all from the notch.</div>
+        </div>
+        <div class="card-meta"><span class="card-tag">Plugin</span></div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title">Pomodoro Timer</div>
+          <div class="card-desc">Focus timer with configurable work/break intervals, session history, and notch-integrated controls.</div>
+        </div>
+        <div class="card-meta"><span class="card-tag">Plugin</span></div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title">Browser Extension</div>
+          <div class="card-desc">Safari web extension that surfaces media controls and SoundCloud metadata into the notch without leaving the browser.</div>
+        </div>
+        <div class="card-meta"><span class="card-tag">Extension</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Planned -->
+  <div class="section">
+    <div class="section-label planned">
+      <span class="section-icon">⌛</span>
+      <span class="section-title">Planned</span>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title">mach.brief</div>
+          <div class="card-desc">A minimal daily briefing widget for macOS and iOS. Calendar, tasks, weather — without noise.</div>
+        </div>
+        <div class="card-meta"><span class="card-tag">New App</span></div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title">Plugin SDK</div>
+          <div class="card-desc">Public API and documentation so third-party developers can build and distribute their own notch plugins.</div>
+        </div>
+        <div class="card-meta"><span class="card-tag">Platform</span></div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="card-title">Local API &amp; notchctl</div>
+          <div class="card-desc">HTTP + WebSocket server for external integrations. CLI tool to control the notch from scripts, shortcuts, and other apps.</div>
+        </div>
+        <div class="card-meta"><span class="card-tag">Integration</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Launched -->
+  <div class="section">
+    <div class="section-label launched">
+      <span class="section-icon">🚀</span>
+      <span class="section-title">Launched</span>
+    </div>
+    <div class="cards">
+      <div class="empty">
+        No releases yet — first release coming soon.
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

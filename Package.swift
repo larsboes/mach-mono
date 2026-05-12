@@ -1,13 +1,13 @@
-// swift-tools-version: 6.3
+// swift-tools-version: 6.0
 // This Package.swift exists solely so rules_swift_package_manager can generate
 // Bazel targets from the resolved dependencies. It is NOT the build source of
 // truth — actual builds go through MODULE.bazel + Apps/*/BUILD.bazel.
-// Toolchain version and platforms are kept aligned with Packages/*/Package.swift.
+// Kept at tools-version 6.0 so CI runners (Swift 6.2.x) can parse this shim
+// without requiring a Swift 6.3 toolchain.
 import PackageDescription
 
 let package = Package(
     name: "mach-mono",
-    platforms: [.macOS(.v26)],
     products: [],
     dependencies: [
         .package(url: "https://github.com/ChimeHQ/AsyncXPCConnection", exact: "1.3.0"),
