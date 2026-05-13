@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="machNotch/Assets.xcassets/AppIcon.appiconset/icon_512x512@2x.png" alt="machNotch logo" width="120">
+  <img src="machNotch/Assets.xcassets/AppIcon.appiconset/icon_512.png" alt="machNotch logo" width="120">
 </p>
 <h1 align="center">machNotch</h1>
 <p align="center">
@@ -9,12 +9,6 @@
 <p align="center">
   <a href="https://github.com/larsboes/mach-mono/actions/workflows/cicd.yml">
     <img src="https://github.com/larsboes/mach-mono/actions/workflows/cicd.yml/badge.svg" alt="Build & Test" />
-  </a>
-  <a href="https://github.com/larsboes/mach-mono/releases">
-    <img src="https://img.shields.io/github/downloads/larsboes/mach-mono/total?label=Downloads" alt="GitHub downloads"/>
-  </a>
-  <a href="https://github.com/larsboes/mach-mono/releases/latest">
-    <img src="https://img.shields.io/badge/Download-machNotch%20for%20macOS-0A84FF?style=for-the-badge&logo=apple" alt="Download machNotch for macOS"/>
   </a>
 </p>
 
@@ -84,65 +78,33 @@ Cherry-picked and adapted the best community contributions that were pending on 
 
 ---
 
-## Installation
-
-1) Download the latest DMG [here](https://github.com/larsboes/mach-mono/releases/latest).
-2) Open the DMG and drag machNotch into Applications.
-3) Launch machNotch and grant the requested permissions.
-
----
-
 ## Building from Source
 
-### Prerequisites
+```bash
+brew install bazelisk
+git clone https://github.com/larsboes/mach-mono.git && cd mach-mono
+bazelisk build //Apps/machNotch:machNotch
+open bazel-bin/Apps/machNotch/machNotch.app
+```
 
-- **macOS 15 or later**
-- **Xcode 16 or later**
-- A free **Apple Developer account** (for code signing)
+Bazel uses the Xcode toolchain to compile Swift — Xcode 16 or later must be installed (free from the App Store; no paid developer account needed).
 
-### Building the DMG (Recommended)
+<details>
+<summary>Also want to run in Xcode?</summary>
 
-Running the app outside of Xcode is highly recommended for proper memory management and avoiding debugger-induced retain cycles. You can build the full DMG installer locally:
+1. `open Apps/machNotch/machNotch.xcodeproj` — Xcode resolves SPM dependencies automatically.
+2. Fix code signing for each target (`machNotch`, `MachNotchXPCHelper`, `machNotchTests`): **Signing & Capabilities → Automatically manage signing → set Team to your personal team → change Bundle Identifier** to something unique (e.g. `com.yourname.machnotch`).
+3. Press `Cmd + R`.
+
+> If Xcode shows "Missing package product" errors, close and reopen the project.
+
+</details>
+
+### Tests
 
 ```bash
-cd Apps/machNotch/Configuration/dmg
-./create_dmg.sh
+bazelisk test //Apps/machNotch:machNotchTests //Packages/MachBriefKit:MachBriefKitTests
 ```
-This script compiles the release binary, signs it, and packages it using `dmgbuild` into a ready-to-use `.dmg`.
-
-### Running in Xcode
-
-1. **Clone this repository:**
-   ```bash
-   git clone https://github.com/larsboes/mach-mono.git
-   cd mach-mono
-   ```
-
-2. **Open the project:**
-   ```bash
-   open Apps/machNotch/machNotch.xcodeproj
-   ```
-   Xcode will automatically resolve Swift Package dependencies on first open. If it doesn't, go to **File → Packages → Resolve Package Versions**.
-
-3. **Fix code signing** (required — the project ships with the maintainer's team/bundle ID):
-   - Select the **machNotch** project in the sidebar
-   - For **each target** (`machNotch`, `MachNotchXPCHelper`, `machNotchTests`):
-     1. Go to the **Signing & Capabilities** tab
-     2. Check **Automatically manage signing**
-     3. Change **Team** to your personal team
-     4. Change **Bundle Identifier** to something unique (e.g., `com.yourname.machnotch`)
-
-   <img src="../../docs/images/signing-setup.png" alt="Xcode Signing Setup" width="700" />
-
-4. **Build and run:** Press `Cmd + R`.
-
-   From the repository root you can also build and test with:
-   ```bash
-   xcodebuild -project Apps/machNotch/machNotch.xcodeproj -scheme machNotch -destination 'platform=macOS' build
-   xcodebuild -project Apps/machNotch/machNotch.xcodeproj -scheme machNotch -destination 'platform=macOS' test
-   ```
-
-> **Note:** If Xcode shows "Missing package product" errors, close and reopen the project. The package cache can be slow to sync on first open.
 
 ---
 
@@ -167,22 +129,6 @@ SwiftUI Views -> PluginManager -> NotchPlugin instances -> Service Protocols -> 
 ```
 
 Every feature is a plugin. Plugins communicate via `PluginEventBus`, never by importing each other. See [docs/architecture/overview.md](../../docs/architecture/overview.md) for the full reference and [docs/guides/plugin-development.md](../../docs/guides/plugin-development.md) for the plugin development guide.
-
----
-
-## Tagging & Release Strategy
-
-machNotch uses an automated CI/CD pipeline built on GitHub Actions. To trigger a new DMG build and GitHub Release automatically:
-
-1. Draft your changes and commit them to the repository.
-2. Push a new semantic version tag starting with `v` (e.g., `v1.2.0`).
-
-```bash
-git tag v1.2.0
-git push origin v1.2.0
-```
-
-The CI pipeline will automatically compile the app, generate the DMG, and attach it to a new GitHub Release with the corresponding version number.
 
 ---
 

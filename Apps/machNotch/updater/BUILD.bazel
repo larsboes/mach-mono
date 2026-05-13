@@ -3,17 +3,20 @@ genrule(
     srcs = [
         "//:CHANGELOG.md",
         "//:ROADMAP.md",
+        "//:GUIDE.md",
         "_template.html",
         "build.py",
     ],
     outs = [
         "changelog.html",
         "roadmap.html",
+        "guide.html",
     ],
     cmd = " ".join([
         "python3 $(location build.py)",
         "--changelog $(location //:CHANGELOG.md)",
         "--roadmap   $(location //:ROADMAP.md)",
+        "--guide     $(location //:GUIDE.md)",
         "--template  $(location _template.html)",
         "--outdir    $(@D)",
     ]),
