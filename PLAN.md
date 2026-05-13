@@ -146,6 +146,7 @@ Reuse the `ObsidianSink` pattern from `MachBriefKit`. When a note is created or 
 ### Notes — Buggy State Investigation
 
 - [x] Lars reports an intermittent weird visual state in the notes tab. *Fixed: Traced to `WindowCoordinator` squishing the notch on `cmd+tab` and `NotchStateMachine` forcing Music layout during Battery expansion events.*
+- [x] Notch randomly expands horizontally to 640px. *Fixed: `BatteryService.notifyImportantChange` was firing the battery expanding view on every 1% level drop (not just plug/unplug). Added `powerStatusChanged` parameter — now the `showPowerStatusNotifications` branch only fires when `pluggedInChanged || chargingChanged`.*
 
 ---
 

@@ -5,57 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Changelog — mach</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:       #0d0d14;
-      --surface:  #13131f;
-      --border:   #1e1e2e;
-      --text:     #e2e2f0;
-      --muted:    #6b6b8a;
-      --accent:   #7c6ff7;
-      --accent2:  #5b8af7;
-      --green:    #4caf82;
-      --orange:   #e0874a;
-      --blue:     #5b8af7;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 0 24px 80px;
-    }
-
-    /* Nav */
-    nav {
-      width: 100%;
-      max-width: 720px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 28px 0 0;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 64px;
-    }
-    .nav-brand { font-size: 13px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
-    .nav-brand:hover { color: var(--text); }
-    .nav-links { display: flex; gap: 24px; list-style: none; }
-    .nav-links a { font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; padding-bottom: 28px; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
-    .nav-links a:hover, .nav-links a.active { color: var(--text); border-bottom-color: var(--accent); }
-
-    /* Page header (shared) */
-    .page-header { width: 100%; max-width: 720px; margin-bottom: 48px; }
-    .page-header h1 { font-size: 36px; font-weight: 700; letter-spacing: -.03em; background: linear-gradient(135deg, var(--text) 30%, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 12px; }
-    .page-header p { font-size: 15px; color: var(--muted); line-height: 1.6; }
-    .page-header p a { color: var(--accent); text-decoration: none; }
-    .page-header p a:hover { text-decoration: underline; }
-  </style>
+  <meta name="description" content="What&#x27;s new in mach.notch — every release, in order.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Changelog — mach">
+  <meta property="og:description" content="What&#x27;s new in mach.notch — every release, in order.">
+  <link rel="stylesheet" href="style.css">
   <style>
 .release { width: 100%; max-width: 720px; margin-bottom: 48px; }
 
@@ -73,6 +27,12 @@
   color: var(--text);
 }
 
+.release-version a {
+  color: inherit;
+  text-decoration: none;
+}
+.release-version a:hover { color: var(--accent); }
+
 .release-badge {
   font-size: 11px;
   font-weight: 600;
@@ -82,6 +42,7 @@
 }
 .badge-unreleased { background: rgba(124,111,247,.18); color: var(--accent); }
 .badge-released   { background: rgba(76,175,130,.15);  color: var(--green); }
+.badge-latest     { background: rgba(76,175,130,.28);  color: var(--green); border: 1px solid rgba(76,175,130,.4); }
 
 .release-date { font-size: 13px; color: var(--muted); margin-left: auto; }
 
@@ -143,12 +104,22 @@
 
   <nav>
     <a class="nav-brand" href="index.html">mach-mono</a>
-    <ul class="nav-links">
+    <ul class="nav-links" id="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="changelog.html" class="active">Changelog</a></li>
       <li><a href="roadmap.html">Roadmap</a></li>
       <li><a href="guide.html">Guide</a></li>
+      <li><a href="diagram.html">Architecture</a></li>
+      <li><a href="decisions.html">Decisions</a></li>
     </ul>
+    <button class="nav-hamburger" aria-label="Toggle navigation"
+            onclick="document.getElementById('nav-links').classList.toggle('open')">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <line x1="2" y1="5" x2="16" y2="5"/>
+        <line x1="2" y1="9" x2="16" y2="9"/>
+        <line x1="2" y1="13" x2="16" y2="13"/>
+      </svg>
+    </button>
   </nav>
 
   <div class="page-content">
@@ -156,9 +127,9 @@
   <h1>Changelog</h1>
   <p>What&#39;s new in mach.notch — every release, in order. For upcoming features see the <a href="roadmap.html">Roadmap</a>.</p>
 </div>
-<div class="release">
+<div class="release" id="vpre-release">
   <div class="release-header">
-    <span class="release-version">Pre-release</span>
+    <span class="release-version"><a href="#vpre-release">Pre-release</a></span>
     <span class="release-badge badge-unreleased">Unreleased</span>
   </div>
   <p class="release-intro">Accumulated work prior to the first tagged release (v0.1.0).</p>

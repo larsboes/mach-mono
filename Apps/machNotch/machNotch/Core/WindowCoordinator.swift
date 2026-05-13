@@ -92,6 +92,7 @@ final class WindowCoordinator {
         window.contentView = NSHostingView(
             rootView: ContentView()
                 .environment(viewModel)
+                .environment(viewModel.uiContext)
                 .environment(coordinator)
                 .environment(stateMachine)
                 .environment(\.pluginManager, pluginManager as PluginManager?)

@@ -120,9 +120,9 @@ final class DragDropService: DragDropServiceProtocol {
             NSPasteboard.PasteboardType(UTType.url.identifier),
             .string
         ]
-        let isValid = dragPasteboard.pasteboardItems?.allSatisfy { item in
-            item.types.allSatisfy { validTypes.contains($0) }
+        guard let items = dragPasteboard.pasteboardItems, !items.isEmpty else { return false }
+        return items.allSatisfy { item in
+            item.types.contains { validTypes.contains($0) }
         }
-        return isValid ?? false
     }
 }

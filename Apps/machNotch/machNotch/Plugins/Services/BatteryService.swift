@@ -35,11 +35,18 @@ class BatteryService: BatteryServiceProtocol, BackgroundServiceRestartable {
     private let eventBus: PluginEventBus
     private let settings: any BatterySettings
 
-    // Wrapper to handle non-Sendable CFRunLoopSource safely
+    // Holds a weak reference to BatteryService for use in the C callback.
+    // Using weak avoids a retain cycle; the callback is a no-op if the service deallocates.
+    private final class WeakBox: @unchecked Sendable {
+        weak var service: BatteryService?
+        init(_ service: BatteryService) { self.service = service }
+    }
+
     private final class SourceContainer: @unchecked Sendable {
         var source: CFRunLoopSource?
+        var boxPtr: UnsafeMutableRawPointer?  // retained WeakBox
     }
-    
+
     nonisolated private let sourceContainer = SourceContainer()
     
     // Error types
@@ -76,24 +83,36 @@ class BatteryService: BatteryServiceProtocol, BackgroundServiceRestartable {
     // MARK: - Monitoring
     
     func startMonitoring() {
+        stopMonitoring()  // de-register any previous source before creating a new one
+
+        let box = WeakBox(self)
+        let boxPtr = Unmanaged.passRetained(box).toOpaque()
+
         guard let powerSource = IOPSNotificationCreateRunLoopSource({ context in
             guard let context = context else { return }
-            let service = Unmanaged<BatteryService>.fromOpaque(context).takeUnretainedValue()
+            let box = Unmanaged<WeakBox>.fromOpaque(context).takeUnretainedValue()
+            guard let service = box.service else { return }
             Task { @MainActor in
                 service.updateBatteryInfo()
             }
-        }, Unmanaged.passUnretained(self).toOpaque())?.takeRetainedValue() else {
+        }, boxPtr)?.takeRetainedValue() else {
+            Unmanaged<WeakBox>.fromOpaque(boxPtr).release()
             return
         }
-        
+
         sourceContainer.source = powerSource
+        sourceContainer.boxPtr = boxPtr
         CFRunLoopAddSource(CFRunLoopGetMain(), powerSource, .defaultMode)
     }
-    
+
     nonisolated func stopMonitoring() {
         if let powerSource = sourceContainer.source {
             CFRunLoopRemoveSource(CFRunLoopGetMain(), powerSource, .defaultMode)
             sourceContainer.source = nil
+        }
+        if let boxPtr = sourceContainer.boxPtr {
+            Unmanaged<WeakBox>.fromOpaque(boxPtr).release()
+            sourceContainer.boxPtr = nil
         }
     }
     
@@ -143,7 +162,7 @@ class BatteryService: BatteryServiceProtocol, BackgroundServiceRestartable {
         
         // Notifications
         if levelChanged || pluggedInChanged || chargingChanged || lowPowerChanged {
-            notifyImportantChange(levelChanged: levelChanged)
+            notifyImportantChange(levelChanged: levelChanged, powerStatusChanged: pluggedInChanged || chargingChanged)
         }
     }
     
@@ -189,9 +208,8 @@ class BatteryService: BatteryServiceProtocol, BackgroundServiceRestartable {
         }
     }
     
-    private func notifyImportantChange(levelChanged: Bool) {
+    private func notifyImportantChange(levelChanged: Bool, powerStatusChanged: Bool) {
         Task {
-            // Check for battery level notifications
             if levelChanged, let notificationType = alertKind(initial: self.isInitial) {
                 var soundToPlay = "Disabled"
                 if notificationType == .lowBattery {
@@ -199,24 +217,23 @@ class BatteryService: BatteryServiceProtocol, BackgroundServiceRestartable {
                 } else if notificationType == .highBattery {
                     soundToPlay = settings.highBatteryNotificationSound
                 }
-                
+
                 eventBus.emit(SneakPeekRequestedEvent(
                     sourcePluginId: PluginID.System.battery,
                     request: SneakPeekRequest(style: .expanding, type: .battery)
                 ))
-                
+
                 if soundToPlay != "Disabled" {
                     NSSound(named: NSSound.Name(soundToPlay))?.play()
                 }
-                
-            } else if settings.showPowerStatusNotifications && !isInitial {
-                // Standard power status notification
+
+            } else if powerStatusChanged && settings.showPowerStatusNotifications && !isInitial {
                 let soundToPlay = settings.powerStatusNotificationSound
                 eventBus.emit(SneakPeekRequestedEvent(
                     sourcePluginId: PluginID.System.battery,
                     request: SneakPeekRequest(style: .expanding, type: .battery)
                 ))
-                
+
                 if soundToPlay != "Disabled" {
                     NSSound(named: NSSound.Name(soundToPlay))?.play()
                 }

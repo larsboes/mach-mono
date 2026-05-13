@@ -111,7 +111,7 @@ final class KeyboardShortcutCoordinator {
             closeNotchTask = task
 
         case .open:
-            viewModel.close()
+            viewModel.close(force: true)
         }
     }
 

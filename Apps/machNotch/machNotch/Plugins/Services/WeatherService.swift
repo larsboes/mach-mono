@@ -244,7 +244,7 @@ private struct WeatherKitWeatherProvider: WeatherProvider {
             low: daily?.lowTemperature.converted(to: .celsius).value
                 ?? current.temperature.converted(to: .celsius).value,
             precipitationChance: daily?.precipitationChance,
-            precipitationAmount: daily?.precipitationAmount.converted(to: .millimeters).value, // TODO: migrate to precipitationAmountByType
+            precipitationAmount: daily?.precipitationAmountByType.precipitation.converted(to: .millimeters).value,
             uvIndex: current.uvIndex.value,
             location: "Current Location",
             lastUpdated: current.date,
