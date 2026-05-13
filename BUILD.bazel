@@ -3,3 +3,11 @@
 # Build the apps:
 #   bazel build //Apps/machNotch:machNotch
 #   bazel build //Apps/machBrief:machBrief
+#
+# Build the GitHub Pages site:
+#   bazel build //Apps/machNotch/updater:site
+
+exports_files([
+    "CHANGELOG.md",
+    "ROADMAP.md",
+])

@@ -134,18 +134,15 @@ def render_inline(text: str) -> str:
 # Template loading
 # ---------------------------------------------------------------------------
 
-def load_template() -> str:
-    return TEMPLATE_PATH.read_text(encoding="utf-8")
-
-
-def render_template(
+def _render_template(
     *,
+    template_path: Path,
     title: str,
     page_style: str,
     active_href: str,
     content: str,
 ) -> str:
-    template = load_template()
+    template = template_path.read_text(encoding="utf-8")
     nav_items = render_nav_items(active_href)
     return (
         template
@@ -820,55 +817,76 @@ def render_roadmap_content(subtitle: str, sections: list[RoadmapSection]) -> str
 # Build entry points
 # ---------------------------------------------------------------------------
 
-def build_changelog() -> None:
-    md = CHANGELOG_MD.read_text(encoding="utf-8")
+def build_changelog(*, changelog_path: Path, template_path: Path, out_path: Path) -> None:
+    md = changelog_path.read_text(encoding="utf-8")
     releases = parse_changelog(md)
     if not releases:
-        print(f"warning: no releases parsed from {CHANGELOG_MD}", file=sys.stderr)
+        print(f"warning: no releases parsed from {changelog_path}", file=sys.stderr)
     content = render_changelog_content(releases)
-    rendered = render_template(
+    rendered = _render_template(
+        template_path=template_path,
         title="Changelog — mach",
         page_style=CHANGELOG_CSS,
         active_href="changelog.html",
         content=content,
     )
-    output = GENERATED_BANNER + "\n" + rendered
-    CHANGELOG_OUT.write_text(output, encoding="utf-8")
-    print(f"wrote {CHANGELOG_OUT.relative_to(REPO_ROOT)} ({len(releases)} releases)")
+    out_path.write_text(GENERATED_BANNER + "\n" + rendered, encoding="utf-8")
+    print(f"wrote {out_path} ({len(releases)} releases)")
 
 
-def build_roadmap() -> None:
-    md = ROADMAP_MD.read_text(encoding="utf-8")
+def build_roadmap(*, roadmap_path: Path, template_path: Path, out_path: Path) -> None:
+    md = roadmap_path.read_text(encoding="utf-8")
     subtitle, sections = parse_roadmap(md)
     content = render_roadmap_content(subtitle, sections)
-    rendered = render_template(
+    rendered = _render_template(
+        template_path=template_path,
         title="Roadmap — mach",
         page_style=ROADMAP_CSS,
         active_href="roadmap.html",
         content=content,
     )
-    output = GENERATED_BANNER + "\n" + rendered
-    ROADMAP_OUT.write_text(output, encoding="utf-8")
+    out_path.write_text(GENERATED_BANNER + "\n" + rendered, encoding="utf-8")
     card_count = sum(len(s.cards) for s in sections)
-    print(
-        f"wrote {ROADMAP_OUT.relative_to(REPO_ROOT)} "
-        f"({len(sections)} sections, {card_count} cards)"
+    print(f"wrote {out_path} ({len(sections)} sections, {card_count} cards)")
+
+
+def main(argv: list[str] | None = None) -> int:
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Build mach-mono GitHub Pages from Markdown sources."
     )
+    parser.add_argument("--changelog", type=Path, default=CHANGELOG_MD,
+                        help="Path to CHANGELOG.md (default: auto-detected from script location)")
+    parser.add_argument("--roadmap",   type=Path, default=ROADMAP_MD,
+                        help="Path to ROADMAP.md")
+    parser.add_argument("--template",  type=Path, default=TEMPLATE_PATH,
+                        help="Path to _template.html")
+    parser.add_argument("--outdir",    type=Path, default=SCRIPT_DIR,
+                        help="Directory to write changelog.html and roadmap.html")
+    args = parser.parse_args(argv)
 
+    for label, path in [
+        ("template", args.template),
+        ("changelog", args.changelog),
+        ("roadmap",   args.roadmap),
+    ]:
+        if not path.is_file():
+            print(f"error: {label} not found at {path}", file=sys.stderr)
+            return 1
 
-def main() -> int:
-    if not TEMPLATE_PATH.is_file():
-        print(f"error: template not found at {TEMPLATE_PATH}", file=sys.stderr)
-        return 1
-    if not CHANGELOG_MD.is_file():
-        print(f"error: changelog not found at {CHANGELOG_MD}", file=sys.stderr)
-        return 1
-    if not ROADMAP_MD.is_file():
-        print(f"error: roadmap not found at {ROADMAP_MD}", file=sys.stderr)
-        return 1
+    args.outdir.mkdir(parents=True, exist_ok=True)
 
-    build_changelog()
-    build_roadmap()
+    build_changelog(
+        changelog_path=args.changelog,
+        template_path=args.template,
+        out_path=args.outdir / "changelog.html",
+    )
+    build_roadmap(
+        roadmap_path=args.roadmap,
+        template_path=args.template,
+        out_path=args.outdir / "roadmap.html",
+    )
     return 0
 
 
