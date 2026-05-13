@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITLE}}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0d14;
+      --surface:  #13131f;
+      --border:   #1e1e2e;
+      --text:     #e2e2f0;
+      --muted:    #6b6b8a;
+      --accent:   #7c6ff7;
+      --accent2:  #5b8af7;
+      --green:    #4caf82;
+      --orange:   #e0874a;
+      --blue:     #5b8af7;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 24px 80px;
+    }
+
+    /* Nav */
+    nav {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 0 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 64px;
+    }
+    .nav-brand { font-size: 13px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
+    .nav-brand:hover { color: var(--text); }
+    .nav-links { display: flex; gap: 24px; list-style: none; }
+    .nav-links a { font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; padding-bottom: 28px; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); border-bottom-color: var(--accent); }
+
+    /* Page header (shared) */
+    .page-header { width: 100%; max-width: 720px; margin-bottom: 48px; }
+    .page-header h1 { font-size: 36px; font-weight: 700; letter-spacing: -.03em; background: linear-gradient(135deg, var(--text) 30%, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 12px; }
+    .page-header p { font-size: 15px; color: var(--muted); line-height: 1.6; }
+    .page-header p a { color: var(--accent); text-decoration: none; }
+    .page-header p a:hover { text-decoration: underline; }
+  </style>
+  <style>{{PAGE_STYLE}}</style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-brand" href="index.html">mach-mono</a>
+    <ul class="nav-links">
+{{NAV_ITEMS}}
+    </ul>
+  </nav>
+
+  <div class="page-content">
+{{CONTENT}}
+  </div>
+
+</body>
+</html>
