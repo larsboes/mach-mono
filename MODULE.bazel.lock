@@ -703,8 +703,8 @@
         "bzlTransitiveDigest": "HbeCRKi07v8MZWF5xFlGDifQMdBJ59lLVSRj3dfLN0k=",
         "usagesDigest": "NDmL0S0zO9ESghkjz9p8GrysathyBy9oQomp7VplFAw=",
         "recordedFileInputs": {
-          "@@//Package.resolved": "66732155a84f8227ed41fb08ff03c637621ffe4b9b31bc0397841ec058021d7f",
-          "@@//Package.swift": "0e38accc3473f4cc4e4eb3fabe84ea0529c92de09310d300423e928289010fc0"
+          "@@//Package.resolved": "8c712e8b6ff0623293aebc28c937689e72e5ac7d64dca0bd1b3df68457623c7c",
+          "@@//Package.swift": "f0be7d1805032fdf7da6a7a81acf9fe1a27230cb069925de6c2c77b31af664d0"
         },
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -842,9 +842,9 @@
             "ruleClassName": "swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_pow",
-              "commit": "a504eb6d144bcf49f4f33029a2795345cb39e6b4",
+              "commit": "1b4b1dda28c50b95f0872927ee2226fe8b58950e",
               "remote": "https://github.com/EmergeTools/Pow",
-              "version": "1.0.5",
+              "version": "1.0.6",
               "env": {},
               "env_inherit": [],
               "cached_json_directory": "",
@@ -890,9 +890,9 @@
             "ruleClassName": "swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_sparkle",
-              "commit": "5581748cef2bae787496fe6d61139aebe0a451f6",
+              "commit": "066e75a8b3e99962685d6a90cdd5293ebffd9261",
               "remote": "https://github.com/sparkle-project/Sparkle",
-              "version": "2.8.1",
+              "version": "2.9.1",
               "env": {},
               "env_inherit": [],
               "cached_json_directory": "",
@@ -914,9 +914,9 @@
             "ruleClassName": "swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_sqlite.swift",
-              "commit": "392dd6058624d9f6c5b4c769d165ddd8c7293394",
+              "commit": "964c300fb0736699ce945c9edb56ecd62eba27a3",
               "remote": "https://github.com/stephencelis/SQLite.swift.git",
-              "version": "0.15.4",
+              "version": "0.16.0",
               "env": {},
               "env_inherit": [],
               "cached_json_directory": "",
@@ -938,9 +938,9 @@
             "ruleClassName": "swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_swift_collections",
-              "commit": "7b847a3b7008b2dc2f47ca3110d8c782fb2e5c7e",
+              "commit": "03cc312c2c933ed87abace34044a5dff7a3117c1",
               "remote": "https://github.com/apple/swift-collections.git",
-              "version": "1.3.0",
+              "version": "1.5.0",
               "env": {},
               "env_inherit": [],
               "cached_json_directory": "",
@@ -986,33 +986,9 @@
             "ruleClassName": "swift_package",
             "attributes": {
               "bazel_package_name": "swiftpkg_swiftglass",
-              "commit": "a012c615c36a3992fb2c9358206de2a2bd253454",
+              "commit": "b11729993a2f4a4f11d17ee833ec05b2140400c5",
               "remote": "https://github.com/1998code/SwiftGlass.git",
-              "version": "1.9.9",
-              "env": {},
-              "env_inherit": [],
-              "cached_json_directory": "",
-              "init_submodules": false,
-              "recursive_init_submodules": true,
-              "patch_args": [
-                "-p0"
-              ],
-              "patch_cmds": [],
-              "patch_cmds_win": [],
-              "patch_tool": "",
-              "patches": [],
-              "publicly_expose_all_targets": false,
-              "replace_scm_with_registry": false
-            }
-          },
-          "swiftpkg_swift_toolchain_sqlite": {
-            "bzlFile": "@@rules_swift_package_manager~//swiftpkg/internal:swift_package.bzl",
-            "ruleClassName": "swift_package",
-            "attributes": {
-              "bazel_package_name": "swiftpkg_swift_toolchain_sqlite",
-              "commit": "b626d3002773b1a1304166643e7f118f724b2132",
-              "remote": "https://github.com/swiftlang/swift-toolchain-sqlite",
-              "version": "1.0.4",
+              "version": "26.0.1",
               "env": {},
               "env_inherit": [],
               "cached_json_directory": "",
