@@ -15,13 +15,13 @@ let package = Package(
         .package(url: "https://github.com/sindresorhus/KeyboardShortcuts", exact: "2.4.0"),
         .package(url: "https://github.com/sindresorhus/LaunchAtLogin-Modern", exact: "1.1.0"),
         .package(url: "https://github.com/airbnb/lottie-spm.git", exact: "4.5.2"),
-        .package(url: "https://github.com/EmergeTools/Pow", exact: "1.0.5"),
+        .package(url: "https://github.com/EmergeTools/Pow", exact: "1.0.6"),
         .package(url: "https://github.com/Lakr233/SkyLightWindow", exact: "1.0.0"),
-        .package(url: "https://github.com/sparkle-project/Sparkle", exact: "2.8.1"),
-        .package(url: "https://github.com/stephencelis/SQLite.swift.git", exact: "0.15.4"),
-        .package(url: "https://github.com/apple/swift-collections.git", exact: "1.3.0"),
+        .package(url: "https://github.com/sparkle-project/Sparkle", exact: "2.9.1"),
+        .package(url: "https://github.com/stephencelis/SQLite.swift.git", exact: "0.16.0"),
+        .package(url: "https://github.com/apple/swift-collections.git", exact: "1.5.0"),
         .package(url: "https://github.com/apple/swift-syntax.git", exact: "602.0.0"),
-        .package(url: "https://github.com/1998code/SwiftGlass.git", exact: "1.9.9"),
+        .package(url: "https://github.com/1998code/SwiftGlass.git", exact: "26.0.1"),
     ],
     targets: []
 )
