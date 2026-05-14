@@ -1,23 +1,11 @@
 # Xcode
 *.xcuserstate
 *.xcuserdata
-*.xcscheme
 *.xcuserdatad
 *.pbxuser
 *.xccheckout
-*.xcscheme
 *.xcplayground
-*.xcuserdatad
-*.xctest
-*.xcuserdata
 *.xcodeproj/xcshareddata/WorkspaceSettings.xcsettings
-
-# CocoaPods
-Pods/
-podfile.lock
-
-# Carthage
-Carthage/Build/
 
 # Swift Package Manager
 .swiftpm/
@@ -30,6 +18,8 @@ DerivedData/
 build/
 *.app
 *.dSYM
+*.ipa
+*.xcarchive
 
 # Temporary files
 *.swp
@@ -41,17 +31,6 @@ build/
 *.DS_Store
 *.vscode/
 *.idea/
-
-# User-specific files
-*.xcuserdatad/
-*.xcscheme
-*.xcodeproj/xcuserdata
-*.xcodeproj/project.xcuserdata
-
-# Build artifacts
-*.ipa
-*.xcarchive
-*.dSYM
 
 # Build logs
 build_log*.txt

@@ -16,6 +16,7 @@ decisions:
   bazel_detour: docs/decisions/0006-deferred-native-bazel-builds.md
   bazel_native: docs/decisions/0007-native-bazel-builds.md
   test_isolation: docs/decisions/0008-test-isolation-under-xctest-async.md
+  bazel_ci: docs/decisions/0009-bazel-ci-migration.md
 
 workspace:
   tech_stack:

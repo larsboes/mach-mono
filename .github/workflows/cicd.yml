@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: ~/.cache/bazel
-          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved', '.bazelrc', 'Apps/machNotch/BUILD.bazel', 'Apps/machBrief/BUILD.bazel') }}
+          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved', '.bazelrc', 'Apps/machNotch/BUILD.bazel', 'Apps/machBrief/BUILD.bazel', 'Packages/MachBriefKit/BUILD.bazel') }}
           restore-keys: |
             bazel-${{ runner.os }}-
 
@@ -67,7 +67,7 @@ jobs:
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: ~/.cache/bazel
-          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved', '.bazelrc', 'Apps/machNotch/BUILD.bazel', 'Packages/MachBriefKit/BUILD.bazel') }}
+          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved', '.bazelrc', 'Apps/machNotch/BUILD.bazel', 'Apps/machBrief/BUILD.bazel', 'Packages/MachBriefKit/BUILD.bazel') }}
           restore-keys: |
             bazel-${{ runner.os }}-
 
@@ -148,6 +148,13 @@ jobs:
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
+
+      # Astro 6 requires Node >=22.12 (see website/package.json engines). Bun still
+      # reports Node 20 for the Astro CLI unless a modern Node is on PATH first.
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
       - name: Install dependencies
         working-directory: website

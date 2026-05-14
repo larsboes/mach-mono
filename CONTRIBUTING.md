@@ -83,18 +83,16 @@ machNotch uses a plugin-first architecture. Adding a new feature usually means c
 1.  **Create the Plugin File**: Add a new Swift file in `Plugins/BuiltIn/{YourFeature}Plugin/`.
 2.  **Implement `NotchPlugin`**:
     ```swift
-    struct YourFeaturePlugin: NotchPlugin {
-        var metadata: PluginMetadata {
-            PluginMetadata(
-                name: "Your Feature",
-                icon: "star.fill",
-                id: "com.machnotch.yourfeature"
-            )
-        }
+    @MainActor @Observable
+    final class YourFeaturePlugin: NotchPlugin {
+        let metadata = PluginMetadata(
+            name: "Your Feature",
+            icon: "star.fill",
+            id: .yourFeature
+        )
 
-        var view: AnyView {
-            AnyView(YourFeatureView())
-        }
+        func activate(context: PluginContext) async throws { /* set up */ }
+        func deactivate() async { /* tear down */ }
     }
     ```
 3.  **Register the Plugin**: Add your plugin instance to `PluginRegistry.makeBuiltInPlugins()` in `Apps/machNotch/machNotch/Plugins/Core/PluginRegistry.swift`.
@@ -147,9 +145,9 @@ All core logic (Music, Calendar, Shelf, etc.) interacts with the system via the 
 *   If you need a new system capability, define a protocol for it (e.g., `BluetoothServiceProtocol`), implement it, and add it to the container.
 
 ### 3. Use `@Observable`
-We are migrating to Swift 5.9's `@Observable` macro.
-❌ **Avoid** `ObservableObject` and `@Published` for new models.
-✅ **Use** `@Observable` for all new state objects.
+All state objects use Swift's `@Observable` macro (migration complete).
+❌ **Avoid** `ObservableObject` and `@Published`.
+✅ **Use** `@Observable` + `@MainActor` for all state objects.
 
 ## Reporting Bugs
 
