@@ -126,7 +126,7 @@ extension NotchViewModel {
 
     func setupTabResetObserver() {
         Task { @MainActor [weak self] in
-            for await value in Defaults.updates(.alwaysShowTabs) {
+            for await value in Defaults.updates(DefaultsNotchSettings.alwaysShowTabsKey) {
                 guard let self, !value else { continue }
                 let shelfEmpty = shelfService?.isEmpty ?? true
                 if shelfEmpty || !settings.openShelfByDefault {
@@ -136,11 +136,23 @@ extension NotchViewModel {
         }
     }
 
-    func setupNotchHeightObserver() {
-        NotificationCenter.default.publisher(for: .notchHeightChanged)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in self?.updateNotchSize() }
-            .store(in: &notificationCancellables)
+    func setupSizeObserver() {
+        sizeObserverTask = Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+                    withObservationTracking {
+                        _ = self?.displaySettings.notchHeight
+                        _ = self?.displaySettings.notchHeightMode
+                        _ = self?.displaySettings.nonNotchHeight
+                        _ = self?.displaySettings.nonNotchHeightMode
+                        _ = self?.displaySettings.inactiveNotchHeight
+                        _ = self?.displaySettings.useInactiveNotchHeight
+                    } onChange: { c.resume() }
+                }
+                guard let self, !Task.isCancelled else { return }
+                self.updateNotchSize()
+            }
+        }
     }
 
     func updateNotchSize() {

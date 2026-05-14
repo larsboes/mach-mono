@@ -138,17 +138,25 @@ jobs:
       - name: Run architecture checks
         run: bash .github/scripts/arch-check.sh
 
-  skills-check:
-    name: Skills Sync Check
+  website:
+    name: Website Audit & Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Verify skills are in sync
-        run: |
-          bash tools/sync-skills.sh
-          if ! git diff --exit-code --quiet .gemini/skills/ .cursor/skills/; then
-            echo ""
-            echo "Skills are out of sync. Run 'task skills:sync' locally and commit the result."
-            exit 1
-          fi
-          echo "All skill targets are in sync with .claude/skills/"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        working-directory: website
+        run: bun install
+
+      - name: Audit dependencies
+        working-directory: website
+        run: bun audit
+
+      - name: Build Astro site
+        working-directory: website
+        run: bun run build

@@ -99,6 +99,7 @@ jobs:
           # Since we are on a tag, we need to push the appcast to the main branch
           git fetch origin main
           git checkout main
+          git pull --rebase origin main
           cp "${APPCAST_PATH}" "$RUNNER_TEMP/appcast.xml"
           cp "$RUNNER_TEMP/appcast.xml" "${APPCAST_PATH}"
           git add "${APPCAST_PATH}"

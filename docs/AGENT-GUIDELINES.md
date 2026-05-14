@@ -8,7 +8,7 @@
 >
 > A plugin-first architecture where every feature—including built-ins—is a plugin.
 >
-> Last updated: 2026-01-01
+> Last updated: 2026-05-14
 
 ---
 

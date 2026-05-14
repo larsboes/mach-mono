@@ -20,6 +20,7 @@ let package = Package(
         .package(url: "https://github.com/sparkle-project/Sparkle", exact: "2.8.1"),
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", exact: "0.15.4"),
         .package(url: "https://github.com/apple/swift-collections.git", exact: "1.3.0"),
+        .package(url: "https://github.com/apple/swift-syntax.git", exact: "602.0.0"),
         .package(url: "https://github.com/1998code/SwiftGlass.git", exact: "1.9.9"),
     ],
     targets: []

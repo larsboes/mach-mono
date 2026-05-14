@@ -7,6 +7,7 @@ Reads:
   - <repo>/ROADMAP.md         (custom format with section icons and tags)
   - <repo>/GUIDE.md           (getting-started guide with steps/permissions/tips)
   - <repo>/docs/architecture/technical-overview.mermaid
+  - <repo>/docs/architecture/overview.md
   - <repo>/docs/decisions/*.md (Architecture Decision Records)
 
 Renders:
@@ -47,6 +48,7 @@ CHANGELOG_MD = REPO_ROOT / "CHANGELOG.md"
 ROADMAP_MD = REPO_ROOT / "ROADMAP.md"
 GUIDE_MD = REPO_ROOT / "GUIDE.md"
 DIAGRAM_MD = REPO_ROOT / "docs" / "architecture" / "technical-overview.mermaid"
+OVERVIEW_MD = REPO_ROOT / "docs" / "architecture" / "overview.md"
 DECISIONS_DIR = REPO_ROOT / "docs" / "decisions"
 CHANGELOG_OUT = SCRIPT_DIR / "changelog.html"
 ROADMAP_OUT = SCRIPT_DIR / "roadmap.html"
@@ -107,6 +109,7 @@ _LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 _BOLD_RE = re.compile(r"\*\*([^*]+)\*\*")
 _ITALIC_RE = re.compile(r"(?<![\*_])\*([^*\n]+)\*(?![\*_])")
 _CODE_RE = re.compile(r"`([^`]+)`")
+_OL_ITEM_RE = re.compile(r"^\d+\.\s+(.+)$")
 
 
 def render_inline(text: str) -> str:
@@ -170,6 +173,41 @@ def render_table(lines: list[str]) -> str:
             body_rows.append(cells)
 
     parts = ['<table class="adr-table">']
+    if header_rows:
+        parts.append(
+            '<thead><tr>'
+            + ''.join(f'<th>{render_inline(c)}</th>' for c in header_rows[0])
+            + '</tr></thead>'
+        )
+    if body_rows:
+        parts.append('<tbody>')
+        for row in body_rows:
+            parts.append(
+                '<tr>'
+                + ''.join(f'<td>{render_inline(c)}</td>' for c in row)
+                + '</tr>'
+            )
+        parts.append('</tbody>')
+    parts.append('</table>')
+    return '\n'.join(parts)
+
+
+def render_arch_table(lines: list[str]) -> str:
+    """Render GFM table lines to HTML with arch-table class."""
+    header_rows: list[list[str]] = []
+    body_rows: list[list[str]] = []
+    past_sep = False
+
+    for line in lines:
+        cells = [c.strip() for c in line.strip().strip('|').split('|')]
+        if all(_TABLE_SEP_RE.match(c) for c in cells if c):
+            past_sep = True
+        elif not past_sep:
+            header_rows.append(cells)
+        else:
+            body_rows.append(cells)
+
+    parts = ['<table class="arch-table">']
     if header_rows:
         parts.append(
             '<thead><tr>'
@@ -1184,7 +1222,269 @@ DIAGRAM_CSS = """
 """
 
 
-def render_diagram_content(mermaid_source: str) -> str:
+ARCH_OVERVIEW_CSS = """
+.arch-h2 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 48px 0 14px;
+  letter-spacing: -.01em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 720px;
+}
+.arch-h2::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.arch-h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 24px 0 10px;
+  max-width: 720px;
+}
+.arch-h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin: 20px 0 8px;
+  max-width: 720px;
+}
+.arch-p {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.65;
+  margin-bottom: 12px;
+  max-width: 720px;
+}
+.arch-note {
+  max-width: 720px;
+  background: rgba(124,111,247,.08);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.arch-hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  max-width: 720px;
+  margin: 32px 0;
+}
+.arch-table {
+  width: 100%;
+  max-width: 720px;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+.arch-table th, .arch-table td {
+  text-align: left;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.arch-table th { color: var(--text); font-weight: 600; background: rgba(255,255,255,.03); }
+.arch-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  max-width: 720px;
+}
+.arch-list li {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.55;
+  padding-left: 16px;
+  position: relative;
+}
+.arch-list li::before { content: '–'; position: absolute; left: 0; color: var(--accent); }
+.arch-ol {
+  list-style: none;
+  counter-reset: arch-counter;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  max-width: 720px;
+}
+.arch-ol li {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.55;
+  padding-left: 24px;
+  position: relative;
+  counter-increment: arch-counter;
+}
+.arch-ol li::before {
+  content: counter(arch-counter) '.';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 600;
+}
+.arch-pre {
+  max-width: 720px;
+  background: rgba(0,0,0,.3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+.arch-pre code {
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 12px;
+  color: var(--text);
+  white-space: pre;
+}
+.arch-p code, .arch-h3 code, .arch-list li code, .arch-ol li code, .arch-note code {
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 12px;
+  background: rgba(255,255,255,.05);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--text);
+}
+"""
+
+
+def render_overview_blocks(text: str) -> str:
+    """Render overview.md to HTML: headings, mermaid, tables, code, lists, blockquotes."""
+    lines = text.splitlines()
+    parts: list[str] = []
+    i = 0
+
+    while i < len(lines):
+        line = lines[i]
+        stripped = line.strip()
+
+        # Skip H1 — page header already provides the title
+        if stripped.startswith('# ') and not stripped.startswith('## '):
+            i += 1
+            continue
+
+        # H2
+        if stripped.startswith('## ') and not stripped.startswith('### '):
+            parts.append(f'<h2 class="arch-h2">{render_inline(stripped[3:].strip())}</h2>')
+            i += 1
+            continue
+
+        # H3
+        if stripped.startswith('### ') and not stripped.startswith('#### '):
+            parts.append(f'<h3 class="arch-h3">{render_inline(stripped[4:].strip())}</h3>')
+            i += 1
+            continue
+
+        # H4
+        if stripped.startswith('#### '):
+            parts.append(f'<h4 class="arch-h4">{render_inline(stripped[5:].strip())}</h4>')
+            i += 1
+            continue
+
+        # HR
+        if stripped == '---':
+            parts.append('<hr class="arch-hr">')
+            i += 1
+            continue
+
+        # Fenced code block (mermaid rendered inline; others as <pre>)
+        if stripped.startswith('```'):
+            lang = stripped[3:].strip()
+            code_lines: list[str] = []
+            i += 1
+            while i < len(lines) and not lines[i].strip().startswith('```'):
+                code_lines.append(lines[i])
+                i += 1
+            i += 1  # skip closing fence
+            if lang == 'mermaid':
+                escaped = html.escape('\n'.join(code_lines))
+                parts.append('<div class="diagram-wrap">')
+                parts.append(f'  <div class="mermaid">{escaped}</div>')
+                parts.append('</div>')
+            else:
+                code_content = html.escape('\n'.join(code_lines))
+                lang_cls = f' class="language-{html.escape(lang)}"' if lang else ''
+                parts.append(f'<pre class="arch-pre"><code{lang_cls}>{code_content}</code></pre>')
+            continue
+
+        # Blockquote
+        if stripped.startswith('> '):
+            bq_lines: list[str] = []
+            while i < len(lines) and lines[i].strip().startswith('> '):
+                bq_lines.append(lines[i].strip()[2:])
+                i += 1
+            parts.append(f'<div class="arch-note">{render_inline(" ".join(bq_lines))}</div>')
+            continue
+
+        # Table
+        if '|' in line and stripped.startswith('|'):
+            table_lines: list[str] = []
+            while i < len(lines) and '|' in lines[i] and lines[i].strip().startswith('|'):
+                table_lines.append(lines[i])
+                i += 1
+            parts.append(render_arch_table(table_lines))
+            continue
+
+        # Unordered list (handles both `- ` and `* ` prefixes)
+        if stripped.startswith('- ') or stripped.startswith('* '):
+            list_items: list[str] = []
+            while i < len(lines) and (
+                lines[i].strip().startswith('- ') or lines[i].strip().startswith('* ')
+            ):
+                list_items.append(lines[i].strip()[2:].strip())
+                i += 1
+            items_html = ''.join(f'<li>{render_inline(item)}</li>' for item in list_items)
+            parts.append(f'<ul class="arch-list">{items_html}</ul>')
+            continue
+
+        # Ordered list
+        if _OL_ITEM_RE.match(stripped):
+            ol_items: list[str] = []
+            while i < len(lines):
+                m = _OL_ITEM_RE.match(lines[i].strip())
+                if not m:
+                    break
+                ol_items.append(m.group(1))
+                i += 1
+            items_html = ''.join(f'<li>{render_inline(item)}</li>' for item in ol_items)
+            parts.append(f'<ol class="arch-ol">{items_html}</ol>')
+            continue
+
+        # Blank line
+        if not stripped:
+            i += 1
+            continue
+
+        # Paragraph — collect until a block-level element or blank line
+        para_lines: list[str] = []
+        while i < len(lines):
+            sl = lines[i].strip()
+            if not sl:
+                break
+            if (sl.startswith('```') or sl.startswith('## ') or sl.startswith('### ')
+                    or sl.startswith('#### ') or sl.startswith('# ')
+                    or (sl.startswith('|') and '|' in sl)
+                    or sl.startswith('- ') or sl.startswith('* ')
+                    or _OL_ITEM_RE.match(sl)
+                    or sl.startswith('> ')
+                    or sl == '---'):
+                break
+            para_lines.append(sl)
+            i += 1
+        if para_lines:
+            parts.append(f'<p class="arch-p">{render_inline(" ".join(para_lines))}</p>')
+
+    return '\n'.join(parts)
+
+
+def render_diagram_content(mermaid_source: str, overview_text: str = "") -> str:
     diagram_html = html.escape(mermaid_source)
     parts: list[str] = []
     parts.append('<div class="page-header">')
@@ -1197,7 +1497,9 @@ def render_diagram_content(mermaid_source: str) -> str:
     parts.append('<div class="diagram-wrap">')
     parts.append(f'  <div class="mermaid">{diagram_html}</div>')
     parts.append('</div>')
-    # Mermaid.js initialisation — loaded from CDN, theme matched to dark palette
+    if overview_text:
+        parts.append(render_overview_blocks(overview_text))
+    # Mermaid.js initialisation — loaded from CDN, after all .mermaid divs are in the DOM
     parts.append(
         '<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>'
     )
@@ -1550,14 +1852,15 @@ def build_guide(*, guide_path: Path, template_path: Path, out_path: Path) -> Non
     print(f"wrote {out_path} ({len(content.steps)} steps, {len(content.permissions)} perms)")
 
 
-def build_diagram(*, diagram_path: Path, template_path: Path, out_path: Path) -> None:
+def build_diagram(*, diagram_path: Path, overview_path: Path | None, template_path: Path, out_path: Path) -> None:
     raw = diagram_path.read_text(encoding="utf-8")
     mermaid_source = strip_mermaid_fence(raw)
-    content = render_diagram_content(mermaid_source)
+    overview_text = overview_path.read_text(encoding="utf-8") if overview_path and overview_path.is_file() else ""
+    content = render_diagram_content(mermaid_source, overview_text)
     rendered = _render_template(
         template_path=template_path,
         title="Architecture — mach",
-        page_style=DIAGRAM_CSS,
+        page_style=DIAGRAM_CSS + ARCH_OVERVIEW_CSS,
         active_href="diagram.html",
         content=content,
         og_description="High-level architecture of the mach-mono monorepo.",
@@ -1595,6 +1898,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--roadmap",    type=Path, default=ROADMAP_MD)
     parser.add_argument("--guide",      type=Path, default=GUIDE_MD)
     parser.add_argument("--diagram",    type=Path, default=DIAGRAM_MD)
+    parser.add_argument("--overview",   type=Path, default=OVERVIEW_MD)
     parser.add_argument("--decisions",  type=Path, default=DECISIONS_DIR)
     parser.add_argument("--template",   type=Path, default=TEMPLATE_PATH)
     parser.add_argument("--outdir",     type=Path, default=SCRIPT_DIR)
@@ -1615,6 +1919,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"error: decisions dir not found at {args.decisions}", file=sys.stderr)
         return 1
 
+    overview_path: Path | None = args.overview if args.overview.is_file() else None
+    if overview_path is None:
+        print(f"warning: overview not found at {args.overview}, skipping", file=sys.stderr)
+
     args.outdir.mkdir(parents=True, exist_ok=True)
 
     build_changelog(changelog_path=args.changelog, template_path=args.template,
@@ -1623,8 +1931,8 @@ def main(argv: list[str] | None = None) -> int:
                   out_path=args.outdir / "roadmap.html")
     build_guide(guide_path=args.guide, template_path=args.template,
                 out_path=args.outdir / "guide.html")
-    build_diagram(diagram_path=args.diagram, template_path=args.template,
-                  out_path=args.outdir / "diagram.html")
+    build_diagram(diagram_path=args.diagram, overview_path=overview_path,
+                  template_path=args.template, out_path=args.outdir / "diagram.html")
     build_decisions(decisions_dir=args.decisions, template_path=args.template,
                     out_path=args.outdir / "decisions.html")
     return 0

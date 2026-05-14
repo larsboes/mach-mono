@@ -5,6 +5,17 @@ subtitle: From build to first hover in under 2 minutes.
 
 ## Installation
 
+### Download the app [Recommended]
+Download the latest `.dmg` from the [GitHub Releases page](https://github.com/larsboes/mach-mono/releases). Open the DMG, drag **mach.notch** to `/Applications`, then launch it.
+
+**First launch:** macOS will block the app because it is not notarized by Apple. Right-click the app → **Open**, then click **Open** in the dialog. Or run once in Terminal:
+```sh
+xattr -dr com.apple.quarantine /Applications/machNotch.app
+```
+This is a one-time step. All future updates through the built-in updater are silent and automatic.
+
+### Build from source
+
 ### Install Bazelisk
 Run `brew install bazelisk`. You also need Xcode 16 or later installed (free from the App Store) — Bazel uses it as the Swift toolchain.
 

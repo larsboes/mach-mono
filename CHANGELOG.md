@@ -5,13 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-For upcoming features see the [Roadmap](https://larsboes.github.io/mach-mono/roadmap.html).
+For upcoming features see the [Roadmap](https://larsboes.github.io/mach-mono/roadmap).
 
 ---
 
-## Pre-release
+## v1.3.0 — 2026-05-10
 
-Accumulated work prior to the first tagged release (v0.1.0).
+### 🏗 Architecture
+*   **PluginUIContext**: New environment type introduced to resolve DIP violations — plugin views no longer import or depend on `NotchViewModel` directly. All built-in plugin views migrated to `PluginUIContext`.
+
+### ✨ New Features
+*   **mach.brief Phase 1**: App Group infrastructure for cross-app settings sync between machNotch and mach.brief.
+*   **mach.brief Phase 2**: Vocabulary level system with in-app onboarding picker; 4-panel hover expanded view with vocab as default tab.
+*   **mach.brief offline**: Word cache, offline fallback, and expanded word lists so the app works without a network connection.
+*   **Bazel native build**: Full migration to native Bazel rules for machNotch and the XPC service bundle. `Taskfile.yml` replaces the Makefile.
+
+### 🐛 Bug Fixes
+*   **Permissions**: Bluetooth permission prompt suppressed on launch; persistent TCC/accessibility sentinel prevents repeat prompts across installs.
+*   **Calendar**: Compact access prompt fits within the widget height; grant button always visible regardless of auth state.
+*   **Stats**: Guarded `UInt64` underflow in `readNetworkRates` that caused a crash on rapid interface changes.
+*   **mach.brief**: Prevented notch stuck-state from slow API calls and rapid reloads; fixed word language setting not applying to quote source.
+
+### ⚙️ CI & Compatibility
+*   **macOS 26**: Switched CI to `macos-26` runner; fixed XCTest async teardown crashes across `MusicPluginTests`, `QuickShareService`, and `BriefPlugin` test suites.
+*   **Bazel CI**: Repaired pipeline; split Bazel cache by target; `--jobs=HOST_CPUS`; `actions/checkout@v5`.
+
+---
+
+## v1.2.0 — 2026-05-03
+
+First public release.
 
 ### 🧹 Repo Hygiene
 *   **Root README refresh**: Updated root documentation from stale `machNotch` paths to the current `Apps/machNotch/` layout.
@@ -45,7 +68,7 @@ Accumulated work prior to the first tagged release (v0.1.0).
 *   **Removed Build Artifacts**: Deleted stale build output files from the repository.
 
 ### 🏗 Architecture Overhaul (Plugin System)
-Completion of massive architectural refactoring ("Phase 5"). Monolithic singleton-based design → modular, plugin-first architecture.
+Completion of massive architectural refactoring. Monolithic singleton-based design → modular, plugin-first architecture.
 
 *   **Plugin Engine**: `PluginManager` + `NotchPlugin` protocol.
 *   **Everything is a Plugin**: All core features (Music, Battery, Calendar, Shelf, Weather, Webcam) migrated to standalone plugins in `Plugins/BuiltIn/`.

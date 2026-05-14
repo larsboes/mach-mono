@@ -15,6 +15,7 @@ decisions:
   weather: docs/decisions/0005-weather-provider-strategy.md
   bazel_detour: docs/decisions/0006-deferred-native-bazel-builds.md
   bazel_native: docs/decisions/0007-native-bazel-builds.md
+  test_isolation: docs/decisions/0008-test-isolation-under-xctest-async.md
 
 workspace:
   tech_stack:
@@ -28,6 +29,7 @@ workspace:
     primary_scheme: machNotch
     primary_project: Apps/machNotch/machNotch.xcodeproj
     # All members of the workspace (see mach-mono.xcworkspace/contents.xcworkspacedata)
+    # read-only: IDE navigation only — never run builds from Xcode. Use Bazel.
     includes:
       - Apps/machNotch/machNotch.xcodeproj
       - Apps/machBrief/machBrief.xcodeproj

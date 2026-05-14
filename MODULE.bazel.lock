@@ -703,8 +703,8 @@
         "bzlTransitiveDigest": "HbeCRKi07v8MZWF5xFlGDifQMdBJ59lLVSRj3dfLN0k=",
         "usagesDigest": "NDmL0S0zO9ESghkjz9p8GrysathyBy9oQomp7VplFAw=",
         "recordedFileInputs": {
-          "@@//Package.resolved": "2f1dd124953deed3cbabc3bb68ed32ab777971bf3c13ff011d89d069ae777c4f",
-          "@@//Package.swift": "43309ae7e855065fa26c4cd041dcb0ca1aa2a353ce4a304c5c04821bb5d659ac"
+          "@@//Package.resolved": "66732155a84f8227ed41fb08ff03c637621ffe4b9b31bc0397841ec058021d7f",
+          "@@//Package.swift": "0e38accc3473f4cc4e4eb3fabe84ea0529c92de09310d300423e928289010fc0"
         },
         "recordedDirentsInputs": {},
         "envVariables": {},
@@ -957,14 +957,14 @@
               "replace_scm_with_registry": false
             }
           },
-          "swiftpkg_swiftglass": {
+          "swiftpkg_swift_syntax": {
             "bzlFile": "@@rules_swift_package_manager~//swiftpkg/internal:swift_package.bzl",
             "ruleClassName": "swift_package",
             "attributes": {
-              "bazel_package_name": "swiftpkg_swiftglass",
-              "commit": "a012c615c36a3992fb2c9358206de2a2bd253454",
-              "remote": "https://github.com/1998code/SwiftGlass.git",
-              "version": "1.9.9",
+              "bazel_package_name": "swiftpkg_swift_syntax",
+              "commit": "4799286537280063c85a32f09884cfbca301b1a1",
+              "remote": "https://github.com/apple/swift-syntax.git",
+              "version": "602.0.0",
               "env": {},
               "env_inherit": [],
               "cached_json_directory": "",
@@ -981,14 +981,14 @@
               "replace_scm_with_registry": false
             }
           },
-          "swiftpkg_swift_syntax": {
+          "swiftpkg_swiftglass": {
             "bzlFile": "@@rules_swift_package_manager~//swiftpkg/internal:swift_package.bzl",
             "ruleClassName": "swift_package",
             "attributes": {
-              "bazel_package_name": "swiftpkg_swift_syntax",
-              "commit": "4799286537280063c85a32f09884cfbca301b1a1",
-              "remote": "https://github.com/swiftlang/swift-syntax",
-              "version": "602.0.0",
+              "bazel_package_name": "swiftpkg_swiftglass",
+              "commit": "a012c615c36a3992fb2c9358206de2a2bd253454",
+              "remote": "https://github.com/1998code/SwiftGlass.git",
+              "version": "1.9.9",
               "env": {},
               "env_inherit": [],
               "cached_json_directory": "",
@@ -1042,6 +1042,7 @@
             "swiftpkg_sparkle",
             "swiftpkg_sqlite.swift",
             "swiftpkg_swift_collections",
+            "swiftpkg_swift_syntax",
             "swiftpkg_swiftglass",
             "swift_package"
           ],

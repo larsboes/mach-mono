@@ -32,6 +32,7 @@ extension WindowCoordinator {
                     coordinator: coordinator,
                     detector: detector,
                     services: pluginManager.services,
+                    settings: DefaultNotchViewModelSettings(source: settings),
                     displaySettings: settings
                 )
                 let stateMachine = NotchStateMachine(

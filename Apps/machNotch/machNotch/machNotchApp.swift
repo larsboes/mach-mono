@@ -102,9 +102,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var timer: Timer?
     private var previousScreens: [NSScreen]?
     private var onboardingWindowController: NSWindowController?
-    private var screenLockedObserver: Any?
-    private var screenUnlockedObserver: Any?
-    private var observers: [Any] = []
 
     // MARK: - Legacy Accessors
 
@@ -158,12 +155,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             self?.screenConfigurationDidChange()
         }
 
-        let result = graph.setupNotificationObservers(
-            target: self
-        )
-        observers = result.observers
-        screenLockedObserver = result.screenLocked
-        screenUnlockedObserver = result.screenUnlocked
+        graph.startObservationTracking()
 
         graph.keyboardShortcutCoordinator.setupKeyboardShortcuts()
         syncNotchHeightIfNeeded(settings: graph.settings)
@@ -205,14 +197,6 @@ self.showOnboardingWindow(step: .musicPermission)
         }
         graph.localAPIServerController.stop()
 
-        if let observer = screenLockedObserver {
-            DistributedNotificationCenter.default().removeObserver(observer)
-            screenLockedObserver = nil
-        }
-        if let observer = screenUnlockedObserver {
-            DistributedNotificationCenter.default().removeObserver(observer)
-            screenUnlockedObserver = nil
-        }
         pluginManager.services.music.destroy()
 
         graph.cleanupDragDetectors()
@@ -220,9 +204,6 @@ self.showOnboardingWindow(step: .musicPermission)
         graph.keyboardShortcutCoordinator.cancelPendingTasks()
 
         graph.pluginManager.services.xpcHelper.stopMonitoringAccessibilityAuthorization()
-
-        observers.forEach { NotificationCenter.default.removeObserver($0) }
-        observers.removeAll()
     }
 
     // MARK: - Screen Configuration

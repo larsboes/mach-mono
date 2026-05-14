@@ -14,9 +14,9 @@ bazel_dep(name = "rules_swift_package_manager", version = "1.15.0")
 # TODO: drop this when rules_apple ships the upstream fix.
 single_version_override(
     module_name = "rules_apple",
-    version = "4.5.3",
-    patches = ["//.bazel/patches:rules_apple_xctestrun_macos_platform.patch"],
     patch_strip = 1,
+    patches = ["//.bazel/patches:rules_apple_xctestrun_macos_platform.patch"],
+    version = "4.5.3",
 )
 
 swift_deps = use_extension(
@@ -40,5 +40,6 @@ use_repo(
     "swiftpkg_sparkle",
     "swiftpkg_sqlite.swift",
     "swiftpkg_swift_collections",
+    "swiftpkg_swift_syntax",
     "swiftpkg_swiftglass",
 )

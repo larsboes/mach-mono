@@ -30,12 +30,6 @@ struct Shelf: View {
                 Toggle(isOn: $settings.expandedDragDetection) {
                     Text("Expanded drag detection area")
                 }
-                .onChange(of: settings.expandedDragDetection) {
-                    NotificationCenter.default.post(
-                        name: Notification.Name.expandedDragDetectionChanged,
-                        object: nil
-                    )
-                }
                 Toggle(isOn: $settings.copyOnDrag) {
                     Text("Copy items on drag")
                 }

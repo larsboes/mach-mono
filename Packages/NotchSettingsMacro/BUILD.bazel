@@ -1,0 +1,21 @@
+load("@rules_swift//swift:swift.bzl", "swift_compiler_plugin", "swift_library")
+
+swift_compiler_plugin(
+    name = "NotchSettingsMacroPlugin",
+    srcs = glob(["Sources/NotchSettingsMacroPlugin/**/*.swift"]),
+    module_name = "NotchSettingsMacroPlugin",
+    deps = [
+        "@swiftpkg_swift_syntax//:SwiftCompilerPlugin",
+        "@swiftpkg_swift_syntax//:SwiftSyntax",
+        "@swiftpkg_swift_syntax//:SwiftSyntaxBuilder",
+        "@swiftpkg_swift_syntax//:SwiftSyntaxMacros",
+    ],
+)
+
+swift_library(
+    name = "NotchSettingsMacro",
+    srcs = glob(["Sources/NotchSettingsMacro/**/*.swift"]),
+    module_name = "NotchSettingsMacro",
+    plugins = [":NotchSettingsMacroPlugin"],
+    visibility = ["//visibility:public"],
+)

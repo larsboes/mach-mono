@@ -1,0 +1,116 @@
+---
+import '../styles/global.css';
+
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+
+const navItems = [
+	{ name: 'Home', href: '/' },
+	{ name: 'Changelog', href: '/changelog' },
+	{ name: 'Roadmap', href: '/roadmap' },
+	{ name: 'Guide', href: '/guide' },
+	{ name: 'Architecture', href: '/architecture' },
+	{ name: 'Decisions', href: '/decisions' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title} | MACH-MONO</title>
+	</head>
+	<body>
+		<header class="header">
+			<div class="header-content">
+				<a href="/" class="logo mono">MACH-MONO</a>
+				<nav class="nav">
+					{navItems.map((item) => (
+						<a 
+							href={item.href} 
+							class={`nav-link ${currentPath === item.href ? 'active' : ''}`}
+						>
+							{item.name}
+						</a>
+					))}
+				</nav>
+			</div>
+		</header>
+		<main class="main-container">
+			<slot />
+		</main>
+	</body>
+</html>
+
+<style>
+	.header {
+		width: 100%;
+		border-bottom: 1px solid var(--border-color);
+		padding: 0 2rem;
+	}
+
+	.header-content {
+		max-width: 1200px;
+		margin: 0 auto;
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-end; /* Align to bottom for the underline effect */
+		height: 80px;
+	}
+
+	.logo {
+		font-size: 0.9rem;
+		font-weight: 600;
+		letter-spacing: 0.15em;
+		color: var(--text-muted);
+		padding-bottom: 1.5rem;
+	}
+
+	.nav {
+		display: flex;
+		gap: 2rem;
+	}
+
+	.nav-link {
+		color: var(--text-muted);
+		font-size: 0.95rem;
+		font-weight: 500;
+		padding-bottom: 1.5rem;
+		position: relative;
+		transition: color 0.2s ease;
+	}
+
+	.nav-link:hover {
+		color: var(--nav-hover);
+	}
+
+	.nav-link.active {
+		color: #ffffff;
+	}
+
+	.nav-link.active::after {
+		content: '';
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		height: 2px;
+		background-color: #ffffff;
+	}
+
+	.main-container {
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 4rem 2rem;
+		width: 100%;
+		flex-grow: 1;
+	}
+</style>

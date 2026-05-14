@@ -66,14 +66,12 @@ enum MusicPlayerImageSizes {
         let realHeight = getRealNotchHeight()
         if settings.notchHeight != realHeight {
             settings.notchHeight = realHeight
-            NotificationCenter.default.post(name: .notchHeightChanged, object: nil)
         }
 
     case .matchMenuBar:
         let menuHeight = getMenuBarHeight()
         if settings.notchHeight != menuHeight {
             settings.notchHeight = menuHeight
-            NotificationCenter.default.post(name: .notchHeightChanged, object: nil)
         }
 
     case .custom:

@@ -28,8 +28,12 @@ machNotch/
 ├── models/                  # Pure data models only (CalendarModel, EventModel, PlaybackState, etc.)
 ├── Plugins/
 │   ├── Core/                # PluginManager, NotchPlugin, PluginEventBus, PluginSettings
-│   ├── Services/            # ALL service protocols + implementations (61 files)
-│   │                        # ServiceContainer (DI), protocols, managers, services
+│   ├── Services/            # Service protocols + implementations (64 files in 5 subfolders)
+│   │   ├── Audio/           # Audio capture, volume, sound
+│   │   ├── Media/           # Music, lyrics, face, webcam, capture
+│   │   ├── Shelf/           # Shelf service + export
+│   │   ├── System/          # ServiceContainer (DI), battery, bluetooth, calendar, notifications
+│   │   └── Storage/         # Image processing, quicklook, sharing, thumbnails, temp storage
 │   └── BuiltIn/             # Each plugin = bounded context
 │       ├── MusicPlugin/     # Plugin + Views/
 │       ├── ShelfPlugin/     # Plugin + Models/ + Services/ + ViewModels/ + Views/
@@ -78,7 +82,7 @@ machNotch/
 - **Protocol-based services** via `ServiceContainer`. No `.shared` singletons in views/services.
 - **No direct `Defaults[.]`** outside `DefaultsNotchSettings.swift`. Use `@Environment(\.bindableSettings)`.
 - **No service construction in views.** Views receive dependencies; never create them.
-- Allowed `.shared` exceptions: `NSWorkspace`, `NSApplication`, `URLSession`, `URLCache`, `XPCHelperClient`, `FullScreenMonitor`, `QLThumbnailGenerator`, `QLPreviewPanel`, `NSScreenUUIDCache`, `SkyLightOperator`, `DefaultsNotchSettings` (injection root only).
+- Allowed `.shared` exceptions: `NSWorkspace`, `NSApplication`, `URLSession`, `URLCache`, `XPCHelperClient`, `FullScreenMonitor`, `QLThumbnailGenerator`, `QLPreviewPanel`, `NSScreenUUIDCache`, `SkyLightOperator`, `DefaultsNotchSettings` (injection root only), `ScreenDisplayRegistry` (system-level screen cache).
 
 ## Key Responsibilities
 
@@ -100,5 +104,5 @@ machNotch/
 - `Plugins/Core/NotchPlugin.swift` — stable protocol
 - `Plugins/Core/PluginEventBus.swift` — stable; add new event types as new structs
 - `Core/NotchStateMachine.swift` — pure domain; only modify if state logic changes
-- `private/MachWindowSpace.swift` — MIT private API wrapper (do not modify)
+- `Packages/MacroVisionKit/` — MIT private API wrapper (do not modify)
 - `mediaremote-adapter/` — pre-built framework, read-only

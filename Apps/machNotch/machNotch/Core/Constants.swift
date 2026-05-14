@@ -34,11 +34,6 @@ struct BluetoothDeviceIconMapping: Codable, Defaults.Serializable {
 
 extension Notification.Name {
     static let mediaControllerChanged = Notification.Name("mediaControllerChanged")
-    static let selectedScreenChanged = Notification.Name("SelectedScreenChanged")
-    static let notchHeightChanged = Notification.Name("NotchHeightChanged")
-    static let showOnAllDisplaysChanged = Notification.Name("showOnAllDisplaysChanged")
-    static let automaticallySwitchDisplayChanged = Notification.Name("automaticallySwitchDisplayChanged")
-    static let expandedDragDetectionChanged = Notification.Name("expandedDragDetectionChanged")
     static let accessibilityAuthorizationChanged = Notification.Name("accessibilityAuthorizationChanged")
     static let sharingDidFinish = Notification.Name("com.machNotch.sharingDidFinish")
     static let accentColorChanged = Notification.Name("AccentColorChanged")

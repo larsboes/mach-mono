@@ -140,7 +140,10 @@ import SwiftUI
     var backgroundImage: NSImage?
 
     var screenUUID: String? {
-        didSet { updateNotchSize() }
+        didSet {
+            updateNotchSize()
+            hoverController.updateHoverZone(screenUUID: screenUUID)
+        }
     }
 
     var notchSize: CGSize {
@@ -162,6 +165,7 @@ import SwiftUI
     var isRequestingAuthorization: Bool = false
 
     var notificationCancellables = Set<AnyCancellable>()
+    @ObservationIgnored var sizeObserverTask: Task<Void, Never>?
 
     var isHoveringNotch: Bool {
         hoverController.isHoveringNotch
@@ -171,6 +175,7 @@ import SwiftUI
         hideOnClosedDebounceTask?.cancel()
         earsDebounceTask?.cancel()
         earsTrackingTask?.cancel()
+        sizeObserverTask?.cancel()
     }
 
     // MARK: - Initialization
@@ -233,7 +238,7 @@ import SwiftUI
 
         setupDetectorObserver()
         setupBackgroundImageObserver()
-        setupNotchHeightObserver()
+        setupSizeObserver()
         setupIntentObservers()
         setupTabResetObserver()
         setupEarsObserver()

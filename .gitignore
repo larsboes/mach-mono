@@ -61,3 +61,8 @@ bazel-*
 
 # Agent Memory
 MEMORY/
+
+# Website (Astro)
+website/node_modules/
+website/dist/
+website/.astro/

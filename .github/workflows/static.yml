@@ -34,15 +34,19 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Setup Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
-      - name: Build site from Markdown
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      - name: Build Astro site
+        working-directory: website
         run: |
-          bazelisk build //Apps/machNotch/updater:site
-          cp bazel-bin/Apps/machNotch/updater/changelog.html Apps/machNotch/updater/
-          cp bazel-bin/Apps/machNotch/updater/roadmap.html   Apps/machNotch/updater/
+          bun install
+          bun run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
         with:
-          path: 'Apps/machNotch/updater/'
+          path: 'website/dist/'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

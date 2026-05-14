@@ -87,13 +87,13 @@ class NotchSkyLightWindow: NSPanel {
         // The settings protocol is used for value access; reactive streams need Defaults.
 
         // Listen for changes to the hideFromScreenRecording setting
-        Defaults.publisher(.hideFromScreenRecording)
+        Defaults.publisher(DefaultsNotchSettings.hideFromScreenRecordingKey)
             .sink { [weak self] _ in
                 self?.updateSharingType()
             }
             .store(in: &observers)
-            
-        Defaults.publisher(.hideNonNotchedFromMissionControl)
+
+        Defaults.publisher(DefaultsNotchSettings.hideNonNotchedFromMissionControlKey)
             .sink { [weak self] _ in
                 self?.updateCollectionBehavior()
             }

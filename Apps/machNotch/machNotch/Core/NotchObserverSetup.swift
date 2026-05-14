@@ -50,7 +50,7 @@ class NotchObserverManager {
     ) {
         let defaultsTask = Task { @MainActor in
             // Observe Defaults changes
-            for await _ in Defaults.updates(.hideNotchOption) {
+            for await _ in Defaults.updates(DefaultsNotchSettings.hideNotchOptionKey) {
                 if Task.isCancelled { break }
                 let shouldHide = calculateHideOnClosed(screenUUID: screenUUID)
                 onHideOnClosedChanged(shouldHide)
@@ -95,7 +95,7 @@ class NotchObserverManager {
     func setupBackgroundImageObserver(
         onImageChanged: @escaping (NSImage?) -> Void
     ) {
-        Defaults.publisher(.backgroundImageURL)
+        Defaults.publisher(DefaultsNotchSettings.backgroundImageURLKey)
             .map(\.newValue)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] url in

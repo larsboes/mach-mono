@@ -28,10 +28,6 @@ struct GeneralSettings: View {
                 Toggle(isOn: $settings.showOnAllDisplays) {
                     Text("Show on all displays")
                 }
-                .onChange(of: settings.showOnAllDisplays) { _, _ in
-                    NotificationCenter.default.post(
-                        name: Notification.Name.showOnAllDisplaysChanged, object: nil)
-                }
                 Picker("Preferred display", selection: $settings.preferredScreenUUID) {
                     ForEach(screens, id: \.uuid) { screen in
                         Text(screen.name).tag(screen.uuid as String?)
@@ -48,10 +44,6 @@ struct GeneralSettings: View {
                 Toggle(isOn: $settings.automaticallySwitchDisplay) {
                     Text("Automatically switch displays")
                 }
-                    .onChange(of: settings.automaticallySwitchDisplay) { _, _ in
-                        NotificationCenter.default.post(
-                            name: Notification.Name.automaticallySwitchDisplayChanged, object: nil)
-                    }
                     .disabled(settings.showOnAllDisplays)
             } header: {
                 Text("System features")
@@ -80,16 +72,10 @@ struct GeneralSettings: View {
                     case .custom:
                         settings.notchHeight = 38
                     }
-                    NotificationCenter.default.post(
-                        name: Notification.Name.notchHeightChanged, object: nil)
                 }
                 if settings.notchHeightMode == .custom {
                     Slider(value: $settings.notchHeight, in: 15...45, step: 1) {
                         Text("Custom notch size - \(settings.notchHeight, specifier: "%.0f")")
-                    }
-                    .onChange(of: settings.notchHeight) { _, _ in
-                        NotificationCenter.default.post(
-                            name: Notification.Name.notchHeightChanged, object: nil)
                     }
                 }
                 Picker("Notch height on non-notch displays", selection: $settings.nonNotchHeightMode) {
@@ -105,8 +91,6 @@ struct GeneralSettings: View {
                     case .matchRealNotchSize, .custom:
                         settings.nonNotchHeight = 23
                     }
-                    NotificationCenter.default.post(
-                        name: Notification.Name.notchHeightChanged, object: nil)
                 }
                 if settings.nonNotchHeightMode == .custom {
                     // Custom binding to skip values 1-14 (jump from 0 to 10)
@@ -115,12 +99,7 @@ struct GeneralSettings: View {
                             settings.nonNotchHeight == 0 ? 0 : settings.nonNotchHeight - 14
                         },
                         set: { newValue in
-                            let oldValue = settings.nonNotchHeight
                             settings.nonNotchHeight = newValue == 0 ? 0 : newValue + 14
-                            if oldValue != settings.nonNotchHeight {
-                                NotificationCenter.default.post(
-                                    name: Notification.Name.notchHeightChanged, object: nil)
-                            }
                         }
                     )
                     
@@ -135,10 +114,6 @@ struct GeneralSettings: View {
             Section {
                 Toggle(isOn: $settings.useInactiveNotchHeight) {
                     Text("Use smaller height when inactive")
-                }
-                .onChange(of: settings.useInactiveNotchHeight) { _, _ in
-                    NotificationCenter.default.post(
-                        name: Notification.Name.notchHeightChanged, object: nil)
                 }
 
                 if settings.useInactiveNotchHeight {
@@ -228,10 +203,6 @@ struct GeneralSettings: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                .onChange(of: settings.minimumHoverDuration) { _, _ in
-                    NotificationCenter.default.post(
-                        name: Notification.Name.notchHeightChanged, object: nil)
-                }
             }
             
             Slider(value: $settings.sneakPeakDuration, in: 0.5...5, step: 0.5) {
@@ -280,10 +251,6 @@ struct InactiveNotchHeightSlider: View {
                 .onChange(of: localValue) { _, newValue in
                     let finalValue = min(newValue, effectiveMax)
                     settings.inactiveNotchHeight = finalValue
-                    NotificationCenter.default.post(
-                        name: Notification.Name.notchHeightChanged,
-                        object: nil
-                    )
                 }
         }
         .onAppear {

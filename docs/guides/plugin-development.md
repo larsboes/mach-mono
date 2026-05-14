@@ -52,22 +52,23 @@ final class MyFeaturePlugin: NotchPlugin {
 
 ### 2. Define the UI
 
-Plugins can implement two UI slots:
+Plugins implement four UI slots via `@ViewBuilder` methods with concrete return types (no `AnyView`):
 
 #### A. Closed Notch (Compact)
 Shown inside the black notch bar. Space is limited.
 
 ```swift
-func closedNotchContent() -> AnyView? {
-    guard isEnabled, state.isActive else { return nil }
-    
-    return AnyView(
+@ViewBuilder
+func closedNotchContent() -> some View {
+    if isEnabled, state.isActive {
         HStack {
             Image(systemName: "star.fill")
             Text("Active")
         }
         .foregroundStyle(.white)
-    )
+    } else {
+        EmptyView()
+    }
 }
 ```
 
@@ -75,19 +76,38 @@ func closedNotchContent() -> AnyView? {
 Shown when the user hovers/clicks the notch. This provides a full canvas.
 
 ```swift
-func expandedPanelContent() -> AnyView? {
-    guard isEnabled, state.isActive else { return nil }
-    
-    return AnyView(
+@ViewBuilder
+func expandedPanelContent() -> some View {
+    if isEnabled, state.isActive {
         VStack {
             Text("My Amazing Feature")
                 .font(.headline)
-            Button("Do Action") {
-                // ...
-            }
+            Button("Do Action") { /* ... */ }
         }
         .padding()
-    )
+    } else {
+        EmptyView()
+    }
+}
+```
+
+#### C. Settings
+Shown in the Settings panel for this plugin.
+
+```swift
+@ViewBuilder
+func settingsContent() -> some View {
+    Toggle("Show icon", isOn: $showIcon)
+}
+```
+
+#### D. Menu Bar
+Items contributed to the app's menu bar extra dropdown.
+
+```swift
+@ViewBuilder
+func menuBarView() -> some View {
+    Button("My Action") { /* ... */ }
 }
 ```
 

@@ -51,6 +51,7 @@ swift_library(
 )
 
 _SHARED_DEPS = [
+    "//Packages/NotchSettingsMacro:NotchSettingsMacro",
     "//Packages/MacroVisionKit",
     "//Packages/MachBriefKit",
     "@swiftpkg_asyncxpcconnection//:AsyncXPCConnection",

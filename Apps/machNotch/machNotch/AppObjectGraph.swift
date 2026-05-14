@@ -185,85 +185,101 @@ final class AppObjectGraph {
         }
     }
 
-    // MARK: - Notification Observer Setup
+    // MARK: - Observation Tracking
 
-    func setupNotificationObservers(
-        target: AnyObject
-    ) -> (observers: [Any], screenLocked: Any?, screenUnlocked: Any?) {
-        var observers: [Any] = []
+    private var observerTasks: [Task<Void, Never>] = []
+    private var screenLockedObserver: Any?
+    private var screenUnlockedObserver: Any?
 
-        observers.append(NotificationCenter.default.addObserver(
-            forName: Notification.Name.selectedScreenChanged, object: nil, queue: nil
+    func startObservationTracking() {
+        // System event — not settings-driven, stays as notification
+        NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification,
+            object: nil,
+            queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in
-                self?.adjustWindowPosition(changeAlpha: true)
-                self?.setupDragDetectors()
-            }
-        })
+            Task { @MainActor in self?.adjustWindowPosition() }
+        }
 
-        observers.append(NotificationCenter.default.addObserver(
-            forName: Notification.Name.notchHeightChanged, object: nil, queue: nil
+        // Screen lock/unlock via distributed notifications — no @Observable equivalent
+        screenLockedObserver = DistributedNotificationCenter.default().addObserver(
+            forName: NSNotification.Name(rawValue: "com.apple.screenIsLocked"),
+            object: nil, queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in
-                self?.adjustWindowPosition()
-                self?.setupDragDetectors()
-            }
-        })
+            Task { @MainActor in self?.onScreenLocked() }
+        }
+        screenUnlockedObserver = DistributedNotificationCenter.default().addObserver(
+            forName: NSNotification.Name(rawValue: "com.apple.screenIsUnlocked"),
+            object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.onScreenUnlocked() }
+        }
 
-        observers.append(NotificationCenter.default.addObserver(
-            forName: Notification.Name.automaticallySwitchDisplayChanged, object: nil, queue: nil
-        ) { [weak self] _ in
-            Task { @MainActor in
-                guard let self = self, let window = self.window else { return }
-                window.alphaValue = self.coordinator.selectedScreenUUID == self.coordinator.preferredScreenUUID ? 1 : 0
-            }
-        })
-
-        observers.append(NotificationCenter.default.addObserver(
-            forName: Notification.Name.showOnAllDisplaysChanged, object: nil, queue: nil
-        ) { [weak self] _ in
-            Task { @MainActor in
-                guard let self = self else { return }
+        // showOnAllDisplays → full window layout reset
+        observerTasks.append(Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+                    withObservationTracking { _ = self?.settings.showOnAllDisplays } onChange: { c.resume() }
+                }
+                guard let self, !Task.isCancelled else { return }
                 self.cleanupWindows(shouldInvert: true)
                 self.adjustWindowPosition(changeAlpha: true)
                 self.setupDragDetectors()
             }
         })
 
-        observers.append(NotificationCenter.default.addObserver(
-            forName: Notification.Name.expandedDragDetectionChanged, object: nil, queue: nil
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.setupDragDetectors()
+        // automaticallySwitchDisplay → window alpha for multi-display
+        observerTasks.append(Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+                    withObservationTracking { _ = self?.settings.automaticallySwitchDisplay } onChange: { c.resume() }
+                }
+                guard let self, !Task.isCancelled else { return }
+                guard let window = self.window else { continue }
+                window.alphaValue = self.coordinator.selectedScreenUUID == self.coordinator.preferredScreenUUID ? 1 : 0
             }
         })
 
-        observers.append(NSWorkspace.shared.notificationCenter.addObserver(
-            forName: NSWorkspace.didActivateApplicationNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.adjustWindowPosition()
+        // Sizing properties → window position + drag detector geometry
+        observerTasks.append(Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+                    withObservationTracking {
+                        _ = self?.settings.notchHeight
+                        _ = self?.settings.notchHeightMode
+                        _ = self?.settings.nonNotchHeight
+                        _ = self?.settings.nonNotchHeightMode
+                        _ = self?.settings.inactiveNotchHeight
+                        _ = self?.settings.useInactiveNotchHeight
+                    } onChange: { c.resume() }
+                }
+                guard let self, !Task.isCancelled else { return }
+                self.adjustWindowPosition()
+                self.setupDragDetectors()
             }
         })
 
-        let screenLocked = DistributedNotificationCenter.default().addObserver(
-            forName: NSNotification.Name(rawValue: "com.apple.screenIsLocked"),
-            object: nil, queue: .main) { [weak self] _ in
-                Task { @MainActor in
-                    self?.onScreenLocked()
+        // expandedDragDetection → drag detector rebuild
+        observerTasks.append(Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+                    withObservationTracking { _ = self?.settings.expandedDragDetection } onChange: { c.resume() }
                 }
-        }
+                guard let self, !Task.isCancelled else { return }
+                self.setupDragDetectors()
+            }
+        })
 
-        let screenUnlocked = DistributedNotificationCenter.default().addObserver(
-            forName: NSNotification.Name(rawValue: "com.apple.screenIsUnlocked"),
-            object: nil, queue: .main) { [weak self] _ in
-                Task { @MainActor in
-                    self?.onScreenUnlocked()
+        // coordinator.selectedScreenUUID → window position after preferred screen change
+        observerTasks.append(Task { @MainActor [weak self] in
+            while !Task.isCancelled {
+                await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+                    withObservationTracking { _ = self?.coordinator.selectedScreenUUID } onChange: { c.resume() }
                 }
-        }
-
-        return (observers, screenLocked, screenUnlocked)
+                guard let self, !Task.isCancelled else { return }
+                self.adjustWindowPosition(changeAlpha: true)
+                self.setupDragDetectors()
+            }
+        })
     }
 }

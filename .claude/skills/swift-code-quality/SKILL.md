@@ -33,7 +33,7 @@ let manager = SomeManager.shared
 init(service: SomeServiceProtocol) { ... }
 ```
 
-**Allowed `.shared` exceptions:** `NSWorkspace`, `NSApplication`, `URLSession`, `URLCache`, `XPCHelperClient`, `FullScreenMonitor`, `QLThumbnailGenerator`, `QLPreviewPanel`, `NSScreenUUIDCache`, `SkyLightOperator`, `DefaultsNotchSettings` (injection root only).
+**Allowed `.shared` exceptions:** `NSWorkspace`, `NSApplication`, `URLSession`, `URLCache`, `XPCHelperClient`, `FullScreenMonitor`, `QLThumbnailGenerator`, `QLPreviewPanel`, `NSScreenUUIDCache`, `SkyLightOperator`, `DefaultsNotchSettings` (injection root only), `ScreenDisplayRegistry` (system-level screen cache).
 
 ## No Direct Defaults Access
 

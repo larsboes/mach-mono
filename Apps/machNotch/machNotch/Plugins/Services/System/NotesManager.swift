@@ -21,6 +21,9 @@ struct NoteItem: Identifiable, Equatable {
 final class NotesManager {
     var notes: [NoteItem] = []
 
+    private static let obsidianSyncEnabledKey = Defaults.Key<Bool>("obsidianSyncEnabled", default: false)
+    private static let obsidianVaultPathKey = Defaults.Key<String?>("obsidianVaultPath", default: nil)
+
     private var db: Connection?
     private let notesTable = Table("notes")
     private let id = Expression<Int64>("id")
@@ -88,8 +91,8 @@ final class NotesManager {
     }
 
     private func writeToObsidian(title: String, content: String) {
-        guard Defaults[.obsidianSyncEnabled],
-              let vaultPath = Defaults[.obsidianVaultPath],
+        guard Defaults[Self.obsidianSyncEnabledKey],
+              let vaultPath = Defaults[Self.obsidianVaultPathKey],
               !vaultPath.isEmpty else { return }
         let vaultURL = URL(fileURLWithPath: vaultPath)
         let illegalChars = CharacterSet(charactersIn: "/\\:*?\"<>|")

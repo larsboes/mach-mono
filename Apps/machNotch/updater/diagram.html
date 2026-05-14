@@ -23,6 +23,136 @@
 }
 .diagram-wrap .mermaid { display: flex; justify-content: center; }
 .diagram-wrap svg { max-width: 100%; height: auto; }
+
+.arch-h2 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 48px 0 14px;
+  letter-spacing: -.01em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 720px;
+}
+.arch-h2::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.arch-h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 24px 0 10px;
+  max-width: 720px;
+}
+.arch-h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin: 20px 0 8px;
+  max-width: 720px;
+}
+.arch-p {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.65;
+  margin-bottom: 12px;
+  max-width: 720px;
+}
+.arch-note {
+  max-width: 720px;
+  background: rgba(124,111,247,.08);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.arch-hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  max-width: 720px;
+  margin: 32px 0;
+}
+.arch-table {
+  width: 100%;
+  max-width: 720px;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+.arch-table th, .arch-table td {
+  text-align: left;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.arch-table th { color: var(--text); font-weight: 600; background: rgba(255,255,255,.03); }
+.arch-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  max-width: 720px;
+}
+.arch-list li {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.55;
+  padding-left: 16px;
+  position: relative;
+}
+.arch-list li::before { content: '–'; position: absolute; left: 0; color: var(--accent); }
+.arch-ol {
+  list-style: none;
+  counter-reset: arch-counter;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  max-width: 720px;
+}
+.arch-ol li {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.55;
+  padding-left: 24px;
+  position: relative;
+  counter-increment: arch-counter;
+}
+.arch-ol li::before {
+  content: counter(arch-counter) '.';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 600;
+}
+.arch-pre {
+  max-width: 720px;
+  background: rgba(0,0,0,.3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+.arch-pre code {
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 12px;
+  color: var(--text);
+  white-space: pre;
+}
+.arch-p code, .arch-h3 code, .arch-list li code, .arch-ol li code, .arch-note code {
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 12px;
+  background: rgba(255,255,255,.05);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--text);
+}
 </style>
 </head>
 <body>
@@ -87,6 +217,268 @@
     
     RY -.-&gt; AG</div>
 </div>
+<div class="arch-note"><strong>Note:</strong> This document reflects the system architecture as of May 2026 (v1.0 Plugin System + SOLID/DDD hardening + DDD directory restructure + mach-mono migration). For full debt triage with P1/P2/P3 priorities, see <code>docs/prds/machNotch.md → Known Architecture Debt</code>.</div>
+<p class="arch-p">machNotch is a macOS application designed to transform the static camera notch into a dynamic, interactive utility hub. The architecture is built on a <strong>modular, plugin-first</strong> foundation, ensuring extensibility, testability, and separation of concerns.</p>
+<hr class="arch-hr">
+<h2 class="arch-h2">🏗 System Context (C4 Level 1)</h2>
+<p class="arch-p">At the highest level, machNotch sits between the user, the macOS system, and external services.</p>
+<div class="diagram-wrap">
+  <div class="mermaid">graph TD
+    User((User))
+    
+    subgraph &quot;macOS Environment&quot;
+        SystemAudio[CoreAudio / Media APIs]
+        SystemEvents[EventKit / Notifications]
+        IOKit[IOKit / Battery]
+        
+        BN[machNotch App]
+    end
+    
+    User &lt;--&gt;|Clicks/Hovers| BN
+    BN &lt;--&gt;|Reads/Controls| SystemAudio
+    BN &lt;--&gt;|Reads| SystemEvents
+    BN &lt;--&gt;|Reads| IOKit
+    
+    BN --&gt;|Displays| Screen[Screen / Notch Area]</div>
+</div>
+<hr class="arch-hr">
+<h2 class="arch-h2">🧩 Container Architecture (C4 Level 2)</h2>
+<p class="arch-p">The application is divided into three main layers: <strong>Core Infrastructure</strong>, <strong>Plugin Engine</strong>, and <strong>Feature Plugins</strong>.</p>
+<div class="diagram-wrap">
+  <div class="mermaid">graph TB
+    subgraph &quot;Core Infrastructure&quot;
+        AppDelegate[AppDelegate]
+        WindowCoord[WindowCoordinator]
+        StateMachine[NotchStateMachine]
+        ContentRouter[NotchContentRouter]
+    end
+
+    subgraph &quot;Plugin Engine&quot;
+        PM[PluginManager]
+        SC[ServiceContainer]
+        EventBus[PluginEventBus]
+    end
+
+    subgraph &quot;Feature Plugins&quot;
+        Music[MusicPlugin]
+        Battery[BatteryPlugin]
+        Shelf[ShelfPlugin]
+        Other[...Other Plugins]
+    end
+
+    %% Wiring
+    AppDelegate --&gt; WindowCoord
+    AppDelegate --&gt; PM
+    
+    PM --&gt;|Manages| Music
+    PM --&gt;|Manages| Battery
+    PM --&gt;|Manages| Shelf
+    
+    PM --&gt; SC
+    PM --&gt; EventBus
+    
+    Music -.-&gt;|Injects| SC
+    Battery -.-&gt;|Injects| SC
+    
+    WindowCoord --&gt;|Observes| StateMachine
+    StateMachine --&gt;|Computes State| ContentRouter
+    ContentRouter --&gt;|Renders| Music</div>
+</div>
+<h3 class="arch-h3">Key Components</h3>
+<ol class="arch-ol"><li><strong>PluginManager</strong>: The brain of the extension system. It manages the lifecycle (load, activate, deactivate) of all plugins and acts as the central registry.</li><li><strong>ServiceContainer</strong>: A dependency injection container that holds all system services (<code>MusicService</code>, <code>BatteryService</code>, etc.). Plugins request services from here.</li><li><strong>NotchStateMachine</strong>: A pure logic component that determines <em>what</em> should be shown on the screen based on various inputs (is music playing? is battery low? is user hovering?).</li><li><strong>NotchContentRouter</strong>: The View layer component that maps the State Machine's output to actual SwiftUI views.</li><li><strong>DisplayPrioritizer</strong>: Pure struct that determines which plugin wins the closed notch based on <code>DisplayRequest</code> priorities. Extracted from PluginManager (SRP).</li><li><strong>PluginID</strong>: Centralized enum of all plugin identifiers — eliminates stringly-typed references across 30+ call sites.</li></ol>
+<hr class="arch-hr">
+<h2 class="arch-h2">🧠 State Determination &amp; Routing</h2>
+<p class="arch-p">One of the most complex parts of the system is deciding what to show in the closed notch. The system uses a <strong>Priority-Based Arbitration</strong> mechanism.</p>
+<h3 class="arch-h3">The "Display Request" Flow</h3>
+<p class="arch-p">Plugins do not simply "draw" to the screen. They must <strong>request</strong> to be displayed.</p>
+<div class="diagram-wrap">
+  <div class="mermaid">sequenceDiagram
+    participant System as MusicService
+    participant Plugin as MusicPlugin
+    participant PM as PluginManager
+    participant SM as NotchStateMachine
+    participant Router as NotchContentRouter
+    participant UI as Screen
+
+    System-&gt;&gt;Plugin: Playback Started (Event)
+    Plugin-&gt;&gt;Plugin: Update Internal State
+    
+    note over Plugin: displayRequest changes to:\n{ priority: .high, category: .music }
+    
+    Plugin-&gt;&gt;PM: (Implicitly observed via @Observable)
+    
+    loop Every Render Cycle
+        SM-&gt;&gt;PM: highestPriorityClosedNotchPlugin()
+        PM-&gt;&gt;Plugin: Check displayRequest
+        PM--&gt;&gt;SM: Returns PluginID.music
+
+        SM-&gt;&gt;SM: Compute State: .closed(content: .plugin(PluginID.music))
+        SM--&gt;&gt;Router: Update State
+    end
+
+    Router-&gt;&gt;PM: closedNotchView(for: PluginID.music)
+    PM-&gt;&gt;Plugin: closedNotchContent()
+    Plugin--&gt;&gt;UI: Renders MusicLiveActivity</div>
+</div>
+<h3 class="arch-h3">Priority Levels</h3>
+<ol class="arch-ol"><li><strong>Critical (30)</strong>: Urgent system warnings (e.g., "Battery Low").</li><li><strong>High (20)</strong>: Active user engagement (e.g., "Music Playing", "Timer Running").</li><li><strong>Normal (10)</strong>: Passive information (e.g., "Weather").</li><li><strong>Background (0)</strong>: Idle state.</li></ol>
+<hr class="arch-hr">
+<h2 class="arch-h2">🚥 Notch State Machine Logic</h2>
+<p class="arch-p">The <code>NotchStateMachine</code> is the single source of truth for the notch's visual mode.</p>
+<div class="diagram-wrap">
+  <div class="mermaid">stateDiagram-v2
+    [*] --&gt; Closed
+    
+    state Closed {
+        [*] --&gt; Idle
+        Idle --&gt; ActivePlugin: Plugin Request (High/Crit)
+        ActivePlugin --&gt; Idle: Request Ended
+        
+        Idle --&gt; SneakPeek: Short Hover
+        SneakPeek --&gt; Idle: Hover Ended
+        
+        Idle --&gt; InlineHUD: System Event (Vol/Bright)
+        InlineHUD --&gt; Idle: Timeout
+    }
+    
+    state Open {
+        [*] --&gt; Home
+        Home --&gt; ExpandedPanel: Select Plugin
+        ExpandedPanel --&gt; Home: Back
+    }
+    
+    Closed --&gt; Open: Click / Long Hover / Drag Down
+    Open --&gt; Closed: Click Outside / Drag Up</div>
+</div>
+<hr class="arch-hr">
+<h2 class="arch-h2">📡 Inter-Plugin Communication</h2>
+<p class="arch-p">Plugins are isolated by default but can communicate via the <code>PluginEventBus</code>. This decouples producers from consumers.</p>
+<div class="diagram-wrap">
+  <div class="mermaid">graph LR
+    Music[MusicPlugin] --&gt;|Emits: .playbackChanged| Bus[PluginEventBus]
+    Shelf[ShelfPlugin] --&gt;|Emits: .fileDropped| Bus
+    
+    Bus --&gt;|Notifies| Visualizer[VisualizerPlugin]
+    Bus --&gt;|Notifies| Analytics[AnalyticsService]
+    
+    Visualizer -.-&gt;|Reacts to| Music</div>
+</div>
+<ul class="arch-list"><li><strong>Example</strong>: The <code>VisualizerPlugin</code> doesn't need to know about <code>MusicPlugin</code>. It just listens for <code>playbackChanged</code> events on the bus.</li></ul>
+<hr class="arch-hr">
+<h2 class="arch-h2">⚡️ Concurrency Model</h2>
+<p class="arch-p">Structured concurrency (<code>async/await</code>) and Actors are strictly used to ensure thread safety.</p>
+<table class="arch-table">
+<thead><tr><th>Component</th><th>Isolation</th><th>Reasoning</th></tr></thead>
+<tbody>
+<tr><td><strong>NotchPlugin</strong></td><td><code>@MainActor</code></td><td>Plugins directly drive UI state, so they must stay on the main thread.</td></tr>
+<tr><td><strong>Services</strong></td><td><code>@MainActor</code></td><td>Most system APIs (EventKit, etc.) are main-thread bound or updated via UI run loops.</td></tr>
+<tr><td><strong>Workers</strong></td><td><code>Task</code> / <code>actor</code></td><td>Heavy lifting (image processing, network requests) is offloaded to background tasks.</td></tr>
+</tbody>
+</table>
+<p class="arch-p"><strong>Key Rule</strong>: The main thread must never be blocked. If a plugin needs to fetch data (e.g., Weather), it must spawn a detached <code>Task</code>.</p>
+<hr class="arch-hr">
+<h2 class="arch-h2">💾 Persistence Strategy</h2>
+<p class="arch-p">Plugins are sandboxed. <code>UserDefaults.standard</code> is not accessed directly.</p>
+<ul class="arch-list"><li><strong><code>PluginSettings</code></strong>: A wrapper around <code>Defaults</code> that namespaces keys.</li><li>Plugin ID: <code>com.machnotch.weather</code></li><li>Key: <code>showTemperature</code></li><li>Actual UserDefaults Key: <code>plugin.com.machnotch.weather.showTemperature</code></li></ul>
+<p class="arch-p">This prevents key collisions and facilitates resetting a specific plugin without wiping the entire app settings.</p>
+<hr class="arch-hr">
+<h2 class="arch-h2">🔄 Data Flow Patterns</h2>
+<p class="arch-p"><strong>Unidirectional Data Flow</strong> is strictly adhered to.</p>
+<ol class="arch-ol"><li><strong>System Event</strong>: A system event occurs (e.g., Song changed).</li><li><strong>Service Update</strong>: The <code>MusicService</code> updates its <code>@Observable</code> properties.</li><li><strong>Plugin Reaction</strong>: The <code>MusicPlugin</code> (observing the service) updates its own state.</li><li><strong>UI Render</strong>: SwiftUI detects the change in the Plugin and re-renders the View.</li></ol>
+<p class="arch-p"><strong>❌ Anti-Pattern (Avoid):</strong></p>
+<ul class="arch-list"><li>Views observing singletons (<code>MusicManager.shared</code>).</li><li>Plugins directly modifying Views.</li></ul>
+<p class="arch-p"><strong>✅ Correct Pattern:</strong></p>
+<ul class="arch-list"><li>Views observe <code>Plugin</code>.</li><li>Plugin observes <code>Service</code>.</li><li>Service observes <code>System</code>.</li></ul>
+<hr class="arch-hr">
+<h2 class="arch-h2">📂 Directory Structure</h2>
+<pre class="arch-pre"><code>machNotch/
+├── Core/                          # Domain + Application Layer
+│   ├── NotchStateMachine.swift    #   Domain: pure state logic (no SwiftUI/AppKit)
+│   ├── NotchPhase.swift           #   Domain: phase enum
+│   ├── SneakPeekTypes.swift       #   Domain: value types
+│   ├── NotchSettingsSubProtocols  #   Domain: settings contracts
+│   ├── WindowCoordinator.swift    #   Application: window management
+│   ├── NotchContentRouter.swift   #   Application: view routing
+│   ├── NotchHoverController.swift #   Application: hover state machine
+│   ├── NotchSizeCalculator.swift  #   Application: sizing (ClosedNotchInput → CGSize)
+│   ├── DefaultsNotchSettings.swift#   Infrastructure: settings implementation
+│   ├── Constants.swift            #   Infrastructure: paths, notification names
+│   └── SettingsTypes.swift        #   Infrastructure: Defaults.Serializable enums
+│
+├── ViewModel/                     # NotchViewModel + Extensions
+│   ├── NotchViewModel.swift      #   Per-screen orchestrator
+│   ├── +Camera, +Hover, +Observers, +OpenClose
+│
+├── models/                        # Pure Data Models Only
+│   ├── CalendarModel, EventModel, PlaybackState, WeatherData, etc.
+│
+├── Plugins/
+│   ├── Core/                      # Plugin Framework
+│   │   ├── NotchPlugin.swift      #   The Protocol
+│   │   ├── PluginManager.swift    #   Registry + lifecycle
+│   │   ├── PluginEventBus.swift   #   Inter-plugin communication
+│   │   ├── PluginID.swift         #   Centralized identifiers
+│   │   └── DisplayPrioritizer.swift
+│   │
+│   ├── Services/                  # ALL Infrastructure (61 files)
+│   │   ├── ServiceContainer.swift #   DI Container
+│   │   ├── *Protocol.swift        #   Service contracts
+│   │   ├── *Service.swift         #   Service implementations
+│   │   ├── *Manager.swift         #   System integrations (Volume, Bluetooth, etc.)
+│   │   └── ...
+│   │
+│   └── BuiltIn/                   # Feature Plugins (bounded contexts)
+│       ├── MusicPlugin/           #   Plugin + Views/
+│       ├── ShelfPlugin/           #   Plugin + Models/ + Services/ + ViewModels/ + Views/
+│       ├── CalendarPlugin/        #   Plugin + Views/
+│       ├── WeatherPlugin/         #   Plugin + Views/
+│       ├── TeleprompterPlugin/    #   Plugin + Views/ + state files
+│       └── ...
+│
+├── components/                    # Shared UI Only (not feature-specific)
+│   ├── Notch/                     #   Notch chrome, shape, window
+│   ├── Settings/                  #   Settings views
+│   ├── Onboarding/                #   First-run flow
+│   ├── Effects/                   #   LiquidGlass, MetalBlur
+│   ├── Live activities/           #   HUD views (cross-plugin)
+│   └── Tabs/                      #   Tab navigation
+│
+├── NotchViewCoordinator.swift    # Shared cross-screen state
+├── AppObjectGraph.swift           # DI root
+├── ContentView.swift              # + Appearance, SubViews
+├── MediaControllers/              # NowPlaying, Spotify, AppleMusic, YouTube, Browser
+└── sizing/matters.swift           # Pure sizing utility functions</code></pre>
+<p class="arch-p"><strong>Weather source:</strong> OpenWeatherMap is the primary provider for the Weather plugin. WeatherKit is optional fallback-only behavior when available, and weather results are cached in memory for 30 minutes to avoid repeated API calls from hover/open interactions.</p>
+<hr class="arch-hr">
+<h2 class="arch-h2">⚠️ Known Architecture Debt</h2>
+<p class="arch-p">Last reviewed: 2026-05-02. Full triage (P1/P2/P3 + blocks annotations) in <code>docs/prds/machNotch.md → Known Architecture Debt</code>.</p>
+<table class="arch-table">
+<thead><tr><th>Issue</th><th>Principle</th><th>Priority</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><code>ShelfItem</code> referenced by <code>PluginEventBus</code></td><td>Bounded Context</td><td>P2</td><td>Event bus carries domain type from shelf context. Fix: type-erased event payload.</td></tr>
+<tr><td><code>ShelfSelectionModel</code> in <code>ShelfServiceProtocol</code></td><td>DDD Layers</td><td>P2</td><td>ViewModel type exposed through service protocol. Fix: expose selection as ID set.</td></tr>
+<tr><td><code>NotchViewModel</code> dependency in all plugin views</td><td>DIP</td><td>P3</td><td>Plugin views use <code>@Environment(NotchViewModel.self)</code>. Not fully self-contained.</td></tr>
+<tr><td><code>NotchContentRouter.openContent()</code> switches on <code>NotchViews</code> enum</td><td>OCP</td><td>P1</td><td>Blocks Phase 9 dynamic plugin views.</td></tr>
+<tr><td><code>Constants.swift</code> imports SwiftUI for <code>CGFloat</code></td><td>Domain Purity</td><td>P3</td><td>Could extract <code>spacing</code> to avoid SwiftUI import in Core/</td></tr>
+</tbody>
+</table>
+<hr class="arch-hr">
+<h2 class="arch-h2">🧪 Testing Strategy</h2>
+<p class="arch-p">The architecture is designed for testability.</p>
+<ul class="arch-list"><li><strong>Unit Tests</strong>: Plugins are tested in isolation by injecting <strong>Mock Services</strong>.</li><li><strong>Mocking</strong>: Every Service is defined by a protocol (e.g., <code>MusicServiceProtocol</code>), allowing the injection of fake implementations that return controlled data.</li></ul>
+<h3 class="arch-h3">Example: Testing Music Display Logic</h3>
+<pre class="arch-pre"><code class="language-swift">func testMusicPluginRequestsDisplay() async {
+    // 1. Setup
+    let mock = MockMusicService()
+    let plugin = MusicPlugin()
+    await plugin.activate(context: ...services: [music: mock]...)
+    
+    // 2. Action
+    mock.playbackState.isPlaying = true
+    
+    // 3. Assertion
+    XCTAssertEqual(plugin.displayRequest?.priority, .high)
+}</code></pre>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>mermaid.initialize({startOnLoad:true,theme:"dark",themeVariables:{background:"#13131f",primaryColor:"#1e1e2e",primaryTextColor:"#e2e2f0",lineColor:"#6b6b8a",edgeLabelBackground:"#13131f"}});</script>
   </div>

@@ -1,0 +1,67 @@
+/* mach design tokens mapped to Starlight CSS variables */
+:root,
+[data-theme='dark'] {
+  --sl-color-accent-low: rgba(139, 92, 246, 0.2);
+  --sl-color-accent: #8b5cf6;
+  --sl-color-accent-high: #c084fc;
+
+  /* Background palette */
+  --sl-color-bg: #0d0e14;
+  --sl-color-bg-nav: #0d0e14;
+  --sl-color-bg-sidebar: #0d0e14;
+  --sl-color-bg-inline-code: rgba(139, 92, 246, 0.12);
+
+  /* Grays */
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #f1f5f9;
+  --sl-color-gray-2: #b8bcc6;
+  --sl-color-gray-3: #8b8d98;
+  --sl-color-gray-4: #3f4050;
+  --sl-color-gray-5: #232533;
+  --sl-color-gray-6: #15161d;
+  --sl-color-black: #0d0e14;
+
+  /* Hairlines */
+  --sl-color-hairline-shade: #232533;
+  --sl-color-hairline-light: #232533;
+
+  /* Typography */
+  --sl-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+  --sl-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Inline code — match existing MarkdownLayout style */
+.sl-markdown-content code:not(pre code) {
+  background: rgba(139, 92, 246, 0.15);
+  color: #c084fc;
+  border-radius: 6px;
+  padding: 0.15em 0.4em;
+}
+
+/* Site header — keep the minimal borderless look */
+.site-title {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+/* Tighten sidebar font */
+.sidebar-content {
+  font-size: 0.9rem;
+}
+
+/* Back-link to homepage in sidebar */
+.back-home {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: var(--sl-color-gray-3);
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--sl-color-hairline-shade);
+  margin-bottom: 0.5rem;
+}
+
+.back-home:hover {
+  color: var(--sl-color-white);
+}

@@ -123,7 +123,7 @@ import SwiftUI
         // computed properties. This is an accepted architectural exception.
 
         // Observe changes to hudReplacement
-        hudReplacementCancellable = Defaults.publisher(.hudReplacement)
+        hudReplacementCancellable = Defaults.publisher(DefaultsNotchSettings.hudReplacementKey)
             .sink { [weak self] change in
                 Task { @MainActor in
                     guard let self = self else { return }
@@ -150,7 +150,7 @@ import SwiftUI
         // Observe changes to alwaysShowTabs (settings mutation only;
         // currentView reset is now per-screen in NotchViewModel.setupTabResetObserver)
         observerTasks.append(Task { @MainActor [weak self] in
-            for await value in Defaults.updates(.alwaysShowTabs) {
+            for await value in Defaults.updates(DefaultsNotchSettings.alwaysShowTabsKey) {
                 guard let self else { return }
                 if !value {
                     self.settings.openLastTabByDefault = false
@@ -160,7 +160,7 @@ import SwiftUI
 
         // Observe changes to openLastTabByDefault
         observerTasks.append(Task { @MainActor [weak self] in
-            for await value in Defaults.updates(.openLastTabByDefault) {
+            for await value in Defaults.updates(DefaultsNotchSettings.openLastTabByDefaultKey) {
                 guard let self else { return }
                 if value {
                     self.settings.alwaysShowTabs = true
@@ -170,12 +170,11 @@ import SwiftUI
 
         // Observe changes to preferredScreenUUID
         observerTasks.append(Task { @MainActor [weak self] in
-            for await uuid in Defaults.updates(.preferredScreenUUID) {
+            for await uuid in Defaults.updates(DefaultsNotchSettings.preferredScreenUUIDKey) {
                 guard let self else { return }
                 if let uuid = uuid {
                     self.selectedScreenUUID = uuid
                 }
-                NotificationCenter.default.post(name: Notification.Name.selectedScreenChanged, object: nil)
             }
         })
     }

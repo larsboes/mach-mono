@@ -1,0 +1,60 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly on Mondays at 09:00 UTC — catches new CVEs without code changes
+    - cron: "0 9 * * 1"
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze (Swift)
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: swift
+          # Default query suite. Use security-extended for broader coverage (more noise).
+          queries: security-and-quality
+
+      - name: Cache Bazel repositories
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: ~/.cache/bazel-repos
+          key: bazel-repos-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved') }}
+          restore-keys: |
+            bazel-repos-${{ runner.os }}-
+
+      - name: Cache Bazel outputs
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: ~/.cache/bazel
+          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved', '.bazelrc', 'Apps/machNotch/BUILD.bazel', 'Apps/machBrief/BUILD.bazel') }}
+          restore-keys: |
+            bazel-${{ runner.os }}-
+
+      # CodeQL intercepts compiler calls during this build step to instrument the source.
+      # --noapple_generate_dsym and --config=ci keep the build lean.
+      - name: Build
+        run: |
+          bazelisk build --config=ci \
+            //Apps/machNotch:machNotch \
+            //Apps/machBrief:machBrief
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:swift"
