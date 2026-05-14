@@ -7,16 +7,23 @@ interface Props {
 
 const { title } = Astro.props;
 
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+const withBase = (path: string) => `${basePath}${path}`;
+const currentPath = (() => {
+	const path = basePath && Astro.url.pathname.startsWith(basePath)
+		? Astro.url.pathname.slice(basePath.length)
+		: Astro.url.pathname;
+
+	return path.replace(/\/$/, '') || '/';
+})();
+
 const navItems = [
 	{ name: 'Home', href: '/' },
 	{ name: 'Changelog', href: '/changelog' },
 	{ name: 'Roadmap', href: '/roadmap' },
 	{ name: 'Guide', href: '/guide' },
 	{ name: 'Architecture', href: '/architecture' },
-	{ name: 'Decisions', href: '/decisions' },
 ];
-
-const currentPath = Astro.url.pathname;
 ---
 
 <!doctype html>
@@ -24,18 +31,18 @@ const currentPath = Astro.url.pathname;
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title} | MACH-MONO</title>
 	</head>
 	<body>
 		<header class="header">
 			<div class="header-content">
-				<a href="/" class="logo mono">MACH-MONO</a>
+				<a href={withBase('/')} class="logo mono">MACH-MONO</a>
 				<nav class="nav">
 					{navItems.map((item) => (
 						<a 
-							href={item.href} 
+							href={withBase(item.href)} 
 							class={`nav-link ${currentPath === item.href ? 'active' : ''}`}
 						>
 							{item.name}
