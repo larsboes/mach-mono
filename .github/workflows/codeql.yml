@@ -17,7 +17,7 @@ permissions:
 jobs:
   analyze:
     name: Analyze (Swift)
-    runs-on: macos-26
+    runs-on: macos-15
 
     steps:
       - name: Checkout
@@ -50,7 +50,7 @@ jobs:
       # --noapple_generate_dsym and --config=ci keep the build lean.
       - name: Build
         run: |
-          bazelisk build --config=ci \
+          bazelisk build --config=ci --config=ci-stable \
             //Apps/machNotch:machNotch \
             //Apps/machBrief:machBrief
 

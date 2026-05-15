@@ -27,3 +27,8 @@ build:ci --lockfile_mode=error
 # Separate content-addressed cache for downloaded external repos.
 # Keyed on MODULE.bazel + Package.resolved so it survives BUILD file changes.
 build:ci --repository_cache=~/.cache/bazel-repos
+
+# Stable channel (macOS 15 / Swift 6.0): isolated deinit is experimental and
+# requires this flag. Swift 6.1+ (macos-26) stabilized it — flag not needed there.
+build:ci-stable --swiftcopt=-enable-experimental-feature
+build:ci-stable --swiftcopt=IsolatedDeinit

@@ -110,7 +110,7 @@ jobs:
 
       - name: Run tests (stable macOS)
         run: |
-          bazelisk test --config=ci \
+          bazelisk test --config=ci --config=ci-stable \
             //Packages/MachBriefKit:MachBriefKitTests \
             //Apps/machNotch:machNotchTests
 
