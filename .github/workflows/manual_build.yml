@@ -25,7 +25,7 @@ jobs:
       head_ref: ${{ github.event.inputs.head_ref || github.ref_name || 'main' }}
       version: ${{ github.event.inputs.version || '' }}
       build_number: ${{ github.event.inputs.build_number || '' }}
-      code_sign_identity: "Apple Development"
+      code_sign_identity: "-"
     secrets:
       BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
       P12_PASSWORD: ${{ secrets.P12_PASSWORD }}

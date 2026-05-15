@@ -14,14 +14,14 @@ on:
       code_sign_identity:
         required: false
         type: string
-        default: "Apple Development"
+        default: "-"
     secrets:
       BUILD_CERTIFICATE_BASE64:
-        required: true
+        required: false
       P12_PASSWORD:
-        required: true
+        required: false
       KEYCHAIN_PASSWORD:
-        required: true
+        required: false
 
 jobs:
   build:
@@ -36,7 +36,7 @@ jobs:
       VERSION_INPUT: ${{ inputs.version }}
       BUILD_NUMBER_INPUT: ${{ inputs.build_number }}
       DEVELOPMENT_TEAM: ${{ vars.DEVELOPMENT_TEAM_ID }}
-      CODE_SIGN_IDENTITY: ${{ inputs.code_sign_identity }}
+      CODE_SIGN_IDENTITY: ${{ inputs.code_sign_identity || '-' }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -59,6 +59,7 @@ jobs:
             bazel-${{ runner.os }}-
 
       - name: Install Apple certificate
+        if: ${{ env.CODE_SIGN_IDENTITY != '-' }}
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
