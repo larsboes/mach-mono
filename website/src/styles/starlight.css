@@ -1,5 +1,41 @@
 /* mach design tokens mapped to Starlight CSS variables */
-:root,
+:root {
+  --sl-color-accent-low: rgba(139, 92, 246, 0.16);
+  --sl-color-accent: #7c3aed;
+  --sl-color-accent-high: #4c1d95;
+
+  --sl-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+  --sl-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+:root[data-theme='light'],
+[data-theme='light'] {
+  --sl-color-accent-low: rgba(124, 58, 237, 0.14);
+  --sl-color-accent: #7c3aed;
+  --sl-color-accent-high: #4c1d95;
+
+  /* Background palette */
+  --sl-color-bg: #ffffff;
+  --sl-color-bg-nav: #ffffff;
+  --sl-color-bg-sidebar: #f8fafc;
+  --sl-color-bg-inline-code: rgba(124, 58, 237, 0.1);
+
+  /* Grays */
+  --sl-color-white: #0f172a;
+  --sl-color-gray-1: #1e293b;
+  --sl-color-gray-2: #334155;
+  --sl-color-gray-3: #64748b;
+  --sl-color-gray-4: #94a3b8;
+  --sl-color-gray-5: #cbd5e1;
+  --sl-color-gray-6: #e2e8f0;
+  --sl-color-black: #ffffff;
+
+  /* Hairlines */
+  --sl-color-hairline-shade: #e2e8f0;
+  --sl-color-hairline-light: #f1f5f9;
+}
+
+:root[data-theme='dark'],
 [data-theme='dark'] {
   --sl-color-accent-low: rgba(139, 92, 246, 0.2);
   --sl-color-accent: #8b5cf6;
@@ -25,15 +61,12 @@
   --sl-color-hairline-shade: #232533;
   --sl-color-hairline-light: #232533;
 
-  /* Typography */
-  --sl-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
-  --sl-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 /* Inline code — match existing MarkdownLayout style */
 .sl-markdown-content code:not(pre code) {
-  background: rgba(139, 92, 246, 0.15);
-  color: #c084fc;
+  background: var(--sl-color-bg-inline-code);
+  color: var(--sl-color-accent-high);
   border-radius: 6px;
   padding: 0.15em 0.4em;
 }
