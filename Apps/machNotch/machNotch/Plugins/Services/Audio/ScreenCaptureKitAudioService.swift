@@ -3,14 +3,13 @@
 //  machNotch
 //
 //  Captures system audio via ScreenCaptureKit.
-//  Requires macOS 13+. Uses minimal dummy video to satisfy SCStream requirements.
+//  Captures system audio via ScreenCaptureKit using a minimal dummy video stream.
 //
 
 import Foundation
 import ScreenCaptureKit
 import AVFoundation
 
-@available(macOS 13.0, *)
 @Observable
 @MainActor
 final class ScreenCaptureKitAudioService: AudioCaptureServiceProtocol {
@@ -77,7 +76,6 @@ final class ScreenCaptureKitAudioService: AudioCaptureServiceProtocol {
 
 // MARK: - Stream Outputs
 
-@available(macOS 13.0, *)
 private final class AudioStreamOutput: NSObject, SCStreamOutput, @unchecked Sendable {
     private let onSamples: @Sendable ([Float]) -> Void
     /// Accumulate samples on the serial audio queue before dispatching to MainActor.
@@ -126,7 +124,6 @@ private final class AudioStreamOutput: NSObject, SCStreamOutput, @unchecked Send
     }
 }
 
-@available(macOS 13.0, *)
 private final class DummyVideoOutput: NSObject, SCStreamOutput, @unchecked Sendable {
     func stream(_ stream: SCStream, didOutputSampleBuffer buffer: CMSampleBuffer, of type: SCStreamOutputType) {}
 }

@@ -67,9 +67,7 @@ extension ShelfMenuActionTarget {
         panel.canChooseFiles = true
         panel.canChooseDirectories = false
         panel.resolvesAliases = true
-        if #available(macOS 12.0, *) {
-            panel.allowedContentTypes = [.application]
-        }
+        panel.allowedContentTypes = [.application]
         panel.directoryURL = URL(fileURLWithPath: "/Applications")
 
         let recommendedApps: Set<URL> = {

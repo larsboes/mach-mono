@@ -73,6 +73,7 @@ license:
 2. **`CGSSpace` class wrapper** — ~30 lines. Simple `NSWindow` set that syncs to a CGS space on change. Trivially rewritable.
 
 **Rewrite approach:** Create `private/MachWindowSpace.swift` (MIT) from scratch:
+
 - Rename class to `MachWindowSpace`
 - Keep same `@_silgen_name` declarations (factual, not creative)
 - Redesign wrapper: use `windowNumbers: [CGWindowID]` directly instead of `Set<NSWindow>` — cleaner, no AppKit dependency in the type
@@ -106,6 +107,7 @@ Files/areas that were **renamed** (cosmetic) rather than **rewritten** (genuine)
 | `private/LocalAPI/` | ✅ Clean | Built entirely after fork — original work |
 
 **Process for each "Audit needed" file:**
+
 1. Read the file — identify logic that looks like it came verbatim from BoringNotch vs. post-fork additions
 2. If uncertain: rewrite the file from scratch using the current behavior as the spec
 3. Mark ✅ in this table
@@ -135,97 +137,117 @@ This roadmap converts the checklist above into a deterministic sequence with exp
 #### Target 1 — NotchViewModel Rewrite Plan
 
 **Scope**
+
 - `ViewModel/NotchViewModel.swift`
 - `ViewModel/NotchViewModel+Hover.swift`
 - `ViewModel/NotchViewModel+Observers.swift`
 - `ViewModel/NotchViewModel+Camera.swift`
 
 **Rewrite strategy**
+
 - Re-spec behavior from current runtime outcomes (open/close transitions, sneak peek state, hover semantics, plugin display transitions).
 - Preserve DDD boundaries: orchestration only; no direct service construction; no singleton fallback paths.
 - Keep state-machine delegation explicit (`NotchStateMachine` as single phase authority).
 
 **Definition of done**
+
 - File family is re-authored from behavior spec (not textual transformation).
 - Existing behavior remains parity-correct for open/close, hover, and active plugin routing.
 - Reengineering checklist row for `NotchViewModel` can move to `✅ Rewritten`.
 
 **Rollback note**
+
 - If regressions appear, revert this rewrite unit only and keep checklist status at `⏳`.
 
 #### Target 2 — ContentView Rewrite Plan
 
 **Scope**
+
 - `ContentView.swift`
 
 **Rewrite strategy**
+
 - Reconstruct view composition from current UX contract: shell, overlays, phase-driven rendering, plugin panel slotting.
 - Keep animation hooks and environment hand-offs (`contentProgress`, phase gates) behavior-equivalent.
 - Maintain "views render, services resolve in DI root" rule.
 
 **Definition of done**
+
 - UI parity preserved for closed/open transitions and plugin content placement.
 - No architectural regression (no service construction in view layer).
 - Reengineering checklist row for `ContentView` can move to `✅ Rewritten`.
 
 **Rollback note**
+
 - If parity diverges, revert this unit and keep existing production rendering path.
 
 #### Target 3 — NotchViewCoordinator Rewrite Plan
 
 **Scope**
+
 - `NotchViewCoordinator.swift`
 
 **Rewrite strategy**
+
 - Rebuild coordinator responsibilities from first principles: window lifecycle, placement updates, notch state propagation, and app lifecycle integration.
 - Preserve strict separation from domain state machine logic.
 - Keep dependency flow through injected services/protocols only.
 
 **Definition of done**
+
 - Coordinator behavior matches current production window/control behavior.
 - Layer boundary remains clean (coordination infra only).
 - Reengineering checklist row for `NotchViewCoordinator` can move to `✅ Rewritten`.
 
 **Rollback note**
+
 - Coordinator regressions are high impact; rollback immediately if window lifecycle becomes unstable.
 
 #### Target 4 — Core Controllers Rewrite Plan
 
 **Scope**
+
 - `Core/NotchHoverController.swift`
 - `Core/NotchSizeCalculator.swift`
 - `Core/NotchCameraController.swift`
 
 **Rewrite strategy**
+
 - Rewrite each controller as policy-focused, independently testable logic modules.
 - Preserve existing contracts consumed by VM/coordinator.
 - Keep calculations deterministic and side effects explicit.
 
 **Definition of done**
+
 - Hover timing, size policy, and camera tracking behavior remain parity-consistent.
 - Controllers remain free of UI-layer rendering responsibilities.
 - Reengineering checklist row for `Core/Controllers/` can move to `✅ Rewritten`.
 
 **Rollback note**
+
 - Revert only the affected controller if one policy path regresses; avoid broad rollback across all three.
 
 #### Target 5 — MusicPlugin Rewrite Plan
 
 **Scope**
+
 - `Plugins/BuiltIn/MusicPlugin/MusicPlugin.swift`
 - `machNotchTests/MusicPluginTests.swift` (update/add tests if behavior-facing changes are needed)
 
 **Rewrite strategy**
+
 - Reimplement plugin behavior from plugin contract (`NotchPlugin`) + current user-facing behavior.
 - Keep service access through `PluginContext` abstractions (media/system services), no concrete reach-through.
 - Preserve route/event and display-priority behavior expected by PluginManager.
 
 **Definition of done**
+
 - Existing `MusicPluginTests` pass; extend coverage if new internal seams are introduced.
 - Plugin behavior parity maintained (controls, metadata display, state synchronization).
 - Reengineering checklist row for `MusicPlugin` can move to `✅ Rewritten`.
 
 **Rollback note**
+
 - If media controls regress, rollback plugin unit and keep prior implementation until tests are strengthened.
 
 #### MIT Relicensing Closeout Gate
@@ -261,6 +283,7 @@ Do not flip licenses until all conditions below are true:
 **GitHub Pages:** Enabled (workflow source). Sparkle `SUFeedURL` → `https://larsboes.github.io/mach-mono/appcast.xml` will resolve once `static.yml` workflow runs.
 
 ### Known Pre-Release TODOs
+
 - [ ] First `static.yml` workflow run must succeed to publish appcast.xml to GitHub Pages
 - [ ] Package.resolved synced between workspace and project (2026-05-02)
 - [ ] No user data migration needed from `com.larsboes.boringnotch` bundle ID — fork was never released, so old Defaults domain has no user data
@@ -287,6 +310,7 @@ Do not flip licenses until all conditions below are true:
 | 14.4 — Content Morphing | **Merged** | Re-enabled album art ghosting transition/matched geometry effect, now stable during transitions. |
 
 **Latest architecture hardening commits:**
+
 - `d277bd4` — snapshot before cleanup
 - `0d7bd2b` — DI tightening + unsafe force-unwrap removal + singleton elimination work
 - `89661d5` — project build wiring repair for LocalAPI/private sources
@@ -407,6 +431,7 @@ Issues identified during comprehensive review (2026-03-08). Triaged 2026-05-02.
 **Severity:** Medium | **Blocks:** Nothing current | **Files:** 22 reference `NotchViewCoordinator` concretely | **Effort:** High
 
 `NotchViewModel.coordinator` is typed as `NotchViewCoordinator` (concrete), not a protocol. Same for `ContentView`, `NotchContentRouter`, and `NotchHeader` via `@Environment`. Abstracting requires a `@Bindable`-compatible protocol, which SwiftUI doesn't natively support for existentials. Would require either:
+
 - A `@Bindable`-aware wrapper type
 - Or splitting coordinator into read-only protocol + mutation methods
 
@@ -418,6 +443,7 @@ Issues identified during comprehensive review (2026-03-08). Triaged 2026-05-02.
 **Status:** ✅ Phase 1 addressed (2026-05-04)
 
 A timer plugin needing only `sound` + `notifications` must depend on 28 services including `bluetooth`, `weather`, `brightness`. Should be split into focused sub-protocols:
+
 - `MediaServices` (music, lyrics, sound)
 - `SystemServices` (volume, brightness, battery)
 - `StorageServices` (shelf, temporary files, sharing)
@@ -446,6 +472,7 @@ Five ISP-compliant accessors (`mediaServices`, `systemServices`, `storageService
 **Status:** ✅ Fixed (2026-05-04)
 
 `MusicManager.isNowPlayingDeprecatedStatic` (concrete infra type) is accessed directly in:
+
 - `Core/DefaultsKeys.swift:164` — application layer calling into concrete infra
 - `components/Settings/Views/MediaSettingsView.swift:31, 146` — presentation calling concrete infra
 - `components/Onboarding/MusicControllerSelectionView.swift:16` — presentation calling concrete infra
@@ -470,6 +497,7 @@ Historical issue: downcasted protocol-typed `context.services` to concrete `Serv
 Total 704 lines across `NotchViewModel.swift` (269), `+Observers.swift` (171), `+OpenClose.swift` (130), `+Hover.swift` (76), `+Camera.swift` (58). Responsibilities span: per-screen phase state, sizing delegation, hover detection, camera expansion, drop targeting, animation progress tracking, service dependencies, and observer lifecycle.
 
 **Decomposition path:**
+
 - `NotchPhaseCoordinator` — open/close logic, phase state, watchdog tasks
 - `NotchAnimationOrchestrator` — contentRevealProgress, shellAnimationProgress
 - `DropTargetingManager` — drag/drop state (`dragDetectorTargeting`, `generalDropTargeting`, `dropZoneTargeting`)
@@ -546,15 +574,18 @@ Built-in plugins are instantiated eagerly in `PluginRegistry`. No lazy loading, 
 **Status:** ✅ Complete
 
 **Album art ghost fix:**
+
 - `matchedGeometryEffect` suppressed during transitions (both closed and open art views) — prevents spring-vs-morph conflict that caused stretch/jump.
 - `albumArtBackground` lighting effect (blur/rotate/scale glow) suppressed during transitions — eliminates ghost decoration artifacts.
 
 **Shell-first content timeline:**
+
 - `contentProgress` starts at 30% of shell expansion (was 20%) — visible "shell leads, content follows" effect.
 - `ContentRevealModifier` tightened: scale 0.94 (was 0.92), offset -3 (was -4), blur 8 (was 12). Subtler, more confident reveal.
 - Stagger step reduced to 0.06 (was 0.08) for quicker cascade.
 
 **Header/action gating:**
+
 - Controls gated on `phase == .open` (fires after animation completes) instead of `notchState == .open` (fires at animation start). Prevents accidental taps and visual flicker during transition.
 
 ### Task 15: Gesture-driven progressive open (Future)
@@ -580,6 +611,7 @@ External clients (curl, Raycast, scripts, browser ext)
 ```
 
 **Endpoints:**
+
 ```
 GET  /api/v1/notch/state              POST /api/v1/notch/open|close|toggle
 GET  /api/v1/plugins                  GET  /api/v1/plugins/{id}
@@ -599,6 +631,7 @@ WS   /api/v1/events                   → notch.opened, music.changed, system.ba
 Camera-adjacent script scrolling for natural eye contact during video calls and presentations.
 
 **Endpoints (self-registered on activate):**
+
 ```
 POST /api/v1/teleprompter/load        → { text, speed?, fontSize? }
 POST /api/v1/teleprompter/start|pause|stop
@@ -613,6 +646,7 @@ POST /api/v1/teleprompter/ai-assist   → { action: "refine" | "summarize" | "dr
 Generic "dumb terminal" — renders whatever the API tells it to. No built-in logic.
 
 **Endpoints (self-registered on activate):**
+
 ```
 POST /api/v1/display/text             → { text, ttl? }
 POST /api/v1/display/progress         → { label, value, ttl? }
@@ -692,6 +726,7 @@ Requirements: signed Swift package bundles, permission manifests, approval UI, p
 ### Current State Assessment
 
 The existing teleprompter (Phase 6) is functional but bare-bones:
+
 - Timer-driven scroll at fixed px/s
 - Basic `TextEditor` for script input (360px wide in a 740px notch — wastes half the space)
 - Play/pause/stop + basic speed controls
@@ -713,6 +748,7 @@ Full-width two-column layout (editor ~60% left, control panel ~40% right, action
 Save, load, and manage named scripts. The dropdown in the expanded panel header switches between scripts.
 
 **Implementation:**
+
 - `TeleprompterScriptLibrary` — manages saved scripts as `[ScriptEntry]`
 - `ScriptEntry`: `id: UUID`, `name: String`, `text: String`, `createdAt: Date`, `lastUsedAt: Date`
 - Storage: `PluginSettings` (JSON-encoded array), persists across app restarts
@@ -728,6 +764,7 @@ Save, load, and manage named scripts. The dropdown in the expanded panel header 
 Use `AVAudioEngine` + `SFSpeechRecognizer` to match scroll speed to speaking pace. When the speaker pauses, scrolling pauses. When they speed up, scrolling accelerates.
 
 **Implementation:**
+
 - `VoiceScrollEngine` — new file in `TeleprompterPlugin/`
 - Taps system microphone via `AVAudioEngine.inputNode`
 - Uses `SFSpeechRecognizer` for real-time speech-to-text
@@ -737,6 +774,7 @@ Use `AVAudioEngine` + `SFSpeechRecognizer` to match scroll speed to speaking pac
 - Permission request: microphone access (graceful degradation if denied)
 
 **Algorithm:**
+
 ```
 1. Continuous speech recognition → word stream
 2. Fuzzy-match recognized words against script text (Levenshtein / sliding window)
@@ -758,6 +796,7 @@ Visual beam/glow emanating from the notch that responds to microphone input leve
 **Current state:** `MicrophoneMonitor` + basic linear gradient beam already exist in `TeleprompterClosedView`. Needs polish.
 
 **Remaining work:**
+
 - Refine beam shape: radial arc rather than rectangular gradient
 - Color configurable: blue-purple (default), green, amber
 - Opacity configurable (settings)
@@ -775,6 +814,7 @@ Cinematic 3-2-1 countdown before scrolling. Configurable (0/3/5s). Files: `Count
 The left column of the expanded panel is the editor. Enhance beyond basic `TextEditor`.
 
 **Features:**
+
 - Full available height (no fixed 140px) — editor grows with the notch
 - Markdown-aware rendering: `## Section` headers render as visual dividers in a preview mode
 - Section navigation: click section headers to jump (in preview mode)
@@ -790,6 +830,7 @@ The left column of the expanded panel is the editor. Enhance beyond basic `TextE
 Guided calibration flow where the user reads a sample text at their natural pace. The system measures their reading speed and sets the default accordingly.
 
 **Implementation:**
+
 - Calibration wizard accessible from settings (or first-run)
 - Shows sample paragraph in the notch area
 - User reads aloud (or reads silently and taps when done)
@@ -825,6 +866,7 @@ Inline in the expanded panel's control column (not buried in settings):
 The closed view already has centered text, voice beam, and hover-to-pause. Remaining:
 
 **Improvements:**
+
 - Show 2–3 lines: current line bold/bright, next lines progressively dimmer (karaoke fade, see 10.9 line highlight)
 - Progress indicator: subtle bar at the bottom showing position in script (0–100%)
 - Current section title shown if script uses `##` headers (small, top-right of reading zone)
@@ -838,6 +880,7 @@ The closed view already has centered text, voice beam, and hover-to-pause. Remai
 The teleprompter text should be invisible during screen sharing — the speaker sees it, but their audience doesn't.
 
 **Implementation:**
+
 - Use `NSWindow.sharingType = .none` on the teleprompter overlay window
 - This excludes the window from screen capture, screenshots, and screen sharing
 - Toggle in settings: "Hide from screen sharing" (default: on)
@@ -850,6 +893,7 @@ The teleprompter text should be invisible during screen sharing — the speaker 
 For external displays (no notch), desktop recording, or dual-screen setups where the user wants the prompter elsewhere.
 
 **Implementation:**
+
 - Separate `NSPanel` window (`.nonActivating`, `.floating`, draggable, resizable)
 - Mirrors `TeleprompterState` — same scroll engine, same text, same controls
 - Shares all display settings (font, color, opacity, line highlight)
@@ -907,6 +951,7 @@ struct FoundationModelsProvider: AIProvider {
 ```
 
 **Key decisions:**
+
 - New `LanguageModelSession` per call (stateless provider, session management is caller's job)
 - Map `AIGenerationConfig.temperature` etc. where possible (Foundation Models may have limited knobs)
 - Availability check via `SystemLanguageModel.default.availability`
@@ -926,6 +971,7 @@ protocol AIProvider: Sendable {
 ```
 
 **Foundation Models streaming:**
+
 ```swift
 func generateStream(prompt: String, config: AIGenerationConfig) -> AsyncThrowingStream<String, Error> {
     AsyncThrowingStream { continuation in
@@ -971,6 +1017,7 @@ struct ScriptSection {
 ```
 
 **Benefits:**
+
 - Guaranteed valid output structure (no parsing failures)
 - Section markers auto-generated → navigation in editor for free
 - Duration estimate → progress bar accuracy
@@ -1056,11 +1103,13 @@ func disableOllama() {
 **Status:** Planned
 
 **Main AI Settings (visible to all users on macOS 26+):**
+
 - AI enable/disable toggle
 - AI availability indicator (green dot = Foundation Models ready)
 - "Test AI" button — sends a sample prompt and shows response
 
 **Advanced AI Settings (collapsed/hidden section):**
+
 - "Use custom AI provider (Ollama)" toggle — off by default
 - When enabled:
   - Ollama model name (default: `llama3`)
@@ -1132,6 +1181,7 @@ closedNotchContent() → extended notch view
 **Status:** ✅ Done | **Priority:** P0
 
 **Protocol:**
+
 ```swift
 protocol AudioCaptureServiceProtocol: Sendable {
     var audioBuffer: AsyncStream<[Float]> { get }
@@ -1142,6 +1192,7 @@ protocol AudioCaptureServiceProtocol: Sendable {
 ```
 
 **Implementation:** `ScreenCaptureKitAudioService`
+
 - Uses `SCStreamConfiguration` with `capturesAudio = true`, `excludesCurrentProcessAudio = false`
 - Video capture disabled (`width = 2, height = 2, minimumFrameInterval = CMTime(1, 1)`) — audio-only workaround since SCK requires a display
 - `SCStreamOutput` delegate receives `CMSampleBuffer` → extract `AudioBufferList` → convert to `[Float]`
@@ -1151,7 +1202,7 @@ protocol AudioCaptureServiceProtocol: Sendable {
 
 **Fallback:** If user denies screen recording permission, `MockAudioCaptureService` publishes energy-based random data (current behavior, elevated slightly). Existing `AudioSpectrum` still works.
 
-**Key constraint:** `ScreenCaptureKit` requires macOS 13+. On macOS 12, fall back to fake animation silently.
+**Key constraint:** `ScreenCaptureKit` requires screen recording permission. Falls back to `MockAudioCaptureService` if permission denied.
 
 ### 12.2 — FFT Processor
 
@@ -1180,6 +1231,7 @@ final class AudioFFTProcessor {
 **Status:** ✅ Fixed — Generative ambient (`.simulated` mode) works. Audio Reactive (`.realAudio` mode) was broken due to missing sample accumulation in FFT processor (SCK delivers 512-sample buffers; FFT needed 1024). Fixed with overlap accumulation. Waveform/gradient/radial modes deferred. | **Priority:** P1
 
 **Enum:**
+
 ```swift
 enum VisualizationMode: String, Codable, CaseIterable {
     case spectrumBars    // Classic equalizer bars
@@ -1190,6 +1242,7 @@ enum VisualizationMode: String, Codable, CaseIterable {
 ```
 
 **Spectrum Bars (default):**
+
 - 16–32 vertical bars across notch width, rounded caps
 - Height maps to frequency magnitude
 - Gradient color: album art dominant color → accent color fallback
@@ -1197,12 +1250,14 @@ enum VisualizationMode: String, Codable, CaseIterable {
 - Bar width and gap auto-calculated from available width
 
 **Waveform:**
+
 - Continuous `Path` representing audio waveform
 - Centered horizontally, amplitude maps to vertical displacement
 - Stroke with gradient (album art colors)
 - Smooth interpolation between sample points (Catmull-Rom)
 
 **Flowing Gradient:**
+
 - `MeshGradient` (macOS 26+) or layered `LinearGradient` fallback
 - Control points shift based on frequency band energy
 - Low frequencies drive slow, large movements; highs drive small, fast ripples
@@ -1210,6 +1265,7 @@ enum VisualizationMode: String, Codable, CaseIterable {
 - Most ambient/subtle mode — designed for peripheral attention
 
 **Radial Spectrum:**
+
 - Frequency bars arranged in a semicircle emanating from notch center bottom
 - Inner radius = notch corner radius, outer radius = inner + magnitude * maxHeight
 - Each bar is a wedge/arc segment
@@ -1222,12 +1278,14 @@ enum VisualizationMode: String, Codable, CaseIterable {
 The visualizer extends the closed notch downward by a configurable height (20–60px, default 30px).
 
 **Integration with existing architecture:**
+
 - `AudioVisualizerPlugin.displayRequest` sets `preferredHeight` when music is playing
 - `NotchStateMachine` already supports variable closed-notch height via display requests
 - The extension area renders below the standard notch content (album art, controls)
 - Smooth height animation when visualizer activates/deactivates (spring curve matching Phase 4 values)
 
 **Layout:**
+
 ```
 ┌──────────────────────┐
 │   ▓▓▓▓ NOTCH ▓▓▓▓   │  ← Standard closed notch (album art, title, controls)
@@ -1237,6 +1295,7 @@ The visualizer extends the closed notch downward by a configurable height (20–
 ```
 
 **Renderer choice:**
+
 - **Primary:** `CALayer`-based (Core Animation) — matches existing `AudioSpectrum` pattern, good performance
 - **Upgrade path:** Metal shader for Flowing Gradient and Radial modes (GPU-accelerated, <1% CPU)
 - **Not SwiftUI:** Too expensive for 30fps continuous animation
@@ -1273,6 +1332,7 @@ protocol ColorExtractionServiceProtocol {
 | Band count | Segmented | 32 | ✅ `visualizerBandCount` (16/32/64, shown for realAudio mode only) |
 
 **API endpoints (self-registered):**
+
 ```
 GET  /api/v1/visualizer/state     → { mode, isActive, sensitivity }
 POST /api/v1/visualizer/mode      → { mode: "spectrumBars" | "waveform" | ... }
@@ -1298,6 +1358,7 @@ POST /api/v1/visualizer/toggle
 | **Total delta** | **<3%** | **~8%** | Over target |
 
 **Optimizations shipped:**
+
 - SCK audio batched to 2048-sample chunks before MainActor dispatch (86fps → 21fps Task creation)
 - FFT hop size 2048 (~21fps processing, down from naive 43fps)
 - SCK only started when `ambientVisualizerEnabled && mode == .realAudio` (no capture in simulated mode)
@@ -1324,6 +1385,7 @@ POST /api/v1/visualizer/toggle
 **Secondary issue:** `AudioSpectrum.updateBands` had `peak > 0.08` threshold that silenced quiet audio in the 4-bar notch indicator. Lowered to `0.01`.
 
 **Fix:**
+
 - `AudioFFTProcessor.swift` — Added `sampleAccumulator: [Float]`. `process()` now appends samples and processes once ≥ `hopSize` (2048) are accumulated. Uses a sliding window with 2048-sample hop for ~21fps update rate at 44.1 kHz. Accumulator is capped to prevent memory growth.
 - `MusicVisualizer.swift` — Lowered `peak` threshold from `0.08` → `0.01`.
 
@@ -1338,12 +1400,14 @@ POST /api/v1/visualizer/toggle
 **Root cause (traced):** `KeyboardShortcutCoordinator` opens the notch and schedules a `Task.sleep(3s)` auto-close (`KeyboardShortcutCoordinator.swift:100`: `try? await Task.sleep(for: .seconds(3))`). During those 3 seconds, `NotchObserverSetup` fires a `hideOnClosed` change (triggered by `FullscreenMediaDetector.fullscreenStatus`). This causes `NotchViewModel.effectiveClosedNotchSize` to recalculate — and if `isMusicActive || isFaceActive` is true, extra width is added/removed with a `.smooth` animation. The 3s timer then fires `viewModel.close()` snapping it back.
 
 **Key files:**
+
 - `KeyboardShortcutCoordinator.swift:100` — `try? await Task.sleep(for: .seconds(3))` auto-close
 - `NotchViewModel+Observers.swift:16–36` — `hideOnClosed` setter triggers `.smooth` animation
 - `NotchViewModel+OpenClose.swift:65–68` — `effectiveClosedNotchSize` snapshot taken at close-start
 - `Core/NotchObserverSetup.swift:42–73` — hideOnClosed observer loop (unstructured Task, no cancellation)
 
 **Fix direction (two options, pick one):**
+
 1. **Suppress width recalculation during keyboard open:** Gate `effectiveClosedNotchSize` width additions on `phase == .closed` — don't add ear-width while notch is open/transitioning
 2. **Cancel hideOnClosed debounce on `.opening`:** `NotchViewModel+OpenClose.swift` already cancels `hideOnClosedDebounceTask` on `open()` — verify this fires before the fullscreen observer can race in
 
@@ -1392,6 +1456,7 @@ Two `Task { @MainActor in }` blocks launched in `setupDetectorObserver()` are ne
 **Status:** ✅ Fixed (Phase 15.5 — `KeyboardShortcutCoordinator.swift` replaced `try?` with `do { try await ... } catch { return }`)
 
 **Locations:**
+
 - `Core/KeyboardShortcutCoordinator.swift:100`: `try? await Task.sleep(for: .seconds(3))`
 - `ViewModel/NotchViewModel+OpenClose.swift:91`: `try? await Task.sleep(for: .milliseconds(300))`
 
@@ -1614,12 +1679,14 @@ enum VideoSource {
 **Status:** Concept | **Priority:** P1 (after 13.1 research)
 
 **Dimensions:**
+
 - Notch width: ~200px (varies by MacBook model)
 - 16:9 aspect at 200px wide = ~112px tall
 - 4:3 aspect at 200px wide = ~150px tall
 - Configurable: fit (letterbox) vs fill (crop)
 
 **Layout:**
+
 ```
 ┌──────────────────────┐
 │   ▓▓▓▓ NOTCH ▓▓▓▓   │  ← Camera + notch hardware
@@ -1639,6 +1706,7 @@ enum VideoSource {
 **Status:** Concept | **Priority:** P1
 
 **Closed notch (hover-to-reveal):**
+
 - Play/pause (center)
 - Volume (left, mini slider)
 - Close (right, X button)
@@ -1646,6 +1714,7 @@ enum VideoSource {
 - Click video → expand notch to show full controls
 
 **Expanded panel:**
+
 - Full playback controls (play, pause, seek, volume, speed)
 - URL input field (paste YouTube/video URL)
 - File picker button (local files)
@@ -1674,6 +1743,7 @@ struct YTDLPExtractor {
 **Status:** Deferred — research needed
 
 Extend the existing browser extension to support video frame streaming:
+
 - Detect `<video>` elements on active tab
 - Send video metadata (title, duration, current time) — **already exists**
 - New: "Play in Notch" button overlay on detected videos
@@ -1693,6 +1763,7 @@ Extend the existing browser extension to support video frame streaming:
 | Max resolution | Picker | 720p |
 
 **API endpoints (self-registered):**
+
 ```
 POST /api/v1/video/load          → { url: "https://..." }
 POST /api/v1/video/play-pause
@@ -1801,11 +1872,13 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 **Goal:** Show CPU/GPU/RAM/disk/network usage as circular ring indicators in the notch. Most visually impactful addition — makes the notch a live system monitor.
 
 **View slots:**
+
 - `closedNotchContent` — Row of 3–5 compact ring indicators (CPU %, RAM %, disk %). Positioned right side. Yields to music plugin.
 - `expandedPanelContent` — Full panel: larger rings + numeric values + sparkline history (last 60s).
 - `settingsContent` — Toggle which metrics to show, refresh interval (1s/3s/5s), ring color scheme.
 
 **Services needed:**
+
 - New `SystemStatsServiceProtocol` + `SystemStatsService` in `Plugins/Services/`
 - CPU: `host_statistics64` via `mach/mach.h` — no special permissions
 - RAM: `host_statistics64(HOST_VM_INFO64)` — no special permissions
@@ -1814,6 +1887,7 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 - GPU: `IOServiceGetMatchingServices` with `IOAccelerator` — no special permissions
 
 **Architecture decisions:**
+
 - Stats polled on a background `Task` at configurable interval, published via `@Published` on service
 - No SMC required for basic CPU/RAM/disk/network — SMC only needed for temperature (defer to later)
 - Ring views are pure `Shape`-based SwiftUI — no Metal, no SCK overhead
@@ -1830,16 +1904,19 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 **Goal:** Toggle that prevents macOS from sleeping while active. Single-purpose, zero complexity. Good first plugin to validate the renamed scaffold.
 
 **View slots:**
+
 - `closedNotchContent` — Small moon icon with filled/unfilled state. Far-right position.
 - `menuBarView` — "Prevent Sleep: ON/OFF" toggle item.
 - `settingsContent` — Toggle + optional auto-disable timer (30min/1h/2h/never).
 
 **Services needed:**
+
 - No new service — IOKit called directly in plugin
 - `IOPMAssertionCreateWithName(kIOPMAssertionTypeNoDisplaySleep, kIOPMAssertionLevelOn, "mach.notch PreventSleep" as CFString, &assertionID)`
 - `IOPMAssertionRelease(assertionID)` on deactivate or toggle-off
 
 **Architecture decisions:**
+
 - `assertionID: IOPMAssertionID` stored as instance var — released in `deactivate()`
 - Auto-timer cancels assertion via `Task.sleep` + structured cancellation
 - `displayRequest` = nil — closed icon is enough, never requests sneak peek
@@ -1855,11 +1932,13 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 **Goal:** Control external monitor brightness via DDC (Display Data Channel) directly from the notch. No third-party app required.
 
 **View slots:**
+
 - `closedNotchContent` — Sun icon + current brightness % when external monitor detected.
 - `expandedPanelContent` — Slider per connected external monitor. Monitor name label.
 - `settingsContent` — Toggle DDC vs CoreDisplay fallback, step size.
 
 **Services needed:**
+
 - New `ExternalBrightnessServiceProtocol` + `ExternalBrightnessService`
 - DDC via `IOFramebufferConnectControl` / `IOAVServiceWriteI2C` (same approach as MonitorControl)
 - Or: `CoreDisplay` private framework (`DisplayServicesSetBrightness`) — simpler but private API
@@ -1867,6 +1946,7 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 - Monitor enumeration: `CGGetActiveDisplayList` + `IOServicePortFromCGDisplayID`
 
 **Architecture decisions:**
+
 - DDC I2C writes go through XPC helper (requires elevated IOKit access) — reuse `MachNotchXPCHelper`
 - Add `setExternalBrightness(_:forDisplay:)` to `MachNotchXPCHelperProtocol`
 - No external monitor = plugin shows nothing (empty closed content)
@@ -1883,16 +1963,19 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 **Goal:** Pick any color from the screen, copy hex/RGB to clipboard, maintain a recent color history.
 
 **View slots:**
+
 - `closedNotchContent` — Small color swatch showing last picked color. Tap to re-copy.
 - `expandedPanelContent` — Color history grid (last 12 colors), each tappable to copy. "Pick New" button.
 - `settingsContent` — Copy format (hex, RGB, HSL, Swift Color), history size (12/24/48).
 
 **Services needed:**
+
 - No new service — `NSColorSampler` called directly in plugin
 - History persisted via `PluginSettings` (array of hex strings)
 - `NSColorSampler().show { color in ... }` — blocks until user clicks or cancels
 
 **Architecture decisions:**
+
 - `NSColorSampler` is synchronous/callback-based — wrap in `withCheckedContinuation`
 - Picking triggers a `SneakPeekRequestedEvent` to show the result after pick
 - Color history stored as `[String]` (hex) in `PluginSettings` — no external storage
@@ -1909,11 +1992,13 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 **Goal:** Show the currently active Focus mode (Work, Personal, Sleep, Do Not Disturb) in the closed/expanded notch. Passive indicator — no controls.
 
 **View slots:**
+
 - `closedNotchContent` — Focus icon + short name (e.g., "Work") when a Focus is active. Hidden when no Focus active.
 - `expandedPanelContent` — Focus name + description + scheduled end time if available.
 - `settingsContent` — Toggle which Focus modes to show, icon style.
 
 **Services needed:**
+
 - New `FocusModeServiceProtocol` + `FocusModeService`
 - `FocusFilterAppContext` is not usable here — use `NEFilterManager` or notification center
 - Correct approach: `NSNotificationCenter` + `CFNotificationCenter` for Focus change notifications
@@ -1922,6 +2007,7 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 - **Recommended:** `NSDistributedNotificationCenter` for `com.apple.springboard.focus-changed` — private but stable, used by many apps
 
 **Architecture decisions:**
+
 - Poll every 30s as fallback if distributed notification unavailable
 - Focus name derived from `NEFilterManager.shared().localizedDescription` — unreliable
 - Better: `com.apple.donotdisturb.state.current` UserDefaults key (private, stable)
@@ -1938,11 +2024,13 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 **Goal:** Show active file downloads in the notch — progress bars for in-flight downloads from browsers and system.
 
 **View slots:**
+
 - `closedNotchContent` — Download progress ring + filename truncated. Hidden when no active downloads.
 - `expandedPanelContent` — List of active downloads, each with progress bar + filename + speed + ETA.
 - `settingsContent` — Watch folder path (default `~/Downloads`), browser extension toggle.
 
 **Services needed:**
+
 - New `DownloadsServiceProtocol` + `DownloadsService`
 - FSEvents via `DispatchSource.makeFileSystemObjectSource` on `~/Downloads`
 - Detect in-progress downloads: `.download` partial files (`.crdownload`, `.part`, `.tmp`)
@@ -1951,6 +2039,7 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 - ETA: remaining bytes / current speed
 
 **Architecture decisions:**
+
 - `FSEventStream` watched on background actor — no main thread FS I/O
 - Only files modified in last 60s considered "active" — older ones are complete
 - Browser-specific patterns: `.crdownload` (Chrome/Brave), `.part` (Firefox), `.download` (Safari)
@@ -1967,11 +2056,13 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 **Goal:** Absorb configured menu bar icons into the notch. User-selected icons disappear from the menu bar and reappear as tappable items inside the expanded notch panel. Clears menu bar clutter without quitting apps.
 
 **View slots:**
+
 - `closedNotchContent` — Hidden (absorber is invisible in closed state by design).
 - `expandedPanelContent` — Horizontal row of absorbed icon images. Each is tappable — sends a synthetic click to the original NSStatusItem, opening its popover/menu as normal.
 - `settingsContent` — List of detected menu bar apps. Toggle per-app to absorb. Drag to reorder.
 
 **Services needed:**
+
 - New `MenuBarServiceProtocol` + `MenuBarService` in `Plugins/Services/`
 - Item enumeration: `CGWindowListCopyWindowInfo(CGWindowListOption.optionOnScreenOnly, kCGNullWindowID)` filtered to `kCGWindowLayer == 25` (menu bar layer)
 - Icon capture: `CGWindowListCreateImage` per item window — renders the icon as-is
@@ -1979,6 +2070,7 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 - Click passthrough: `AXUIElementPerformAction` on the item's `AXPress` action — triggers the original app's menu/popover without screen recording permission.
 
 **Architecture decisions:**
+
 - `CGSSpace.swift` already in `private/` — reuse connection handle (`_CGSDefaultConnection()`)
 - Hiding is alpha-based (invisible but present), not positional — avoids fighting macOS's auto-layout of the status bar
 - Icon images cached on a background actor; refreshed when `CGWindowListCopyWindowInfo` detects a change
@@ -1999,11 +2091,13 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 **Goal:** Replace the third-party battery menu bar app. Show charge %, source, and energy mode in the notch. Includes charge limit toggle (keep battery at 80% to preserve long-term health).
 
 **View slots:**
+
 - `closedNotchContent` — Battery icon + % when not plugged in, or charging indicator when plugged. Amber pulse below 20%.
 - `expandedPanelContent` — Charge %, power source (battery / adapter + slow/fast/MagSafe label), energy mode picker (Automatic / Low Power / High Performance), charge limit toggle (80% cap).
 - `settingsContent` — Low battery threshold for amber pulse, show/hide in closed notch.
 
 **Services needed:**
+
 - New `BatteryServiceProtocol` + `BatteryService`
 - `IOPSCopyPowerSourcesInfo()` + `IOPSGetPowerSourceDescription()` — charge %, source, adapter wattage
 - `IOPSNotificationCreateRunLoopSource` — event-driven updates, no polling
@@ -2011,6 +2105,7 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 - Charge limit (80% cap): `smckit` / `IOSMCFamily` private API — or `pmset` with `charge` key if available. Mark as v2 if SMC access is complex.
 
 **Architecture decisions:**
+
 - `IOPSNotification` on main RunLoop — SwiftUI-friendly, no polling
 - Energy mode write goes through existing `MachNotchXPCHelper` — add `setEnergyMode(_:)` to XPC protocol
 - Amber pulse via `PluginEventBus` publishing a `BatteryLowEvent` — other plugins can react
@@ -2027,11 +2122,13 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 **Goal:** Show active Claude Code (and general tmux) session status in the notch. Replace the cmux menu bar icon. Surface "waiting for input" state as an ambient notch indicator — tap to jump to the relevant terminal session.
 
 **View slots:**
+
 - `closedNotchContent` — Subtle indicator dot + session count when any session is waiting for input. Hidden when all sessions idle.
 - `expandedPanelContent` — List of active tmux sessions with their last output snippet. "Waiting for input" vs "Running" vs "Idle" states. Tap to bring Terminal/iTerm to front on that session.
 - `settingsContent` — Socket path (default `$TMPDIR/tmux-*/default`), refresh interval, filter by session name prefix.
 
 **Services needed:**
+
 - New `DevActivityServiceProtocol` + `DevActivityService`
 - tmux socket enumeration: `glob($TMPDIR/tmux-*/default)` — no tmux binary dependency
 - Session list: `tmux -S <socket> list-sessions -F "#{session_name}:#{session_activity}"` via `Process`
@@ -2040,6 +2137,7 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 - Bring-to-front: `NSRunningApplication(processIdentifier:)?.activate()` + AppleScript to select the right tmux window
 
 **Architecture decisions:**
+
 - Poll every 10s via `Task` with structured cancellation — tmux has no push API
 - `Process` calls on a background actor — no main thread blocking
 - Session state diffed on each poll — only publish changes, not full refresh
@@ -2057,16 +2155,19 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 **Goal:** Show the current daily brief entry in the notch — word, fact, quote, mantra, or mood prompt depending on which sources the user has enabled. Same deterministic schedule as the machBrief app, same content at the same time.
 
 **View slots:**
+
 - `closedNotchContent` — Source icon + title snippet, right-aligned. Yields to music/active content.
 - `expandedPanelContent` — Full entry card with source-appropriate layout: word card (phonetic + definition + example), quote card (quote + author), fact card, mood prompt with 5-option picker.
 - `settingsContent` — Toggle which sources participate, link to machBrief macOS app for full settings.
 
 **Services needed:**
+
 - No new service — consumes `MachBriefKit.DailyScheduler`, `MachBriefKit.BriefStore`, and enabled `BriefSource` instances directly
 - `MachBriefKit` added as Bazel dependency to `machNotch` target
 - ObsidianSink wired if vault path is configured (shared config via `MachBriefKit.BriefStore`)
 
 **Architecture decisions:**
+
 - `MachBriefKit` is platform-agnostic Swift (no UIKit/AppKit) — links cleanly into macOS target
 - `DailyScheduler` uses date-seeded PRNG — same slot content on iOS and macOS
 - Mood check-in in expanded panel writes via `MoodCheckInSource` → triggers all configured sinks (Obsidian, HealthKit v2)
@@ -2083,6 +2184,7 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 **Goal:** Quick mood check-in from the notch. Works standalone (SwiftData). Recommended integration: Obsidian daily note append. Connects naturally to HabitTracker — mood is a daily signal like a habit completion.
 
 **View slots:**
+
 - `closedNotchContent` — Subtle emoji or color dot showing today's last mood. Hidden until first check-in of the day.
 - `expandedPanelContent` — Two states:
   - **Check-in state** (default if no entry today): "How are you feeling?" + 5 pill buttons: Awesome · Good · Okay · Bad · Terrible. Optional one-line note field. Confirm tap logs and transitions to history state.
@@ -2090,12 +2192,14 @@ All as `NotchPlugin` conformances. No `PluginManager` modifications. Each plugin
 - `settingsContent` — Daily reminder time (optional notification), Obsidian vault path picker, markdown template editor, toggle show in closed notch.
 
 **Services needed:**
+
 - New `MoodServiceProtocol` + `MoodService` in `Plugins/Services/`
-- Persistence: JSON file in app support dir (same pattern as `HabitStore`) — no SwiftData dependency, keeps it macOS 13 compatible
+- Persistence: JSON file in app support dir (same pattern as `HabitStore`) — no SwiftData dependency
 - Obsidian write: `FileManager` append to `<vault>/Daily/YYYY-MM-DD.md` via security-scoped bookmark
 - Optional reminder: `UNUserNotificationCenter` scheduled notification at user-set time
 
 **Data model:**
+
 ```swift
 struct MoodEntry: Identifiable, Codable {
     let id: UUID
@@ -2118,6 +2222,7 @@ enum MoodLevel: Int, Codable, CaseIterable {
 ```
 
 **Obsidian output (appended to daily note):**
+
 ```markdown
 ## Mood — 18:32
 Feeling: Good 🙂
@@ -2125,6 +2230,7 @@ Note: good focus session, finished the PRD planning
 ```
 
 **Architecture decisions:**
+
 - `MoodStore` mirrors `HabitStore` pattern — JSON persistence, `@Observable`, background save
 - Obsidian write is fire-and-forget on a background task — failure logged silently, never blocks UI
 - Security-scoped bookmark stored in `PluginSettings` — persists across relaunches without re-prompting
@@ -2150,6 +2256,7 @@ Note: good focus session, finished the PRD planning
 ### Why a separate app, not a plugin
 
 Window management requires persistent system-level presence independent of the notch:
+
 - Must intercept keyboard shortcuts globally even when machNotch is not focused
 - Window snapping requires `NSAccessibility` — a separate process is cleaner and safer
 - Hover peek requires screen capture of window thumbnails — separate process isolation
@@ -2181,6 +2288,7 @@ Window management requires persistent system-level presence independent of the n
 | Menu bar presence | `NSStatusItem` | Standard macOS utility pattern |
 
 **Required permissions:**
+
 - `NSAccessibilityUsageDescription` — window move/resize via AXUIElement
 - No Screen Recording needed for thumbnail peek
 

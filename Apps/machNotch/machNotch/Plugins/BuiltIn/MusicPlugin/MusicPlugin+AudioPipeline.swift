@@ -22,12 +22,7 @@ extension MusicPlugin {
         frequencyBands = Array(repeating: 0, count: bandCount)
         peakBands = Array(repeating: 0, count: bandCount)
 
-        let service: any AudioCaptureServiceProtocol
-        if #available(macOS 13.0, *) {
-            service = ScreenCaptureKitAudioService()
-        } else {
-            service = MockAudioCaptureService()
-        }
+        let service: any AudioCaptureServiceProtocol = ScreenCaptureKitAudioService()
 
         service.setBufferHandler { [weak self] samples in
             guard let self, let result = self.fftProcessor?.process(samples) else { return }

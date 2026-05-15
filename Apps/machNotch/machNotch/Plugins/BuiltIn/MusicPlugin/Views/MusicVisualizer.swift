@@ -110,9 +110,7 @@ class AudioSpectrum: NSView {
         animation.repeatCount = .infinity
         animation.calculationMode = .cubic
         animation.beginTime = CACurrentMediaTime() + delay
-        if #available(macOS 12.0, *) {
-            animation.preferredFrameRateRange = CAFrameRateRange(minimum: 10, maximum: 30, preferred: 15)
-        }
+        animation.preferredFrameRateRange = CAFrameRateRange(minimum: 10, maximum: 30, preferred: 15)
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         barLayer.transform = CATransform3DMakeScale(1.0, startValue, 1.0)

@@ -25,6 +25,7 @@ machNotch transforms your MacBook's notch into a dynamic control center with mus
 The app focuses on:
 
 ### Architecture Overhaul
+
 - **Plugin-first architecture** — every feature is a `NotchPlugin`. Built-in features use the same API that future third-party plugins will use.
 - **Protocol-based dependency injection** — zero `.shared` singletons in views/services. Everything injected via `@Environment` or init.
 - **`@Observable` + `@MainActor`** throughout — no legacy `ObservableObject`/`@Published`.
@@ -32,6 +33,7 @@ The app focuses on:
 - **Service protocols** for all system integrations (music, battery, calendar, weather, shelf, webcam, notifications, clipboard).
 
 ### Integrated Community PRs
+
 Cherry-picked and adapted the best community contributions that were pending on upstream:
 
 | Feature | Original PR |
@@ -44,24 +46,28 @@ Cherry-picked and adapted the best community contributions that were pending on 
 | Animated face with mouse tracking | #751 |
 
 ### New Plugins
+
 - **Teleprompter Pro** — full-featured teleprompter with countdown timer, mic monitoring, hover-to-pause, keyboard shortcuts, AI text assist (refine/summarize/draft via Ollama), speed/font/color controls
 - **Habit Tracker** — daily habit tracking with streaks, progress rings, and persistent storage
 - **Pomodoro Timer** — focus timer with work/break intervals, session history, and notch-integrated controls
 - **Display Surface** — generic display arbitration for surfacing prioritized content
 
 ### AI & Integrations
+
 - **AI subsystem** — `AIManager` + `AIProvider` protocol with Ollama backend for on-device text generation
 - **Local API server** — HTTP + WebSocket server for external integrations. Auth middleware, rate limiting, plugin API routes
 - **`notchctl` CLI** — command-line control of machNotch via the Local API
 - **App Intents & URL Scheme** — Siri Shortcuts integration + `machnotch://` deep links
 
 ### Performance
+
 - **Background service backoff** — plugins and services automatically pause polling when the notch is closed (zero idle CPU)
 - **Phase 2 efficiency** — isolated high-frequency progress updates into leaf reader views, event-driven geometry, XPC helper backoff
 - **TimelineView gating** — music controls switch to static layout when closed (no 60fps background burn)
 - **GPU/CoreAnimation backoff** — heavy blur/blend effects gated behind transition state
 
 ### Additional Improvements
+
 - **Apple-quality animations** — content reveal modifier, shadow easing, spring-tuned open/close choreography
 - **Dual hover zones** — separate closed/open hover detection for accurate mouse tracking
 - **Heartbeat-based hover** — replaced event-driven hover with a robust heartbeat controller (11 unit tests)
@@ -73,7 +79,7 @@ Cherry-picked and adapted the best community contributions that were pending on 
 
 ## System Requirements
 
-- macOS **14 Sonoma** or later
+- macOS **26** or later
 - Apple Silicon or Intel Mac
 
 ---
@@ -87,7 +93,7 @@ bazelisk build //Apps/machNotch:machNotch
 open bazel-bin/Apps/machNotch/machNotch.app
 ```
 
-Bazel uses the Xcode toolchain to compile Swift — Xcode 16 or later must be installed (free from the App Store; no paid developer account needed).
+Bazel uses the Xcode toolchain to compile Swift — Xcode 26 or later must be installed (free from the App Store; no paid developer account needed).
 
 <details>
 <summary>Also want to run in Xcode?</summary>
@@ -136,7 +142,7 @@ Every feature is a plugin. Plugins communicate via `PluginEventBus`, never by im
 
 All credit for the original boring.notch concept and implementation goes to [TheBoredTeam](https://github.com/TheBoredTeam). machNotch builds on that foundation while moving into the mach-mono suite.
 
-- **[MediaRemoteAdapter](https://github.com/ungive/mediaremote-adapter)** — Now Playing source support for macOS 15.4+
+- **[MediaRemoteAdapter](https://github.com/ungive/mediaremote-adapter)** — Now Playing source support
 - **[NotchDrop](https://github.com/Lakr233/NotchDrop)** — Foundation for the Shelf feature
 
 For a full list of licenses and attributions, see [THIRD_PARTY_LICENSES](./THIRD_PARTY_LICENSES.md).

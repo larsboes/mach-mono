@@ -155,11 +155,9 @@ final class AppObjectGraph {
     }
 
     func deviceHasNotch() -> Bool {
-        if #available(macOS 12.0, *) {
-            for screen in NSScreen.screens {
-                if screen.safeAreaInsets.top > 0 {
-                    return true
-                }
+        for screen in NSScreen.screens {
+            if screen.safeAreaInsets.top > 0 {
+                return true
             }
         }
         return false

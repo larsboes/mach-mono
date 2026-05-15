@@ -77,19 +77,22 @@ DailyScheduler
 ## macOS Surfaces
 
 ### Menu Bar App
+
 - Menu Bar icon (SF Symbol: `sun.horizon.fill` or `text.book.closed`) shows current slot source icon
 - Click → popover opens with current slot card (source-appropriate layout)
 - Popover tabs: **Today** · **Archive** · **Settings**
-- `MenuBarExtra` scene (SwiftUI, macOS 13+)
+- `MenuBarExtra` scene (SwiftUI)
 - App has no Dock icon (`LSUIElement = YES` in Info.plist)
 
 ### Notification Center Widget (WidgetKit)
+
 - **Small widget:** Current slot title + subtitle. Updates at each slot via `TimelineProvider` with 4 entries/day.
 - **Medium widget:** Full entry card — title, subtitle, body snippet.
 - Tapping widget opens Menu Bar popover (via deep link URL scheme `machbrief://open`)
 - macOS WidgetKit is available on macOS 26+ — no iOS required
 
 ### System Notification (NotificationSink)
+
 - `UNUserNotificationCenter` fires at each slot time
 - Short notification: source name + title
 - Tapping notification opens Menu Bar popover
@@ -99,16 +102,19 @@ DailyScheduler
 ## Features — v1 macOS MVP
 
 ### Today View (Menu Bar Popover)
+
 - Current slot card — layout adapts per source (word card, quote card, mood prompt)
 - Slot indicator: which of the 4 daily slots is active
 - Favorite button on each entry
 
 ### Archive (Popover Tab)
+
 - Past entries newest-first
 - Filterable by source
 - Searchable by title/body text
 
 ### Settings (Popover Tab)
+
 - Toggle each source on/off
 - Configure slot assignment per source
 - Obsidian vault path picker + test write button
@@ -116,6 +122,7 @@ DailyScheduler
 - Widget setup nudge (links to System Settings → Widgets)
 
 ### machNotch Plugin (Optional)
+
 - `MachBriefKit` linked as Bazel dependency in machNotch
 - `closedNotchContent` — source icon + title snippet (right-aligned, yields to music)
 - `expandedPanelContent` — full entry card with source-appropriate layout
@@ -125,27 +132,32 @@ DailyScheduler
 ## Content Sources — v1
 
 ### WordSource
+
 - Bundled list: ~5,000 curated English words (public domain JSON)
 - API enrichment: `GET https://api.dictionaryapi.dev/api/v2/entries/en/{word}` (no key, free)
 - Returns: definition, part of speech, phonetics, example sentence
 - Fallback: bundled definition if API unavailable
 
 ### FactSource
+
 - Bundled list: ~1,000 curated trivia facts (JSON, hand-curated)
 - Categories: science, history, nature, language, culture
 - No API dependency — fully offline
 
 ### QuoteSource
+
 - Bundled list: ~500 curated motivational/philosophical quotes (JSON)
 - Format: quote text + author
 - No API dependency
 
 ### MantraSource
+
 - Bundled list: ~100 loving kindness / mindfulness mantras (JSON)
 - Short, one-line phrases
 - No API dependency
 
 ### MoodCheckInSource
+
 - Prompt: "How are you feeling?" with 5 options: Awesome / Good / Okay / Bad / Terrible
 - Optional one-line note after selection
 - Writes to `BriefStore` (SwiftData)
@@ -157,11 +169,13 @@ DailyScheduler
 ## Integrations — Sinks
 
 ### ObsidianSink
+
 Appends each slot entry to the user's Obsidian daily note as clean markdown.
 
 **Setup:** User selects vault path in settings. Security-scoped bookmark persists across relaunches.
 
 **Output format:**
+
 ```markdown
 ## Daily Brief — 12:00
 
@@ -173,6 +187,7 @@ Appends each slot entry to the user's Obsidian daily note as clean markdown.
 ```
 
 **Mood entry format:**
+
 ```markdown
 ## Mood — 18:00
 Feeling: Good
@@ -182,6 +197,7 @@ Note: productive afternoon, good focus session
 **Failure handling:** Write failure is silent (logged internally).
 
 ### NotificationSink
+
 - `UNUserNotificationCenter` fires at each slot boundary
 - macOS system notification with source + title
 - Permission requested on first launch
@@ -270,7 +286,7 @@ mach-mono/
 
 - **Language:** Swift 6.3
 - **UI:** SwiftUI
-- **App shell:** `MenuBarExtra` (macOS 13+) — no Dock icon
+- **App shell:** `MenuBarExtra` — no Dock icon
 - **Persistence:** SwiftData (macOS 26+)
 - **Widgets:** WidgetKit (macOS 26+)
 - **Networking:** URLSession — WordSource API enrichment only
@@ -284,6 +300,7 @@ mach-mono/
 MIT — clean slate. No GPL or MPL dependencies.
 
 All bundled JSON content must be public domain or CC0 before ship:
+
 - `words.json` — english-words (public domain) + manual curation
 - `facts.json` — hand-written originals or CC0 sources only
 - `quotes.json` — pre-1928 authors only OR original paraphrases

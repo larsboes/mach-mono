@@ -246,11 +246,7 @@ private extension EKCalendar {
     }
     
     var isDelegate: Bool {
-        if #available(macOS 13.0, *) {
-            return source.isDelegate
-        } else {
-            return false
-        }
+        source.isDelegate
     }
 }
 
