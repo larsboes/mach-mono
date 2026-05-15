@@ -119,7 +119,7 @@ jobs:
       # Astro 6 requires Node >=22.12 (see website/package.json engines). Bun still
       # reports Node 20 for the Astro CLI unless a modern Node is on PATH first.
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
 
