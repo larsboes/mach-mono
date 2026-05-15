@@ -31,8 +31,9 @@ on:
 jobs:
   build:
     runs-on: macos-26
-    permissions:
-      contents: write
+    # No job-level permissions: the build doesn't need write access. The caller
+    # workflow controls permissions (release.yml grants contents: write because
+    # its publish job pushes the appcast; cicd.yml's dry-run stays read-only).
     env:
       PROJECT_NAME: machNotch
       APP_DIR: Apps/machNotch
