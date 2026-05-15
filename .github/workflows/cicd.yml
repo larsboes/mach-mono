@@ -23,6 +23,12 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
+      - name: Cache Bazelisk binary
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: ~/Library/Caches/bazelisk
+          key: bazelisk-${{ runner.os }}-${{ hashFiles('.bazelversion') }}
+
       - name: Cache Bazel repositories
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
@@ -55,6 +61,12 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
+      - name: Cache Bazelisk binary
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: ~/Library/Caches/bazelisk
+          key: bazelisk-${{ runner.os }}-${{ hashFiles('.bazelversion') }}
+
       - name: Cache Bazel repositories
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
@@ -84,18 +96,20 @@ jobs:
   swift-format:
     name: Swift Format Lint
     runs-on: macos-26
-    continue-on-error: true
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Install swift-format
         run: brew install swift-format
+      # Non-strict mode: only real syntax/rule errors fail the build; style
+      # warnings are reported but exit 0. The codebase has ~3.3k style
+      # warnings as of this commit; flipping to --strict requires running
+      # `swift-format format -i` across the tree first to clear the baseline.
       - name: Lint Swift formatting
         run: |
           swift-format lint --recursive --parallel \
             Apps/machNotch/machNotch/ \
             Packages/MachBriefKit/Sources/ \
-            Packages/MacroVisionKit/Sources/ \
-            2>&1 | head -100
+            Packages/MacroVisionKit/Sources/
 
   arch-check:
     name: Architecture Check
@@ -104,6 +118,20 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Run architecture checks
         run: bash .github/scripts/arch-check.sh
+
+  # Release path smoke test: runs only on push to main so PRs stay fast.
+  # Exercises the same Bazel build + codesign + DMG path as `release.yml` so
+  # bugs in the release pipeline (like the codesign path bug that hid through
+  # v1.2.0–v1.3.1) are caught within one commit instead of three releases.
+  release-dryrun:
+    name: Release Dry-Run
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/build_reusable.yml
+    with:
+      head_ref: ${{ github.ref_name }}
+      code_sign_identity: "-"
+      upload_artifacts: false
+    secrets: inherit
 
   website:
     name: Website Audit & Build
@@ -125,7 +153,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: website
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Audit dependencies
         working-directory: website

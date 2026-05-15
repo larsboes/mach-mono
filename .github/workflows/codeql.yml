@@ -3,8 +3,22 @@ name: CodeQL
 on:
   push:
     branches: [main]
+    paths:
+      - '**/*.swift'
+      - '**/BUILD.bazel'
+      - 'MODULE.bazel'
+      - 'Package.resolved'
+      - '.bazelrc'
+      - '.github/workflows/codeql.yml'
   pull_request:
     branches: [main]
+    paths:
+      - '**/*.swift'
+      - '**/BUILD.bazel'
+      - 'MODULE.bazel'
+      - 'Package.resolved'
+      - '.bazelrc'
+      - '.github/workflows/codeql.yml'
   schedule:
     # Weekly on Mondays at 09:00 UTC — catches new CVEs without code changes
     - cron: "0 9 * * 1"
@@ -29,6 +43,14 @@ jobs:
           languages: swift
           # Default query suite. Use security-extended for broader coverage (more noise).
           queries: security-and-quality
+          # Use the freshest CodeQL bundle — Swift 6.2 support landed in 2.23.5.
+          tools: latest
+
+      - name: Cache Bazelisk binary
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: ~/Library/Caches/bazelisk
+          key: bazelisk-${{ runner.os }}-${{ hashFiles('.bazelversion') }}
 
       - name: Cache Bazel repositories
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
@@ -41,16 +63,41 @@ jobs:
       # CodeQL intercepts compiler calls during this build step to instrument the source.
       # The Bazel output cache is intentionally NOT restored here — a warm cache causes
       # Bazel to skip compilation entirely, leaving CodeQL nothing to extract.
-      # --spawn_strategy=local is required: Bazel's persistent workers are long-lived
-      # processes started before CodeQL sets up its tracing env vars, so they never
-      # see CODEQL_EXTRACTOR_SWIFT_* and all Swift compile calls are invisible to the
-      # extractor. local strategy forces one-shot processes that inherit the env.
+      #
+      # The strategy flags below force every Swift compilation to run as a one-shot
+      # local process that inherits CODEQL_EXTRACTOR_SWIFT_* and the libtrace.dylib
+      # DYLD_INSERT_LIBRARIES env from the parent shell. Why each one matters:
+      #   --spawn_strategy=local            : sets the *default* strategy.
+      #   --strategy=SwiftCompile=local     : rules_swift registers swift_library
+      #                                       actions under the SwiftCompile mnemonic
+      #                                       which defaults to `worker`. Persistent
+      #                                       workers are long-lived processes spawned
+      #                                       before CodeQL's tracing env is set, so
+      #                                       every swiftc call is invisible to the
+      #                                       extractor. This override is the actual
+      #                                       fix; --spawn_strategy alone does NOT
+      #                                       override mnemonic-specific strategies.
+      #   --strategy=SwiftCompileModule=… and SwiftDeriveObjCHeader=… : same problem
+      #                                       for the secondary Swift mnemonics.
+      #   --nouse_action_cache / --noremote_accept_cached / --disk_cache= :
+      #                                       insurance against any cache layer that
+      #                                       might short-circuit compilation.
+      # See: bazelbuild/rules_swift#559, github/codeql-action#2506.
       - name: Build
         run: |
+          bazelisk shutdown || true
           bazelisk build --config=ci \
+            --strategy=SwiftCompile=local \
+            --strategy=SwiftCompileModule=local \
+            --strategy=SwiftDeriveObjCHeader=local \
             --spawn_strategy=local \
+            --nouse_action_cache \
+            --noremote_accept_cached \
+            --noremote_upload_local_results \
+            --disk_cache= \
             //Apps/machNotch:machNotch \
             //Apps/machBrief:machBrief
+          bazelisk shutdown
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4

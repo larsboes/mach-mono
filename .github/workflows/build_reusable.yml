@@ -15,6 +15,11 @@ on:
         required: false
         type: string
         default: "-"
+      upload_artifacts:
+        description: "Upload .app and .dmg artifacts. Set to false for dry-run smoke tests on main."
+        required: false
+        type: boolean
+        default: true
     secrets:
       BUILD_CERTIFICATE_BASE64:
         required: false
@@ -30,17 +35,20 @@ jobs:
       contents: write
     env:
       PROJECT_NAME: machNotch
-      PROJECT_PATH: Apps/machNotch/machNotch.xcodeproj
       APP_DIR: Apps/machNotch
-      EXPORT_METHOD: development
       VERSION_INPUT: ${{ inputs.version }}
       BUILD_NUMBER_INPUT: ${{ inputs.build_number }}
-      DEVELOPMENT_TEAM: ${{ vars.DEVELOPMENT_TEAM_ID }}
       CODE_SIGN_IDENTITY: ${{ inputs.code_sign_identity || '-' }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.head_ref }}
+
+      - name: Cache Bazelisk binary
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        with:
+          path: ~/Library/Caches/bazelisk
+          key: bazelisk-${{ runner.os }}-${{ hashFiles('.bazelversion') }}
 
       - name: Cache Bazel repositories
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
@@ -54,7 +62,10 @@ jobs:
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
         with:
           path: ~/.cache/bazel
-          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved', '.bazelrc', 'Apps/machNotch/BUILD.bazel', 'Apps/machBrief/BUILD.bazel', 'tools/defs.bzl') }}
+          # Keep this key identical to cicd.yml so the cache is shared across
+          # the CI build/test jobs and the release build. Diverging keys made
+          # each pipeline re-download and re-link from scratch.
+          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved', '.bazelrc', 'Apps/machNotch/BUILD.bazel', 'Apps/machBrief/BUILD.bazel', 'Packages/MachBriefKit/BUILD.bazel') }}
           restore-keys: |
             bazel-${{ runner.os }}-
 
@@ -83,14 +94,12 @@ jobs:
             --stamp \
             --embed_label="machNotch_${VERSION}_build_${BUILD_NUMBER}"
 
-          APP_PATH="bazel-bin/Apps/machNotch/machNotch.app"
+          # rules_apple macos_application emits the bundle under <name>_archive-root/.
+          # The top-level "machNotch.app" path used previously never existed and silently
+          # broke every release (v1.2.0, v1.3.0, v1.3.1) at this codesign step.
+          APP_PATH="bazel-bin/Apps/machNotch/machNotch_archive-root/machNotch.app"
+          test -d "$APP_PATH" || { echo "::error::App bundle not found at $APP_PATH"; ls bazel-bin/Apps/machNotch/ || true; exit 1; }
           codesign --deep --force --sign "$CODE_SIGN_IDENTITY" "$APP_PATH"
-
-      - name: Verify generate_appcast exists
-        run: |
-          if [ ! -x "${{ env.APP_DIR }}/Configuration/sparkle/generate_appcast" ]; then
-            echo "::warning title=Missing generate_appcast::${{ env.APP_DIR }}/Configuration/sparkle/generate_appcast is not present or not executable; skipping appcast generation verification."
-          fi
 
       - name: Create DMG
         run: |
@@ -101,18 +110,20 @@ jobs:
           pip install --upgrade pip setuptools wheel "dmgbuild[badge_icons]"
           chmod +x "${{ env.APP_DIR }}/Configuration/dmg/create_dmg.sh"
           "${{ env.APP_DIR }}/Configuration/dmg/create_dmg.sh" \
-            "bazel-bin/Apps/machNotch/machNotch.app" \
+            "bazel-bin/Apps/machNotch/machNotch_archive-root/machNotch.app" \
             "Release/${{ env.PROJECT_NAME }}.dmg" \
             "${{ env.PROJECT_NAME }} ${{ env.VERSION_INPUT }}"
 
       - name: Upload DMG
+        if: ${{ inputs.upload_artifacts }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ env.PROJECT_NAME }}.dmg
           path: Release/${{ env.PROJECT_NAME }}.dmg
 
       - name: Upload .app
+        if: ${{ inputs.upload_artifacts }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ env.PROJECT_NAME }}.app
-          path: bazel-bin/Apps/machNotch/${{ env.PROJECT_NAME }}.app
+          path: bazel-bin/Apps/machNotch/machNotch_archive-root/${{ env.PROJECT_NAME }}.app

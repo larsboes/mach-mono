@@ -2,11 +2,20 @@ name: "Deploy machNotch"
 on:
   push:
     tags:
-      - 'v*'
+      # Match semver tags only — vN.N.N with optional pre-release / build suffix.
+      # Prevents accidental tags like `v-test` or `vbackup-2026` from triggering
+      # a release build.
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
 
 concurrency:
+  # Tag refs are unique, so the practical effect of this group is "don't run
+  # two workflows for the literal same tag at once". cancel-in-progress is
+  # explicitly false: a release can write to appcast.xml on main, create a
+  # GitHub Release, and upload a DMG. Cancelling mid-flight can leave any
+  # subset of those done — much harder to recover from than a duplicate run.
   group: release-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   PROJECT_NAME: machNotch
@@ -123,13 +132,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ needs.preparation.outputs.version }}
           IS_BETA: ${{ needs.preparation.outputs.is_beta }}
-          RELEASE_SHA: ${{ steps.commit_appcast.outputs.release_sha || github.sha }}
         run: |
+          # No --target: gh defaults to the tag's commit, which is the SHA the
+          # DMG was actually built from. Previously this used the post-appcast
+          # main SHA, so the release "Source code" links pointed at a commit
+          # that did NOT produce the attached binary.
           RELEASE_FLAGS=(--generate-notes)
           if [[ "${IS_BETA}" == "true" ]]; then
             RELEASE_FLAGS+=(--prerelease)
           fi
           gh release create "v${VERSION}" Release/machNotch.dmg \
             --title "v${VERSION}" \
-            --target "${RELEASE_SHA}" \
             "${RELEASE_FLAGS[@]}"
