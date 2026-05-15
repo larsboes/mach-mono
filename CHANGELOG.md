@@ -9,6 +9,30 @@ For upcoming features see the [Roadmap](https://larsboes.github.io/mach-mono/roa
 
 ---
 
+## v1.3.2 — 2026-05-16
+
+> **Note:** v1.3.1 was tagged on 2026-05-15 but its release build failed at codesign and produced no artifact. v1.3.2 supersedes it.
+
+### 🐛 Bug Fixes
+
+* **Teleprompter UI cleanup (closes #11)**: Final polish — extracted `5.5` reading-area magic number to `readingAreaHeightMultiplier` static; moved `ActionBarSecondaryStyle` from `TeleprompterExpandedView.swift` to `TeleprompterControlPanel.swift`. Wraps up the broader cleanup tracked across prior polish sessions.
+
+### ⚙️ CI & Compatibility
+
+* **Codesign path fixed**: Release workflow now points at `bazel-bin/Apps/machNotch/machNotch_archive-root/machNotch.app` (the actual `rules_apple` bundle output). Root cause of the v1.2.0, v1.3.0, and v1.3.1 release-build failures.
+* **Release dry-run on every `main` push**: Catches packaging/codesign regressions before tag time instead of at release.
+* **Release SHA == build SHA**: Release job now uses the same commit SHA the build was produced from; eliminates split-state releases.
+* **Concurrency hardening**: `cancel-in-progress: false` on release workflows prevents partial/superseded runs from publishing.
+* **Tag pattern restricted to semver**: Only `vX.Y.Z` triggers the release pipeline.
+* **Arch-check script SRC path corrected**: Previously pointed at a non-existent path and silently always passed; now actually validates the source tree.
+* **Bazel cache consolidation**: Unified Bazel cache keys across CI jobs; added Bazelisk binary cache to cut cold-start time.
+* **swift-format strict mode**: Baseline cleared and strict mode enforced in CI.
+* **CodeQL Swift muted**: Moved to manual `workflow_dispatch` — incompatible with Bazel + `rules_swift` on macOS. Shared Xcode scheme restored for the manual path.
+* **`build_reusable.yml` permissions tightened**: Dropped write permission; reusable build job is read-only.
+* **Line-count allowlist**: Three files that tipped over the 300-line threshold from the swift-format pass added to the allowlist (tracked for follow-up extraction).
+
+---
+
 ## v1.3.0 — 2026-05-10
 
 ### 🏗 Architecture

@@ -20,6 +20,14 @@ Public API and documentation so third-party developers can build and distribute 
 
 ## 🚀 Launched
 
+### v1.3.2 — 2026-05-16
+
+- **Release pipeline unbroken**: Codesign now uses the correct `rules_apple` bundle path (`bazel-bin/Apps/machNotch/machNotch_archive-root/machNotch.app`) — root cause of the v1.2.0/v1.3.0/v1.3.1 release-build failures.
+- **Release dry-run on every `main` push**: Packaging and codesign regressions caught pre-tag; release SHA matches build SHA; `cancel-in-progress: false` prevents split-state releases.
+- **CI hardening**: Consolidated Bazel cache keys + Bazelisk binary cache; swift-format strict mode enabled with cleared baseline; tag pattern restricted to semver; arch-check SRC path corrected; CodeQL Swift moved to manual dispatch.
+- **Teleprompter UI cleanup (closes #11)**: Final polish — `readingAreaHeightMultiplier` extraction and `ActionBarSecondaryStyle` relocation complete the cleanup tracked across prior sessions.
+- **Note**: v1.3.1 was tagged on 2026-05-15 but its release build failed at codesign and produced no artifact. v1.3.2 supersedes it.
+
 ### v1.3.0 — 2026-05-10
 
 - **PluginUIContext**: New environment type resolves DIP violations — plugin views no longer depend directly on `NotchViewModel`. All built-in plugin views migrated.
