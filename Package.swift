@@ -11,7 +11,7 @@ let package = Package(
     products: [],
     dependencies: [
         .package(url: "https://github.com/ChimeHQ/AsyncXPCConnection", exact: "1.3.0"),
-        .package(url: "https://github.com/sindresorhus/Defaults", exact: "9.0.6"),
+        .package(url: "https://github.com/sindresorhus/Defaults", exact: "9.0.7"),
         .package(url: "https://github.com/sindresorhus/KeyboardShortcuts", exact: "2.4.0"),
         .package(url: "https://github.com/sindresorhus/LaunchAtLogin-Modern", exact: "1.1.0"),
         .package(url: "https://github.com/airbnb/lottie-spm.git", exact: "4.6.0"),
