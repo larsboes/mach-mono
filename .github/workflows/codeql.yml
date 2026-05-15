@@ -17,7 +17,7 @@ permissions:
 jobs:
   analyze:
     name: Analyze (Swift)
-    runs-on: macos-15
+    runs-on: macos-26
 
     steps:
       - name: Checkout
@@ -38,19 +38,13 @@ jobs:
           restore-keys: |
             bazel-repos-${{ runner.os }}-
 
-      - name: Cache Bazel outputs
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
-        with:
-          path: ~/.cache/bazel
-          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved', '.bazelrc', 'Apps/machNotch/BUILD.bazel', 'Apps/machBrief/BUILD.bazel') }}
-          restore-keys: |
-            bazel-${{ runner.os }}-
-
       # CodeQL intercepts compiler calls during this build step to instrument the source.
+      # The Bazel output cache is intentionally NOT restored here — a warm cache causes
+      # Bazel to skip compilation entirely, leaving CodeQL nothing to extract.
       # --noapple_generate_dsym and --config=ci keep the build lean.
       - name: Build
         run: |
-          bazelisk build --config=ci --config=ci-stable \
+          bazelisk build --config=ci \
             //Apps/machNotch:machNotch \
             //Apps/machBrief:machBrief
 
