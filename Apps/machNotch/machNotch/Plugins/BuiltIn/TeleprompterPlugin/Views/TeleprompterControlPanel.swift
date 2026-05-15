@@ -241,7 +241,21 @@ struct PrompterColorPicker: View {
     }
 }
 
-// MARK: - Compact Button Styles
+// MARK: - Button Styles
+
+struct ActionBarSecondaryStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(.vertical, 5)
+            .padding(.horizontal, 8)
+            .background(
+                Capsule()
+                    .fill(Color.white.opacity(0.06))
+            )
+            .foregroundStyle(.secondary)
+            .opacity(configuration.isPressed ? 0.7 : 1.0)
+    }
+}
 
 private struct CompactControlStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {

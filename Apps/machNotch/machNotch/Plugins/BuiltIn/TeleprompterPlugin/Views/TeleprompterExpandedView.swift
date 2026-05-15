@@ -158,19 +158,3 @@ struct TeleprompterExpandedView: View {
         state.reset()
     }
 }
-
-// MARK: - Action Bar Button Style
-
-struct ActionBarSecondaryStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .padding(.vertical, 5)
-            .padding(.horizontal, 8)
-            .background(
-                Capsule()
-                    .fill(Color.white.opacity(0.06))
-            )
-            .foregroundStyle(.secondary)
-            .opacity(configuration.isPressed ? 0.7 : 1.0)
-    }
-}

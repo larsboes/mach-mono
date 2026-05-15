@@ -163,13 +163,15 @@ final class TeleprompterPlugin: NotchPlugin {
         TeleprompterSettingsView(state: teleState)
     }
 
+    private static let readingAreaHeightMultiplier: CGFloat = 5.5
+
     var displayRequest: DisplayRequest? {
         guard teleState.isScrolling || teleState.countdownState.isActive else { return nil }
         let physicalHeight = getRealNotchHeight()
         return DisplayRequest(
             priority: .critical,
             category: DisplayRequest.utility,
-            preferredHeight: physicalHeight * 5.5
+            preferredHeight: physicalHeight * Self.readingAreaHeightMultiplier
         )
     }
 }
