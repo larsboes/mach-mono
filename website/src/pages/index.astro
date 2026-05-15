@@ -1,9 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+const img = (path: string) => `${basePath}${path}`;
 ---
 
 <Layout title="Home">
 	<div class="hero">
+		<img src={img('/images/ai-gen-Logo.png')} alt="mach" class="hero-logo" />
 		<h1 class="title">
 			<span class="text-gradient">Focused utilities</span><br />
 			<span class="text-gradient">for macOS</span>
@@ -11,13 +15,22 @@ import Layout from '../layouts/Layout.astro';
 		<p class="subtitle">
 			A suite of small, opinionated apps that stay out of your way — until you need them.
 		</p>
-		
+
 		<div class="actions">
 			<button class="btn-primary">
 				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
 				Download for macOS
 			</button>
-			<span class="requirements">Requires macOS 14 · Free & open source</span>
+			<span class="requirements">Requires macOS 16 · Free &amp; open source</span>
+		</div>
+	</div>
+
+	<div class="preview">
+		<div class="preview-closed-wrap">
+			<img src={img('/images/mach-notch-closed.png')} alt="mach.notch closed" class="preview-closed" />
+		</div>
+		<div class="preview-expanded-wrap">
+			<img src={img('/images/mach-notch-expanded.png')} alt="mach.notch expanded" class="preview-expanded" />
 		</div>
 	</div>
 
@@ -45,7 +58,17 @@ import Layout from '../layouts/Layout.astro';
 <style>
 	.hero {
 		text-align: center;
-		padding: 4rem 0 6rem 0;
+		padding: 4rem 0 3rem 0;
+	}
+
+	.hero-logo {
+		width: 110px;
+		height: 110px;
+		object-fit: contain;
+		margin: 0 auto 1.5rem auto;
+		display: block;
+		filter: invert(1);
+		mix-blend-mode: screen;
 	}
 
 	.title {
@@ -92,6 +115,49 @@ import Layout from '../layouts/Layout.astro';
 		color: var(--text-muted);
 	}
 
+	/* ── Screenshot preview ── */
+	.preview {
+		position: relative;
+		max-width: 860px;
+		margin: 2rem auto 5rem auto;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0;
+	}
+
+	.preview-closed-wrap {
+		width: 100%;
+		z-index: 2;
+		position: relative;
+		/* Clip to just the notch pill — discard the empty pink below it */
+		height: 72px;
+		overflow: hidden;
+		border-radius: 12px 12px 0 0;
+	}
+
+	.preview-closed {
+		width: 100%;
+		display: block;
+		/* Align to top so the notch pill is visible, pink emptiness is cropped */
+		object-fit: cover;
+		object-position: top center;
+	}
+
+	.preview-expanded-wrap {
+		width: 88%;
+		z-index: 1;
+		position: relative;
+	}
+
+	.preview-expanded {
+		width: 100%;
+		border-radius: 0 0 16px 16px;
+		display: block;
+		box-shadow: 0 16px 60px rgba(0, 0, 0, 0.55);
+	}
+
+	/* ── Cards ── */
 	.cards-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
