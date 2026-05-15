@@ -1,5 +1,5 @@
 {
-  "originHash" : "f0be7d1805032fdf7da6a7a81acf9fe1a27230cb069925de6c2c77b31af664d0",
+  "originHash" : "f895b4ff1a11d29ee0b36f0628bc24f5ef10d2e3abaaacda25c871c3fa7c5bf1",
   "pins" : [
     {
       "identity" : "asyncxpcconnection",
@@ -11,12 +11,21 @@
       }
     },
     {
+      "identity" : "csqlite",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/stephencelis/CSQLite",
+      "state" : {
+        "revision" : "bdb5580e54cdf49251b365ea34e2651199473240",
+        "version" : "3.50.4"
+      }
+    },
+    {
       "identity" : "defaults",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sindresorhus/Defaults",
       "state" : {
-        "revision" : "8192b0986611e105355a9433e99bf5c79469fbbd",
-        "version" : "9.0.6"
+        "revision" : "d9406c926b86a1ea642cab375b4745c5e15cc808",
+        "version" : "9.0.7"
       }
     },
     {
