@@ -16,14 +16,16 @@ enum HTTPRequestParser {
 
         let parts = requestLine.split(separator: " ")
         guard parts.count >= 2,
-              let method = APIHTTPMethod(rawValue: String(parts[0]))
+            let method = APIHTTPMethod(rawValue: String(parts[0]))
         else {
             return nil
         }
 
         var headers: [String: String] = [:]
         for line in lines.dropFirst() {
-            let pieces = line.split(separator: ":", maxSplits: 1).map { String($0).trimmingCharacters(in: .whitespaces) }
+            let pieces = line.split(separator: ":", maxSplits: 1).map {
+                String($0).trimmingCharacters(in: .whitespaces)
+            }
             if pieces.count == 2 {
                 headers[pieces[0].lowercased()] = pieces[1]
             }

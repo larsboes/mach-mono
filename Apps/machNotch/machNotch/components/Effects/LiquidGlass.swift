@@ -9,7 +9,7 @@
 import SwiftUI
 
 #if canImport(SwiftGlass)
-import SwiftGlass
+    import SwiftGlass
 #endif
 
 // Keep the configuration struct to avoid breaking other code that might reference it,
@@ -26,9 +26,9 @@ struct LiquidGlassConfiguration {
     var ambientLightOpacity: CGFloat = 0.08
     var edgeGlowOpacity: CGFloat = 0.3
     var blurRadius: Float = 20.0
-    
+
     static let `default` = LiquidGlassConfiguration()
-    
+
     static let subtle = LiquidGlassConfiguration(
         tintOpacity: 0.1,
         borderOpacity: 0.25,
@@ -37,7 +37,7 @@ struct LiquidGlassConfiguration {
         ambientLightOpacity: 0.04,
         edgeGlowOpacity: 0.15
     )
-    
+
     static let vibrant = LiquidGlassConfiguration(
         tintOpacity: 0.2,
         borderOpacity: 0.5,
@@ -52,20 +52,20 @@ struct LiquidGlassConfiguration {
 struct SwiftGlassAdapter: ViewModifier {
     var isEnabled: Bool
     var tintColor: Color?
-    
+
     func body(content: Content) -> some View {
         if isEnabled {
             #if canImport(SwiftGlass)
-            content
-                .liquefiedGlass(
-                    color: tintColor ?? .clear,
-                    blobIntensity: 0.2 // Default intensity, can be parameterized
-                )
+                content
+                    .liquefiedGlass(
+                        color: tintColor ?? .clear,
+                        blobIntensity: 0.2  // Default intensity, can be parameterized
+                    )
             #else
-            // Fallback to a simple material if SwiftGlass is not present yet
-            content
-                .background(.ultraThinMaterial)
-                .opacity(0.8)
+                // Fallback to a simple material if SwiftGlass is not present yet
+                content
+                    .background(.ultraThinMaterial)
+                    .opacity(0.8)
             #endif
         } else {
             content

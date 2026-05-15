@@ -5,8 +5,8 @@
 //  Created by Harsh Vardhan  Goswami  on 04/08/24.
 //
 
-import Foundation
 import Defaults
+import Foundation
 
 public enum Style {
     case notch
@@ -35,14 +35,14 @@ public struct NotchViews: Sendable, Hashable, Equatable {
     public static let shelf = NotchViews(id: PluginID.shelf)
     public static let notifications = NotchViews(id: PluginID.notifications)
     public static let clipboard = NotchViews(id: PluginID.clipboard)
-    public static let notes = NotchViews(id: "notes") // Legacy manual notes plugin mapping
+    public static let notes = NotchViews(id: "notes")  // Legacy manual notes plugin mapping
     public static let habitTracker = NotchViews(id: PluginID.habitTracker)
     public static let pomodoro = NotchViews(id: PluginID.pomodoro)
     public static let teleprompter = NotchViews(id: PluginID.teleprompter)
     public static let weather = NotchViews(id: PluginID.weather)
     public static let systemStats = NotchViews(id: PluginID.systemStats)
     public static let brief = NotchViews(id: PluginID.brief)
-    
+
     public static func plugin(_ id: String) -> NotchViews {
         return NotchViews(id: id)
     }

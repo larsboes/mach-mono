@@ -52,7 +52,8 @@ final class APIRouter: @unchecked Sendable, APIRouteRegistrar {
         let matched: (Route, [String: String])? = lock.withLock {
             for route in routes {
                 if route.method == request.method,
-                   let params = matchPattern(route.pattern, against: request.path) {
+                    let params = matchPattern(route.pattern, against: request.path)
+                {
                     return (route, params)
                 }
             }

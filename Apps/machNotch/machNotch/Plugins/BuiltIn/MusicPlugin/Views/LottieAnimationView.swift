@@ -13,7 +13,9 @@ struct LottieAnimationContainer: View {
         if let url = settings.selectedVisualizerURL {
             LottieView(url: url, speed: settings.selectedVisualizerSpeed, loopMode: .loop)
         } else {
-            LottieView(url: URL(string: "https://assets9.lottiefiles.com/packages/lf20_mniampqn.json")!, speed: 1.0, loopMode: .loop)
+            LottieView(
+                url: URL(string: "https://assets9.lottiefiles.com/packages/lf20_mniampqn.json")!, speed: 1.0,
+                loopMode: .loop)
         }
     }
 }

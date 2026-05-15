@@ -1,6 +1,6 @@
-import Foundation
-import Combine
 import AppKit
+import Combine
+import Foundation
 import SwiftUI
 
 /// Protocol defining the music service capabilities
@@ -16,12 +16,12 @@ protocol MusicServiceProtocol: Observable {
     var isShuffled: Bool { get }
     var repeatMode: RepeatMode { get }
     var isFavorite: Bool { get }
-    
+
     // Lyrics Support
     var currentLyrics: String { get }
     var isFetchingLyrics: Bool { get }
     var syncedLyrics: [(time: Double, text: String)] { get }
-    
+
     // Advanced Playback Info
     var songDuration: TimeInterval { get }
     var elapsedTime: TimeInterval { get }
@@ -32,7 +32,7 @@ protocol MusicServiceProtocol: Observable {
     var isPlayerIdle: Bool { get }
     var isNowPlayingDeprecated: Bool { get }
     var volumeControlSupported: Bool { get }
-    
+
     // Actions
     func play() async
     func pause() async
@@ -48,7 +48,7 @@ protocol MusicServiceProtocol: Observable {
     func syncVolumeFromActiveApp() async
     func destroy()
     func forceUpdate()
-    
+
     // Utilities
     func estimatedPlaybackPosition(at date: Date) -> TimeInterval
 

@@ -5,8 +5,8 @@
 //  Inline add/edit form for habits — lives inside the expanded notch panel.
 //
 
-import SwiftUI
 import AppKit
+import SwiftUI
 
 struct HabitFormView: View {
     let store: HabitStore
@@ -27,8 +27,9 @@ struct HabitFormView: View {
         self.onDone = onDone
         _title = State(initialValue: existingHabit?.title ?? "")
         _selectedSymbol = State(initialValue: existingHabit?.symbol ?? HabitStore.predefinedSymbols[0])
-        _selectedColorHex = State(initialValue: existingHabit?.colorHex
-            ?? (HabitStore.predefinedColors.randomElement()?.hexFormat ?? "#0066FF"))
+        _selectedColorHex = State(
+            initialValue: existingHabit?.colorHex
+                ?? (HabitStore.predefinedColors.randomElement()?.hexFormat ?? "#0066FF"))
         // Pre-populate custom field only when editing a non-standard symbol
         let sym = existingHabit?.symbol ?? ""
         _customSymbolName = State(initialValue: HabitStore.predefinedSymbols.contains(sym) ? "" : sym)
@@ -47,7 +48,9 @@ struct HabitFormView: View {
                     .background(RoundedRectangle(cornerRadius: 6).fill(.white.opacity(0.08)))
                     .frame(maxWidth: .infinity)
 
-                Button { onDone() } label: {
+                Button {
+                    onDone()
+                } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 10, weight: .bold))
                         .foregroundStyle(.white.opacity(0.55))
@@ -57,7 +60,10 @@ struct HabitFormView: View {
                 .buttonStyle(.plain)
                 .contentShape(Circle())
 
-                Button { save(); onDone() } label: {
+                Button {
+                    save()
+                    onDone()
+                } label: {
                     Image(systemName: "checkmark")
                         .font(.system(size: 10, weight: .bold))
                         .foregroundStyle(isValid ? .green : .white.opacity(0.25))
@@ -74,12 +80,17 @@ struct HabitFormView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 5) {
                         ForEach(HabitStore.predefinedSymbols, id: \.self) { symbol in
-                            Button { selectedSymbol = symbol; customSymbolName = "" } label: {
+                            Button {
+                                selectedSymbol = symbol
+                                customSymbolName = ""
+                            } label: {
                                 Image(systemName: symbol)
                                     .font(.system(size: 11))
                                     .foregroundStyle(selectedSymbol == symbol ? .white : .white.opacity(0.42))
                                     .frame(width: 26, height: 26)
-                                    .background(Circle().fill(selectedSymbol == symbol ? .white.opacity(0.18) : .white.opacity(0.06)))
+                                    .background(
+                                        Circle().fill(
+                                            selectedSymbol == symbol ? .white.opacity(0.18) : .white.opacity(0.06)))
                             }
                             .buttonStyle(.plain)
                             .contentShape(Circle())
@@ -92,7 +103,9 @@ struct HabitFormView: View {
 
                 HStack(spacing: 5) {
                     ForEach(HabitStore.predefinedColors, id: \.self) { color in
-                        Button { selectedColorHex = color.hexFormat } label: {
+                        Button {
+                            selectedColorHex = color.hexFormat
+                        } label: {
                             ZStack {
                                 Circle().fill(color).frame(width: 16, height: 16)
                                 if selectedColorHex.uppercased() == color.hexFormat.uppercased() {
@@ -108,10 +121,13 @@ struct HabitFormView: View {
 
             // Row 3: custom SF symbol input
             HStack(spacing: 6) {
-                Image(systemName: customSymbolName.isEmpty ? selectedSymbol : (isValidSymbol(customSymbolName) ? customSymbolName : selectedSymbol))
-                    .font(.system(size: 12))
-                    .foregroundStyle(.white.opacity(0.5))
-                    .frame(width: 20, height: 20)
+                Image(
+                    systemName: customSymbolName.isEmpty
+                        ? selectedSymbol : (isValidSymbol(customSymbolName) ? customSymbolName : selectedSymbol)
+                )
+                .font(.system(size: 12))
+                .foregroundStyle(.white.opacity(0.5))
+                .frame(width: 20, height: 20)
                 TextField("Custom SF Symbol…", text: $customSymbolName)
                     .textFieldStyle(.plain)
                     .font(.system(size: 10, design: .monospaced))

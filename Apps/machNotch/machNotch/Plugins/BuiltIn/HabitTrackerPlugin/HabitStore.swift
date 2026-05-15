@@ -18,17 +18,18 @@ final class HabitStore {
     private var saveTask: Task<Void, Never>?
 
     static let predefinedColors: [Color] = [
-        .red, .orange, .yellow, .green, .blue, .purple, .pink, .gray, .white
+        .red, .orange, .yellow, .green, .blue, .purple, .pink, .gray, .white,
     ]
 
     static let predefinedSymbols: [String] = [
         "circle.fill", "star.fill", "heart.fill", "flame.fill",
         "drop.fill", "bolt.fill", "book.fill", "figure.walk",
-        "keyboard", "cup.and.saucer.fill", "apple.logo"
+        "keyboard", "cup.and.saucer.fill", "apple.logo",
     ]
 
     init() {
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+        let appSupport =
+            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Application Support")
         let appDir = appSupport.appendingPathComponent("machNotch")
         try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true)
@@ -112,7 +113,8 @@ final class HabitStore {
     // MARK: - Stats
 
     func stats(for habitId: UUID) -> HabitStats {
-        let habitCompletions = completions
+        let habitCompletions =
+            completions
             .filter { $0.habitId == habitId }
             .map { $0.date }
             .sorted(by: >)

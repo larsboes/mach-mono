@@ -17,14 +17,18 @@ class AppleScriptHelper {
                 if let descriptor = script?.executeAndReturnError(&error) {
                     continuation.resume(returning: descriptor)
                 } else if let error = error {
-                    continuation.resume(throwing: NSError(domain: "AppleScriptError", code: 1, userInfo: error as? [String: Any]))
+                    continuation.resume(
+                        throwing: NSError(domain: "AppleScriptError", code: 1, userInfo: error as? [String: Any]))
                 } else {
-                    continuation.resume(throwing: NSError(domain: "AppleScriptError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unknown error"]))
+                    continuation.resume(
+                        throwing: NSError(
+                            domain: "AppleScriptError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unknown error"])
+                    )
                 }
             }
         }
     }
-    
+
     class func executeVoid(_ scriptText: String) async throws {
         _ = try await execute(scriptText)
     }

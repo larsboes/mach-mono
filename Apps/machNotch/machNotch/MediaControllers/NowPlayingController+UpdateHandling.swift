@@ -58,7 +58,8 @@ extension NowPlayingController {
         }
 
         if let dateString = payload.timestamp,
-           let date = ISO8601DateFormatter().date(from: dateString) {
+            let date = ISO8601DateFormatter().date(from: dateString)
+        {
             newPlaybackState.lastUpdated = date
         } else if !diff {
             newPlaybackState.lastUpdated = Date()
@@ -68,11 +69,9 @@ extension NowPlayingController {
 
         newPlaybackState.playbackRate = payload.playbackRate ?? (diff ? self.playbackState.playbackRate : 1.0)
         newPlaybackState.isPlaying = payload.playing ?? (diff ? self.playbackState.isPlaying : false)
-        newPlaybackState.bundleIdentifier = (
-            payload.parentApplicationBundleIdentifier ??
-            payload.bundleIdentifier ??
-            (diff ? self.playbackState.bundleIdentifier : "")
-        )
+        newPlaybackState.bundleIdentifier =
+            (payload.parentApplicationBundleIdentifier ?? payload.bundleIdentifier
+                ?? (diff ? self.playbackState.bundleIdentifier : ""))
         newPlaybackState.volume = payload.volume ?? (diff ? self.playbackState.volume : 0.5)
 
         if isBrowser(newPlaybackState.bundleIdentifier) {
@@ -104,11 +103,7 @@ extension NowPlayingController {
 
     func isBrowser(_ bundleID: String) -> Bool {
         let lower = bundleID.lowercased()
-        return lower.contains("chrome") ||
-               lower.contains("safari") ||
-               lower.contains("brave") ||
-               lower.contains("edgemac") ||
-               lower.contains("firefox") ||
-               lower.contains("thebrowser")
+        return lower.contains("chrome") || lower.contains("safari") || lower.contains("brave")
+            || lower.contains("edgemac") || lower.contains("firefox") || lower.contains("thebrowser")
     }
 }

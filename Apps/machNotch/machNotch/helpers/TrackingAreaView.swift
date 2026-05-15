@@ -49,7 +49,7 @@ struct TrackingAreaView: NSViewRepresentable {
 
             let options: NSTrackingArea.Options = [
                 .mouseEnteredAndExited,
-                .activeAlways
+                .activeAlways,
             ]
 
             trackingArea = NSTrackingArea(

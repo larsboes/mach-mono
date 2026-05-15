@@ -13,7 +13,8 @@ extension NotchViewCoordinator {
     @objc func sneakPeekEvent(_ notification: Notification) {
         let decoder = JSONDecoder()
         guard let rawData = notification.userInfo?.first?.value as? Data,
-              let decodedData = try? decoder.decode(SharedSneakPeek.self, from: rawData) else {
+            let decodedData = try? decoder.decode(SharedSneakPeek.self, from: rawData)
+        else {
             return
         }
 
@@ -57,7 +58,7 @@ extension NotchViewCoordinator {
         if type == .mic {
             settings.currentMicStatus = value == 1
         }
-        
+
         if status {
             scheduleSneakPeekHide(after: sneakPeekDuration)
         }

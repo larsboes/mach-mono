@@ -5,12 +5,12 @@
 //  Created by Alexander on 2025-09-24.
 //
 
-import Foundation
 import AppKit
+import CoreServices
+import Foundation
+import ObjectiveC
 import SwiftUI
 import UniformTypeIdentifiers
-import CoreServices
-import ObjectiveC
 
 @MainActor
 @Observable
@@ -20,7 +20,7 @@ final class ShelfItemViewModel {
     var isDropTargeted: Bool = false
     var isRenaming: Bool = false
     var draftTitle: String = ""
-    
+
     // Services are now accessed via injection in methods
 
     init(item: ShelfItem) {
@@ -35,22 +35,32 @@ final class ShelfItemViewModel {
     }
 
     // MARK: - Actions
-    func handleClick(event: NSEvent, view: NSView, items: [ShelfItem], service: ShelfServiceProtocol, selection: ShelfSelectionModel, quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService) {
+    func handleClick(
+        event: NSEvent, view: NSView, items: [ShelfItem], service: ShelfServiceProtocol, selection: ShelfSelectionModel,
+        quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService
+    ) {
         let flags = event.modifierFlags
         if flags.contains(.shift) {
             selection.shiftSelect(to: item, in: items)
         } else if flags.contains(.command) {
             selection.toggle(item)
         } else if flags.contains(.control) {
-            handleRightClick(event: event, view: view, service: service, selection: selection, quickLookService: quickLookService, quickShareService: quickShareService)
+            handleRightClick(
+                event: event, view: view, service: service, selection: selection, quickLookService: quickLookService,
+                quickShareService: quickShareService)
         } else {
             if !selection.isSelected(item.id) { selection.selectSingle(item) }
         }
         if event.clickCount == 2 { handleDoubleClick(items: items, service: service, selection: selection) }
     }
 
-    func handleRightClick(event: NSEvent, view: NSView, service: ShelfServiceProtocol, selection: ShelfSelectionModel, quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService) {
-        ShelfContextMenuHandler.present(event: event, in: view, item: item, service: service, selection: selection, quickLookService: quickLookService, quickShareService: quickShareService)
+    func handleRightClick(
+        event: NSEvent, view: NSView, service: ShelfServiceProtocol, selection: ShelfSelectionModel,
+        quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService
+    ) {
+        ShelfContextMenuHandler.present(
+            event: event, in: view, item: item, service: service, selection: selection,
+            quickLookService: quickLookService, quickShareService: quickShareService)
     }
 
     func handleDoubleClick(items: [ShelfItem], service: ShelfServiceProtocol, selection: ShelfSelectionModel) {

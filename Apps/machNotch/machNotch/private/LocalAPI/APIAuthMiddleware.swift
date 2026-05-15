@@ -51,14 +51,15 @@ final class APIAuthMiddleware: @unchecked Sendable {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: account,
-            kSecReturnData as String: true
+            kSecReturnData as String: true,
         ]
 
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
 
         if status == errSecSuccess, let data = result as? Data,
-           let token = String(data: data, encoding: .utf8) {
+            let token = String(data: data, encoding: .utf8)
+        {
             return token
         }
 
@@ -72,7 +73,7 @@ final class APIAuthMiddleware: @unchecked Sendable {
         // Delete existing
         let deleteQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: account
+            kSecAttrAccount as String: account,
         ]
         SecItemDelete(deleteQuery as CFDictionary)
 
@@ -80,7 +81,7 @@ final class APIAuthMiddleware: @unchecked Sendable {
         let addQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: account,
-            kSecValueData as String: data
+            kSecValueData as String: data,
         ]
 
         return SecItemAdd(addQuery as CFDictionary, nil) == errSecSuccess

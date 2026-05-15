@@ -45,14 +45,14 @@ struct ContentView: View {
                 vm.shelfService = pluginManager.services.shelf
             }
         }()
-        
+
         // Calculate scale based on gesture progress only
         let gestureScale: CGFloat = {
             guard gestureProgress != 0 else { return 1.0 }
             let scaleFactor = 1.0 + gestureProgress * 0.01
             return max(0.6, scaleFactor)
         }()
-        
+
         ZStack(alignment: .top) {
             VStack(spacing: 0) {
                 NotchContentRouter(
@@ -63,48 +63,56 @@ struct ContentView: View {
                     cornerRadiusScaleFactor: cornerRadiusScaleFactor,
                     cornerRadiusInsets: cornerRadiusInsets
                 )
-                    .environment(\.contentProgress, contentProgress)
-                    .environment(\.isNotchClosing, vm.phase == .closing)
-                    .onDrop(of: [.fileURL, .url, .utf8PlainText, .plainText, .data], delegate: GeneralDropTargetDelegate(isTargeted: $vm.generalDropTargeting))
-                    .frame(width: computedChinWidth, alignment: .top)
-                    // Smooth width changes when closed (music ears, battery, face).
-                    // nil during transitions — those are driven by withAnimation in open()/close().
-                    .animation(vm.phase == .closed ? .smooth(duration: 0.3) : nil, value: computedChinWidth)
-                    // Smoothly interpolate bottom padding based on animation progress
-                    .padding(.bottom, lerp(0, 12, animationProgress))
-                    .frame(height: isDisplayStateOpen ? vm.notchSize.height : nil, alignment: .top)
-                    .clipped()
-                    .clipShape(currentNotchShape)
-                    .background { notchBackground }
-                    .overlay { glassOverlay }
-                    .background(alignment: .top) { ambientVisualizerOverlay }
-                    // Single animation for phase transitions (animations handled in ViewModel)
-                    // Keep gesture progress animation separate for responsive feedback
-                    .animation(.smooth, value: gestureProgress)
-                    .background {
-                        TrackingAreaView { signal in
-                            vm.handleHoverSignal(signal)
-                        }
+                .environment(\.contentProgress, contentProgress)
+                .environment(\.isNotchClosing, vm.phase == .closing)
+                .onDrop(
+                    of: [.fileURL, .url, .utf8PlainText, .plainText, .data],
+                    delegate: GeneralDropTargetDelegate(isTargeted: $vm.generalDropTargeting)
+                )
+                .frame(width: computedChinWidth, alignment: .top)
+                // Smooth width changes when closed (music ears, battery, face).
+                // nil during transitions — those are driven by withAnimation in open()/close().
+                .animation(vm.phase == .closed ? .smooth(duration: 0.3) : nil, value: computedChinWidth)
+                // Smoothly interpolate bottom padding based on animation progress
+                .padding(.bottom, lerp(0, 12, animationProgress))
+                .frame(height: isDisplayStateOpen ? vm.notchSize.height : nil, alignment: .top)
+                .clipped()
+                .clipShape(currentNotchShape)
+                .background { notchBackground }
+                .overlay { glassOverlay }
+                .background(alignment: .top) { ambientVisualizerOverlay }
+                // Single animation for phase transitions (animations handled in ViewModel)
+                // Keep gesture progress animation separate for responsive feedback
+                .animation(.smooth, value: gestureProgress)
+                .background {
+                    TrackingAreaView { signal in
+                        vm.handleHoverSignal(signal)
                     }
-                    .panGesture(direction: .down, disabled: !settings.enableGestures || uiContext.isScrollableViewPresented) { translation, phase in
-                        handleDownGesture(translation: translation, phase: phase)
+                }
+                .panGesture(direction: .down, disabled: !settings.enableGestures || uiContext.isScrollableViewPresented)
+                { translation, phase in
+                    handleDownGesture(translation: translation, phase: phase)
+                }
+                .panGesture(
+                    direction: .up,
+                    disabled: !settings.closeGestureEnabled || !settings.enableGestures
+                        || uiContext.isScrollableViewPresented
+                ) { translation, phase in
+                    handleUpGesture(translation: translation, phase: phase)
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .sharingDidFinish)) { _ in
+                    // Cancel any pending close when sharing finishes
+                    if pluginManager?.services.sharing.preventNotchClose != true {
+                        vm.cancelPendingClose()
                     }
-                    .panGesture(direction: .up, disabled: !settings.closeGestureEnabled || !settings.enableGestures || uiContext.isScrollableViewPresented) { translation, phase in
-                        handleUpGesture(translation: translation, phase: phase)
+                }
+                .sensoryFeedback(.alignment, trigger: haptics)
+                .contextMenu {
+                    Button("Settings") {
+                        showSettingsWindow()
                     }
-                    .onReceive(NotificationCenter.default.publisher(for: .sharingDidFinish)) { _ in
-                        // Cancel any pending close when sharing finishes
-                        if pluginManager?.services.sharing.preventNotchClose != true {
-                            vm.cancelPendingClose()
-                        }
-                    }
-                    .sensoryFeedback(.alignment, trigger: haptics)
-                    .contextMenu {
-                        Button("Settings") {
-                            showSettingsWindow()
-                        }
-                        .keyboardShortcut(KeyEquivalent(","), modifiers: .command)
-                    }
+                    .keyboardShortcut(KeyEquivalent(","), modifiers: .command)
+                }
                 if vm.chinHeight > 0 {
                     Rectangle()
                         .fill(Color.black.opacity(0.01))
@@ -167,11 +175,12 @@ struct ContentView: View {
             Color.clear
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .contentShape(Rectangle())
-                .onDrop(of: [.fileURL, .url, .utf8PlainText, .plainText, .data], isTargeted: $vm.dragDetectorTargeting) { providers in
-                    vm.dropEvent = true
-                    pluginManager.services.shelf.load(providers)
-                    return true
-                }
+                .onDrop(of: [.fileURL, .url, .utf8PlainText, .plainText, .data], isTargeted: $vm.dragDetectorTargeting)
+            { providers in
+                vm.dropEvent = true
+                pluginManager.services.shelf.load(providers)
+                return true
+            }
         } else {
             EmptyView()
         }

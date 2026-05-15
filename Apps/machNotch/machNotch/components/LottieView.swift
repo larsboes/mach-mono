@@ -5,9 +5,9 @@
 //  Created by Alexander on 2025-11-14.
 //
 
-import SwiftUI
 import Lottie
 import ObjectiveC
+import SwiftUI
 
 struct LottieView: NSViewRepresentable {
     let url: URL
@@ -25,7 +25,7 @@ struct LottieView: NSViewRepresentable {
             animationView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
             animationView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             animationView.topAnchor.constraint(equalTo: container.topAnchor),
-            animationView.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+            animationView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
         ])
         return container
     }

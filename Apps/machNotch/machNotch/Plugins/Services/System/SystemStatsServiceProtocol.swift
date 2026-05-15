@@ -1,10 +1,10 @@
-    //
+//
 //  SystemStatsServiceProtocol.swift
 //  machNotch
 //
 
-import Foundation
 import Darwin
+import Foundation
 import Observation
 
 struct SystemStats: Equatable, Sendable {
@@ -229,7 +229,8 @@ final class SystemStatsService: SystemStatsServiceProtocol {
 
         // Guard against counter reset or interface change causing underflow
         guard sample.receivedBytes >= previous.receivedBytes,
-              sample.sentBytes >= previous.sentBytes else {
+            sample.sentBytes >= previous.sentBytes
+        else {
             previousNetworkSample = sample
             return (0, 0)
         }

@@ -31,9 +31,9 @@ extension ContentView {
         let currentHeight = vm.notchSize.height
         let openHeight = openNotchSize.height
         let closedHeight = displayClosedNotchHeight
-        
+
         let heightProgress = max(0, min(1, (currentHeight - closedHeight) / (openHeight - closedHeight)))
-        
+
         return max(vm.shellAnimationProgress, heightProgress)
     }
 
@@ -137,7 +137,8 @@ extension ContentView {
             } else {
                 // For close gesture, we just use a simple scale/offset or trigger close.
                 // Reverting to the existing logic just for visual feedback until close is scrubbed too.
-                withAnimation(StandardAnimations.interactive) { gestureProgress = value * -20 } // Restore scale for close
+                // Restore scale for close
+                withAnimation(StandardAnimations.interactive) { gestureProgress = value * -20 }
             }
         case .reset:
             if openAction != nil {

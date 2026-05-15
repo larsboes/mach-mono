@@ -1,5 +1,5 @@
-import Foundation
 import EventKit
+import Foundation
 import SwiftUI
 
 @MainActor
@@ -12,7 +12,7 @@ protocol CalendarServiceProtocol: Observable {
     var allCalendars: [CalendarModel] { get }
     var eventCalendars: [CalendarModel] { get }
     var reminderLists: [CalendarModel] { get }
-    
+
     func refreshAuthorizationStatus()
     func checkCalendarAuthorization() async
     func checkReminderAuthorization() async
@@ -20,7 +20,7 @@ protocol CalendarServiceProtocol: Observable {
     func setCalendarSelected(_ calendar: CalendarModel, isSelected: Bool) async
     func setReminderCompleted(reminderID: String, completed: Bool) async
     func reloadCalendarAndReminderLists() async
-    
+
     // Additional helper from CalendarManager
     func getCalendarSelected(_ calendar: CalendarModel) -> Bool
 }

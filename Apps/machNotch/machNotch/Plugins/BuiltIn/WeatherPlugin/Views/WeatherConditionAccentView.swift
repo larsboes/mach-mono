@@ -59,8 +59,10 @@ struct WeatherConditionAccentView: View {
                 )
                 .opacity(animate ? 0.16 : 0.42)
                 .animation(
-                    reduceMotion ? nil : .easeInOut(duration: 1.8 + Double(index) * 0.18)
-                        .repeatForever(autoreverses: false),
+                    reduceMotion
+                        ? nil
+                        : .easeInOut(duration: 1.8 + Double(index) * 0.18)
+                            .repeatForever(autoreverses: false),
                     value: animate
                 )
         }

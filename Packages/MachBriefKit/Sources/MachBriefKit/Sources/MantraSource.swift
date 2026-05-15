@@ -35,6 +35,6 @@ extension MantraSource {
     static let fallbackMantras: [MantraItem] = [
         .init(text: "I can take one calm breath at a time."),
         .init(text: "Small progress still counts."),
-        .init(text: "I choose steadiness over urgency.")
+        .init(text: "I choose steadiness over urgency."),
     ]
 }

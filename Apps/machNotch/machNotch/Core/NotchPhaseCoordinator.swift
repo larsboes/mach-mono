@@ -26,7 +26,7 @@ protocol NotchPhaseDelegate: AnyObject {
     var services: any NotchServiceProvider { get }
     var shelfService: ShelfServiceProtocol? { get }
     var isHoveringNotch: Bool { get }
-    
+
     func syncWindowState()
     func handleHoverSignal(_ signal: HoverSignal)
     func syncAnimationState(animated: Bool)
@@ -36,7 +36,7 @@ protocol NotchPhaseDelegate: AnyObject {
 @MainActor
 @Observable final class NotchPhaseCoordinator {
     weak var delegate: (any NotchPhaseDelegate)?
-    
+
     private(set) var phase: NotchPhase = .closed {
         didSet {
             guard phase != oldValue else { return }
@@ -44,10 +44,10 @@ protocol NotchPhaseDelegate: AnyObject {
             delegate?.syncBackgroundServices()
         }
     }
-    
+
     @ObservationIgnored var closeWatchdogTask: Task<Void, Never>?
     @ObservationIgnored var postCloseHoverTask: Task<Void, Never>?
-    
+
     init() {}
 
     func open(initialVelocity: CGFloat = 0) {
@@ -67,10 +67,11 @@ protocol NotchPhaseDelegate: AnyObject {
 
         // Shell expands — velocity determines spring character:
         // tap/keyboard (0) → confident settle, fast fling → playful overshoot
-        let openAnimation = initialVelocity > 0
+        let openAnimation =
+            initialVelocity > 0
             ? StandardAnimations.openWithVelocity(initialVelocity)
             : StandardAnimations.open
-            
+
         withAnimation(openAnimation) {
             delegate.notchSize = openNotchSize
             self.phase = .opening
@@ -136,7 +137,7 @@ protocol NotchPhaseDelegate: AnyObject {
                 }
             }
         }
-        
+
         // --- Safety Watchdog ---
         closeWatchdogTask?.cancel()
         closeWatchdogTask = Task { @MainActor [weak self] in

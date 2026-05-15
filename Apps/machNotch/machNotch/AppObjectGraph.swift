@@ -114,7 +114,8 @@ final class AppObjectGraph {
     }()
 
     lazy var keyboardShortcutCoordinator: KeyboardShortcutCoordinator = {
-        KeyboardShortcutCoordinator(coordinator: coordinator, eventBus: eventBus, windowCoordinator: windowCoordinator, settings: settings)
+        KeyboardShortcutCoordinator(
+            coordinator: coordinator, eventBus: eventBus, windowCoordinator: windowCoordinator, settings: settings)
     }()
 
     lazy var dragDetectionCoordinator: DragDetectionCoordinator = {
@@ -214,70 +215,94 @@ final class AppObjectGraph {
         }
 
         // showOnAllDisplays → full window layout reset
-        observerTasks.append(Task { @MainActor [weak self] in
-            while !Task.isCancelled {
-                await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
-                    withObservationTracking { _ = self?.settings.showOnAllDisplays } onChange: { c.resume() }
+        observerTasks.append(
+            Task { @MainActor [weak self] in
+                while !Task.isCancelled {
+                    await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+                        withObservationTracking {
+                            _ = self?.settings.showOnAllDisplays
+                        } onChange: {
+                            c.resume()
+                        }
+                    }
+                    guard let self, !Task.isCancelled else { return }
+                    self.cleanupWindows(shouldInvert: true)
+                    self.adjustWindowPosition(changeAlpha: true)
+                    self.setupDragDetectors()
                 }
-                guard let self, !Task.isCancelled else { return }
-                self.cleanupWindows(shouldInvert: true)
-                self.adjustWindowPosition(changeAlpha: true)
-                self.setupDragDetectors()
-            }
-        })
+            })
 
         // automaticallySwitchDisplay → window alpha for multi-display
-        observerTasks.append(Task { @MainActor [weak self] in
-            while !Task.isCancelled {
-                await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
-                    withObservationTracking { _ = self?.settings.automaticallySwitchDisplay } onChange: { c.resume() }
+        observerTasks.append(
+            Task { @MainActor [weak self] in
+                while !Task.isCancelled {
+                    await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+                        withObservationTracking {
+                            _ = self?.settings.automaticallySwitchDisplay
+                        } onChange: {
+                            c.resume()
+                        }
+                    }
+                    guard let self, !Task.isCancelled else { return }
+                    guard let window = self.window else { continue }
+                    window.alphaValue =
+                        self.coordinator.selectedScreenUUID == self.coordinator.preferredScreenUUID ? 1 : 0
                 }
-                guard let self, !Task.isCancelled else { return }
-                guard let window = self.window else { continue }
-                window.alphaValue = self.coordinator.selectedScreenUUID == self.coordinator.preferredScreenUUID ? 1 : 0
-            }
-        })
+            })
 
         // Sizing properties → window position + drag detector geometry
-        observerTasks.append(Task { @MainActor [weak self] in
-            while !Task.isCancelled {
-                await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
-                    withObservationTracking {
-                        _ = self?.settings.notchHeight
-                        _ = self?.settings.notchHeightMode
-                        _ = self?.settings.nonNotchHeight
-                        _ = self?.settings.nonNotchHeightMode
-                        _ = self?.settings.inactiveNotchHeight
-                        _ = self?.settings.useInactiveNotchHeight
-                    } onChange: { c.resume() }
+        observerTasks.append(
+            Task { @MainActor [weak self] in
+                while !Task.isCancelled {
+                    await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+                        withObservationTracking {
+                            _ = self?.settings.notchHeight
+                            _ = self?.settings.notchHeightMode
+                            _ = self?.settings.nonNotchHeight
+                            _ = self?.settings.nonNotchHeightMode
+                            _ = self?.settings.inactiveNotchHeight
+                            _ = self?.settings.useInactiveNotchHeight
+                        } onChange: {
+                            c.resume()
+                        }
+                    }
+                    guard let self, !Task.isCancelled else { return }
+                    self.adjustWindowPosition()
+                    self.setupDragDetectors()
                 }
-                guard let self, !Task.isCancelled else { return }
-                self.adjustWindowPosition()
-                self.setupDragDetectors()
-            }
-        })
+            })
 
         // expandedDragDetection → drag detector rebuild
-        observerTasks.append(Task { @MainActor [weak self] in
-            while !Task.isCancelled {
-                await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
-                    withObservationTracking { _ = self?.settings.expandedDragDetection } onChange: { c.resume() }
+        observerTasks.append(
+            Task { @MainActor [weak self] in
+                while !Task.isCancelled {
+                    await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+                        withObservationTracking {
+                            _ = self?.settings.expandedDragDetection
+                        } onChange: {
+                            c.resume()
+                        }
+                    }
+                    guard let self, !Task.isCancelled else { return }
+                    self.setupDragDetectors()
                 }
-                guard let self, !Task.isCancelled else { return }
-                self.setupDragDetectors()
-            }
-        })
+            })
 
         // coordinator.selectedScreenUUID → window position after preferred screen change
-        observerTasks.append(Task { @MainActor [weak self] in
-            while !Task.isCancelled {
-                await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
-                    withObservationTracking { _ = self?.coordinator.selectedScreenUUID } onChange: { c.resume() }
+        observerTasks.append(
+            Task { @MainActor [weak self] in
+                while !Task.isCancelled {
+                    await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+                        withObservationTracking {
+                            _ = self?.coordinator.selectedScreenUUID
+                        } onChange: {
+                            c.resume()
+                        }
+                    }
+                    guard let self, !Task.isCancelled else { return }
+                    self.adjustWindowPosition(changeAlpha: true)
+                    self.setupDragDetectors()
                 }
-                guard let self, !Task.isCancelled else { return }
-                self.adjustWindowPosition(changeAlpha: true)
-                self.setupDragDetectors()
-            }
-        })
+            })
     }
 }

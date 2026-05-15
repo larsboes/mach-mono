@@ -24,7 +24,7 @@ struct NotchContentRouter: View {
 
     /// Height to use for closed notch content
     var closedNotchHeight: CGFloat
-    
+
     var cornerRadiusScaleFactor: CGFloat?
     var cornerRadiusInsets: CornerRadiusInsets
 
@@ -50,10 +50,10 @@ struct NotchContentRouter: View {
             }
         }
         .environment(coordinator)
-    .environment(\.displayClosedNotchHeight, closedNotchHeight)
-    .environment(\.cornerRadiusScaleFactor, cornerRadiusScaleFactor)
-    .environment(\.cornerRadiusInsets, cornerRadiusInsets)
-    .environment(\.albumArtNamespace, albumArtNamespace)
+        .environment(\.displayClosedNotchHeight, closedNotchHeight)
+        .environment(\.cornerRadiusScaleFactor, cornerRadiusScaleFactor)
+        .environment(\.cornerRadiusInsets, cornerRadiusInsets)
+        .environment(\.albumArtNamespace, albumArtNamespace)
     }
 
     // MARK: - Hello Animation
@@ -126,11 +126,13 @@ struct NotchContentRouter: View {
                 Image(systemName: "music.note")
                 GeometryReader { geo in
                     if let musicPlugin = pluginManager?.plugin(id: PluginID.music, as: MusicPlugin.self),
-                       let track = musicPlugin.musicService?.currentTrack {
+                        let track = musicPlugin.musicService?.currentTrack
+                    {
                         MarqueeText(
                             track.title + " - " + track.artist,
                             color: settings.playerColorTinting
-                                ? Color(nsColor: musicPlugin.musicService?.avgColor ?? .gray).ensureMinimumBrightness(factor: 0.6)
+                                ? Color(nsColor: musicPlugin.musicService?.avgColor ?? .gray).ensureMinimumBrightness(
+                                    factor: 0.6)
                                 : .gray,
                             delayDuration: 1.0,
                             frameWidth: geo.size.width
@@ -173,12 +175,13 @@ struct NotchContentRouter: View {
         VStack(spacing: 12) {
             // Header should just clear the physical notch
             NotchHeader()
-                .frame(height: max(
-                    54, // Increased from 44 to prevent cutoff
-                    (NSScreen.screen(withUUID: coordinator.selectedScreenUUID)?.safeAreaInsets.top
-                        ?? (NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first)?.safeAreaInsets.top
-                        ?? 0) + 10 // Add some breathing room
-                ))
+                .frame(
+                    height: max(
+                        54,  // Increased from 44 to prevent cutoff
+                        (NSScreen.screen(withUUID: coordinator.selectedScreenUUID)?.safeAreaInsets.top
+                            ?? (NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first)?.safeAreaInsets.top
+                            ?? 0) + 10  // Add some breathing room
+                    ))
 
             // Content area with padding to avoid notch-edge clipping
             Group {
@@ -194,18 +197,18 @@ struct NotchContentRouter: View {
                 default:
                     if let pluginManager {
                         pluginManager.expandedPanelView(for: view.id)
-                            .environment(vm) // Provide vm because Shelf uses it
+                            .environment(vm)  // Provide vm because Shelf uses it
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity) // Ensure content area is flexible
-            .contentReveal(progress: vm.contentRevealProgress, staggerIndex: 2) // Unified transition for ALL plugins
-            .padding(.horizontal, 32) // Match header padding (32) to stay inside rounded corners
-            .padding(.bottom, 16)      // Bottom padding to avoid bottom-corner clipping
-            .clipped()                 // Strict clipping at padding boundary
+            .frame(maxWidth: .infinity, maxHeight: .infinity)  // Ensure content area is flexible
+            .contentReveal(progress: vm.contentRevealProgress, staggerIndex: 2)  // Unified transition for ALL plugins
+            .padding(.horizontal, 32)  // Match header padding (32) to stay inside rounded corners
+            .padding(.bottom, 16)  // Bottom padding to avoid bottom-corner clipping
+            .clipped()  // Strict clipping at padding boundary
         }
-        .clipped() // Ensure entire open content VStack is clipped at the island height boundary
+        .clipped()  // Ensure entire open content VStack is clipped at the island height boundary
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
@@ -213,18 +216,18 @@ struct NotchContentRouter: View {
 // MARK: - Preview Provider
 
 #if DEBUG
-struct NotchContentRouter_Previews: PreviewProvider {
-    @Namespace static var namespace
+    struct NotchContentRouter_Previews: PreviewProvider {
+        @Namespace static var namespace
 
-    static var previews: some View {
-        NotchContentRouter(
-            displayState: NotchDisplayState.closed(content: NotchDisplayState.ClosedContent.idle),
-            albumArtNamespace: namespace,
-            coordinator: NotchViewCoordinator(settings: MockNotchSettings(), xpcHelper: XPCHelperClient.shared),
-            closedNotchHeight: CGFloat(32),
-            cornerRadiusScaleFactor: 1.0,
-            cornerRadiusInsets: CornerRadiusInsets(opened: (top: 19, bottom: 24), closed: (top: 6, bottom: 14))
-        )
+        static var previews: some View {
+            NotchContentRouter(
+                displayState: NotchDisplayState.closed(content: NotchDisplayState.ClosedContent.idle),
+                albumArtNamespace: namespace,
+                coordinator: NotchViewCoordinator(settings: MockNotchSettings(), xpcHelper: XPCHelperClient.shared),
+                closedNotchHeight: CGFloat(32),
+                cornerRadiusScaleFactor: 1.0,
+                cornerRadiusInsets: CornerRadiusInsets(opened: (top: 19, bottom: 24), closed: (top: 6, bottom: 14))
+            )
+        }
     }
-}
 #endif

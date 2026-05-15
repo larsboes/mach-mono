@@ -125,9 +125,10 @@ struct TeleprompterExpandedView: View {
                 .padding(.horizontal, 14)
                 .background(
                     Capsule()
-                        .fill(state.text.isEmpty
-                            ? Color.white.opacity(0.05)
-                            : Color.white.opacity(0.9))
+                        .fill(
+                            state.text.isEmpty
+                                ? Color.white.opacity(0.05)
+                                : Color.white.opacity(0.9))
                 )
                 .foregroundStyle(state.text.isEmpty ? .gray.opacity(0.3) : .black)
             }
@@ -151,7 +152,8 @@ struct TeleprompterExpandedView: View {
 
     private func pasteFromClipboard() {
         guard let content = NSPasteboard.general.string(forType: .string),
-              !content.isEmpty else { return }
+            !content.isEmpty
+        else { return }
         state.text = content
         state.reset()
     }

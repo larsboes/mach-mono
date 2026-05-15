@@ -45,9 +45,9 @@ struct DynamicNotchApp: App {
         let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
 
         #if DEBUG
-        let startUpdater = false
+            let startUpdater = false
         #else
-        let startUpdater = !isRunningTests
+            let startUpdater = !isRunningTests
         #endif
         updaterController = SPUStandardUpdaterController(
             startingUpdater: startUpdater, updaterDelegate: nil, userDriverDelegate: userDriverDelegate)
@@ -120,7 +120,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func handleURLEvent(_ event: NSAppleEventDescriptor, withReply reply: NSAppleEventDescriptor) {
         guard let urlString = event.paramDescriptor(forKeyword: keyDirectObject)?.stringValue,
-              let url = URL(string: urlString) else { return }
+            let url = URL(string: urlString)
+        else { return }
         URLSchemeHandler.handle(url, graph: graph)
     }
 
@@ -150,7 +151,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             pluginManager: pluginManager,
             settings: graph.settings
         )
-        
+
         ScreenDisplayRegistry.shared.onScreensChanged = { [weak self] in
             self?.screenConfigurationDidChange()
         }
@@ -176,12 +177,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         if coordinator.firstLaunch {
             Task { @MainActor in
-self.showOnboardingWindow()
+                self.showOnboardingWindow()
             }
         } else if pluginManager.services.music.isNowPlayingDeprecated
-            && graph.settings.mediaController == .nowPlaying {
+            && graph.settings.mediaController == .nowPlaying
+        {
             Task { @MainActor in
-self.showOnboardingWindow(step: .musicPermission)
+                self.showOnboardingWindow(step: .musicPermission)
             }
         }
 
@@ -214,7 +216,8 @@ self.showOnboardingWindow(step: .musicPermission)
             currentScreens.count != previousScreens?.count
             || Set(currentScreens.compactMap { $0.displayUUID })
                 != Set(previousScreens?.compactMap { $0.displayUUID } ?? [])
-            || Set(currentScreens.map { $0.frame.debugDescription }) != Set(previousScreens?.map { $0.frame.debugDescription } ?? [])
+            || Set(currentScreens.map { $0.frame.debugDescription })
+                != Set(previousScreens?.map { $0.frame.debugDescription } ?? [])
 
         previousScreens = currentScreens
 

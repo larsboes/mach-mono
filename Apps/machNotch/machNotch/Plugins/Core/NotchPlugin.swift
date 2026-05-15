@@ -5,8 +5,8 @@
 //  Core plugin protocol that every plugin must implement.
 //
 
-import SwiftUI
 import Combine
+import SwiftUI
 
 // MARK: - Core Plugin Protocol
 
@@ -91,10 +91,10 @@ struct DisplayCategory: RawRepresentable, Equatable, Sendable {
 }
 
 enum DisplayPriority: Int, Comparable, Sendable {
-    case background = 0    // Only if nothing else is showing
-    case normal = 10       // Standard content (e.g., weather)
-    case high = 20         // Active content (e.g., music playing)
-    case critical = 30     // Urgent (e.g., battery low)
+    case background = 0  // Only if nothing else is showing
+    case normal = 10  // Standard content (e.g., weather)
+    case high = 20  // Active content (e.g., music playing)
+    case critical = 30  // Urgent (e.g., battery low)
 
     static func < (lhs: DisplayPriority, rhs: DisplayPriority) -> Bool {
         lhs.rawValue < rhs.rawValue
@@ -287,7 +287,7 @@ struct AnyNotchPlugin: Identifiable {
 
     var displayRequest: DisplayRequest? { _displayRequest() }
     var closedNotchPosition: ClosedNotchPosition? { _closedNotchPosition() }
-    
+
     func closedNotchContent() -> AnyView { _closedNotchContent() }
     func expandedPanelContent() -> AnyView { _expandedPanelContent() }
     func settingsContent() -> AnyView { _settingsContent() }

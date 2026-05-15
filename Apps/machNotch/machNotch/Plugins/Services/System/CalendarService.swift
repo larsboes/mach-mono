@@ -1,12 +1,12 @@
-import Foundation
 import EventKit
+import Foundation
 import SwiftUI
 
 @MainActor
 @Observable
 class CalendarService: CalendarServiceProtocol {
     // MARK: - Properties
-    
+
     var events: [EventModel] = []
     var currentWeekStartDate: Date
     var allCalendars: [CalendarModel] = []
@@ -15,23 +15,23 @@ class CalendarService: CalendarServiceProtocol {
     var selectedCalendarIDs: Set<String> = []
     var calendarAuthorizationStatus: EKAuthorizationStatus = .notDetermined
     var reminderAuthorizationStatus: EKAuthorizationStatus = .notDetermined
-    
+
     private var selectedCalendars: [CalendarModel] = []
     private let dataProvider = CalendarDataProvider()
-    
+
     // Wrapper to handle non-Sendable observers safely
     private final class ObserverContainer: @unchecked Sendable {
         var observer: NSObjectProtocol?
     }
-    
+
     @ObservationIgnored nonisolated private let observerContainer = ObserverContainer()
-    
+
     // MARK: - Settings Protocol
-    
+
     private var settings: any NotchCalendarSettings
-    
+
     // MARK: - Initialization
-    
+
     init(settings: any NotchCalendarSettings) {
         self.settings = settings
         self.currentWeekStartDate = Calendar.current.startOfDay(for: Date())
@@ -40,15 +40,15 @@ class CalendarService: CalendarServiceProtocol {
             await reloadCalendarAndReminderLists()
         }
     }
-    
+
     deinit {
         if let observer = observerContainer.observer {
             NotificationCenter.default.removeObserver(observer)
         }
     }
-    
+
     // MARK: - Setup
-    
+
     private func setupEventStoreChangedObserver() {
         observerContainer.observer = NotificationCenter.default.addObserver(
             forName: .EKEventStoreChanged,
@@ -60,9 +60,9 @@ class CalendarService: CalendarServiceProtocol {
             }
         }
     }
-    
+
     // MARK: - Methods
-    
+
     func reloadCalendarAndReminderLists() async {
         let all = await dataProvider.calendars()
         self.eventCalendars = all.filter { !$0.isReminder }
@@ -70,7 +70,7 @@ class CalendarService: CalendarServiceProtocol {
         self.allCalendars = all
         updateSelectedCalendars()
     }
-    
+
     /// Read current authorization status without prompting — safe to call on every view appear.
     func refreshAuthorizationStatus() {
         calendarAuthorizationStatus = EKEventStore.authorizationStatus(for: .event)
@@ -80,7 +80,7 @@ class CalendarService: CalendarServiceProtocol {
     func checkCalendarAuthorization() async {
         let status = EKEventStore.authorizationStatus(for: .event)
         self.calendarAuthorizationStatus = status
-        
+
         switch status {
         case .notDetermined:
             do {
@@ -107,11 +107,11 @@ class CalendarService: CalendarServiceProtocol {
             break
         }
     }
-    
+
     func checkReminderAuthorization() async {
         let status = EKEventStore.authorizationStatus(for: .reminder)
         self.reminderAuthorizationStatus = status
-        
+
         switch status {
         case .notDetermined:
             do {
@@ -136,7 +136,7 @@ class CalendarService: CalendarServiceProtocol {
             break
         }
     }
-    
+
     func updateSelectedCalendars() {
         // Populate selectedCalendarIDs based on settings
         switch settings.calendarSelectionState {
@@ -145,50 +145,51 @@ class CalendarService: CalendarServiceProtocol {
         case .selected(let identifiers):
             selectedCalendarIDs = identifiers
         }
-        
+
         // Update the local calendar objects that correspond to the selected ids
         selectedCalendars = allCalendars.filter { selectedCalendarIDs.contains($0.id) }
-        
+
         Task {
             await updateEvents()
         }
     }
-    
+
     func getCalendarSelected(_ calendar: CalendarModel) -> Bool {
         return selectedCalendarIDs.contains(calendar.id)
     }
-    
+
     func setCalendarSelected(_ calendar: CalendarModel, isSelected: Bool) async {
         var selectionState = settings.calendarSelectionState
-        
+
         switch selectionState {
         case .all:
             if !isSelected {
                 let identifiers = Set(allCalendars.map { $0.id }).subtracting([calendar.id])
                 selectionState = .selected(identifiers)
             }
-            
+
         case .selected(var identifiers):
             if isSelected {
                 identifiers.insert(calendar.id)
             } else {
                 identifiers.remove(calendar.id)
             }
-            
-            selectionState = identifiers.isEmpty
-                ? .all 
+
+            selectionState =
+                identifiers.isEmpty
+                ? .all
                 : (identifiers.count == allCalendars.count ? .all : .selected(identifiers))
         }
-        
+
         settings.calendarSelectionState = selectionState
         updateSelectedCalendars()
     }
-    
+
     func updateCurrentDate(_ date: Date) async {
         currentWeekStartDate = Calendar.current.startOfDay(for: date)
         await updateEvents()
     }
-    
+
     private func updateEvents() async {
         let calendarIDs = selectedCalendars.map { $0.id }
         let eventsResult = await dataProvider.events(
@@ -198,7 +199,7 @@ class CalendarService: CalendarServiceProtocol {
         )
         self.events = eventsResult
     }
-    
+
     func setReminderCompleted(reminderID: String, completed: Bool) async {
         await dataProvider.setReminderCompleted(reminderID: reminderID, completed: completed)
         await updateEvents()

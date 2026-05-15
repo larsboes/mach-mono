@@ -48,7 +48,7 @@ struct CameraPreviewView: View {
     private func mirrorPlaceholder(size: CGFloat) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(Color(red: 20/255, green: 20/255, blue: 20/255))
+                .fill(Color(red: 20 / 255, green: 20 / 255, blue: 20 / 255))
                 .strokeBorder(.white.opacity(0.06), lineWidth: 1)
 
             VStack(spacing: 7) {
@@ -110,7 +110,8 @@ struct CameraPreviewView: View {
     private var placeholderSubtitle: String {
         switch webcamManager.authorizationStatus {
         case .authorized:
-            webcamManager.cameraAvailable ? "Tap to open a private live preview." : "Connect a camera to use mirror mode."
+            webcamManager.cameraAvailable
+                ? "Tap to open a private live preview." : "Connect a camera to use mirror mode."
         case .denied, .restricted:
             "Tap to open Camera privacy settings."
         case .notDetermined:
@@ -122,9 +123,9 @@ struct CameraPreviewView: View {
 
     private func handleCameraTap() {
         if isRequestingAuthorization {
-            return // Prevent multiple authorization requests
+            return  // Prevent multiple authorization requests
         }
-        
+
         switch webcamManager.authorizationStatus {
         case .authorized:
             if webcamManager.isSessionRunning {

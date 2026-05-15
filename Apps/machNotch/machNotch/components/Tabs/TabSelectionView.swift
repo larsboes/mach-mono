@@ -35,7 +35,7 @@ struct TabSelectionView: View {
     private var visibleTabs: [TabModel] {
         var tabs = coreTabs
         if settings.showWeather {
-            tabs.insert(weatherTab, at: 2) // After Notifications
+            tabs.insert(weatherTab, at: 2)  // After Notifications
         }
         if pluginManager?.hasPlugin(id: PluginID.brief) == true {
             tabs.append(briefTab)
@@ -49,25 +49,25 @@ struct TabSelectionView: View {
     var body: some View {
         HStack(spacing: 2) {
             ForEach(visibleTabs) { tab in
-                    TabButton(label: tab.label, icon: tab.icon, selected: vm.currentView == tab.view) {
-                        vm.navigate(to: tab.view)
+                TabButton(label: tab.label, icon: tab.icon, selected: vm.currentView == tab.view) {
+                    vm.navigate(to: tab.view)
+                }
+                .padding(.leading, tab.view == .home ? 4 : 0)
+                .padding(.trailing, tab.view == visibleTabs.last?.view ? 4 : 0)
+                .frame(height: 26)
+                .foregroundStyle(tab.view == vm.currentView ? .white : .gray)
+                .background {
+                    if tab.view == vm.currentView {
+                        Capsule()
+                            .fill(vm.currentView == tab.view ? Color(nsColor: .secondarySystemFill) : Color.clear)
+                            .matchedGeometryEffect(id: "capsule", in: animation)
+                    } else {
+                        Capsule()
+                            .fill(vm.currentView == tab.view ? Color(nsColor: .secondarySystemFill) : Color.clear)
+                            .matchedGeometryEffect(id: "capsule", in: animation)
+                            .hidden()
                     }
-                    .padding(.leading, tab.view == .home ? 4 : 0)
-                    .padding(.trailing, tab.view == visibleTabs.last?.view ? 4 : 0)
-                    .frame(height: 26)
-                    .foregroundStyle(tab.view == vm.currentView ? .white : .gray)
-                    .background {
-                        if tab.view == vm.currentView {
-                            Capsule()
-                                .fill(vm.currentView == tab.view ? Color(nsColor: .secondarySystemFill) : Color.clear)
-                                .matchedGeometryEffect(id: "capsule", in: animation)
-                        } else {
-                            Capsule()
-                                .fill(vm.currentView == tab.view ? Color(nsColor: .secondarySystemFill) : Color.clear)
-                                .matchedGeometryEffect(id: "capsule", in: animation)
-                                .hidden()
-                        }
-                    }
+                }
             }
         }
         .padding(.horizontal, 4)

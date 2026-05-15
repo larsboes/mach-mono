@@ -17,16 +17,18 @@ public final class MachWindowSpace {
         didSet {
             let oldSet = Set(oldValue)
             let newSet = Set(self.windowNumbers)
-            
+
             let remove = oldSet.subtracting(newSet)
             let add = newSet.subtracting(oldSet)
 
-            CGSRemoveWindowsFromSpaces(_CGSDefaultConnection(),
-                                       Array(remove) as NSArray,
-                                       [self.identifier] as NSArray)
-            CGSAddWindowsToSpaces(_CGSDefaultConnection(),
-                                  Array(add) as NSArray,
-                                  [self.identifier] as NSArray)
+            CGSRemoveWindowsFromSpaces(
+                _CGSDefaultConnection(),
+                Array(remove) as NSArray,
+                [self.identifier] as NSArray)
+            CGSAddWindowsToSpaces(
+                _CGSDefaultConnection(),
+                Array(add) as NSArray,
+                [self.identifier] as NSArray)
         }
     }
 
@@ -43,7 +45,7 @@ public final class MachWindowSpace {
 
     /// Initialized `MachWindowSpace`s *MUST* be de-initialized upon app exit!
     public init(level: Int = 0) {
-        let flag = 0x1 // this value MUST be 1, otherwise, Finder decides to draw desktop icons
+        let flag = 0x1  // this value MUST be 1, otherwise, Finder decides to draw desktop icons
         self.identifier = CGSSpaceCreate(_CGSDefaultConnection(), flag, nil)
         CGSSpaceSetAbsoluteLevel(_CGSDefaultConnection(), self.identifier, level)
         CGSShowSpaces(_CGSDefaultConnection(), [self.identifier] as NSArray)

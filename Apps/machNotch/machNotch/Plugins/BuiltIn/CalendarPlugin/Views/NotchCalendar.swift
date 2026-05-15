@@ -5,8 +5,8 @@
 //  Created by Harsh Vardhan  Goswami  on 08/09/24.
 //
 
-import SwiftUI
 import AppKit
+import SwiftUI
 
 // MARK: - WeekDayPicker
 /// Full 7-day week view (Mon-Sun) with compact styling
@@ -18,7 +18,7 @@ struct WeekDayPicker: View {
     /// Get Mon-Sun of the week containing the selected date
     private var weekDays: [Date] {
         var calendar = Calendar.current
-        calendar.firstWeekday = 2 // Monday
+        calendar.firstWeekday = 2  // Monday
         guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: selectedDate) else { return [] }
         let monday = weekInterval.start
         return (0..<7).compactMap { offset in
@@ -72,7 +72,7 @@ struct WeekDayPicker: View {
 
     private func dayAbbreviation(for date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "EEEEE" // Single letter day
+        formatter.dateFormat = "EEEEE"  // Single letter day
         return formatter.string(from: date)
     }
 }
@@ -162,7 +162,9 @@ struct EmptyEventsView: View {
                     label: "Access denied",
                     buttonLabel: "Open Settings",
                     action: {
-                        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars") {
+                        if let url = URL(
+                            string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars")
+                        {
                             NSWorkspace.shared.open(url)
                         }
                     }

@@ -5,18 +5,17 @@
 //  Created by Alexander on 2025-10-07.
 //
 
-import Foundation
-import UniformTypeIdentifiers
-import SwiftUI
-import QuickLookUI
 import AppKit
-
+import Foundation
 import Observation
+import QuickLookUI
+import SwiftUI
+import UniformTypeIdentifiers
 
 @MainActor
 @Observable
 final class QuickLookService: QuickLookServiceProtocol {
-    
+
     var urls: [URL] = []
     var selectedURL: URL?
 
@@ -37,14 +36,14 @@ final class QuickLookService: QuickLookServiceProtocol {
         }
         self.urls = accessingURLs
         self.isQuickLookOpen = true
-        
+
         Task { @MainActor in
             try? await Task.sleep(for: .milliseconds(50))
             if selectFirst {
                 self.selectedURL = accessingURLs.first
             }
         }
-        
+
         // Observe the shared Quick Look preview panel closing so we can relinquish security scope
         let panel = QLPreviewPanel.shared()
         // Remove any existing observer for previous panel
@@ -52,7 +51,8 @@ final class QuickLookService: QuickLookServiceProtocol {
             NotificationCenter.default.removeObserver(self, name: NSWindow.willCloseNotification, object: prev)
         }
         previewPanel = panel
-        NotificationCenter.default.addObserver(self, selector: #selector(previewPanelWillClose(_:)), name: NSWindow.willCloseNotification, object: panel)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(previewPanelWillClose(_:)), name: NSWindow.willCloseNotification, object: panel)
     }
 
     func hide() {
@@ -68,7 +68,7 @@ final class QuickLookService: QuickLookServiceProtocol {
             previewPanel = nil
         }
     }
-    
+
     private func stopAccessingCurrentURLs() {
         NSLog("Stopping access to \(accessingURLs.count) URLs")
         for url in accessingURLs where url.isFileURL {
@@ -81,7 +81,7 @@ final class QuickLookService: QuickLookServiceProtocol {
             previewPanel = nil
         }
     }
-    
+
     func updateSelection(urls: [URL]) {
         guard isQuickLookOpen else { return }
         show(urls: urls, selectFirst: true)

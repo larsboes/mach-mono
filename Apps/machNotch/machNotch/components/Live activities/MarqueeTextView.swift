@@ -16,9 +16,10 @@ struct SizePreferenceKey: PreferenceKey {
 
 struct MeasureSizeModifier: ViewModifier {
     func body(content: Content) -> some View {
-        content.background(GeometryReader { geometry in
-            Color.clear.preference(key: SizePreferenceKey.self, value: geometry.size)
-        })
+        content.background(
+            GeometryReader { geometry in
+                Color.clear.preference(key: SizePreferenceKey.self, value: geometry.size)
+            })
     }
 }
 
@@ -29,12 +30,15 @@ struct MarqueeText: View {
     let color: Color
     let delayDuration: Double
     let frameWidth: CGFloat
-    
+
     @State private var animate = false
     @State private var textSize: CGSize = .zero
     @State private var offset: CGFloat = 0
-    
-    init(_ text: String, font: Font = .body, nsFont: NSFont.TextStyle = .body, color: Color = .primary, delayDuration: Double = 3.0, frameWidth: CGFloat) {
+
+    init(
+        _ text: String, font: Font = .body, nsFont: NSFont.TextStyle = .body, color: Color = .primary,
+        delayDuration: Double = 3.0, frameWidth: CGFloat
+    ) {
         self.text = text
         self.font = font
         self.nsFont = nsFont
@@ -42,11 +46,11 @@ struct MarqueeText: View {
         self.delayDuration = delayDuration
         self.frameWidth = frameWidth
     }
-    
+
     private var needsScrolling: Bool {
         textSize.width > frameWidth
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
@@ -61,23 +65,24 @@ struct MarqueeText: View {
                 .fixedSize(horizontal: true, vertical: false)
                 .offset(x: self.animate ? offset : 0)
                 .animation(
-                    self.animate ?
-                        .linear(duration: Double(textSize.width / 30))
-                        .delay(delayDuration)
-                        .repeatForever(autoreverses: false) : .none,
+                    self.animate
+                        ? .linear(duration: Double(textSize.width / 30))
+                            .delay(delayDuration)
+                            .repeatForever(autoreverses: false) : .none,
                     value: self.animate
                 )
                 .modifier(MeasureSizeModifier())
                 .onPreferenceChange(SizePreferenceKey.self) { size in
-                    self.textSize = CGSize(width: size.width / 2, height: NSFont.preferredFont(forTextStyle: nsFont).pointSize)
+                    self.textSize = CGSize(
+                        width: size.width / 2, height: NSFont.preferredFont(forTextStyle: nsFont).pointSize)
                     self.animate = false
                     self.offset = 0
                     Task { @MainActor in
-    try? await Task.sleep(nanoseconds: 10000000)
-if needsScrolling {
+                        try? await Task.sleep(nanoseconds: 10000000)
+                        if needsScrolling {
                             self.animate = true
                             self.offset = -(textSize.width + 10)
-                            
+
                         }
                     }
                 }
@@ -86,6 +91,6 @@ if needsScrolling {
             .clipped()
         }
         .frame(height: textSize.height * 1.3)
-        
+
     }
 }

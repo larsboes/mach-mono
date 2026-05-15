@@ -14,8 +14,8 @@ enum StandardAnimations {
     /// Interactive spring for responsive UI (used for notch interactions)
     /// Tight response with near-critical damping — confident tracking, no wobble
     static let interactive = Animation.interactiveSpring(
-        response: 0.20,        // Snappy response for immediate feel
-        dampingFraction: 0.94, // Near-critical damping — clean stop, zero overshoot
+        response: 0.20,  // Snappy response for immediate feel
+        dampingFraction: 0.94,  // Near-critical damping — clean stop, zero overshoot
         blendDuration: 0
     )
 
@@ -33,7 +33,7 @@ enum StandardAnimations {
         let clamped = min(abs(velocity), 2000)
         let t = clamped / 2000  // 0→1 normalized
         let response = 0.32 - t * 0.18  // 0.32→0.14 (much snappier)
-        let damping = 0.92 - t * 0.37   // 0.92→0.55 (visibly bouncier)
+        let damping = 0.92 - t * 0.37  // 0.92→0.55 (visibly bouncier)
         return Animation.spring(response: response, dampingFraction: damping, blendDuration: 0.04)
     }
     /// Estimated settle duration for the open animation
@@ -42,8 +42,8 @@ enum StandardAnimations {
     /// Spring animation for closing the notch (content dismiss, closeHello, etc.)
     /// Quick and decisive — near-critically damped for confident retraction
     static let close = Animation.spring(
-        response: 0.22,        // Snappier transition
-        dampingFraction: 0.95, // Slightly more damped for a solid "thud" into the edge
+        response: 0.22,  // Snappier transition
+        dampingFraction: 0.95,  // Slightly more damped for a solid "thud" into the edge
         blendDuration: 0.02
     )
     /// Shell close — must match content exit exactly for unified feel.

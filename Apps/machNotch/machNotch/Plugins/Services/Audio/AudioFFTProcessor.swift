@@ -45,9 +45,9 @@ final class AudioFFTProcessor {
         self.window = w
     }
 
-    deinit { 
+    deinit {
         if let setup = fftSetup {
-            vDSP_destroy_fftsetup(setup) 
+            vDSP_destroy_fftsetup(setup)
         }
     }
 

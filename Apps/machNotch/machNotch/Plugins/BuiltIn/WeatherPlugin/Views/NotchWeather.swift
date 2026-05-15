@@ -254,7 +254,9 @@ struct WeatherView: View {
 
             if pluginManager?.services.weather.locationAuthorizationStatus == .denied {
                 Button("Open Settings") {
-                    if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices") {
+                    if let url = URL(
+                        string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices")
+                    {
                         NSWorkspace.shared.open(url)
                     }
                 }

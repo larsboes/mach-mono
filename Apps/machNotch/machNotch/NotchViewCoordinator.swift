@@ -19,7 +19,8 @@ import SwiftUI
 
     var settings: any CoordinatorSettings
 
-    var selectedScreenUUID: String = (NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first)?.displayUUID ?? ""
+    var selectedScreenUUID: String =
+        (NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first)?.displayUUID ?? ""
 
     var optionKeyPressed: Bool = true
     private var accessibilityObserver: Any?
@@ -85,19 +86,24 @@ import SwiftUI
 
         if settings.preferredScreenUUID == nil, let legacyName = legacyName {
             if let screen = NSScreen.screens.first(where: { $0.localizedName == legacyName }),
-               let uuid = screen.displayUUID {
+                let uuid = screen.displayUUID
+            {
                 self.settings.preferredScreenUUID = uuid
                 NSLog("Migrated display preference from name '\(legacyName)' to UUID '\(uuid)'")
             } else {
-                self.settings.preferredScreenUUID = (NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first)?.displayUUID
+                self.settings.preferredScreenUUID =
+                    (NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first)?.displayUUID
                 NSLog("Could not find display named '\(legacyName)', falling back to main screen")
             }
             UserDefaults.standard.removeObject(forKey: "preferred_screen_name")
         } else if self.settings.preferredScreenUUID == nil {
-            self.settings.preferredScreenUUID = (NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first)?.displayUUID
+            self.settings.preferredScreenUUID =
+                (NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first)?.displayUUID
         }
 
-        selectedScreenUUID = settings.preferredScreenUUID ?? (NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first)?.displayUUID ?? ""
+        selectedScreenUUID =
+            settings.preferredScreenUUID ?? (NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first)?
+            .displayUUID ?? ""
 
         setupObservers()
         setupInitialState()
@@ -149,34 +155,37 @@ import SwiftUI
 
         // Observe changes to alwaysShowTabs (settings mutation only;
         // currentView reset is now per-screen in NotchViewModel.setupTabResetObserver)
-        observerTasks.append(Task { @MainActor [weak self] in
-            for await value in Defaults.updates(DefaultsNotchSettings.alwaysShowTabsKey) {
-                guard let self else { return }
-                if !value {
-                    self.settings.openLastTabByDefault = false
+        observerTasks.append(
+            Task { @MainActor [weak self] in
+                for await value in Defaults.updates(DefaultsNotchSettings.alwaysShowTabsKey) {
+                    guard let self else { return }
+                    if !value {
+                        self.settings.openLastTabByDefault = false
+                    }
                 }
-            }
-        })
+            })
 
         // Observe changes to openLastTabByDefault
-        observerTasks.append(Task { @MainActor [weak self] in
-            for await value in Defaults.updates(DefaultsNotchSettings.openLastTabByDefaultKey) {
-                guard let self else { return }
-                if value {
-                    self.settings.alwaysShowTabs = true
+        observerTasks.append(
+            Task { @MainActor [weak self] in
+                for await value in Defaults.updates(DefaultsNotchSettings.openLastTabByDefaultKey) {
+                    guard let self else { return }
+                    if value {
+                        self.settings.alwaysShowTabs = true
+                    }
                 }
-            }
-        })
+            })
 
         // Observe changes to preferredScreenUUID
-        observerTasks.append(Task { @MainActor [weak self] in
-            for await uuid in Defaults.updates(DefaultsNotchSettings.preferredScreenUUIDKey) {
-                guard let self else { return }
-                if let uuid = uuid {
-                    self.selectedScreenUUID = uuid
+        observerTasks.append(
+            Task { @MainActor [weak self] in
+                for await uuid in Defaults.updates(DefaultsNotchSettings.preferredScreenUUIDKey) {
+                    guard let self else { return }
+                    if let uuid = uuid {
+                        self.selectedScreenUUID = uuid
+                    }
                 }
-            }
-        })
+            })
     }
 
     private func setupInitialState() {

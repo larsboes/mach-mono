@@ -6,9 +6,9 @@
 //  Captures system audio via ScreenCaptureKit using a minimal dummy video stream.
 //
 
+import AVFoundation
 import Foundation
 import ScreenCaptureKit
-import AVFoundation
 
 @Observable
 @MainActor
@@ -36,7 +36,7 @@ final class ScreenCaptureKitAudioService: AudioCaptureServiceProtocol {
         // Minimize video overhead — we only want audio
         config.width = 2
         config.height = 2
-        config.minimumFrameInterval = CMTime(value: 60, timescale: 1) // ~0.017fps
+        config.minimumFrameInterval = CMTime(value: 60, timescale: 1)  // ~0.017fps
 
         let filter = SCContentFilter(display: display, excludingWindows: [])
 
@@ -89,7 +89,8 @@ private final class AudioStreamOutput: NSObject, SCStreamOutput, @unchecked Send
 
     func stream(_ stream: SCStream, didOutputSampleBuffer buffer: CMSampleBuffer, of type: SCStreamOutputType) {
         guard type == .audio,
-              let blockBuffer = buffer.dataBuffer else { return }
+            let blockBuffer = buffer.dataBuffer
+        else { return }
 
         let totalLength = blockBuffer.dataLength
         guard totalLength > 0 else { return }
@@ -106,7 +107,8 @@ private final class AudioStreamOutput: NSObject, SCStreamOutput, @unchecked Send
         guard status == kCMBlockBufferNoErr, let dataPointer else { return }
 
         let formatDesc = CMSampleBufferGetFormatDescription(buffer)
-        let bytesPerFrame = formatDesc
+        let bytesPerFrame =
+            formatDesc
             .flatMap { CMAudioFormatDescriptionGetStreamBasicDescription($0)?.pointee }
             .map { Int($0.mBytesPerFrame) }
             ?? MemoryLayout<Float>.size

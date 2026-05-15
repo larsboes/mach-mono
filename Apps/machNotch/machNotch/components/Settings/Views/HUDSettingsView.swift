@@ -11,7 +11,7 @@ struct HUD: View {
     @Environment(\.bindableSettings) var settings
     @Environment(\.xpcHelper) var xpcHelper
     @State private var accessibilityAuthorized = false
-    
+
     var body: some View {
         @Bindable var settings = settings
         Form {
@@ -20,19 +20,21 @@ struct HUD: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Replace system HUD")
                             .font(.headline)
-                        Text("Replaces the standard macOS volume, display brightness, and keyboard brightness HUDs with a custom design.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
+                        Text(
+                            "Replaces the standard macOS volume, display brightness, and keyboard brightness HUDs with a custom design."
+                        )
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                     }
                     Spacer(minLength: 40)
                     Toggle("", isOn: $settings.hudReplacement)
-                    .labelsHidden()
-                    .toggleStyle(.switch)
-                    .controlSize(.large)
-                    .disabled(!accessibilityAuthorized)
+                        .labelsHidden()
+                        .toggleStyle(.switch)
+                        .controlSize(.large)
+                        .disabled(!accessibilityAuthorized)
                 }
-                
+
                 if !accessibilityAuthorized {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Accessibility access is required to replace the system HUD.")
@@ -49,14 +51,14 @@ struct HUD: View {
                     .padding(.top, 6)
                 }
             }
-            
+
             Section {
                 Picker("Option key behaviour", selection: $settings.optionKeyAction) {
                     ForEach(OptionKeyAction.allCases) { opt in
                         Text(opt.rawValue).tag(opt)
                     }
                 }
-                
+
                 Picker("Progress bar style", selection: $settings.enableGradient) {
                     Text("Hierarchical")
                         .tag(false)
@@ -73,7 +75,7 @@ struct HUD: View {
                 Text("General")
             }
             .disabled(!settings.hudReplacement)
-            
+
             Section {
                 Toggle(isOn: $settings.showOpenNotchHUD) {
                     Text("Show HUD in open notch")
@@ -89,7 +91,7 @@ struct HUD: View {
                 }
             }
             .disabled(!settings.hudReplacement)
-            
+
             Section {
                 Picker("HUD style", selection: $settings.inlineHUD) {
                     Text("Default")
@@ -105,7 +107,7 @@ struct HUD: View {
                         }
                     }
                 }
-                
+
                 Toggle(isOn: $settings.showClosedNotchHUDPercentage) {
                     Text("Show percentage")
                 }

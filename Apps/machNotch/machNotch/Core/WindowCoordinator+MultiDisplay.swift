@@ -60,8 +60,10 @@ extension WindowCoordinator {
         if let preferredScreen = NSScreen.screen(withUUID: coordinator.preferredScreenUUID ?? "") {
             coordinator.selectedScreenUUID = coordinator.preferredScreenUUID ?? ""
             selectedScreen = preferredScreen
-        } else if settings.automaticallySwitchDisplay, let mainScreen = NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first,
-                  let mainUUID = mainScreen.displayUUID {
+        } else if settings.automaticallySwitchDisplay,
+            let mainScreen = NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first,
+            let mainUUID = mainScreen.displayUUID
+        {
             coordinator.selectedScreenUUID = mainUUID
             selectedScreen = mainScreen
         } else {

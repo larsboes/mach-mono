@@ -39,14 +39,17 @@ struct HabitSettingsView: View {
                                 Text(habit.title)
                                     .foregroundStyle(habit.isActive ? .primary : .secondary)
                                 Spacer()
-                                Toggle("", isOn: Binding(
-                                    get: { habit.isActive },
-                                    set: { newValue in
-                                        var modified = habit
-                                        modified.isActive = newValue
-                                        store.updateHabit(modified)
-                                    }
-                                ))
+                                Toggle(
+                                    "",
+                                    isOn: Binding(
+                                        get: { habit.isActive },
+                                        set: { newValue in
+                                            var modified = habit
+                                            modified.isActive = newValue
+                                            store.updateHabit(modified)
+                                        }
+                                    )
+                                )
                                 .labelsHidden()
                             }
                         }
@@ -61,7 +64,7 @@ struct HabitSettingsView: View {
 
                 Section("Export Data") {
                     Button("Export as JSON") { exportData(format: .json) }
-                    Button("Export as CSV")  { exportData(format: .csv)  }
+                    Button("Export as CSV") { exportData(format: .csv) }
                 }
             }
         }

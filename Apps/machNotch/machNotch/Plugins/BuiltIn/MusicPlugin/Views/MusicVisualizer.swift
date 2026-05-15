@@ -101,7 +101,13 @@ class AudioSpectrum: NSView {
         let numSteps = 50
         let startValue = CGFloat.random(in: 0.3...1.0)
         for i in 0...numSteps {
-            if i == 0 { values.append(startValue) } else if i == numSteps { values.append(startValue) } else { values.append(CGFloat.random(in: 0.3...1.0)) }
+            if i == 0 {
+                values.append(startValue)
+            } else if i == numSteps {
+                values.append(startValue)
+            } else {
+                values.append(CGFloat.random(in: 0.3...1.0))
+            }
             keyTimes.append(NSNumber(value: Double(i) / Double(numSteps)))
         }
         animation.values = values

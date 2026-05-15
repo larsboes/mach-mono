@@ -48,7 +48,7 @@ struct Media: View {
                     .font(.caption)
                 }
             }
-            
+
             Section {
                 Toggle(
                     "Show music live activity",
@@ -120,7 +120,7 @@ struct Media: View {
             } header: {
                 Text("Media playback live activity")
             }
-            
+
             Section {
                 MusicSlotConfigurationView()
                 Toggle(isOn: $settings.enableLyrics) {
@@ -131,7 +131,7 @@ struct Media: View {
                 }
             } header: {
                 Text("Media controls")
-            }  footer: {
+            } footer: {
                 Text("Customize which controls appear in the music player. Volume expands when active.")
                     .font(.caption)
                     .foregroundStyle(.secondary)

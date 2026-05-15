@@ -3,7 +3,7 @@ import SwiftUI
 struct NotificationsView: View {
     @Environment(\.pluginManager) var pluginManager
     @Namespace private var animation
-    
+
     private var manager: (any NotificationServiceProtocol)? {
         pluginManager?.services.notifications
     }
@@ -171,11 +171,14 @@ struct NotificationRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(notification.isRead ? Color.black.opacity(0.2) : Color(nsColor: .controlAccentColor).opacity(0.18))
+                .fill(
+                    notification.isRead ? Color.black.opacity(0.2) : Color(nsColor: .controlAccentColor).opacity(0.18))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(notification.isRead ? Color.white.opacity(0.08) : Color(nsColor: .controlAccentColor).opacity(0.4), lineWidth: 1)
+                .stroke(
+                    notification.isRead ? Color.white.opacity(0.08) : Color(nsColor: .controlAccentColor).opacity(0.4),
+                    lineWidth: 1)
         )
     }
 }

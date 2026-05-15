@@ -5,8 +5,8 @@
 //  Central registry and lifecycle manager for all plugins.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 // MARK: - Plugin Manager
 

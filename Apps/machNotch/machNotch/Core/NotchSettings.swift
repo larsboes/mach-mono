@@ -18,7 +18,8 @@ import SwiftUI
 /// a subset (e.g., `MediaSettings`) can depend on the narrower protocol instead.
 @MainActor
 protocol NotchSettings: CoordinatorSettings, BatterySettings, GestureSettings,
-    WidgetSettings, NotchCalendarSettings, NotificationSettings, BluetoothSettings {}
+    WidgetSettings, NotchCalendarSettings, NotificationSettings, BluetoothSettings
+{}
 
 // MARK: - Environment Keys
 

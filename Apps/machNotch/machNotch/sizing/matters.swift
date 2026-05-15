@@ -82,13 +82,16 @@ enum MusicPlayerImageSizes {
 /// Physical notch width derived from screen auxiliary areas. Falls back to 220px.
 @MainActor func physicalNotchWidth(screen: NSScreen?) -> CGFloat {
     guard let screen,
-          let left = screen.auxiliaryTopLeftArea?.width,
-          let right = screen.auxiliaryTopRightArea?.width,
-          left > 100, right > 100 else { return 220 }
+        let left = screen.auxiliaryTopLeftArea?.width,
+        let right = screen.auxiliaryTopRightArea?.width,
+        left > 100, right > 100
+    else { return 220 }
     return min(860, max(220, screen.frame.width - left - right + 12))
 }
 
-@MainActor func getClosedNotchSize(settings: any DisplaySettings, screenUUID: String? = nil, hasLiveActivity: Bool = false) -> CGSize {
+@MainActor func getClosedNotchSize(
+    settings: any DisplaySettings, screenUUID: String? = nil, hasLiveActivity: Bool = false
+) -> CGSize {
     let screen = resolveScreen(screenUUID)
     let width = physicalNotchWidth(screen: screen)
     let height = closedNotchHeight(screen: screen, settings: settings, hasLiveActivity: hasLiveActivity)
@@ -102,7 +105,9 @@ enum MusicPlayerImageSizes {
 
 // MARK: - Height Calculation
 
-@MainActor private func closedNotchHeight(screen: NSScreen?, settings: any DisplaySettings, hasLiveActivity: Bool) -> CGFloat {
+@MainActor private func closedNotchHeight(
+    screen: NSScreen?, settings: any DisplaySettings, hasLiveActivity: Bool
+) -> CGFloat {
     guard let screen else { return settings.nonNotchHeight }
 
     let hasPhysicalNotch = screen.safeAreaInsets.top > 0
@@ -114,21 +119,25 @@ enum MusicPlayerImageSizes {
     }
 }
 
-@MainActor private func notchScreenHeight(screen: NSScreen, settings: any DisplaySettings, hasLiveActivity: Bool) -> CGFloat {
+@MainActor private func notchScreenHeight(
+    screen: NSScreen, settings: any DisplaySettings, hasLiveActivity: Bool
+) -> CGFloat {
     // When idle, strictly match the physical notch to blend in
     guard hasLiveActivity else { return screen.safeAreaInsets.top }
 
     switch settings.notchHeightMode {
     case .matchRealNotchSize: return screen.safeAreaInsets.top
-    case .matchMenuBar:       return screen.frame.maxY - screen.visibleFrame.maxY
-    case .custom:             return settings.notchHeight
+    case .matchMenuBar: return screen.frame.maxY - screen.visibleFrame.maxY
+    case .custom: return settings.notchHeight
     }
 }
 
-@MainActor private func nonNotchScreenHeight(screen: NSScreen, settings: any DisplaySettings, hasLiveActivity: Bool) -> CGFloat {
+@MainActor private func nonNotchScreenHeight(
+    screen: NSScreen, settings: any DisplaySettings, hasLiveActivity: Bool
+) -> CGFloat {
     switch settings.nonNotchHeightMode {
-    case .matchMenuBar:       return screen.frame.maxY - screen.visibleFrame.maxY
+    case .matchMenuBar: return screen.frame.maxY - screen.visibleFrame.maxY
     case .matchRealNotchSize: return 32
-    case .custom:             return !hasLiveActivity ? settings.nonNotchHeight : 32
+    case .custom: return !hasLiveActivity ? settings.nonNotchHeight : 32
     }
 }

@@ -38,20 +38,20 @@ final class BrowserMediaController: MediaControllerProtocol {
 
     private func handleStateUpdate(_ browserState: BrowserMediaState) {
         var newState = playbackState
-        
+
         newState.title = browserState.title
         newState.artist = browserState.artist
         newState.album = browserState.album
         newState.isPlaying = !browserState.isPaused
-        
+
         // Update high-frequency properties separately
         self.currentTime = browserState.currentTime
         self.duration = browserState.duration
-        
+
         newState.playbackRate = browserState.playbackRate
         newState.bundleIdentifier = browserState.bundleIdentifier
         newState.lastUpdated = Date()
-        
+
         if browserState.artworkURL != lastArtworkURL {
             lastArtworkURL = browserState.artworkURL
             if let urlString = browserState.artworkURL, let url = URL(string: urlString) {
@@ -67,28 +67,29 @@ final class BrowserMediaController: MediaControllerProtocol {
                 newState.artwork = nil
             }
         }
-        
+
         playbackState = newState
     }
 
-
     func play() async { server.sendCommand(BrowserMediaCommand(command: "play")) }
     func pause() async { server.sendCommand(BrowserMediaCommand(command: "pause")) }
-    func togglePlay() async { server.sendCommand(BrowserMediaCommand(command: playbackState.isPlaying ? "pause" : "play")) }
+    func togglePlay() async {
+        server.sendCommand(BrowserMediaCommand(command: playbackState.isPlaying ? "pause" : "play"))
+    }
     func nextTrack() async { server.sendCommand(BrowserMediaCommand(command: "next")) }
     func previousTrack() async { server.sendCommand(BrowserMediaCommand(command: "previous")) }
     func seek(to time: Double) async { server.sendCommand(BrowserMediaCommand(command: "seek", value: time)) }
 
-    func setVolume(_ level: Double) async { }
-    func toggleShuffle() async { }
-    func toggleRepeat() async { }
-    func setFavorite(_ favorite: Bool) async { }
-    
+    func setVolume(_ level: Double) async {}
+    func toggleShuffle() async {}
+    func toggleRepeat() async {}
+    func setFavorite(_ favorite: Bool) async {}
+
     func isActive() -> Bool {
         // We consider it active if we have received a state update recently
         return Date().timeIntervalSince(playbackState.lastUpdated) < 10.0
     }
-    
+
     func updatePlaybackInfo() async {
         // Handled via WebSocket push from the extension
     }

@@ -6,9 +6,9 @@
 //  Each plugin gets its own namespace in Defaults.
 //
 
-import Foundation
 import Combine
 import Defaults
+import Foundation
 
 // MARK: - Plugin Settings
 
@@ -133,7 +133,7 @@ struct PluginSettingsMigration {
         // Battery plugin
         migrateIfExists(from: "showBattery", to: "plugin_com_machnotch_battery_enabled")
         migrateIfExists(from: "chargingInfoAllowed", to: "plugin_com_machnotch_battery_showChargingInfo")
-        
+
         // Migrate from v1 (dot-separated) to v2 (underscore-separated) if needed
         // This is a best-effort migration for users who might have used the broken version
         migrateDotKeysToUnderscore()
@@ -146,7 +146,7 @@ struct PluginSettingsMigration {
         UserDefaults.standard.set(value, forKey: newKey)
         // Note: We don't delete old keys to allow rollback
     }
-    
+
     private static func migrateDotKeysToUnderscore() {
         let allKeys = UserDefaults.standard.dictionaryRepresentation().keys
         for key in allKeys where key.hasPrefix("plugin.") {

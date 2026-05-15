@@ -48,7 +48,9 @@ struct BriefExpandedView: View {
                 )
                 .contentShape(Rectangle())
                 .onHover { hovering in
-                    if hovering { withAnimation(.spring(response: 0.22, dampingFraction: 0.8)) { activeSource = sourceID } }
+                    if hovering {
+                        withAnimation(.spring(response: 0.22, dampingFraction: 0.8)) { activeSource = sourceID }
+                    }
                 }
                 .animation(.spring(response: 0.22, dampingFraction: 0.8), value: isActive)
             }
@@ -105,10 +107,10 @@ private struct BriefEntryDetailView: View {
 
     var body: some View {
         switch entry.sourceID {
-        case "word":   wordView
-        case "quote":  quoteView
+        case "word": wordView
+        case "quote": quoteView
         case "mantra": mantraView
-        default:       genericView
+        default: genericView
         }
     }
 

@@ -6,8 +6,8 @@
 //  Handles sound effects playback with safe error handling.
 //
 
-import Foundation
 import AppKit
+import Foundation
 
 // MARK: - Protocol
 
@@ -24,9 +24,9 @@ enum SoundEffect: String, Sendable {
     // case click
     // case success
     // case error
-    
+
     var fileName: String { rawValue }
-    var fileExtension: String { "m4a" } // Default extension, can be made dynamic if needed
+    var fileExtension: String { "m4a" }  // Default extension, can be made dynamic if needed
 }
 
 // MARK: - Service Implementation
@@ -35,9 +35,9 @@ enum SoundEffect: String, Sendable {
 final class SoundService: SoundServiceProtocol {
     // Cache sounds to avoid reloading from disk repeatedly
     private var soundCache: [SoundEffect: NSSound] = [:]
-    
+
     init() {}
-    
+
     func play(_ sound: SoundEffect) {
         if let cachedSound = soundCache[sound] {
             if cachedSound.isPlaying {
@@ -46,10 +46,11 @@ final class SoundService: SoundServiceProtocol {
             cachedSound.play()
             return
         }
-        
+
         // Load if not cached
         if let url = Bundle.main.url(forResource: sound.fileName, withExtension: sound.fileExtension),
-           let nsSound = NSSound(contentsOf: url, byReference: false) {
+            let nsSound = NSSound(contentsOf: url, byReference: false)
+        {
             soundCache[sound] = nsSound
             nsSound.play()
         } else {

@@ -6,9 +6,9 @@
 //  These are mix-ins: adopt what you need.
 //
 
+import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
-import AppKit
 
 // MARK: - Playable Plugin
 
@@ -282,9 +282,7 @@ struct NowPlayingInfo: Sendable, Equatable {
     let isPlaying: Bool
 
     static func == (lhs: NowPlayingInfo, rhs: NowPlayingInfo) -> Bool {
-        lhs.track == rhs.track &&
-        lhs.progress == rhs.progress &&
-        lhs.isPlaying == rhs.isPlaying
+        lhs.track == rhs.track && lhs.progress == rhs.progress && lhs.isPlaying == rhs.isPlaying
     }
 }
 

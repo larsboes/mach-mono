@@ -71,11 +71,11 @@ struct SettingsView: View {
                         }
                     }
                 }
-                
+
                 if !filteredSystem.isEmpty && !filteredPlugins.isEmpty {
                     Divider()
                 }
-                
+
                 if !filteredPlugins.isEmpty {
                     ForEach(filteredPlugins) { category in
                         NavigationLink(value: category.id) {

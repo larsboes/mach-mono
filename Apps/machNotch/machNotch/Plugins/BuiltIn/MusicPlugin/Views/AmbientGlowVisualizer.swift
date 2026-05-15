@@ -83,7 +83,8 @@ struct AmbientGlowVisualizer: View {
             var path = Path()
             path.move(to: CGPoint(x: 0, y: size.height))
             for x in stride(from: 0, through: size.width, by: 5) {
-                let y = yBase
+                let y =
+                    yBase
                     + sin(x * freq + time * spd + seed) * amp
                     + cos(x * freq * 0.6 + time * spd * 0.4) * amp * 0.5
                 path.addLine(to: CGPoint(x: x, y: y))

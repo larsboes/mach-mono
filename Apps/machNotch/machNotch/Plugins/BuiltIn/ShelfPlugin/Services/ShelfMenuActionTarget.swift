@@ -20,7 +20,10 @@ final class ShelfMenuActionTarget: NSObject {
     // Keep associated objects (like accessory view handlers) without magic keys
     static var sliderHandlerAssoc = AssociatedObject<AnyObject>()
 
-    init(item: ShelfItem, view: NSView, service: ShelfServiceProtocol, selection: ShelfSelectionModel, quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService) {
+    init(
+        item: ShelfItem, view: NSView, service: ShelfServiceProtocol, selection: ShelfSelectionModel,
+        quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService
+    ) {
         self.item = item
         self.view = view
         self.service = service

@@ -40,7 +40,8 @@ final class MockAudioCaptureService: AudioCaptureServiceProtocol {
         var samples = [Float](repeating: 0, count: 1024)
         for i in 0..<1024 {
             let t = Float(i) / 1024.0
-            samples[i] = sinf(2.0 * .pi * 3.0 * t + phase) * 0.3
+            samples[i] =
+                sinf(2.0 * .pi * 3.0 * t + phase) * 0.3
                 + sinf(2.0 * .pi * 7.0 * t + phase * 1.3) * 0.2
                 + sinf(2.0 * .pi * 13.0 * t + phase * 0.7) * 0.15
                 + Float.random(in: -0.1...0.1)

@@ -10,7 +10,7 @@ final class NotchAppState: AppStateProviding {
     private final class ObserverContainer: @unchecked Sendable {
         var observers: [Any] = []
     }
-    
+
     @ObservationIgnored nonisolated private let observerContainer = ObserverContainer()
 
     init() {
@@ -27,24 +27,26 @@ final class NotchAppState: AppStateProviding {
     private func setupObservers() {
         let center = DistributedNotificationCenter.default()
 
-        observerContainer.observers.append(center.addObserver(
-            forName: NSNotification.Name(rawValue: "com.apple.screenIsLocked"),
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.isScreenLocked = true
-            }
-        })
+        observerContainer.observers.append(
+            center.addObserver(
+                forName: NSNotification.Name(rawValue: "com.apple.screenIsLocked"),
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor in
+                    self?.isScreenLocked = true
+                }
+            })
 
-        observerContainer.observers.append(center.addObserver(
-            forName: NSNotification.Name(rawValue: "com.apple.screenIsUnlocked"),
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.isScreenLocked = false
-            }
-        })
+        observerContainer.observers.append(
+            center.addObserver(
+                forName: NSNotification.Name(rawValue: "com.apple.screenIsUnlocked"),
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor in
+                    self?.isScreenLocked = false
+                }
+            })
     }
 }

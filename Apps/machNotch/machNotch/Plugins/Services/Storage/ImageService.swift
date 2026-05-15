@@ -18,9 +18,10 @@ public final class ImageService: ImageServiceProtocol {
     ///   Callers (e.g. AppObjectGraph) read/write the Defaults flag and pass the result.
     public init(needsLegacyCacheCleanup: Bool = false) {
         let config = URLSessionConfiguration.default
-        let cache = URLCache(memoryCapacity: 50 * 1024 * 1024, // 50MB
-                             diskCapacity: 100 * 1024 * 1024, // 100MB
-                             diskPath: "artwork_cache")
+        let cache = URLCache(
+            memoryCapacity: 50 * 1024 * 1024,  // 50MB
+            diskCapacity: 100 * 1024 * 1024,  // 100MB
+            diskPath: "artwork_cache")
         config.urlCache = cache
         config.timeoutIntervalForRequest = 15
         config.timeoutIntervalForResource = 30

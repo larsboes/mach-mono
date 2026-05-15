@@ -5,40 +5,40 @@
 //  Created by Refactoring Agent on 2025-12-30.
 //
 
-import Foundation
 import AppKit
+import Foundation
 import SwiftUI
 
 @MainActor
 final class ShelfFileHandler: ShelfFileHandlerProtocol {
     // Dependencies
     let temporaryFileStorage: any TemporaryFileStorageServiceProtocol
-    
+
     init(temporaryFileStorage: any TemporaryFileStorageServiceProtocol) {
         self.temporaryFileStorage = temporaryFileStorage
     }
-    
+
     // MARK: - File Operations
-    
+
     func rename(item: ShelfItem, newName: String, service: ShelfServiceProtocol, completion: @escaping (Bool) -> Void) {
-        guard case let .file(bookmarkData) = item.kind else { 
+        guard case let .file(bookmarkData) = item.kind else {
             completion(false)
-            return 
+            return
         }
-        
+
         Task {
             let bookmark = Bookmark(data: bookmarkData)
             if let fileURL = bookmark.resolvedURL {
                 // Start security-scoped access
                 let didStart = fileURL.startAccessingSecurityScopedResource()
                 defer { if didStart { fileURL.stopAccessingSecurityScopedResource() } }
-                
+
                 let newURL = fileURL.deletingLastPathComponent().appendingPathComponent(newName)
-                
+
                 do {
                     NSLog("🔐 Rename: moving from \(fileURL.path) to \(newURL.path)")
                     try FileManager.default.moveItem(at: fileURL, to: newURL)
-                    
+
                     if let newBookmark = try? Bookmark(url: newURL) {
                         service.updateBookmark(for: item, bookmark: newBookmark.data)
                         completion(true)
@@ -54,7 +54,7 @@ final class ShelfFileHandler: ShelfFileHandlerProtocol {
             }
         }
     }
-    
+
     func showInFinder(items: [ShelfItem], service: ShelfServiceProtocol) {
         Task {
             let urls = await items.asyncCompactMap { item -> URL? in
@@ -63,7 +63,7 @@ final class ShelfFileHandler: ShelfFileHandlerProtocol {
                 }
                 return nil
             }
-            
+
             if !urls.isEmpty {
                 await urls.accessSecurityScopedResources { accessibleURLs in
                     NSWorkspace.shared.activateFileViewerSelecting(accessibleURLs)
@@ -71,7 +71,7 @@ final class ShelfFileHandler: ShelfFileHandlerProtocol {
             }
         }
     }
-    
+
     func copyPath(items: [ShelfItem]) {
         let paths = items.compactMap { $0.fileURL?.path }
         if !paths.isEmpty {
@@ -79,7 +79,7 @@ final class ShelfFileHandler: ShelfFileHandlerProtocol {
             NSPasteboard.general.setString(paths.joined(separator: "\n"), forType: .string)
         }
     }
-    
+
     func compress(items: [ShelfItem], service: ShelfServiceProtocol) {
         let fileURLs = items.compactMap { $0.fileURL }
         guard !fileURLs.isEmpty else { return }
@@ -99,9 +99,9 @@ final class ShelfFileHandler: ShelfFileHandlerProtocol {
             }
         }
     }
-    
+
     // MARK: - Open With Logic
-    
+
     func open(items: [ShelfItem], with appURL: URL? = nil) {
         Task {
             let allSelectedURLs: [URL] = items.compactMap { itm -> URL? in
@@ -118,11 +118,13 @@ final class ShelfFileHandler: ShelfFileHandlerProtocol {
                     if !fileURLs.isEmpty {
                         _ = try await fileURLs.accessSecurityScopedResources { _ in
                             let config = NSWorkspace.OpenConfiguration()
-                            try await NSWorkspace.shared.open(allSelectedURLs, withApplicationAt: appURL, configuration: config)
+                            try await NSWorkspace.shared.open(
+                                allSelectedURLs, withApplicationAt: appURL, configuration: config)
                         }
                     } else {
                         let config = NSWorkspace.OpenConfiguration()
-                        try await NSWorkspace.shared.open(allSelectedURLs, withApplicationAt: appURL, configuration: config)
+                        try await NSWorkspace.shared.open(
+                            allSelectedURLs, withApplicationAt: appURL, configuration: config)
                     }
                 } catch {
                     print("❌ Failed to open with application: \(error.localizedDescription)")
@@ -135,9 +137,9 @@ final class ShelfFileHandler: ShelfFileHandlerProtocol {
             }
         }
     }
-    
+
     // MARK: - Helper for Async Map
-    
+
     private func isDirectory(_ url: URL) -> Bool {
         return url.accessSecurityScopedResource { scoped in
             (try? scoped.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) ?? false

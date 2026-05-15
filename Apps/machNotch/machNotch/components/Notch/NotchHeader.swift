@@ -21,9 +21,9 @@ struct NotchHeader: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentReveal(progress: contentProgress, staggerIndex: 0)
                 .zIndex(2)
-            
+
             notchOverlay
-            
+
             trailingControls
                 .padding(4)
                 .font(.system(.headline, design: .rounded))
@@ -41,7 +41,9 @@ struct NotchHeader: View {
 
     @ViewBuilder
     private var leadingContent: some View {
-        if let shelf = pluginManager?.services.shelf, (!shelf.isEmpty || coordinator.alwaysShowTabs) && settings.shelfEnabled {
+        if let shelf = pluginManager?.services.shelf,
+            (!shelf.isEmpty || coordinator.alwaysShowTabs) && settings.shelfEnabled
+        {
             TabSelectionView()
                 .padding(.leading, 8)
         } else if vm.phase.isVisible {
@@ -60,7 +62,7 @@ struct NotchHeader: View {
             if !settings.liquidGlassEffect {
                 Rectangle()
                     .fill(.black)
-                    .frame(width: vm.closedNotchSize.width + 64) // Added 64pt safety margin (32pt each side)
+                    .frame(width: vm.closedNotchSize.width + 64)  // Added 64pt safety margin (32pt each side)
                     .mask { NotchShape() }
                     .allowsHitTesting(false)
             } else {
@@ -78,14 +80,17 @@ struct NotchHeader: View {
         @Bindable var coordinator = coordinator
         if vm.phase.isVisible {
             if coordinator.sneakPeek.type.isHUD && coordinator.sneakPeek.show && settings.showOpenNotchHUD {
-                OpenNotchHUD(type: $coordinator.sneakPeek.type, value: $coordinator.sneakPeek.value, icon: $coordinator.sneakPeek.icon)
-                    .transition(.scale(scale: 0.8).combined(with: .opacity))
-                    .padding(.trailing, 8)
+                OpenNotchHUD(
+                    type: $coordinator.sneakPeek.type, value: $coordinator.sneakPeek.value,
+                    icon: $coordinator.sneakPeek.icon
+                )
+                .transition(.scale(scale: 0.8).combined(with: .opacity))
+                .padding(.trailing, 8)
             } else {
                 HStack(spacing: 4) {
                     headerButtons
                 }
-                .padding(.leading, 8) // Extra buffer from the notch area
+                .padding(.leading, 8)  // Extra buffer from the notch area
             }
         }
     }
@@ -113,7 +118,8 @@ struct NotchHeader: View {
             }
         }
         if settings.showBatteryIndicator,
-           let batteryPlugin = pluginManager?.plugin(id: PluginID.battery, as: BatteryPlugin.self) {
+            let batteryPlugin = pluginManager?.plugin(id: PluginID.battery, as: BatteryPlugin.self)
+        {
             batteryPlugin.headerContent()
         }
         if settings.settingsIconInNotch {

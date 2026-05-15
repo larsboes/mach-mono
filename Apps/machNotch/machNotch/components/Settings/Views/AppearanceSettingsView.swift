@@ -65,11 +65,11 @@ struct Appearance: View {
                             Text(style.rawValue).tag(style)
                         }
                     }
-                    
+
                     // SwiftGlass configuration
                     LabeledContent {
                         Slider(value: $settings.liquidGlassBlurRadius, in: 5...50, step: 5)
-                        .frame(width: 150)
+                            .frame(width: 150)
                     } label: {
                         Text("Blur Intensity")
                     }
@@ -80,18 +80,19 @@ struct Appearance: View {
             } header: {
                 Text("Glass Effect")
             }
-            
+
             Section {
                 ZStack {
                     if let imageURL = settings.backgroundImageURL,
-                       let nsImage = NSImage(contentsOf: imageURL) {
+                        let nsImage = NSImage(contentsOf: imageURL)
+                    {
                         ZStack(alignment: .topTrailing) {
                             Image(nsImage: nsImage)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 80, height: 80)
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
-                            
+
                             Button {
                                 if let imageURL = settings.backgroundImageURL {
                                     try? FileManager.default.removeItem(at: imageURL)
@@ -126,7 +127,7 @@ struct Appearance: View {
                     panel.canChooseFiles = true
                     panel.allowedContentTypes = [.image]
                     panel.message = "Select Background Image"
-                    
+
                     if panel.runModal() == .OK, let sourceURL = panel.url {
                         if let copiedURL = NotchViewModel.copyBackgroundImageToAppStorage(sourceURL: sourceURL) {
                             settings.backgroundImageURL = copiedURL
@@ -184,7 +185,8 @@ struct Appearance: View {
         cameraDevices = WebcamDeviceDescriptor.discover()
 
         if !settings.selectedWebcamDeviceID.isEmpty,
-           !cameraDevices.contains(where: { $0.id == settings.selectedWebcamDeviceID }) {
+            !cameraDevices.contains(where: { $0.id == settings.selectedWebcamDeviceID })
+        {
             settings.selectedWebcamDeviceID = ""
         }
     }

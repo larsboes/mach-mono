@@ -42,8 +42,8 @@ struct OllamaProvider: AIProvider {
             "options": [
                 "temperature": config.temperature,
                 "num_predict": config.maxTokens,
-                "stop": config.stopSequences
-            ]
+                "stop": config.stopSequences,
+            ],
         ]
 
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)

@@ -46,7 +46,8 @@ private let _shelfTypeAnchor: Bool = {
         // Determine anchor
         let anchorID = lastAnchorID ?? selectedIDs.first ?? item.id
         guard let startIndex = allItems.firstIndex(where: { $0.id == anchorID }),
-              let endIndex = allItems.firstIndex(where: { $0.id == item.id }) else {
+            let endIndex = allItems.firstIndex(where: { $0.id == item.id })
+        else {
             // Fallback to single select if indices not found
             return selectSingle(item)
         }

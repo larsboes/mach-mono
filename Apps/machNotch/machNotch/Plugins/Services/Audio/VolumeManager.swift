@@ -109,7 +109,7 @@ import Foundation
         if !volumes.isEmpty {
             let avg = max(0, min(1, volumes.reduce(0, +) / Float32(volumes.count)))
             Task { @MainActor in
-if self.rawVolume != avg {
+                if self.rawVolume != avg {
                     if self.didInitialFetch {
                         self.lastChangeAt = Date()
                     }
@@ -127,13 +127,14 @@ if self.rawVolume != avg {
         if AudioObjectHasProperty(deviceID, &muteAddr) {
             var sizeNeeded: UInt32 = 0
             if AudioObjectGetPropertyDataSize(deviceID, &muteAddr, 0, nil, &sizeNeeded) == noErr,
-                sizeNeeded == UInt32(MemoryLayout<UInt32>.size) {
+                sizeNeeded == UInt32(MemoryLayout<UInt32>.size)
+            {
                 var muted: UInt32 = 0
                 var mSize = sizeNeeded
                 if AudioObjectGetPropertyData(deviceID, &muteAddr, 0, nil, &mSize, &muted) == noErr {
                     let newMuted = muted != 0
                     Task { @MainActor in
-if self.isMuted != newMuted { self.lastChangeAt = Date() }
+                        if self.isMuted != newMuted { self.lastChangeAt = Date() }
                         self.isMuted = newMuted
                     }
                 }
@@ -193,15 +194,16 @@ if self.isMuted != newMuted { self.lastChangeAt = Date() }
     }
 
     private func emitSneakPeek(value: CGFloat) {
-        eventBus.emit(SneakPeekRequestedEvent(
-            sourcePluginId: PluginID.System.volume,
-            request: SneakPeekRequest(style: .standard, type: .volume, value: value)
-        ))
+        eventBus.emit(
+            SneakPeekRequestedEvent(
+                sourcePluginId: PluginID.System.volume,
+                request: SneakPeekRequest(style: .standard, type: .volume, value: value)
+            ))
     }
 
     func publish(volume: Float32, muted: Bool, touchDate: Bool) {
         Task { @MainActor in
-if touchDate { self.lastChangeAt = Date() }
+            if touchDate { self.lastChangeAt = Date() }
             self.rawVolume = volume
             self.isMuted = muted
         }

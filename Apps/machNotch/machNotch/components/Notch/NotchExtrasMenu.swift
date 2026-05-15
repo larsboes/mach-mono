@@ -23,7 +23,8 @@ struct NotchMenuButton: View {
                         Text(title).font(.body)
                     }
                 }
-            }).buttonStyle(PlainButtonStyle()).shadow(color: .black.opacity(0.5), radius: 10)
+            }
+        ).buttonStyle(PlainButtonStyle()).shadow(color: .black.opacity(0.5), radius: 10)
     }
 }
 
@@ -40,7 +41,7 @@ struct NotchExtrasMenu: View {
             }
         }
     }
-    
+
     var github: some View {
         NotchMenuButton(
             action: {
@@ -52,7 +53,7 @@ struct NotchExtrasMenu: View {
             title: "Checkout"
         )
     }
-    
+
     var settings: some View {
         Button(action: {
             showSettingsWindow()
@@ -68,28 +69,28 @@ struct NotchExtrasMenu: View {
         }
         .buttonStyle(PlainButtonStyle()).shadow(color: .black.opacity(0.5), radius: 10)
     }
-    
+
     var hide: some View {
         NotchMenuButton(
             action: {
                 Task { @MainActor in
-    try? await Task.sleep(nanoseconds: 250000000)
-// vm.openMusic()
+                    try? await Task.sleep(nanoseconds: 250000000)
+                    // vm.openMusic()
                 }
             },
             icon: Image(systemName: "arrow.down.forward.and.arrow.up.backward"),
             title: "Hide"
         )
     }
-    
+
     var close: some View {
         NotchMenuButton(
             action: {
                 Task { @MainActor in
-    try? await Task.sleep(nanoseconds: 250000000)
-Task { @MainActor in
-    try? await Task.sleep(nanoseconds: 250000000)
-NSApp.terminate(nil)
+                    try? await Task.sleep(nanoseconds: 250000000)
+                    Task { @MainActor in
+                        try? await Task.sleep(nanoseconds: 250000000)
+                        NSApp.terminate(nil)
                     }
                 }
             },

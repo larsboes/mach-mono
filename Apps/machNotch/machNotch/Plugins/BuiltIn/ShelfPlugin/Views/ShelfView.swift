@@ -5,14 +5,14 @@
 //  Created by Alexander on 2025-09-24.
 //
 
-import SwiftUI
 import AppKit
+import SwiftUI
 
 struct ShelfView: View {
     @Environment(PluginUIContext.self) var uiContext
     @Environment(\.pluginManager) var pluginManager
     @Environment(ShelfSelectionModel.self) private var selection
-    
+
     private var quickLookService: any QuickLookServiceProtocol {
         guard let pluginManager else { preconditionFailure("pluginManager required") }
         return pluginManager.services.quickLook
@@ -35,7 +35,10 @@ struct ShelfView: View {
                 .aspectRatio(1, contentMode: .fit)
                 .environment(uiContext)
             panel
-                .onDrop(of: [.fileURL, .url, .utf8PlainText, .plainText, .data], isTargeted: Bindable(uiContext).dragDetectorTargeting) { providers in
+                .onDrop(
+                    of: [.fileURL, .url, .utf8PlainText, .plainText, .data],
+                    isTargeted: Bindable(uiContext).dragDetectorTargeting
+                ) { providers in
                     handleDrop(providers: providers)
                 }
         }
@@ -45,17 +48,17 @@ struct ShelfView: View {
         }
         .quickLookPresenter(using: quickLookService)
     }
-    
+
     private func handleDrop(providers: [NSItemProvider]) -> Bool {
         guard !selection.isDragging else { return false }
         uiContext.dropEvent = true
         shelfService.load(providers)
         return true
     }
-    
+
     private func updateQuickLookSelection() {
         guard quickLookService.isQuickLookOpen && !selection.selectedIDs.isEmpty else { return }
-        
+
         let selectedItems = selection.selectedItems(in: shelfService.items)
         let urls: [URL] = selectedItems.compactMap { item in
             if let fileURL = item.fileURL {
@@ -66,7 +69,7 @@ struct ShelfView: View {
             }
             return nil
         }
-        
+
         if !urls.isEmpty {
             quickLookService.updateSelection(urls: urls)
         }
@@ -100,7 +103,7 @@ struct ShelfView: View {
                         .symbolRenderingMode(.hierarchical)
                         .foregroundStyle(.white, .gray)
                         .imageScale(.large)
-                    
+
                     Text("Drop files here")
                         .foregroundStyle(.gray)
                         .font(.system(.title3, design: .rounded))
@@ -110,14 +113,20 @@ struct ShelfView: View {
                 ScrollView(.horizontal) {
                     LazyHStack(spacing: spacing) {
                         ForEach(shelfService.items) { item in
-                            ShelfItemView(item: item, shelfService: shelfService, quickLookService: quickLookService, quickShareService: quickShareService)
-                                .environment(uiContext)
+                            ShelfItemView(
+                                item: item, shelfService: shelfService, quickLookService: quickLookService,
+                                quickShareService: quickShareService
+                            )
+                            .environment(uiContext)
                         }
                     }
                 }
                 .padding(-spacing)
                 .scrollIndicators(.never)
-                .onDrop(of: [.fileURL, .url, .utf8PlainText, .plainText, .data], isTargeted: Bindable(uiContext).dragDetectorTargeting) { providers in
+                .onDrop(
+                    of: [.fileURL, .url, .utf8PlainText, .plainText, .data],
+                    isTargeted: Bindable(uiContext).dragDetectorTargeting
+                ) { providers in
                     handleDrop(providers: providers)
                 }
             }

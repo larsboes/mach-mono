@@ -1,9 +1,9 @@
 //
-    //  SystemEventIndicatorModifier.swift
-    //  machNotch
-    //
-    //  Created by Richard Kunkli on 12/08/2024.
-    //
+//  SystemEventIndicatorModifier.swift
+//  machNotch
+//
+//  Created by Richard Kunkli on 12/08/2024.
+//
 
 import SwiftUI
 
@@ -14,48 +14,48 @@ struct SystemEventIndicatorModifier: View {
     @Binding var value: CGFloat {
         didSet {
             Task { @MainActor in
-self.sendEventBack(value)
+                self.sendEventBack(value)
             }
         }
     }
     @Binding var icon: String
     let showSlider: Bool = false
     var sendEventBack: (CGFloat) -> Void
-    
+
     var body: some View {
         HStack(spacing: 14) {
             switch eventType {
-                case .volume:
-                    if icon.isEmpty {
-                        Image(systemName: SpeakerSymbol(value))
-                            .contentTransition(.interpolate)
-                            .symbolVariant(value > 0 ? .none : .slash)
-                            .frame(width: 20, height: 15, alignment: .leading)
-                    } else {
-                        Image(systemName: icon)
-                            .contentTransition(.interpolate)
-                            .opacity(value.isZero ? 0.6 : 1)
-                            .scaleEffect(value.isZero ? 0.85 : 1)
-                            .frame(width: 20, height: 15, alignment: .leading)
-                    }
-                case .brightness:
-                    Image(systemName: "sun.max.fill")
-                        .contentTransition(.symbolEffect)
-                        .frame(width: 20, height: 15)
-                        .foregroundStyle(.white)
-                case .backlight:
-                    Image(systemName: value > 0.5 ? "light.max" : "light.min")
+            case .volume:
+                if icon.isEmpty {
+                    Image(systemName: SpeakerSymbol(value))
                         .contentTransition(.interpolate)
-                        .frame(width: 20, height: 15)
-                        .foregroundStyle(.white)
-                case .mic:
-                    Image(systemName: "mic")
                         .symbolVariant(value > 0 ? .none : .slash)
+                        .frame(width: 20, height: 15, alignment: .leading)
+                } else {
+                    Image(systemName: icon)
                         .contentTransition(.interpolate)
-                        .frame(width: 20, height: 15)
-                        .foregroundStyle(.white)
-                default:
-                    EmptyView()
+                        .opacity(value.isZero ? 0.6 : 1)
+                        .scaleEffect(value.isZero ? 0.85 : 1)
+                        .frame(width: 20, height: 15, alignment: .leading)
+                }
+            case .brightness:
+                Image(systemName: "sun.max.fill")
+                    .contentTransition(.symbolEffect)
+                    .frame(width: 20, height: 15)
+                    .foregroundStyle(.white)
+            case .backlight:
+                Image(systemName: value > 0.5 ? "light.max" : "light.min")
+                    .contentTransition(.interpolate)
+                    .frame(width: 20, height: 15)
+                    .foregroundStyle(.white)
+            case .mic:
+                Image(systemName: "mic")
+                    .symbolVariant(value > 0 ? .none : .slash)
+                    .contentTransition(.interpolate)
+                    .frame(width: 20, height: 15)
+                    .foregroundStyle(.white)
+            default:
+                EmptyView()
             }
             if eventType != .mic {
                 DraggableProgressBar(value: $value)
@@ -77,19 +77,19 @@ self.sendEventBack(value)
         .symbolVariant(.fill)
         .imageScale(.large)
     }
-    
+
     func SpeakerSymbol(_ value: CGFloat) -> String {
         switch value {
-            case 0:
-                return "speaker.slash"
-            case 0...0.3:
-                return "speaker.wave.1"
-            case 0.3...0.8:
-                return "speaker.wave.2"
-            case 0.8...1:
-                return "speaker.wave.3"
-            default:
-                return "speaker.wave.2"
+        case 0:
+            return "speaker.slash"
+        case 0...0.3:
+            return "speaker.wave.1"
+        case 0.3...0.8:
+            return "speaker.wave.2"
+        case 0.8...1:
+            return "speaker.wave.3"
+        default:
+            return "speaker.wave.2"
         }
     }
 }
@@ -99,10 +99,10 @@ struct DraggableProgressBar: View {
     @Environment(\.settings) var settings
     @Binding var value: CGFloat
     var onChange: ((CGFloat) -> Void)?
-    
+
     @State private var isDragging = false
     @State private var dragOffset: CGFloat = 0
-    
+
     var body: some View {
         VStack {
             GeometryReader { geo in
@@ -111,23 +111,30 @@ struct DraggableProgressBar: View {
                         .fill(.tertiary)
                     Capsule()
                         .fill(
-                            settings.enableGradient ?
-                                AnyShapeStyle(LinearGradient(
-                                    colors: settings.systemEventIndicatorUseAccent ?
-                                        [Color.effectiveAccent(from: settings), Color.effectiveAccent(from: settings).ensureMinimumBrightness(factor: 0.2)] :
-                                        [Color.white, Color.white.opacity(0.2)],
-                                    startPoint: .trailing,
-                                    endPoint: .leading
-                                )) :
-                                AnyShapeStyle(settings.systemEventIndicatorUseAccent ? Color.effectiveAccent(from: settings) : Color.white)
+                            settings.enableGradient
+                                ? AnyShapeStyle(
+                                    LinearGradient(
+                                        colors: settings.systemEventIndicatorUseAccent
+                                            ? [
+                                                Color.effectiveAccent(from: settings),
+                                                Color.effectiveAccent(from: settings).ensureMinimumBrightness(
+                                                    factor: 0.2),
+                                            ] : [Color.white, Color.white.opacity(0.2)],
+                                        startPoint: .trailing,
+                                        endPoint: .leading
+                                    ))
+                                : AnyShapeStyle(
+                                    settings.systemEventIndicatorUseAccent
+                                        ? Color.effectiveAccent(from: settings) : Color.white)
                         )
                         .frame(width: max(0, min(geo.size.width * value, geo.size.width)))
-                        .shadow(color: settings.systemEventIndicatorShadow ?
-                            (settings.systemEventIndicatorUseAccent ?
-                                Color.effectiveAccent(from: settings).ensureMinimumBrightness(factor: 0.7) :
-                                Color.white) :
-                            Color.clear,
-                            radius: 8, x: 3)
+                        .shadow(
+                            color: settings.systemEventIndicatorShadow
+                                ? (settings.systemEventIndicatorUseAccent
+                                    ? Color.effectiveAccent(from: settings).ensureMinimumBrightness(factor: 0.7)
+                                    : Color.white) : Color.clear,
+                            radius: 8, x: 3
+                        )
                         .opacity(value.isZero ? 0 : 1)
                 }
                 .gesture(
@@ -148,11 +155,11 @@ struct DraggableProgressBar: View {
             .frame(height: settings.showInlineHUD ? isDragging ? 8 : 5 : isDragging ? 9 : 6)
         }
     }
-    
+
     private func updateValue(gesture: DragGesture.Value, in geometry: GeometryProxy) {
         let dragPosition = gesture.location.x
         let newValue = dragPosition / geometry.size.width
-        
+
         value = max(0, min(newValue, 1))
         onChange?(value)
     }

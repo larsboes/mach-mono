@@ -3,12 +3,12 @@
 //  machNotch
 //
 
-import SwiftUI
 import MachBriefKit
+import SwiftUI
 
 struct BriefSettingsView: View {
     @State private var settings = BriefSettingsCoding.load()
-    
+
     var body: some View {
         Form {
             Section(header: Text("Vocabulary")) {
@@ -17,10 +17,13 @@ struct BriefSettingsView: View {
                         Text(lang.displayName).tag(lang.id)
                     }
                 }
-                Picker("Level", selection: Binding(
-                    get: { settings.vocabularyLevel },
-                    set: { settings.vocabularyLevel = $0 }
-                )) {
+                Picker(
+                    "Level",
+                    selection: Binding(
+                        get: { settings.vocabularyLevel },
+                        set: { settings.vocabularyLevel = $0 }
+                    )
+                ) {
                     Text("All words").tag(Optional<VocabularyLevel>.none)
                     ForEach(VocabularyLevel.allCases, id: \.self) { level in
                         Text(level.displayName).tag(Optional(level))
@@ -31,7 +34,7 @@ struct BriefSettingsView: View {
             Section(header: Text("General")) {
                 Toggle("Enable Notifications", isOn: $settings.notificationsEnabled)
             }
-            
+
             Section(header: Text("Slot Assignments")) {
                 Picker("Morning", selection: binding(for: .morning)) {
                     ForEach(BriefSourceRegistry.defaultSourceIDs, id: \.self) { sourceID in
@@ -60,12 +63,12 @@ struct BriefSettingsView: View {
             BriefSettingsCoding.save(newValue)
             // Post after a short delay so rapid picker interactions coalesce into one reload
             Task { @MainActor in
-    try? await Task.sleep(nanoseconds: 300000000)
-NotificationCenter.default.post(name: .briefSettingsDidChange, object: nil)
+                try? await Task.sleep(nanoseconds: 300000000)
+                NotificationCenter.default.post(name: .briefSettingsDidChange, object: nil)
             }
         }
     }
-    
+
     private func binding(for slot: DailySlot) -> Binding<String> {
         Binding(
             get: { self.settings.slotAssignments[slot] ?? BriefSettings.defaultSlotAssignments[slot] ?? "quote" },

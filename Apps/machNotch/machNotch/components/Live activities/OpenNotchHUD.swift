@@ -14,7 +14,7 @@ struct OpenNotchHUD: View {
     @Binding var icon: String
     @Environment(\.settings) var settings
     @Environment(\.pluginManager) var pluginManager
-    
+
     var body: some View {
         HStack(spacing: 8) {
             // Icon
@@ -45,20 +45,23 @@ struct OpenNotchHUD: View {
             .font(.system(size: 14, weight: .medium))
             .foregroundStyle(.white)
             .frame(width: 20, alignment: .center)
-            
+
             // Slider or Status Text
             if type != .mic {
-                DraggableProgressBar(value: $value, onChange: { newVal in
-                     updateSystemValue(newVal)
-                })
-                .frame(width: settings.showOpenNotchHUDPercentage ? 65 : 108) // Fixed width for consistency
+                DraggableProgressBar(
+                    value: $value,
+                    onChange: { newVal in
+                        updateSystemValue(newVal)
+                    }
+                )
+                .frame(width: settings.showOpenNotchHUDPercentage ? 65 : 108)  // Fixed width for consistency
             } else {
                 Text(value > 0 ? "Unmuted" : "Muted")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(.white)
                     .fixedSize()
             }
-            
+
             // Percentage Text
             if type != .mic && settings.showOpenNotchHUDPercentage {
                 Text("\(Int(value * 100))%")
@@ -76,16 +79,16 @@ struct OpenNotchHUD: View {
                 .stroke(Color.white.opacity(0.1), lineWidth: 1)
         )
     }
-    
+
     func SpeakerSymbol(_ value: CGFloat) -> String {
         switch value {
-            case 0: return "speaker.slash"
-            case 0...0.33: return "speaker.wave.1"
-            case 0.33...0.66: return "speaker.wave.2"
-            default: return "speaker.wave.3"
+        case 0: return "speaker.slash"
+        case 0...0.33: return "speaker.wave.1"
+        case 0.33...0.66: return "speaker.wave.2"
+        default: return "speaker.wave.3"
         }
     }
-    
+
     func updateSystemValue(_ newVal: CGFloat) {
         switch type {
         case .volume:

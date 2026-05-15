@@ -171,7 +171,9 @@ struct TeleprompterControlPanel: View {
                 .font(.system(size: 9))
                 .lineLimit(1)
             Spacer()
-            Button { aiError = nil } label: {
+            Button {
+                aiError = nil
+            } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 7, weight: .bold))
             }

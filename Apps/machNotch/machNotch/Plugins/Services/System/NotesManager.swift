@@ -35,39 +35,43 @@ final class NotesManager {
         setupDatabase()
         fetchNotes()
     }
-    
+
     private func setupDatabase() {
         do {
             let path = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
             let appSupport = URL(fileURLWithPath: path).appendingPathComponent("machNotch", isDirectory: true)
             try FileManager.default.createDirectory(at: appSupport, withIntermediateDirectories: true)
-            
+
             db = try Connection(appSupport.appendingPathComponent("notes.sqlite3").path)
-            
-            try db?.run(notesTable.create(ifNotExists: true) { t in
-                t.column(id, primaryKey: .autoincrement)
-                t.column(title)
-                t.column(content)
-                t.column(timestamp)
-            })
+
+            try db?.run(
+                notesTable.create(ifNotExists: true) { t in
+                    t.column(id, primaryKey: .autoincrement)
+                    t.column(title)
+                    t.column(content)
+                    t.column(timestamp)
+                })
         } catch {
             print("NotesManager: Database setup failed: \(error)")
         }
     }
-    
+
     func fetchNotes() {
         do {
             let query = notesTable.order(timestamp.desc)
             let rows = try db?.prepare(query)
 
-            self.notes = rows?.map { row in
-                NoteItem(id: row[self.id], title: row[self.title], content: row[self.content], timestamp: row[self.timestamp])
-            } ?? []
+            self.notes =
+                rows?.map { row in
+                    NoteItem(
+                        id: row[self.id], title: row[self.title], content: row[self.content],
+                        timestamp: row[self.timestamp])
+                } ?? []
         } catch {
             print("NotesManager: Failed to fetch notes: \(error)")
         }
     }
-    
+
     func addNote(title: String, content: String) {
         do {
             let insert = notesTable.insert(self.title <- title, self.content <- content, timestamp <- Date())
@@ -92,8 +96,9 @@ final class NotesManager {
 
     private func writeToObsidian(title: String, content: String) {
         guard Defaults[Self.obsidianSyncEnabledKey],
-              let vaultPath = Defaults[Self.obsidianVaultPathKey],
-              !vaultPath.isEmpty else { return }
+            let vaultPath = Defaults[Self.obsidianVaultPathKey],
+            !vaultPath.isEmpty
+        else { return }
         let vaultURL = URL(fileURLWithPath: vaultPath)
         let illegalChars = CharacterSet(charactersIn: "/\\:*?\"<>|")
         let safeTitle = title.components(separatedBy: illegalChars).joined(separator: "-")
@@ -101,7 +106,7 @@ final class NotesManager {
         let markdown = "# \(title)\n\n\(content)\n"
         try? markdown.write(to: fileURL, atomically: true, encoding: .utf8)
     }
-    
+
     func deleteNote(_ note: NoteItem) {
         do {
             let target = notesTable.filter(id == note.id)

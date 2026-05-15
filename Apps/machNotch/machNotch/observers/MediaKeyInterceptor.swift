@@ -4,10 +4,10 @@
 //
 //  Created by Alexander on 2025-11-23.
 
-import Foundation
+import AVFoundation
 import AppKit
 import ApplicationServices
-import AVFoundation
+import Foundation
 
 private let kSystemDefinedEventType = CGEventType(rawValue: 14)!
 
@@ -27,7 +27,7 @@ final class MediaKeyInterceptor {
     private var runLoopSource: CFRunLoopSource?
     private let step: Float = 1.0 / 16.0
     private var audioPlayer: AVAudioPlayer?
-    
+
     // Dependencies
     private let volumeService: any VolumeServiceProtocol
     private let brightnessService: any BrightnessServiceProtocol
@@ -63,7 +63,7 @@ final class MediaKeyInterceptor {
     }
 
     // MARK: - Event Tap
-    
+
     func start(promptIfNeeded: Bool = false) async {
         guard eventTap == nil else { return }
 
@@ -97,7 +97,7 @@ final class MediaKeyInterceptor {
             },
             userInfo: UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
         )
-        
+
         if let eventTap {
             runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
             if let runLoopSource {
@@ -129,8 +129,9 @@ final class MediaKeyInterceptor {
         }
 
         guard let nsEvent = NSEvent(cgEvent: cgEvent),
-              nsEvent.type == .systemDefined,
-              nsEvent.subtype.rawValue == 8 else {
+            nsEvent.type == .systemDefined,
+            nsEvent.subtype.rawValue == 8
+        else {
             return Unmanaged.passUnretained(cgEvent)
         }
 
@@ -140,7 +141,8 @@ final class MediaKeyInterceptor {
 
         // 0xA = key down, 0xB = key up. Only handle key down.
         guard stateByte == 0xA,
-              let keyType = NXKeyType(rawValue: keyCode) else {
+            let keyType = NXKeyType(rawValue: keyCode)
+        else {
             return Unmanaged.passUnretained(cgEvent)
         }
 
@@ -185,7 +187,9 @@ final class MediaKeyInterceptor {
                 audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: defaultPath))
                 print("🔊 [MediaKeyInterceptor] Loaded default Bezel audio from: \(defaultPath)")
             } catch {
-                print("⚠️ [MediaKeyInterceptor] Failed to init AVAudioPlayer with default path \(defaultPath): \(error.localizedDescription)")
+                print(
+                    "⚠️ [MediaKeyInterceptor] Failed to init AVAudioPlayer with default path \(defaultPath): \(error.localizedDescription)"
+                )
             }
         } else {
             print("⚠️ [MediaKeyInterceptor] Default bezel audio not found at: \(defaultPath)")
@@ -199,8 +203,11 @@ final class MediaKeyInterceptor {
     }
 
     private func playFeedbackSound() {
-        guard let feedback = UserDefaults.standard.persistentDomain(forName: "NSGlobalDomain")?["com.apple.sound.beep.feedback"] as? Int,
-              feedback == 1 else { return }
+        guard
+            let feedback = UserDefaults.standard.persistentDomain(forName: "NSGlobalDomain")?[
+                "com.apple.sound.beep.feedback"] as? Int,
+            feedback == 1
+        else { return }
 
         prepareAudioPlayerIfNeeded()
         guard let player = audioPlayer else {
@@ -268,10 +275,11 @@ final class MediaKeyInterceptor {
     }
 
     private func emitSneakPeek(type: SneakContentType, value: CGFloat) {
-        eventBus.emit(SneakPeekRequestedEvent(
-            sourcePluginId: PluginID.System.mediaKeys,
-            request: SneakPeekRequest(style: .standard, type: type, value: value)
-        ))
+        eventBus.emit(
+            SneakPeekRequestedEvent(
+                sourcePluginId: PluginID.System.mediaKeys,
+                request: SneakPeekRequest(style: .standard, type: type, value: value)
+            ))
     }
 
     private func openSystemSettings(for keyType: NXKeyType, command: Bool) {

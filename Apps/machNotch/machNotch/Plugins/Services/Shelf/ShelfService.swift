@@ -5,8 +5,8 @@
 //  Created by Agent on 01/01/26.
 //
 
-import Foundation
 import AppKit
+import Foundation
 
 /// Concrete implementation of ShelfServiceProtocol.
 /// Manages the state and persistence of shelf items.
@@ -14,19 +14,19 @@ import AppKit
 @Observable
 final class ShelfService: ShelfServiceProtocol {
     // MARK: - Properties
-    
+
     private(set) var items: [ShelfItem] = [] {
         didSet { schedulePersistence() }
     }
-    
+
     var isLoading: Bool = false
-    
+
     var isEmpty: Bool { items.isEmpty }
-    
+
     // Debounced persistence
     private var persistenceTask: Task<Void, Never>?
     private let persistenceDelay: Duration = .seconds(1)
-    
+
     nonisolated deinit {
         MainActor.assumeIsolated {
             persistenceTask?.cancel()
@@ -50,9 +50,9 @@ final class ShelfService: ShelfServiceProtocol {
         self.persistenceService = persistenceService
         items = persistenceService.load()
     }
-    
+
     // MARK: - Methods
-    
+
     private func schedulePersistence() {
         persistenceTask?.cancel()
         persistenceTask = Task { @MainActor [weak self] in
@@ -61,7 +61,7 @@ final class ShelfService: ShelfServiceProtocol {
             await persistenceService.saveAsync(self.items)
         }
     }
-    
+
     func add(_ newItems: [ShelfItem]) {
         guard !newItems.isEmpty else { return }
         var merged = items
@@ -76,19 +76,19 @@ final class ShelfService: ShelfServiceProtocol {
         }
         items = merged
     }
-    
+
     func remove(_ item: ShelfItem) {
         item.cleanupStoredData(storage: fileHandler.temporaryFileStorage)
         items.removeAll { $0.id == item.id }
     }
-    
+
     func updateBookmark(for item: ShelfItem, bookmark: Data) {
         guard let idx = items.firstIndex(where: { $0.id == item.id }) else { return }
         if case .file = items[idx].kind {
             items[idx] = ShelfItem(kind: .file(bookmark: bookmark), isTemporary: items[idx].isTemporary)
         }
     }
-    
+
     func load(_ providers: [NSItemProvider]) {
         guard !providers.isEmpty else { return }
         isLoading = true
@@ -101,7 +101,7 @@ final class ShelfService: ShelfServiceProtocol {
             }
         }
     }
-    
+
     func cleanupInvalidItems() {
         Task { [weak self] in
             guard let self else { return }
@@ -122,7 +122,7 @@ final class ShelfService: ShelfServiceProtocol {
             await MainActor.run { self.items = keep }
         }
     }
-    
+
     func resolveAndUpdateBookmark(for item: ShelfItem) -> URL? {
         guard case .file(let bookmarkData) = item.kind else { return nil }
         let bookmark = Bookmark(data: bookmarkData)
@@ -133,16 +133,16 @@ final class ShelfService: ShelfServiceProtocol {
         }
         return result.url
     }
-    
+
     func resolveFileURLs(for items: [ShelfItem]) -> [URL] {
         items.compactMap { $0.fileURL }
     }
-    
+
     func flushSync() {
         // Cancel any scheduled persistence task (we'll save synchronously now)
         persistenceTask?.cancel()
         persistenceTask = nil
-        
+
         // Perform a synchronous, atomic save to disk
         persistenceService.save(self.items)
     }

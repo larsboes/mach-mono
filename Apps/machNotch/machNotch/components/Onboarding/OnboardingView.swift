@@ -6,8 +6,8 @@
 //  Modified by Arsh Anwar
 //
 
-import SwiftUI
 import AVFoundation
+import SwiftUI
 
 enum OnboardingStep {
     case welcome
@@ -53,7 +53,7 @@ struct OnboardingView: View {
                             (.calendar, .calendarPermission),
                             (.reminders, .remindersPermission),
                             (.weather, .weatherPermission),
-                            (.accessibility, .accessibilityPermission)
+                            (.accessibility, .accessibilityPermission),
                         ]
 
                         var nextStep: OnboardingStep = .musicPermission
@@ -65,13 +65,14 @@ struct OnboardingView: View {
 
                         withAnimation(.easeInOut(duration: 0.6)) { step = nextStep }
                     }
-                }                .transition(.opacity)
+                }.transition(.opacity)
 
             case .cameraPermission:
                 PermissionRequestView(
                     icon: Image(systemName: "camera.fill"),
                     title: "Enable Camera Access",
-                    description: "machNotch includes a mirror feature that lets you quickly check your appearance using your camera, right from the notch. Camera access is required only to show this live preview. You can turn the mirror feature on or off at any time in the app.",
+                    description:
+                        "machNotch includes a mirror feature that lets you quickly check your appearance using your camera, right from the notch. Camera access is required only to show this live preview. You can turn the mirror feature on or off at any time in the app.",
                     privacyNote: "Your camera is never used without your consent, and nothing is recorded or stored.",
                     onAllow: {
                         Task {
@@ -89,7 +90,8 @@ struct OnboardingView: View {
                 PermissionRequestView(
                     icon: Image(systemName: "calendar"),
                     title: "Enable Calendar Access",
-                    description: "machNotch can show all your upcoming events in one place. Access to your calendar is needed to display your schedule.",
+                    description:
+                        "machNotch can show all your upcoming events in one place. Access to your calendar is needed to display your schedule.",
                     privacyNote: "Your calendar data is only used to show your events and is never shared.",
                     onAllow: {
                         Task {
@@ -103,48 +105,52 @@ struct OnboardingView: View {
                 )
                 .transition(.opacity)
 
-                case .remindersPermission:
-                    PermissionRequestView(
-                        icon: Image(systemName: "checklist"),
-                        title: "Enable Reminders Access",
-                        description: "machNotch can show your scheduled reminders alongside your calendar events. Access to Reminders is needed to display your reminders.",
-                        privacyNote: "Your reminders data is only used to show your reminders and is never shared.",
-                        onAllow: {
-                            Task {
-                                await requestRemindersPermission()
-                                await advanceAfterRequest(.reminders, next: .weatherPermission)
-                            }
-                        },
-                        onSkip: {
-                            Task { await advanceAfterRequest(.reminders, next: .weatherPermission) }
+            case .remindersPermission:
+                PermissionRequestView(
+                    icon: Image(systemName: "checklist"),
+                    title: "Enable Reminders Access",
+                    description:
+                        "machNotch can show your scheduled reminders alongside your calendar events. Access to Reminders is needed to display your reminders.",
+                    privacyNote: "Your reminders data is only used to show your reminders and is never shared.",
+                    onAllow: {
+                        Task {
+                            await requestRemindersPermission()
+                            await advanceAfterRequest(.reminders, next: .weatherPermission)
                         }
-                    )
-                    .transition(.opacity)
-                
-                case .weatherPermission:
-                    PermissionRequestView(
-                        icon: Image(systemName: "cloud.sun.fill"),
-                        title: "Enable Weather Access",
-                        description: "machNotch can display current weather conditions right in the notch. Location access is needed to show weather for your current location.",
-                        privacyNote: "Your location is only used to fetch weather data and is never shared or stored.",
-                        onAllow: {
-                            Task {
-                                requestWeatherPermission()
-                                await advanceAfterRequest(.weather, next: .accessibilityPermission)
-                            }
-                        },
-                        onSkip: {
-                            Task { await advanceAfterRequest(.weather, next: .accessibilityPermission) }
+                    },
+                    onSkip: {
+                        Task { await advanceAfterRequest(.reminders, next: .weatherPermission) }
+                    }
+                )
+                .transition(.opacity)
+
+            case .weatherPermission:
+                PermissionRequestView(
+                    icon: Image(systemName: "cloud.sun.fill"),
+                    title: "Enable Weather Access",
+                    description:
+                        "machNotch can display current weather conditions right in the notch. Location access is needed to show weather for your current location.",
+                    privacyNote: "Your location is only used to fetch weather data and is never shared or stored.",
+                    onAllow: {
+                        Task {
+                            requestWeatherPermission()
+                            await advanceAfterRequest(.weather, next: .accessibilityPermission)
                         }
-                    )
-                    .transition(.opacity)
-                
+                    },
+                    onSkip: {
+                        Task { await advanceAfterRequest(.weather, next: .accessibilityPermission) }
+                    }
+                )
+                .transition(.opacity)
+
             case .accessibilityPermission:
                 PermissionRequestView(
                     icon: Image(systemName: "hand.raised.fill"),
                     title: "Enable Accessibility Access",
-                    description: "Accessibility access is required to replace system notifications with the machNotch HUD. This allows the app to intercept media and brightness events to display custom HUD overlays.",
-                    privacyNote: "Accessibility access is used only to improve media and brightness notifications. No data is collected or shared.",
+                    description:
+                        "Accessibility access is required to replace system notifications with the machNotch HUD. This allows the app to intercept media and brightness events to display custom HUD overlays.",
+                    privacyNote:
+                        "Accessibility access is used only to improve media and brightness notifications. No data is collected or shared.",
                     onAllow: {
                         Task {
                             await requestAccessibilityPermission()
@@ -156,7 +162,7 @@ struct OnboardingView: View {
                     }
                 )
                 .transition(.opacity)
-                
+
             case .musicPermission:
                 MusicControllerSelectionView(
                     onContinue: {
@@ -191,11 +197,11 @@ struct OnboardingView: View {
     func requestRemindersPermission() async {
         _ = try? await calendarService.requestAccess(to: .reminder)
     }
-    
+
     func requestWeatherPermission() {
         pluginManager?.services.weather.checkLocationAuthorization()
     }
-    
+
     func requestAccessibilityPermission() async {
         _ = await xpcHelper?.ensureAccessibilityAuthorization(promptIfNeeded: true)
     }

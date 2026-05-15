@@ -39,7 +39,8 @@ struct ToggleNotchIntent: AppIntent {
 
 struct ToggleMusicPlaybackIntent: AppIntent {
     nonisolated(unsafe) static var title: LocalizedStringResource = "Play / Pause Music"
-    nonisolated(unsafe) static var description = IntentDescription("Toggles playback of the current track in machNotch.")
+    nonisolated(unsafe) static var description = IntentDescription(
+        "Toggles playback of the current track in machNotch.")
 
     @MainActor
     func perform() async throws -> some IntentResult {

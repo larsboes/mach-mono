@@ -63,8 +63,11 @@ import SwiftUI
     init(settings: (any MediaSettings)? = nil) {
         self.settings = settings
         super.init()
-        NotificationCenter.default.addObserver(self, selector: #selector(deviceWasDisconnected), name: AVCaptureDevice.wasDisconnectedNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(deviceWasConnected), name: AVCaptureDevice.wasConnectedNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(deviceWasDisconnected), name: AVCaptureDevice.wasDisconnectedNotification,
+            object: nil)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(deviceWasConnected), name: AVCaptureDevice.wasConnectedNotification, object: nil)
         refreshAuthorizationStatus()
         refreshCameraDevices()
     }

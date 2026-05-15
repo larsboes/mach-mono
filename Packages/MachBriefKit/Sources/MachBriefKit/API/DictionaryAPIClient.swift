@@ -24,7 +24,8 @@ public struct DictionaryAPIClient: DictionaryAPIClientProtocol {
 
     public func lookup(word: String, languageCode: String = "en") async -> DictionaryWordDetail? {
         guard let encodedWord = word.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
-              let url = URL(string: "https://api.dictionaryapi.dev/api/v2/entries/\(languageCode)/\(encodedWord)") else {
+            let url = URL(string: "https://api.dictionaryapi.dev/api/v2/entries/\(languageCode)/\(encodedWord)")
+        else {
             return nil
         }
         do {

@@ -6,8 +6,8 @@
 //  Modified by Pranav on 2025-06-16.
 //
 
-import Foundation
 import Combine
+import Foundation
 import SwiftUI
 
 @Observable
@@ -124,18 +124,18 @@ final class YouTubeMusicController: MediaControllerProtocol {
             do {
                 let likeResp = try await httpClient.getLikeState(token: token)
                 var newState = playbackState
-                    if let state = likeResp.state {
-                        switch state.uppercased() {
-                        case "LIKE":
-                            newState.isFavorite = true
-                        case "DISLIKE":
-                            newState.isFavorite = false
-                        default:
-                            newState.isFavorite = false
-                        }
-                    } else {
+                if let state = likeResp.state {
+                    switch state.uppercased() {
+                    case "LIKE":
+                        newState.isFavorite = true
+                    case "DISLIKE":
+                        newState.isFavorite = false
+                    default:
                         newState.isFavorite = false
                     }
+                } else {
+                    newState.isFavorite = false
+                }
                 playbackState = newState
             } catch {
                 // Don't treat it as an error if the like endpoint doesn't exist
@@ -173,13 +173,15 @@ final class YouTubeMusicController: MediaControllerProtocol {
 
     private func handleAppLaunched(_ notification: Notification) async {
         guard let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
-              app.bundleIdentifier == configuration.bundleIdentifier else { return }
+            app.bundleIdentifier == configuration.bundleIdentifier
+        else { return }
         await initializeIfAppActive()
     }
 
     private func handleAppTerminated(_ notification: Notification) async {
         guard let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
-              app.bundleIdentifier == configuration.bundleIdentifier else { return }
+            app.bundleIdentifier == configuration.bundleIdentifier
+        else { return }
         Task { @MainActor in
             stopPeriodicUpdates()
             appStateObserver?.cancel()
@@ -207,7 +209,8 @@ final class YouTubeMusicController: MediaControllerProtocol {
     func startPeriodicUpdates() async {
         guard isActive() && webSocketClient == nil else { return }
         stopPeriodicUpdates()
-        updateTimer = Timer.scheduledTimer(withTimeInterval: configuration.updateInterval, repeats: true) { [weak self] _ in
+        updateTimer = Timer.scheduledTimer(withTimeInterval: configuration.updateInterval, repeats: true) {
+            [weak self] _ in
             Task { @MainActor in
                 await self?.updatePlaybackInfo()
             }
@@ -238,7 +241,9 @@ final class YouTubeMusicController: MediaControllerProtocol {
                 endpoint: endpoint, method: method, body: body, token: token
             )
             if endpoint == "/shuffle" {
-                if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any], let shuffleState = json["state"] as? Bool {
+                if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                    let shuffleState = json["state"] as? Bool
+                {
                     playbackState.isShuffled = shuffleState
                 } else {
                     playbackState.isShuffled = !playbackState.isShuffled
@@ -267,7 +272,8 @@ final class YouTubeMusicController: MediaControllerProtocol {
     }
 
     private func launchApp() {
-        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: configuration.bundleIdentifier) else { return }
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: configuration.bundleIdentifier)
+        else { return }
         NSWorkspace.shared.open(url)
     }
 }

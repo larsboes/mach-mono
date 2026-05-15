@@ -6,9 +6,9 @@
 //
 
 import AppKit
-import SwiftUI
 import Defaults
 import Sparkle
+import SwiftUI
 
 class SettingsWindowController: NSWindowController {
     private var updaterController: SPUStandardUpdaterController?
@@ -74,7 +74,9 @@ class SettingsWindowController: NSWindowController {
     }
 
     private func setupContentViewIfNeeded() {
-        guard let window = window, !hasSetupContent, let coordinator = coordinator, let settings = settings else { return }
+        guard let window = window, !hasSetupContent, let coordinator = coordinator, let settings = settings else {
+            return
+        }
 
         let settingsView = SettingsView(updaterController: updaterController)
             .environment(coordinator)
@@ -86,7 +88,7 @@ class SettingsWindowController: NSWindowController {
         window.contentView = hostingView
         hasSetupContent = true
     }
-    
+
     func showWindow() {
         // Set app to regular mode first
         NSApp.setActivationPolicy(.regular)
@@ -115,15 +117,15 @@ class SettingsWindowController: NSWindowController {
             self?.window?.makeKeyAndOrderFront(nil)
         }
     }
-    
+
     override func close() {
         super.close()
         relinquishFocus()
     }
-    
+
     private func relinquishFocus() {
         window?.orderOut(nil)
-        
+
         // Set app back to accessory mode immediately
         NSApp.setActivationPolicy(.accessory)
     }
@@ -133,17 +135,17 @@ extension SettingsWindowController: NSWindowDelegate {
     func windowWillClose(_ notification: Notification) {
         relinquishFocus()
     }
-    
+
     func windowShouldClose(_ sender: NSWindow) -> Bool {
         return true
     }
-    
+
     func windowDidBecomeKey(_ notification: Notification) {
         // Ensure app is in regular mode when window becomes key
         NSApp.setActivationPolicy(.regular)
     }
-    
+
     func windowDidResignKey(_ notification: Notification) {
     }
-    
+
 }

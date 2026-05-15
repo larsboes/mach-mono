@@ -102,7 +102,8 @@ struct ClosedNotchInput {
     /// Closed notch height based on live activity state.
     func effectiveClosedNotchHeight(input: ClosedNotchInput) -> CGFloat {
         let screen = input.screenUUID.flatMap { NSScreen.screen(withUUID: $0) }
-        let isNoNotchFullscreen = input.hideOnClosed
+        let isNoNotchFullscreen =
+            input.hideOnClosed
             && (screen?.safeAreaInsets.top ?? 0 <= 0 || screen == nil)
 
         if isNoNotchFullscreen { return 0 }
@@ -111,13 +112,15 @@ struct ClosedNotchInput {
 
         let isFaceActive = !input.isMusicPlaying && input.isPlayerIdle && input.showNotHumanFace
 
-        let hasActiveLiveActivity = input.isMusicPlaying
+        let hasActiveLiveActivity =
+            input.isMusicPlaying
             || input.sneakPeekActive
             || (input.expandingViewActive && input.expandingViewType == .battery)
             || isFaceActive
 
         if hasActiveLiveActivity {
-            return getClosedNotchSize(settings: displaySettings, screenUUID: input.screenUUID, hasLiveActivity: true).height
+            return getClosedNotchSize(settings: displaySettings, screenUUID: input.screenUUID, hasLiveActivity: true)
+                .height
         } else {
             return inactiveNotchSize.height
         }

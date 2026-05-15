@@ -39,9 +39,11 @@ struct WeatherSettings: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
-                Text("Weather data is cached in memory for up to 30 minutes to avoid repeated API calls while opening or previewing the notch.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text(
+                    "Weather data is cached in memory for up to 30 minutes to avoid repeated API calls while opening or previewing the notch."
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
 
                 if let activeSource = pluginManager?.services.weather.activeSource {
                     Label("Currently using \(activeSource.rawValue)", systemImage: "checkmark.circle.fill")
@@ -80,14 +82,17 @@ struct WeatherSettings: View {
                                 .multilineTextAlignment(.leading)
                         }
                         .padding()
-                    } else if weatherService.locationAuthorizationStatus == .denied || weatherService.locationAuthorizationStatus == .restricted {
+                    } else if weatherService.locationAuthorizationStatus == .denied
+                        || weatherService.locationAuthorizationStatus == .restricted
+                    {
                         Text("Location access is denied. Please enable it in System Settings.")
                             .foregroundColor(.red)
                             .multilineTextAlignment(.center)
                             .padding()
                         Button("Open Location Settings") {
                             if let settingsURL = URL(
-                                string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices"
+                                string:
+                                    "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices"
                             ) {
                                 NSWorkspace.shared.open(settingsURL)
                             }
@@ -106,7 +111,7 @@ struct WeatherSettings: View {
                     }
                 }
             }
-            
+
             if let weather = pluginManager?.services.weather.currentWeather {
                 Section(header: Text("Current Weather")) {
                     HStack {

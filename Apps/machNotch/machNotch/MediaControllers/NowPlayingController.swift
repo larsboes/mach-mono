@@ -40,12 +40,12 @@ final class NowPlayingController: MediaControllerProtocol {
             let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Music")
             if !runningApps.isEmpty {
                 let script = """
-                tell application "Music"
-                    try
-                        set favorited of current track to \(favorite ? "true" : "false")
-                    end try
-                end tell
-                """
+                    tell application "Music"
+                        try
+                            set favorited of current track to \(favorite ? "true" : "false")
+                        end try
+                    end tell
+                    """
                 try? await AppleScriptHelper.executeVoid(script)
             }
         }
@@ -161,7 +161,9 @@ final class NowPlayingController: MediaControllerProtocol {
     private func setupNowPlayingObserver() async {
         let process = Process()
         let frameworkPath = Bundle.main.privateFrameworksPath?.appending("/MediaRemoteAdapter.framework")
-        Logger.log("Script URL: \(String(describing: Bundle.main.url(forResource: "mediaremote-adapter", withExtension: "pl")))", category: .debug)
+        Logger.log(
+            "Script URL: \(String(describing: Bundle.main.url(forResource: "mediaremote-adapter", withExtension: "pl")))",
+            category: .debug)
         Logger.log("Framework Path: \(String(describing: frameworkPath))", category: .debug)
         guard
             let scriptURL = Bundle.main.url(forResource: "mediaremote-adapter", withExtension: "pl"),
@@ -201,14 +203,14 @@ final class NowPlayingController: MediaControllerProtocol {
             let runningApps = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Music")
             guard !runningApps.isEmpty else { return }
             let script = """
-            tell application "Music"
-                try
-                    return favorited of current track
-                on error
-                    return false
-                end try
-            end tell
-            """
+                tell application "Music"
+                    try
+                        return favorited of current track
+                    on error
+                        return false
+                    end try
+                end tell
+                """
             if let result = try? await AppleScriptHelper.execute(script) {
                 var updated = self.playbackState
                 updated.isFavorite = result.booleanValue

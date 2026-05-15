@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import UserNotifications
 import SwiftUI
+import UserNotifications
 
 @MainActor
 protocol NotificationServiceProtocol: Observable {

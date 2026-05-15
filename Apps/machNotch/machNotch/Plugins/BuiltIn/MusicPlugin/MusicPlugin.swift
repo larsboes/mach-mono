@@ -234,4 +234,3 @@ final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, Exportab
             .store(in: &cancellables)
     }
 }
-

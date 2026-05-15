@@ -39,7 +39,8 @@ extension MusicPlugin {
         guard let settings = mediaSettings else { return }
         // Only run SCK + FFT for realAudio mode — simulated mode needs no audio capture.
         guard settings.ambientVisualizerEnabled,
-              settings.ambientVisualizerMode == .realAudio else { return }
+            settings.ambientVisualizerMode == .realAudio
+        else { return }
 
         fftProcessor?.smoothingFactor = Self.smoothingFactor(for: settings.visualizerSensitivity)
 

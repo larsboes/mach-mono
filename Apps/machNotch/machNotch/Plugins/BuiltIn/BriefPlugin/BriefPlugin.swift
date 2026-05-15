@@ -3,9 +3,9 @@
 //  machNotch
 //
 
+import Combine
 import MachBriefKit
 import SwiftUI
-import Combine
 
 extension Notification.Name {
     static let briefSettingsDidChange = Notification.Name("briefSettingsDidChange")

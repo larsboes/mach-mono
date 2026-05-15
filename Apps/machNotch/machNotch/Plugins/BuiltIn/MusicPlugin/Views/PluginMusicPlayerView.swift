@@ -6,8 +6,8 @@
 //  Uses MusicServiceProtocol instead of MusicManager singleton.
 //
 
-import SwiftUI
 import Defaults
+import SwiftUI
 
 struct PluginMusicPlayerView: View {
     let plugin: MusicPlugin

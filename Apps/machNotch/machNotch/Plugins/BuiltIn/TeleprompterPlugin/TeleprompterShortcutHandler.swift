@@ -25,7 +25,7 @@ final class TeleprompterShortcutHandler {
         .teleprompterSpeedUp,
         .teleprompterSpeedDown,
         .teleprompterReset,
-        .teleprompterGoHome
+        .teleprompterGoHome,
     ]
 
     init(state: TeleprompterState) {

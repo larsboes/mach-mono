@@ -34,13 +34,13 @@ public struct ObsidianSink: BriefSink {
             let rating = entry.metadata["moodRating"] ?? "Unanswered"
             let note = entry.metadata["moodNote"]
             return """
-            ## Mood - \(time)
-            Feeling: \(rating.capitalized)
-            \(note.map { "Note: \($0)" } ?? "")
+                ## Mood - \(time)
+                Feeling: \(rating.capitalized)
+                \(note.map { "Note: \($0)" } ?? "")
 
-            ---
+                ---
 
-            """
+                """
         }
 
         let sourceName = BriefSourceRegistry.descriptor(for: entry.sourceID).displayName

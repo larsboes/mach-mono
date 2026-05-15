@@ -21,9 +21,9 @@ final class SystemNotificationObserver: SystemNotificationObserverProtocol {
 
     private static let notificationCenterBundleIDs = [
         "com.apple.UserNotificationCenter",
-        "com.apple.notificationcenterui"
+        "com.apple.notificationcenterui",
     ]
-    private static let pollInterval: UInt64 = 2 * 1_000_000_000 // 2 seconds
+    private static let pollInterval: UInt64 = 2 * 1_000_000_000  // 2 seconds
     private static let dedupeWindowSeconds: TimeInterval = 5
 
     init(notificationManager: any NotificationServiceProtocol) {
@@ -80,7 +80,7 @@ final class SystemNotificationObserver: SystemNotificationObserverProtocol {
         hashCleanupTask?.cancel()
         hashCleanupTask = Task { [weak self] in
             while !Task.isCancelled {
-                try? await Task.sleep(nanoseconds: 30 * 1_000_000_000) // 30s
+                try? await Task.sleep(nanoseconds: 30 * 1_000_000_000)  // 30s
                 if Task.isCancelled { break }
                 // Trim hash set to prevent unbounded growth
                 if let self = self, self.knownHashes.count > 500 {
@@ -127,7 +127,9 @@ final class SystemNotificationObserver: SystemNotificationObserverProtocol {
         let subrole = axAttribute(element, kAXSubroleAttribute) as? String
 
         // Notification banners are typically AXGroup or AXNotificationCenter elements
-        if role == kAXGroupRole as String || subrole == "AXNotificationCenterAlert" || subrole == "AXNotificationCenterBanner" {
+        if role == kAXGroupRole as String || subrole == "AXNotificationCenterAlert"
+            || subrole == "AXNotificationCenterBanner"
+        {
             if let notification = extractNotificationContent(from: element) {
                 let hash = notification.hashValue
                 guard !knownHashes.contains(hash) else { return }

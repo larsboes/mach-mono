@@ -6,8 +6,8 @@
 //
 
 import AppKit
-import SwiftUI
 import QuickLook
+import SwiftUI
 
 struct ShelfItemView: View {
     let item: ShelfItem
@@ -25,7 +25,10 @@ struct ShelfItemView: View {
     private var isSelected: Bool { selection.isSelected(item.id) }
     private var shouldHideDuringDrag: Bool { selection.isDragging && selection.isSelected(item.id) && false }
 
-    init(item: ShelfItem, shelfService: ShelfServiceProtocol, quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService) {
+    init(
+        item: ShelfItem, shelfService: ShelfServiceProtocol, quickLookService: any QuickLookServiceProtocol,
+        quickShareService: QuickShareService
+    ) {
         self.item = item
         self.shelfService = shelfService
         self.quickLookService = quickLookService
@@ -58,10 +61,15 @@ struct ShelfItemView: View {
                         DragPreviewView(thumbnail: viewModel.thumbnail ?? item.icon, displayName: item.displayName)
                     },
                     onRightClick: { event, view in
-                        viewModel.handleRightClick(event: event, view: view, service: shelfService, selection: selection, quickLookService: quickLookService, quickShareService: quickShareService)
+                        viewModel.handleRightClick(
+                            event: event, view: view, service: shelfService, selection: selection,
+                            quickLookService: quickLookService, quickShareService: quickShareService)
                     },
                     onClick: { event, nsview in
-                        viewModel.handleClick(event: event, view: nsview, items: shelfService.items, service: shelfService, selection: selection, quickLookService: quickLookService, quickShareService: quickShareService)
+                        viewModel.handleClick(
+                            event: event, view: nsview, items: shelfService.items, service: shelfService,
+                            selection: selection, quickLookService: quickLookService,
+                            quickShareService: quickShareService)
                     }
                 )
             } else {

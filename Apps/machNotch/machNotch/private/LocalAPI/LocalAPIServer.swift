@@ -56,7 +56,8 @@ final class LocalAPIServer: @unchecked Sendable {
     }
 
     private func receiveRequest(on connection: NWConnection, accumulated: Data) {
-        connection.receive(minimumIncompleteLength: 1, maximumLength: 64 * 1024) { [weak self] data, _, isComplete, error in
+        connection.receive(minimumIncompleteLength: 1, maximumLength: 64 * 1024) {
+            [weak self] data, _, isComplete, error in
             guard let self = self else { return }
 
             if isComplete || error != nil {
@@ -82,10 +83,13 @@ final class LocalAPIServer: @unchecked Sendable {
             if request.method == .post {
                 let clientIP = connection.endpoint.debugDescription.components(separatedBy: ":").first ?? "unknown"
                 if !self.rateLimiter.isAllowed(client: clientIP) {
-                    let tooMany = APIHTTPResponse.json(status: 429, APIResponseEnvelope<APIErrorData>.failure("Rate limit exceeded"))
-                    connection.send(content: tooMany.serialized(), completion: .contentProcessed { _ in
-                        connection.cancel()
-                    })
+                    let tooMany = APIHTTPResponse.json(
+                        status: 429, APIResponseEnvelope<APIErrorData>.failure("Rate limit exceeded"))
+                    connection.send(
+                        content: tooMany.serialized(),
+                        completion: .contentProcessed { _ in
+                            connection.cancel()
+                        })
                     return
                 }
             }
@@ -94,18 +98,23 @@ final class LocalAPIServer: @unchecked Sendable {
             // Loopback-only binding means GET is safe without auth.
             // POST requires valid bearer token when auth is configured.
             if request.method == .post && !self.auth.authenticate(request) {
-                let unauthorized = APIHTTPResponse.json(status: 401, APIResponseEnvelope<APIErrorData>.failure("Unauthorized"))
-                connection.send(content: unauthorized.serialized(), completion: .contentProcessed { _ in
-                    connection.cancel()
-                })
+                let unauthorized = APIHTTPResponse.json(
+                    status: 401, APIResponseEnvelope<APIErrorData>.failure("Unauthorized"))
+                connection.send(
+                    content: unauthorized.serialized(),
+                    completion: .contentProcessed { _ in
+                        connection.cancel()
+                    })
                 return
             }
 
             Task {
                 let response = await self.router.route(request)
-                connection.send(content: response.serialized(), completion: .contentProcessed { _ in
-                    connection.cancel()
-                })
+                connection.send(
+                    content: response.serialized(),
+                    completion: .contentProcessed { _ in
+                        connection.cancel()
+                    })
             }
         }
     }
@@ -119,33 +128,39 @@ final class LocalAPIServer: @unchecked Sendable {
 
     private func upgradeToWebSocket(connection: NWConnection, request: APIRequest) {
         guard let key = request.headers["sec-websocket-key"],
-              let accept = websocketAccept(for: key)
+            let accept = websocketAccept(for: key)
         else {
-            let bad = APIHTTPResponse.json(status: 400, APIResponseEnvelope<APIErrorData>.failure("Invalid WebSocket handshake"))
-            connection.send(content: bad.serialized(), completion: .contentProcessed { _ in
-                connection.cancel()
-            })
+            let bad = APIHTTPResponse.json(
+                status: 400, APIResponseEnvelope<APIErrorData>.failure("Invalid WebSocket handshake"))
+            connection.send(
+                content: bad.serialized(),
+                completion: .contentProcessed { _ in
+                    connection.cancel()
+                })
             return
         }
 
         let response = Data(
-            "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: \(accept)\r\n\r\n".utf8
+            "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: \(accept)\r\n\r\n"
+                .utf8
         )
 
-        connection.send(content: response, completion: .contentProcessed { [weak self] error in
-            guard error == nil, let self = self else {
-                connection.cancel()
-                return
-            }
-
-            let client = WebSocketClient(connection: connection)
-            self.webSocketClients[client.id] = client
-            client.start { [weak self] in
-                self?.queue.async {
-                    self?.webSocketClients.removeValue(forKey: client.id)
+        connection.send(
+            content: response,
+            completion: .contentProcessed { [weak self] error in
+                guard error == nil, let self = self else {
+                    connection.cancel()
+                    return
                 }
-            }
-        })
+
+                let client = WebSocketClient(connection: connection)
+                self.webSocketClients[client.id] = client
+                client.start { [weak self] in
+                    self?.queue.async {
+                        self?.webSocketClients.removeValue(forKey: client.id)
+                    }
+                }
+            })
     }
 
     private func websocketAccept(for key: String) -> String? {

@@ -74,7 +74,7 @@ final class TeleprompterState {
 
     /// Estimated line height for section position mapping.
     private var estimatedLineHeight: Double {
-        config.fontSize + 8 // fontSize + lineSpacing
+        config.fontSize + 8  // fontSize + lineSpacing
     }
 
     var currentSectionTitle: String? {

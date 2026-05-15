@@ -63,7 +63,8 @@ class NotchObserverManager {
             while !Task.isCancelled {
                 let shouldHide = withObservationTracking {
                     calculateHideOnClosed(screenUUID: screenUUID)
-                } onChange: { }
+                } onChange: {
+                }
 
                 onHideOnClosedChanged(shouldHide)
 
@@ -128,16 +129,19 @@ class NotchObserverManager {
     static func copyBackgroundImageToAppStorage(sourceURL: URL) -> URL? {
         let fm = FileManager.default
 
-        guard let supportDir = try? fm.url(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: true
-        ) else {
+        guard
+            let supportDir = try? fm.url(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: true
+            )
+        else {
             return nil
         }
 
-        let targetDir = supportDir
+        let targetDir =
+            supportDir
             .appendingPathComponent("machNotch", isDirectory: true)
             .appendingPathComponent("Background", isDirectory: true)
 

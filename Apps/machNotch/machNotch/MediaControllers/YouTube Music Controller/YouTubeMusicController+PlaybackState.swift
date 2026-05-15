@@ -59,14 +59,15 @@ extension YouTubeMusicController {
             artworkFetchTask = nil
 
             if let artworkURL = response.imageSrc,
-               let url = URL(string: artworkURL) {
+                let url = URL(string: artworkURL)
+            {
                 artworkFetchTask = Task {
                     do {
                         let data = try await imageService.fetchImageData(from: url)
                         await MainActor.run { [weak self] in
                             self?.playbackState.artwork = data
                         }
-                    } catch { /* ignore */ }
+                    } catch { /* ignore */  }
                 }
             }
         }
@@ -82,10 +83,10 @@ extension YouTubeMusicController {
     func updateRepeatMode(_ mode: String) {
         var target: RepeatMode?
         switch mode {
-            case "NONE": target = .off
-            case "ALL": target = .all
-            case "ONE": target = .one
-            default: break
+        case "NONE": target = .off
+        case "ALL": target = .all
+        case "ONE": target = .one
+        default: break
         }
         if let target, target != playbackState.repeatMode { playbackState.repeatMode = target }
     }

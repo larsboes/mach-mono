@@ -56,7 +56,8 @@ final class DragDetectionCoordinator {
                 setupDragDetectorForScreen(screen)
             }
         } else {
-            let preferredScreen: NSScreen? = windowCoordinator?.window?.screen
+            let preferredScreen: NSScreen? =
+                windowCoordinator?.window?.screen
                 ?? NSScreen.screen(withUUID: coordinator.selectedScreenUUID)
                 ?? NSScreen.main ?? ScreenDisplayRegistry.shared.currentScreens.first
 
@@ -100,7 +101,8 @@ final class DragDetectionCoordinator {
 
     private func handleDragEntersNotchRegion(onScreen screen: NSScreen) {
         guard let uuid = screen.displayUUID,
-              let windowCoordinator = windowCoordinator else { return }
+            let windowCoordinator = windowCoordinator
+        else { return }
 
         if settings.showOnAllDisplays {
             if let viewModel = windowCoordinator.viewModels[uuid] {

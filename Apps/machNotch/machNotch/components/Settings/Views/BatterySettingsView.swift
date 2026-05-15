@@ -37,17 +37,18 @@ struct Charge: View {
             } header: {
                 Text("Battery Information")
             }
-            
+
             Section {
-                PickerSoundAlert(sounds: SystemSoundHelper.availableSystemSounds(), sound: $settings.powerStatusNotificationSound)
-                
+                PickerSoundAlert(
+                    sounds: SystemSoundHelper.availableSystemSounds(), sound: $settings.powerStatusNotificationSound)
+
                 BatteryLevelPicker(
                     title: "Low Battery Notification",
                     level: $settings.lowBatteryNotificationLevel,
                     sounds: SystemSoundHelper.availableSystemSounds(),
                     sound: $settings.lowBatteryNotificationSound
                 )
-                
+
                 BatteryLevelPicker(
                     title: "High Battery Notification",
                     level: $settings.highBatteryNotificationLevel,
@@ -73,7 +74,7 @@ struct BatteryLevelPicker: View {
     @Binding var level: Int
     let sounds: [String]
     @Binding var sound: String
-    
+
     var body: some View {
         HStack {
             Picker(title, selection: $level) {
@@ -91,7 +92,7 @@ struct BatteryLevelPicker: View {
 struct PickerSoundAlert: View {
     let sounds: [String]
     @Binding var sound: String
-    
+
     var body: some View {
         Picker("Sound", selection: $sound) {
             Text("Disabled").tag("Disabled")

@@ -5,7 +5,7 @@ struct BluetoothSettingsView: View {
     @State private var iconPickerPresented = false
     @State private var selectedDeviceForIcon: String?
     @Environment(\.bindableSettings) var settings
-    
+
     var body: some View {
         @Bindable var settings = settings
         Form {
@@ -25,12 +25,12 @@ struct BluetoothSettingsView: View {
             } header: {
                 Text("General")
             }
-            
+
             Section {
                 Toggle(isOn: $settings.enableBluetoothSneakPeek) {
                     Text("Show connection notifications")
                 }
-                
+
                 Picker("Notification Style", selection: $settings.bluetoothSneakPeekStyle) {
                     Text("Standard").tag(SneakPeekStyle.standard)
                     Text("Minimal").tag(SneakPeekStyle.minimal)
@@ -39,7 +39,7 @@ struct BluetoothSettingsView: View {
             } header: {
                 Text("Notifications")
             }
-            
+
             if bluetoothManager.isInitialized {
                 Section {
                     if bluetoothManager.connectedDevices.isEmpty {
@@ -79,7 +79,7 @@ struct BluetoothSettingsView: View {
             IconPickerSheet(deviceName: selectedDeviceForIcon ?? "")
         }
     }
-    
+
     private var statusText: String {
         switch bluetoothManager.bluetoothState {
         case .poweredOn: return "Active"
@@ -98,25 +98,25 @@ struct IconPickerSheet: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.bindableSettings) var settings
     @State private var searchText = ""
-    
+
     let commonIcons = [
-        "headphones", "airpods", "airpods.pro", "airpodsmax", 
-        "beats.headphones", "hifispeaker.fill", "keyboard.fill", 
+        "headphones", "airpods", "airpods.pro", "airpodsmax",
+        "beats.headphones", "hifispeaker.fill", "keyboard.fill",
         "computermouse.fill", "magicmouse.fill", "trackpad.fill",
-        "gamecontroller.fill", "iphone", "ipad", "applewatch"
+        "gamecontroller.fill", "iphone", "ipad", "applewatch",
     ]
-    
+
     var body: some View {
         @Bindable var settings = settings
         VStack {
             Text("Select Icon for \(deviceName)")
                 .font(.headline)
                 .padding()
-            
+
             TextField("Search SF Symbols", text: $searchText)
                 .textFieldStyle(.roundedBorder)
                 .padding(.horizontal)
-            
+
             ScrollView {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 50))], spacing: 20) {
                     ForEach(commonIcons, id: \.self) { icon in
@@ -135,7 +135,7 @@ struct IconPickerSheet: View {
                 }
                 .padding()
             }
-            
+
             HStack {
                 Button("Cancel") { dismiss() }
                 Spacer()
@@ -144,7 +144,7 @@ struct IconPickerSheet: View {
         }
         .frame(width: 400, height: 500)
     }
-    
+
     private func saveIcon(_ icon: String) {
         var mappings = settings.bluetoothDeviceIconMappings
         if let index = mappings.firstIndex(where: { $0.deviceName == deviceName }) {

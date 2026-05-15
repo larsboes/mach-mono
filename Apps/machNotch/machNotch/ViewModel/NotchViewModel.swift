@@ -102,14 +102,14 @@ import SwiftUI
         get { uiContext.dragDetectorTargeting }
         set { uiContext.dragDetectorTargeting = newValue }
     }
-    
+
     var generalDropTargeting: Bool = false
-    
+
     var dropZoneTargeting: Bool {
         get { uiContext.dropZoneTargeting }
         set { uiContext.dropZoneTargeting = newValue }
     }
-    
+
     var dropEvent: Bool {
         get { uiContext.dropEvent }
         set { uiContext.dropEvent = newValue }
@@ -231,7 +231,7 @@ import SwiftUI
             settings: displaySettings,
             screenUUID: screenUUID
         )
-        
+
         uiContext.notchSize = sizeCalculator.notchSize
         uiContext.closedNotchSize = sizeCalculator.closedNotchSize
         uiContext.notchState = notchState

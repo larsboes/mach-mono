@@ -26,13 +26,13 @@ final class ProviderBackedAIService: AITextGenerationService {
         }
 
         let prompt = """
-        Rewrite the following text to be \(styleInstruction). \
-        Return ONLY the rewritten text, nothing else.
+            Rewrite the following text to be \(styleInstruction). \
+            Return ONLY the rewritten text, nothing else.
 
-        ---
-        \(text)
-        ---
-        """
+            ---
+            \(text)
+            ---
+            """
 
         return try await provider.generate(
             prompt: prompt,
@@ -42,13 +42,13 @@ final class ProviderBackedAIService: AITextGenerationService {
 
     func summarize(_ text: String) async throws -> String {
         let prompt = """
-        Summarize the following text into 3-5 key bullet points. \
-        Return ONLY the bullet points, each on its own line starting with "• ".
+            Summarize the following text into 3-5 key bullet points. \
+            Return ONLY the bullet points, each on its own line starting with "• ".
 
-        ---
-        \(text)
-        ---
-        """
+            ---
+            \(text)
+            ---
+            """
 
         return try await provider.generate(
             prompt: prompt,
@@ -58,20 +58,21 @@ final class ProviderBackedAIService: AITextGenerationService {
 
     func section(_ text: String) async throws -> [String] {
         let prompt = """
-        Split the following text into logical sections. \
-        Return ONLY section headings, each on its own line, prefixed with "## ".
+            Split the following text into logical sections. \
+            Return ONLY section headings, each on its own line, prefixed with "## ".
 
-        ---
-        \(text)
-        ---
-        """
+            ---
+            \(text)
+            ---
+            """
 
         let result = try await provider.generate(
             prompt: prompt,
             config: AIGenerationConfig(temperature: 0.3, maxTokens: 256)
         )
 
-        return result
+        return
+            result
             .components(separatedBy: .newlines)
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { $0.hasPrefix("##") }
@@ -80,10 +81,10 @@ final class ProviderBackedAIService: AITextGenerationService {
 
     func draftIntro(topic: String, durationSeconds: Int) async throws -> String {
         let prompt = """
-        Draft a \(durationSeconds)-second engaging introduction for a talk about: \(topic). \
-        Return ONLY the draft script, nothing else. \
-        Write naturally, as if spoken aloud.
-        """
+            Draft a \(durationSeconds)-second engaging introduction for a talk about: \(topic). \
+            Return ONLY the draft script, nothing else. \
+            Write naturally, as if spoken aloud.
+            """
 
         return try await provider.generate(
             prompt: prompt,

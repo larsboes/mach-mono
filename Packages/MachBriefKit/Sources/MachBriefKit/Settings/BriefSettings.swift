@@ -60,8 +60,10 @@ public struct BriefLanguage: Identifiable, Codable, Equatable, Sendable {
         self.wordResourceName = wordResourceName
     }
 
-    public static let english = BriefLanguage(id: "en", displayName: "English", dictionaryCode: "en", wordResourceName: "words")
-    public static let german = BriefLanguage(id: "de", displayName: "Deutsch", dictionaryCode: "de", wordResourceName: "words_de")
+    public static let english = BriefLanguage(
+        id: "en", displayName: "English", dictionaryCode: "en", wordResourceName: "words")
+    public static let german = BriefLanguage(
+        id: "de", displayName: "Deutsch", dictionaryCode: "de", wordResourceName: "words_de")
 
     public static let supported: [BriefLanguage] = [.english, .german]
 
@@ -87,7 +89,8 @@ public enum BriefSettingsCoding {
 
     public static func decode(_ string: String) -> BriefSettings {
         guard let data = string.data(using: .utf8),
-              let settings = try? JSONDecoder().decode(BriefSettings.self, from: data) else {
+            let settings = try? JSONDecoder().decode(BriefSettings.self, from: data)
+        else {
             return BriefSettings()
         }
         return settings

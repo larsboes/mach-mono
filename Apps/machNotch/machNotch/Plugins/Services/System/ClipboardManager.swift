@@ -5,15 +5,15 @@
 //  Created by Alexander on 2025-12-29.
 //
 
-import Foundation
 import AppKit
+import Foundation
 import SQLite
 
 struct ClipboardItem: Identifiable, Equatable {
     let id: Int64
     let content: String
     let timestamp: Date
-    let type: String // "text", "image", etc.
+    let type: String  // "text", "image", etc.
 }
 
 @Observable
@@ -42,20 +42,21 @@ final class ClipboardManager {
             let path = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
             let appSupport = URL(fileURLWithPath: path).appendingPathComponent("machNotch", isDirectory: true)
             try FileManager.default.createDirectory(at: appSupport, withIntermediateDirectories: true)
-            
+
             db = try Connection(appSupport.appendingPathComponent("clipboard.sqlite3").path)
-            
-            try db?.run(clipboardTable.create(ifNotExists: true) { t in
-                t.column(id, primaryKey: .autoincrement)
-                t.column(content)
-                t.column(timestamp)
-                t.column(type)
-            })
+
+            try db?.run(
+                clipboardTable.create(ifNotExists: true) { t in
+                    t.column(id, primaryKey: .autoincrement)
+                    t.column(content)
+                    t.column(timestamp)
+                    t.column(type)
+                })
         } catch {
             print("ClipboardManager: Database setup failed: \(error)")
         }
     }
-    
+
     func startMonitoring() {
         guard !isMonitoring else { return }
         isMonitoring = true
@@ -69,21 +70,21 @@ final class ClipboardManager {
         timer = nil
         isMonitoring = false
     }
-    
+
     private func checkPasteboard() {
         let pasteboard = NSPasteboard.general
         guard pasteboard.changeCount != lastChangeCount else { return }
         lastChangeCount = pasteboard.changeCount
-        
+
         if let str = pasteboard.string(forType: .string) {
             addItem(str, type: "text")
         }
     }
-    
+
     private func addItem(_ str: String, type: String) {
         // Don't add if same as last item
         if let last = items.first, last.content == str { return }
-        
+
         do {
             let insert = clipboardTable.insert(content <- str, timestamp <- Date(), self.type <- type)
             try db?.run(insert)
@@ -92,27 +93,30 @@ final class ClipboardManager {
             print("ClipboardManager: Failed to add item: \(error)")
         }
     }
-    
+
     func fetchItems() {
         do {
             let query = clipboardTable.order(timestamp.desc).limit(50)
             let rows = try db?.prepare(query)
 
-            self.items = rows?.map { row in
-                ClipboardItem(id: row[self.id], content: row[self.id] == 0 ? "" : row[self.content], timestamp: row[self.timestamp], type: row[self.type])
-            } ?? []
+            self.items =
+                rows?.map { row in
+                    ClipboardItem(
+                        id: row[self.id], content: row[self.id] == 0 ? "" : row[self.content],
+                        timestamp: row[self.timestamp], type: row[self.type])
+                } ?? []
         } catch {
             print("ClipboardManager: Failed to fetch items: \(error)")
         }
     }
-    
+
     func copyToPasteboard(_ item: ClipboardItem) {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(item.content, forType: .string)
         lastChangeCount = pasteboard.changeCount
     }
-    
+
     func deleteItem(_ item: ClipboardItem) {
         do {
             let target = clipboardTable.filter(id == item.id)
@@ -122,7 +126,7 @@ final class ClipboardManager {
             print("ClipboardManager: Failed to delete item: \(error)")
         }
     }
-    
+
     func clearHistory() {
         do {
             try db?.run(clipboardTable.delete())

@@ -119,32 +119,33 @@ class LyricsService: LyricsServiceProtocol {
         guard !runningApps.isEmpty else { return nil }
 
         let script = """
-        tell application "Music"
-            if it is running then
-                if player state is playing or player state is paused then
-                    try
-                        set l to lyrics of current track
-                        if l is missing value then
+            tell application "Music"
+                if it is running then
+                    if player state is playing or player state is paused then
+                        try
+                            set l to lyrics of current track
+                            if l is missing value then
+                                return ""
+                            else
+                                return l
+                            end if
+                        on error
                             return ""
-                        else
-                            return l
-                        end if
-                    on error
+                        end try
+                    else
                         return ""
-                    end try
+                    end if
                 else
                     return ""
                 end if
-            else
-                return ""
-            end if
-        end tell
-        """
+            end tell
+            """
 
         do {
             if let result = try await AppleScriptHelper.execute(script),
-               let lyricsString = result.stringValue,
-               !lyricsString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                let lyricsString = result.stringValue,
+                !lyricsString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            {
                 return lyricsString.trimmingCharacters(in: .whitespacesAndNewlines)
             }
         } catch {

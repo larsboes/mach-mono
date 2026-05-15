@@ -3,7 +3,7 @@ import SwiftUI
 struct NotificationsSettingsView: View {
     @Environment(\.pluginManager) var pluginManager
     @Environment(\.bindableSettings) var settings
-    
+
     private var manager: (any NotificationServiceProtocol)? {
         pluginManager?.services.notifications
     }
@@ -18,7 +18,7 @@ struct NotificationsSettingsView: View {
                     Text(authorizationLabel)
                         .foregroundStyle(.secondary)
                 }
-                
+
                 if manager?.authorizationStatus != .authorized {
                     Button("Request permission") {
                         manager?.requestAuthorization()
@@ -27,7 +27,7 @@ struct NotificationsSettingsView: View {
             } header: {
                 Text("General")
             }
-            
+
             Section {
                 Toggle(isOn: $settings.showShelfNotifications) {
                     Text("Shelf Events")
@@ -41,22 +41,22 @@ struct NotificationsSettingsView: View {
             } header: {
                 Text("Sources")
             }
-            
+
             Section {
                 Picker("Delivery Style", selection: $settings.notificationDeliveryStyle) {
                     ForEach(NotificationDeliveryStyle.allCases, id: \.self) { style in
                         Text(style.localizedName).tag(style)
                     }
                 }
-                
+
                 Toggle(isOn: $settings.notificationSoundEnabled) {
                     Text("Play sound")
                 }
-                
+
                 Toggle(isOn: $settings.respectDoNotDisturb) {
                     Text("Respect Do Not Disturb / Focus")
                 }
-                
+
                 Stepper(value: $settings.notificationRetentionDays, in: 1...30) {
                     Text("Keep history for \(settings.notificationRetentionDays) days")
                 }

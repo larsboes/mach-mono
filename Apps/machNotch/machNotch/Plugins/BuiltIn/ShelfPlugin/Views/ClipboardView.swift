@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ClipboardView: View {
     var manager: any ClipboardServiceProtocol
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -23,7 +23,7 @@ struct ClipboardView: View {
                 .buttonStyle(PlainButtonStyle())
             }
             .padding(.horizontal)
-            
+
             ScrollView {
                 LazyVStack(spacing: 4) {
                     ForEach(manager.items) { item in
@@ -41,7 +41,7 @@ struct ClipboardRow: View {
     let item: ClipboardItem
     var manager: any ClipboardServiceProtocol
     @State private var isHovering = false
-    
+
     var body: some View {
         HStack {
             Text(item.content)

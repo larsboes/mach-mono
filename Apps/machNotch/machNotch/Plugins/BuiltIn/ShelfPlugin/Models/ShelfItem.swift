@@ -64,7 +64,7 @@ struct ShelfItem: Identifiable, Codable, Equatable {
         case .file(let bookmarkData):
             let bookmark = Bookmark(data: bookmarkData)
             guard let resolvedURL = bookmark.resolvedURL else { return "" }
-            
+
             // Check for stored data files (text blocks, weblocs, etc.) to provide friendly names
             if resolvedURL.pathExtension.lowercased() == "json" && resolvedURL.path.contains("TextBlocks") {
                 do {
@@ -94,8 +94,10 @@ struct ShelfItem: Identifiable, Codable, Equatable {
             } else if resolvedURL.pathExtension.lowercased() == "webloc" && resolvedURL.path.contains("WebLocs") {
                 do {
                     let data = try Data(contentsOf: resolvedURL)
-                    if let plist = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
-                       let urlString = plist["URL"] as? String {
+                    if let plist = try PropertyListSerialization.propertyList(from: data, format: nil)
+                        as? [String: Any],
+                        let urlString = plist["URL"] as? String
+                    {
                         let title = plist["Title"] as? String
                         return title ?? urlString
                     }
@@ -103,7 +105,8 @@ struct ShelfItem: Identifiable, Codable, Equatable {
                     // Fall through to default naming
                 }
             }
-            return (try? resolvedURL.resourceValues(forKeys: [.localizedNameKey]).localizedName) ?? resolvedURL.lastPathComponent
+            return (try? resolvedURL.resourceValues(forKeys: [.localizedNameKey]).localizedName)
+                ?? resolvedURL.lastPathComponent
         case .text(let string):
             return string.trimmingCharacters(in: .whitespacesAndNewlines)
         case .link(let url):
@@ -117,12 +120,12 @@ struct ShelfItem: Identifiable, Codable, Equatable {
             }
         }
     }
-    
+
     var fileURL: URL? {
         guard case let .file(bookmarkData) = kind else { return nil }
         return Bookmark(data: bookmarkData).resolvedURL
     }
-    
+
     var URL: URL? {
         switch kind {
         case .file(let bookmarkData):
@@ -133,7 +136,7 @@ struct ShelfItem: Identifiable, Codable, Equatable {
             return nil
         }
     }
-    
+
     var icon: NSImage {
         guard case .file = kind else {
             return Self.thumbnailSymbolImage(systemName: kind.iconSymbolName) ?? NSImage()
@@ -143,11 +146,12 @@ struct ShelfItem: Identifiable, Codable, Equatable {
         }
         return NSImage()
     }
-    
+
     func cleanupStoredData(storage: any TemporaryFileStorageServiceProtocol) {
         guard case let .file(bookmarkData) = kind,
-              let url = Bookmark(data: bookmarkData).resolvedURL else { return }
-        
+            let url = Bookmark(data: bookmarkData).resolvedURL
+        else { return }
+
         // Handle temporary files
         if isTemporary {
             storage.removeTemporaryFileIfNeeded(at: url)
@@ -157,12 +161,12 @@ struct ShelfItem: Identifiable, Codable, Equatable {
 }
 
 private extension ShelfItem {
-   static func thumbnailSymbolImage(
+    static func thumbnailSymbolImage(
         systemName: String,
-    size: CGSize = CGSize(width: 64, height: 80), 
-    symbolPointSize: CGFloat = 38,
-    backgroundColor: NSColor = NSColor.white,
-    symbolColor: NSColor = NSColor.labelColor
+        size: CGSize = CGSize(width: 64, height: 80),
+        symbolPointSize: CGFloat = 38,
+        backgroundColor: NSColor = NSColor.white,
+        symbolColor: NSColor = NSColor.labelColor
     ) -> NSImage? {
         let image = NSImage(size: size)
         image.lockFocus()

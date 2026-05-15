@@ -5,10 +5,11 @@
 //  Created by Agent on 01/01/26.
 //
 
-import Foundation
 import CoreLocation
+import Foundation
+
 #if canImport(WeatherKit)
-import WeatherKit
+    import WeatherKit
 #endif
 
 /// Concrete implementation of WeatherServiceProtocol.
@@ -34,14 +35,14 @@ final class WeatherService: NSObject, WeatherServiceProtocol, CLLocationManagerD
     private let openWeatherMapProvider: OpenWeatherMapWeatherProvider
 
     #if canImport(WeatherKit)
-    private let weatherKitProvider: WeatherKitWeatherProvider?
+        private let weatherKitProvider: WeatherKitWeatherProvider?
     #endif
 
     init(settings: any WidgetSettings) {
         self.settings = settings
         self.openWeatherMapProvider = OpenWeatherMapWeatherProvider(settings: settings)
         #if canImport(WeatherKit)
-        self.weatherKitProvider = WeatherKitWeatherProvider()
+            self.weatherKitProvider = WeatherKitWeatherProvider()
         #endif
         super.init()
         locationManager.delegate = self
@@ -63,9 +64,9 @@ final class WeatherService: NSObject, WeatherServiceProtocol, CLLocationManagerD
         switch locationAuthorizationStatus {
         case .notDetermined:
             #if os(macOS)
-            locationManager.requestAlwaysAuthorization()
+                locationManager.requestAlwaysAuthorization()
             #else
-            locationManager.requestWhenInUseAuthorization()
+                locationManager.requestWhenInUseAuthorization()
             #endif
         case _ where locationAuthorizationStatus.grantsWeatherLocationAccess:
             startUpdatingWeather()
@@ -214,42 +215,42 @@ final class WeatherService: NSObject, WeatherServiceProtocol, CLLocationManagerD
             return openWeatherMapProvider
         case .weatherKit:
             #if canImport(WeatherKit)
-            return weatherKitProvider
+                return weatherKitProvider
             #else
-            return nil
+                return nil
             #endif
         }
     }
 }
 
 #if canImport(WeatherKit)
-@MainActor
-private struct WeatherKitWeatherProvider: WeatherProvider {
-    let source: WeatherDataSource = .weatherKit
+    @MainActor
+    private struct WeatherKitWeatherProvider: WeatherProvider {
+        let source: WeatherDataSource = .weatherKit
 
-    func fetchWeather(for location: CLLocation) async throws -> WeatherData {
-        let weather = try await WeatherKit.WeatherService.shared.weather(for: location)
-        let current = weather.currentWeather
-        let daily = weather.dailyForecast.forecast.first
+        func fetchWeather(for location: CLLocation) async throws -> WeatherData {
+            let weather = try await WeatherKit.WeatherService.shared.weather(for: location)
+            let current = weather.currentWeather
+            let daily = weather.dailyForecast.forecast.first
 
-        return WeatherData(
-            temperature: current.temperature.converted(to: .celsius).value,
-            condition: String(describing: current.condition).capitalized,
-            symbolName: current.symbolName,
-            humidity: current.humidity,
-            windSpeed: current.wind.speed.converted(to: .kilometersPerHour).value,
-            feelsLike: current.apparentTemperature.converted(to: .celsius).value,
-            high: daily?.highTemperature.converted(to: .celsius).value
-                ?? current.temperature.converted(to: .celsius).value,
-            low: daily?.lowTemperature.converted(to: .celsius).value
-                ?? current.temperature.converted(to: .celsius).value,
-            precipitationChance: daily?.precipitationChance,
-            precipitationAmount: daily?.precipitationAmountByType.precipitation.converted(to: .millimeters).value,
-            uvIndex: current.uvIndex.value,
-            location: "Current Location",
-            lastUpdated: current.date,
-            source: source
-        )
+            return WeatherData(
+                temperature: current.temperature.converted(to: .celsius).value,
+                condition: String(describing: current.condition).capitalized,
+                symbolName: current.symbolName,
+                humidity: current.humidity,
+                windSpeed: current.wind.speed.converted(to: .kilometersPerHour).value,
+                feelsLike: current.apparentTemperature.converted(to: .celsius).value,
+                high: daily?.highTemperature.converted(to: .celsius).value
+                    ?? current.temperature.converted(to: .celsius).value,
+                low: daily?.lowTemperature.converted(to: .celsius).value
+                    ?? current.temperature.converted(to: .celsius).value,
+                precipitationChance: daily?.precipitationChance,
+                precipitationAmount: daily?.precipitationAmountByType.precipitation.converted(to: .millimeters).value,
+                uvIndex: current.uvIndex.value,
+                location: "Current Location",
+                lastUpdated: current.date,
+                source: source
+            )
+        }
     }
-}
 #endif

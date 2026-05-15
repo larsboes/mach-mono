@@ -13,19 +13,19 @@ final class YouTubeMusicHTTPClient {
     private let baseURL: String
     private static let decoder = JSONDecoder()
     private static let encoder = JSONEncoder()
-    
+
     init(baseURL: String) {
         self.baseURL = baseURL
-        
+
         let config = URLSessionConfiguration.default
         config.requestCachePolicy = .reloadIgnoringLocalCacheData
         config.urlCache = nil
         config.timeoutIntervalForRequest = 5
         config.timeoutIntervalForResource = 10
-        
+
         self.session = URLSession(configuration: config)
     }
-    
+
     // MARK: - Authentication
     func authenticate() async throws -> String {
         guard let url = URL(string: "\(baseURL)/auth/machNotch") else {
@@ -41,7 +41,7 @@ final class YouTubeMusicHTTPClient {
         let authResponse: AuthResponse = try Self.decoder.decode(AuthResponse.self, from: data)
         return authResponse.accessToken
     }
-    
+
     // MARK: - Playback Info
     func getPlaybackInfo(token: String) async throws -> PlaybackResponse {
         let data = try await sendCommand(
@@ -69,7 +69,7 @@ final class YouTubeMusicHTTPClient {
     func toggleDislike(token: String) async throws -> Data {
         return try await sendCommand(endpoint: "/dislike", method: "POST", token: token)
     }
-    
+
     // MARK: - Commands
     func sendCommand(
         endpoint: String,
@@ -83,13 +83,13 @@ final class YouTubeMusicHTTPClient {
             body: body,
             token: token
         )
-        
+
         let (data, response) = try await session.data(for: request)
         try validateResponse(response)
-        
+
         return data
     }
-    
+
     // MARK: - Private Helpers
     private func createAuthenticatedRequest(
         endpoint: String,
@@ -100,24 +100,24 @@ final class YouTubeMusicHTTPClient {
         guard let url = URL(string: "\(baseURL)\(endpoint)") else {
             throw YouTubeMusicError.invalidURL
         }
-        
+
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
+
         if let body = body {
             request.httpBody = try Self.encoder.encode(body)
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
-        
+
         return request
     }
-    
+
     private func validateResponse(_ response: URLResponse) throws {
         guard let httpResponse = response as? HTTPURLResponse else {
             throw YouTubeMusicError.invalidResponse
         }
-        
+
         switch httpResponse.statusCode {
         case 200..<300:
             break
@@ -135,9 +135,9 @@ actor YouTubeMusicWebSocketClient {
     private let session: URLSession
     private let onMessage: @Sendable (Data) async -> Void
     private let onDisconnect: @Sendable () async -> Void
-    
+
     var isConnected: Bool { task != nil }
-    
+
     init(
         onMessage: @escaping @Sendable (Data) async -> Void,
         onDisconnect: @escaping @Sendable () async -> Void,
@@ -147,32 +147,32 @@ actor YouTubeMusicWebSocketClient {
         self.onDisconnect = onDisconnect
         self.session = session
     }
-    
+
     func connect(to url: URL, with token: String) async throws {
         await disconnect()
-        
+
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
+
         let newTask = session.webSocketTask(with: request)
         task = newTask
         newTask.resume()
-        
+
         Task { await listenForMessages() }
     }
-    
+
     func disconnect() async {
         task?.cancel(with: .goingAway, reason: nil)
         task = nil
     }
-    
+
     private func listenForMessages() async {
         guard let currentTask = task else { return }
-        
+
         while !Task.isCancelled && task != nil {
             do {
                 let message = try await currentTask.receive()
-                
+
                 let data: Data
                 switch message {
                 case .data(let d):
@@ -182,7 +182,7 @@ actor YouTubeMusicWebSocketClient {
                 @unknown default:
                     continue
                 }
-                
+
                 await onMessage(data)
             } catch {
                 break
@@ -221,7 +221,7 @@ enum YouTubeMusicError: Error, LocalizedError, Sendable {
     case webSocketNotConnected
     case encodingFailed
     case decodingFailed
-    
+
     var errorDescription: String? {
         switch self {
         case .invalidURL:

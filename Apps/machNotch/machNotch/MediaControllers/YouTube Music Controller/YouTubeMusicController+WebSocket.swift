@@ -26,7 +26,7 @@ extension YouTubeMusicController {
         do {
             try await client.connect(to: wsURL, with: token)
             webSocketClient = client
-            stopPeriodicUpdates() // WebSocket will provide real-time updates
+            stopPeriodicUpdates()  // WebSocket will provide real-time updates
             reconnectDelay = configuration.reconnectDelay.lowerBound
         } catch {
             Logger.log("[YouTubeMusicController] WebSocket connection failed: \(error)", category: .error)
@@ -44,7 +44,8 @@ extension YouTubeMusicController {
         switch message.type {
         case .playerInfo, .videoChanged, .playerStateChanged:
             if let data = message.extractData(),
-               let response = PlaybackResponse.from(websocketData: data) {
+                let response = PlaybackResponse.from(websocketData: data)
+            {
                 await updatePlaybackState(with: response)
             }
 
@@ -80,7 +81,11 @@ extension YouTubeMusicController {
         case .shuffleChanged:
             guard let data = message.extractData() else { return }
             var copy = playbackState
-            if let shuffle = data["shuffle"] as? Bool { copy.isShuffled = shuffle } else if let shuffle = data["isShuffled"] as? Bool { copy.isShuffled = shuffle }
+            if let shuffle = data["shuffle"] as? Bool {
+                copy.isShuffled = shuffle
+            } else if let shuffle = data["isShuffled"] as? Bool {
+                copy.isShuffled = shuffle
+            }
             copy.lastUpdated = Date()
             if copy != playbackState { playbackState = copy }
 
@@ -99,7 +104,7 @@ extension YouTubeMusicController {
 
     func handleWebSocketDisconnect() async {
         webSocketClient = nil
-        await startPeriodicUpdates() // Fallback to polling
+        await startPeriodicUpdates()  // Fallback to polling
         await scheduleReconnect()
     }
 

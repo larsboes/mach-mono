@@ -4,28 +4,28 @@ import Foundation
 /// No dependencies on SwiftUI or AppKit.
 struct TeleprompterScrollEngine: Sendable {
     struct Config: Codable, Sendable {
-        var speed: Double // lines per minute or pixels per second? Let's say pixels per second.
+        var speed: Double  // lines per minute or pixels per second? Let's say pixels per second.
         var fontSize: Double
         var pauseAtParagraph: Bool
         var pauseDuration: TimeInterval
     }
-    
+
     struct State: Codable, Sendable {
         var scrollPosition: Double
         var isScrolling: Bool
         var lastUpdate: Date?
     }
-    
+
     /// Calculate current scroll position based on time elapsed.
     func calculatePosition(in state: State, config: Config, now: Date = Date()) -> Double {
         guard state.isScrolling, let lastUpdate = state.lastUpdate else {
             return state.scrollPosition
         }
-        
+
         let elapsed = now.timeIntervalSince(lastUpdate)
         return state.scrollPosition + (config.speed * elapsed)
     }
-    
+
     // MARK: - Section Parsing
 
     struct Section: Sendable {

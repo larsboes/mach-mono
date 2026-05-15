@@ -5,8 +5,8 @@
 //  Created by Agent on 01/01/26.
 //
 
-import Foundation
 import CoreLocation
+import Foundation
 
 /// Protocol defining the interface for weather data access.
 /// Wraps the functionality of WeatherManager.
@@ -17,25 +17,25 @@ protocol WeatherServiceProtocol: Observable {
 
     /// Data source used for the latest successful fetch
     var activeSource: WeatherDataSource? { get }
-    
+
     /// Whether data is currently being fetched
     var isLoading: Bool { get }
-    
+
     /// Any error message from the last fetch attempt
     var errorMessage: String? { get }
-    
+
     /// Current location authorization status
     var locationAuthorizationStatus: CLAuthorizationStatus { get }
-    
+
     /// Checks and requests location authorization
     func checkLocationAuthorization()
-    
+
     /// Starts periodic weather updates
     func startUpdatingWeather()
-    
+
     /// Stops periodic weather updates
     func stopUpdatingWeather()
-    
+
     /// Returns cached weather when fresh; otherwise triggers a weather fetch.
     func fetchWeather()
 
@@ -79,9 +79,9 @@ enum WeatherProviderError: LocalizedError {
 extension CLAuthorizationStatus {
     var grantsWeatherLocationAccess: Bool {
         #if os(macOS)
-        return self == .authorizedAlways
+            return self == .authorizedAlways
         #else
-        return self == .authorizedWhenInUse || self == .authorizedAlways
+            return self == .authorizedWhenInUse || self == .authorizedAlways
         #endif
     }
 }
@@ -128,14 +128,17 @@ final class OpenWeatherMapWeatherProvider: WeatherProvider {
     init(settings: any WidgetSettings) {
         self.settings = settings
     }
-    
+
     func fetchWeather(for location: CLLocation) async throws -> WeatherData {
         let apiKey = settings.openWeatherMapApiKey
         guard !apiKey.isEmpty else {
-            throw NSError(domain: "OpenWeatherMap", code: 401, userInfo: [NSLocalizedDescriptionKey: "Please add your OpenWeatherMap API key in Settings > Weather"])
+            throw NSError(
+                domain: "OpenWeatherMap", code: 401,
+                userInfo: [NSLocalizedDescriptionKey: "Please add your OpenWeatherMap API key in Settings > Weather"])
         }
 
-        let urlString = "https://api.openweathermap.org/data/2.5/weather?lat=\(location.coordinate.latitude)&lon=\(location.coordinate.longitude)&appid=\(apiKey)&units=metric"
+        let urlString =
+            "https://api.openweathermap.org/data/2.5/weather?lat=\(location.coordinate.latitude)&lon=\(location.coordinate.longitude)&appid=\(apiKey)&units=metric"
 
         guard let url = URL(string: urlString) else {
             throw NSError(domain: "OpenWeatherMap", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])
@@ -144,7 +147,9 @@ final class OpenWeatherMapWeatherProvider: WeatherProvider {
         let (data, response) = try await URLSession.shared.data(from: url)
 
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw NSError(domain: "OpenWeatherMap", code: 500, userInfo: [NSLocalizedDescriptionKey: "Failed to fetch weather data"])
+            throw NSError(
+                domain: "OpenWeatherMap", code: 500,
+                userInfo: [NSLocalizedDescriptionKey: "Failed to fetch weather data"])
         }
 
         guard httpResponse.statusCode == 200 else {
@@ -158,7 +163,8 @@ final class OpenWeatherMapWeatherProvider: WeatherProvider {
             default:
                 message = apiMessage ?? "Weather API error (\(httpResponse.statusCode))"
             }
-            throw NSError(domain: "OpenWeatherMap", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: message])
+            throw NSError(
+                domain: "OpenWeatherMap", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: message])
         }
 
         let decoded = try JSONDecoder().decode(OpenWeatherResponse.self, from: data)

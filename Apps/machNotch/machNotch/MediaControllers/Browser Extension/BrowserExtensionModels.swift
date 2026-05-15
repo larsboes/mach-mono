@@ -24,7 +24,7 @@ struct BrowserMediaState: Codable {
 struct BrowserMediaCommand: Codable {
     let command: String
     let value: Double?
-    
+
     init(command: String, value: Double? = nil) {
         self.command = command
         self.value = value

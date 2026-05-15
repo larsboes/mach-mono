@@ -1,9 +1,9 @@
 //
-    //  ProgressIndicator.swift
-    //  machNotch
-    //
-    //  Created by Harsh Vardhan  Goswami  on 11/08/24.
-    //
+//  ProgressIndicator.swift
+//  machNotch
+//
+//  Created by Harsh Vardhan  Goswami  on 11/08/24.
+//
 
 import Foundation
 import SwiftUI
@@ -11,7 +11,7 @@ import SwiftUI
 struct CircularProgressView: View {
     let progress: Double
     let color: Color
-    
+
     var body: some View {
         ZStack {
             Circle()
@@ -39,19 +39,19 @@ enum ProgressIndicatorType {
     case text
 }
 
-    // based on type .circle or .text
+// based on type .circle or .text
 struct ProgressIndicator: View {
     var type: ProgressIndicatorType
     var progress: Double
     var color: Color
-    
+
     var body: some View {
         switch type {
-            case .circle:
-                CircularProgressView(progress: progress, color: color).frame(
+        case .circle:
+            CircularProgressView(progress: progress, color: color).frame(
                 width: 20, height: 20)
-            case .text:
-                Text("\(Int(progress * 100))%")
+        case .text:
+            Text("\(Int(progress * 100))%")
         }
     }
 }

@@ -9,7 +9,9 @@ struct TeleprompterSettingsView: View {
                 HStack {
                     Text("Scroll speed")
                     Spacer()
-                    Button { state.decreaseSpeed() } label: {
+                    Button {
+                        state.decreaseSpeed()
+                    } label: {
                         Image(systemName: "minus")
                     }
                     .buttonStyle(.bordered)
@@ -19,7 +21,9 @@ struct TeleprompterSettingsView: View {
                         .font(.system(size: 12, design: .monospaced))
                         .frame(minWidth: 56, alignment: .center)
 
-                    Button { state.increaseSpeed() } label: {
+                    Button {
+                        state.increaseSpeed()
+                    } label: {
                         Image(systemName: "plus")
                     }
                     .buttonStyle(.bordered)

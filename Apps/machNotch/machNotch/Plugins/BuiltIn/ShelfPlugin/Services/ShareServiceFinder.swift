@@ -49,9 +49,11 @@ class ShareServiceFinder: NSObject, NSSharingServicePickerDelegate {
 
     // MARK: NSSharingServicePickerDelegate
 
-    func sharingServicePicker(_ picker: NSSharingServicePicker,
-                              sharingServicesForItems items: [Any],
-                              proposedSharingServices proposed: [NSSharingService]) -> [NSSharingService] {
+    func sharingServicePicker(
+        _ picker: NSSharingServicePicker,
+        sharingServicesForItems items: [Any],
+        proposedSharingServices proposed: [NSSharingService]
+    ) -> [NSSharingService] {
         Task { @MainActor in
             self.onServicesCaptured?(proposed)
         }

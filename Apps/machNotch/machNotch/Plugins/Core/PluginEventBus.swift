@@ -6,8 +6,8 @@
 //  Enables loose coupling between plugins.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 // MARK: - Plugin Event Bus
 
@@ -159,7 +159,7 @@ struct SneakPeekRequestedEvent: PluginEvent {
     let sourcePluginId: String
     let timestamp = Date()
     let request: SneakPeekRequest
-    
+
     init(sourcePluginId: String, request: SneakPeekRequest) {
         self.sourcePluginId = sourcePluginId
         self.request = request

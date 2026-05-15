@@ -35,7 +35,8 @@ extension MusicPlaybackController {
 
     func syncVolumeFromActiveApp() async {
         guard let bundleID = bundleIdentifier, !bundleID.isEmpty,
-              NSWorkspace.shared.runningApplications.contains(where: { $0.bundleIdentifier == bundleID }) else { return }
+            NSWorkspace.shared.runningApplications.contains(where: { $0.bundleIdentifier == bundleID })
+        else { return }
 
         let appName: String
         switch bundleID {
@@ -44,7 +45,8 @@ extension MusicPlaybackController {
         default: return
         }
 
-        let script = "tell application \"\(appName)\"\nif it is running then\nget sound volume\nelse\nreturn 50\nend if\nend tell"
+        let script =
+            "tell application \"\(appName)\"\nif it is running then\nget sound volume\nelse\nreturn 50\nend if\nend tell"
 
         if let result = try? await AppleScriptHelper.execute(script) {
             let currentVolume = Double(result.int32Value) / 100.0

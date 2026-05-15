@@ -5,8 +5,8 @@
 //  Created by Agent on 01/01/26.
 //
 
-import Foundation
 import CoreGraphics
+import Foundation
 
 protocol ThumbnailServiceProtocol: Sendable {
     func thumbnail(for url: URL, size: CGSize) async -> CGImage?

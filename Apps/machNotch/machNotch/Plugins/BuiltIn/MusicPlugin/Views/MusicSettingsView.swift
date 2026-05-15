@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MusicSettingsView: View {
     @Bindable var plugin: MusicPlugin
-    
+
     var body: some View {
         Form {
             Section("General") {

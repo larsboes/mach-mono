@@ -28,7 +28,9 @@ extension ShelfMenuActionTarget {
                 savePanel.directoryURL = fileURL.deletingLastPathComponent()
                 savePanel.begin { response in
                     if response == .OK, let newURL = savePanel.url {
-                        self.service.fileHandler.rename(item: item, newName: newURL.lastPathComponent, service: self.service) { success in
+                        self.service.fileHandler.rename(
+                            item: item, newName: newURL.lastPathComponent, service: self.service
+                        ) { success in
                             if !success {
                                 print("Failed to rename file via handler")
                             }
@@ -92,22 +94,31 @@ extension ShelfMenuActionTarget {
                 Task {
                     do {
                         if alwaysCheckbox.state == .on, let bundleID = Bundle(url: appURL)?.bundleIdentifier {
-                            if let contentType = (try? fileURL.resourceValues(forKeys: [.contentTypeKey]))?.contentType {
-                                let status = LSSetDefaultRoleHandlerForContentType(contentType.identifier as CFString, LSRolesMask.all, bundleID as CFString)
-                                if status != noErr { print("Failed to set default handler for \(contentType.identifier): \(status)") }
+                            if let contentType = (try? fileURL.resourceValues(forKeys: [.contentTypeKey]))?.contentType
+                            {
+                                let status = LSSetDefaultRoleHandlerForContentType(
+                                    contentType.identifier as CFString, LSRolesMask.all, bundleID as CFString)
+                                if status != noErr {
+                                    print("Failed to set default handler for \(contentType.identifier): \(status)")
+                                }
                             } else if let scheme = fileURL.scheme {
                                 let status = LSSetDefaultHandlerForURLScheme(scheme as CFString, bundleID as CFString)
-                                if status != noErr { print("Failed to set default handler for scheme \(scheme): \(status)") }
+                                if status != noErr {
+                                    print("Failed to set default handler for scheme \(scheme): \(status)")
+                                }
                             }
                         }
 
                         if needsSecurityScope {
                             _ = try await fileURL.accessSecurityScopedResource { accessibleURL in
                                 // Create config inside the Sendable closure to avoid capturing non-Sendable NSWorkspace.OpenConfiguration
-                                try await NSWorkspace.shared.open([accessibleURL], withApplicationAt: appURL, configuration: NSWorkspace.OpenConfiguration())
+                                try await NSWorkspace.shared.open(
+                                    [accessibleURL], withApplicationAt: appURL,
+                                    configuration: NSWorkspace.OpenConfiguration())
                             }
                         } else {
-                            try await NSWorkspace.shared.open([fileURL], withApplicationAt: appURL, configuration: NSWorkspace.OpenConfiguration())
+                            try await NSWorkspace.shared.open(
+                                [fileURL], withApplicationAt: appURL, configuration: NSWorkspace.OpenConfiguration())
                         }
                     } catch {
                         print("Failed to open with application: \(error.localizedDescription)")
@@ -118,7 +129,9 @@ extension ShelfMenuActionTarget {
         }
     }
 
-    private func buildOpenWithAccessoryView(chooserDelegate: AppChooserDelegate, panel: NSOpenPanel) -> (NSStackView, NSPopUpButton, NSButton) {
+    private func buildOpenWithAccessoryView(
+        chooserDelegate: AppChooserDelegate, panel: NSOpenPanel
+    ) -> (NSStackView, NSPopUpButton, NSButton) {
         let enableLabel = NSTextField(labelWithString: "Enable:")
         enableLabel.font = .systemFont(ofSize: NSFont.systemFontSize)
         enableLabel.alignment = .natural

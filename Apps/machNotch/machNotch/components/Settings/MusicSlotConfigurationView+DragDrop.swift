@@ -20,11 +20,11 @@ extension MusicSlotConfigurationView {
                     if let nsstring = item as? NSString {
                         let raw = nsstring as String
                         Task { @MainActor in
-self.processDropString(raw, toIndex: toIndex)
+                            self.processDropString(raw, toIndex: toIndex)
                         }
                     } else if let str = item as? String {
                         Task { @MainActor in
-self.processDropString(str, toIndex: toIndex)
+                            self.processDropString(str, toIndex: toIndex)
                         }
                     }
                 }
@@ -45,7 +45,7 @@ self.processDropString(str, toIndex: toIndex)
                     if let nsstring = item as? NSString {
                         let raw = nsstring as String
                         Task { @MainActor in
-if raw.hasPrefix("slot:") {
+                            if raw.hasPrefix("slot:") {
                                 let from = Int(raw.replacingOccurrences(of: "slot:", with: "")) ?? -1
                                 guard from >= 0 && from < self.fixedSlotCount else { return }
                                 var slots = self.settings.musicControlSlots
@@ -57,7 +57,7 @@ if raw.hasPrefix("slot:") {
                         }
                     } else if let str = item as? String {
                         Task { @MainActor in
-if str.hasPrefix("slot:") {
+                            if str.hasPrefix("slot:") {
                                 let from = Int(str.replacingOccurrences(of: "slot:", with: "")) ?? -1
                                 guard from >= 0 && from < self.fixedSlotCount else { return }
                                 var slots = self.settings.musicControlSlots

@@ -14,6 +14,6 @@ class NotchSpaceManager {
     private var runLoopSource: CFRunLoopSource?
 
     init() {
-        notchSpace = MachWindowSpace(level: 2147483647) // Max level
+        notchSpace = MachWindowSpace(level: 2147483647)  // Max level
     }
 }

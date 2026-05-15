@@ -195,7 +195,8 @@ protocol GeneralAppSettings {
 /// Class-constrained so `let settings: any CoordinatorSettings` allows property mutation.
 @MainActor
 protocol CoordinatorSettings: AnyObject, GeneralAppSettings, HUDSettings, MediaSettings,
-    AppearanceSettings, DisplaySettings, ShelfSettings {}
+    AppearanceSettings, DisplaySettings, ShelfSettings
+{}
 
 // MARK: - Bluetooth Settings
 

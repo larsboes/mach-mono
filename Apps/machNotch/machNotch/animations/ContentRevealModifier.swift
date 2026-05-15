@@ -46,12 +46,14 @@ struct ContentRevealModifier: ViewModifier {
         // Open: gentle grow from 0.94, slide down from notch, blur clears
         // Close: aggressive fade out, compress to 0.70, yank up into notch — "absorbed" feel
         let opacity = isClosing ? pow(smooth, 2.0) : smooth
-        let scale = isClosing
-            ? 0.70 + 0.30 * smooth     // Close: 1.0 → 0.70 (30% compress, much more aggressive)
-            : 0.94 + 0.06 * smooth     // Open: 0.94 → 1.0 (gentle grow)
-        let yOffset = isClosing
-            ? (1.0 - smooth) * -20.0   // Close: pull significantly up into notch for absorption
-            : (1.0 - smooth) * -4.0    // Open: slide down from notch
+        let scale =
+            isClosing
+            ? 0.70 + 0.30 * smooth  // Close: 1.0 → 0.70 (30% compress, much more aggressive)
+            : 0.94 + 0.06 * smooth  // Open: 0.94 → 1.0 (gentle grow)
+        let yOffset =
+            isClosing
+            ? (1.0 - smooth) * -20.0  // Close: pull significantly up into notch for absorption
+            : (1.0 - smooth) * -4.0  // Open: slide down from notch
 
         let blurRadius = useBlur ? (1.0 - elementProgress) * (isClosing ? 1.0 : 6.0) : 0
 

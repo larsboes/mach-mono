@@ -51,7 +51,9 @@ actor JSONLinesPipeHandler {
         }
     }
 
-    private func processJSONLine<T: Decodable>(_ line: String, as type: T.Type, onLine: @escaping (T) async -> Void) async {
+    private func processJSONLine<T: Decodable>(
+        _ line: String, as type: T.Type, onLine: @escaping (T) async -> Void
+    ) async {
         guard let data = line.data(using: .utf8) else {
             return
         }

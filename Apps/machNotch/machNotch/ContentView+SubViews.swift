@@ -26,7 +26,8 @@ extension ContentView {
                 .frame(width: computedChinWidth, height: totalHeight)
                 .overlay(alignment: .bottom) {
                     if settings.ambientVisualizerMode == .realAudio,
-                       let plugin = pluginManager?.plugin(id: PluginID.music, as: MusicPlugin.self) {
+                        let plugin = pluginManager?.plugin(id: PluginID.music, as: MusicPlugin.self)
+                    {
                         // Dedicated subview so SwiftUI properly tracks plugin.frequencyBands
                         AudioReactiveVisualizerView(
                             plugin: plugin,
@@ -62,7 +63,8 @@ extension ContentView {
                 Rectangle()
                     .swiftGlassEffect(
                         isEnabled: true,
-                        tintColor: musicService.playbackState.isPlaying ? Color(nsColor: musicService.avgColor).opacity(0.3) : nil
+                        tintColor: musicService.playbackState.isPlaying
+                            ? Color(nsColor: musicService.avgColor).opacity(0.3) : nil
                     )
             } else {
                 Color.black
@@ -91,8 +93,10 @@ extension ContentView {
                     LinearGradient(
                         colors: [
                             .white.opacity(settings.liquidGlassStyle.configuration.borderOpacity * borderMultiplier),
-                            .white.opacity(settings.liquidGlassStyle.configuration.borderOpacity * 0.3 * borderMultiplier),
-                            .white.opacity(settings.liquidGlassStyle.configuration.borderOpacity * 0.5 * borderMultiplier)
+                            .white.opacity(
+                                settings.liquidGlassStyle.configuration.borderOpacity * 0.3 * borderMultiplier),
+                            .white.opacity(
+                                settings.liquidGlassStyle.configuration.borderOpacity * 0.5 * borderMultiplier),
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing

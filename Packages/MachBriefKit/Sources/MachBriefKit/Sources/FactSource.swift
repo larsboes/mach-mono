@@ -36,6 +36,6 @@ extension FactSource {
     static let fallbackFacts: [FactItem] = [
         .init(text: "Honey never spoils when sealed from moisture.", category: "science"),
         .init(text: "Octopuses have three hearts.", category: "nature"),
-        .init(text: "The letter J was the last letter added to the English alphabet.", category: "language")
+        .init(text: "The letter J was the last letter added to the English alphabet.", category: "language"),
     ]
 }

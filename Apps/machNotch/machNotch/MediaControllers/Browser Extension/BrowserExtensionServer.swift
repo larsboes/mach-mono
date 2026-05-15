@@ -5,9 +5,10 @@
 //  Created by Alexander on 2025-06-16.
 //
 
+import Combine
+import CryptoKit
 import Foundation
 import Network
-import Combine
 
 @MainActor
 final class BrowserExtensionServer {
@@ -30,7 +31,7 @@ final class BrowserExtensionServer {
             parameters.requiredLocalEndpoint = NWEndpoint.hostPort(host: "127.0.0.1", port: endpointPort)
 
             let listener = try NWListener(using: parameters, on: endpointPort)
-            
+
             listener.newConnectionHandler = { [weak self] connection in
                 Task { @MainActor in
                     self?.handleNewConnection(connection)
@@ -77,7 +78,7 @@ final class BrowserExtensionServer {
                 }
             }
         }
-        
+
         connection.start(queue: .main)
     }
 
@@ -123,33 +124,34 @@ final class BrowserExtensionServer {
             return
         }
 
-        let response = "HTTP/1.1 101 Switching Protocols\r\n" +
-                       "Upgrade: websocket\r\n" +
-                       "Connection: Upgrade\r\n" +
-                       "Sec-WebSocket-Accept: \(acceptKey)\r\n\r\n"
+        let response =
+            "HTTP/1.1 101 Switching Protocols\r\n" + "Upgrade: websocket\r\n" + "Connection: Upgrade\r\n"
+            + "Sec-WebSocket-Accept: \(acceptKey)\r\n\r\n"
 
         let responseData = Data(response.utf8)
-        connection.send(content: responseData, completion: .contentProcessed { error in
-            if error != nil {
-                connection.cancel()
-            }
-        })
+        connection.send(
+            content: responseData,
+            completion: .contentProcessed { error in
+                if error != nil {
+                    connection.cancel()
+                }
+            })
     }
 
     private func handleWebSocketFrame(data: Data) {
         // Very basic WebSocket unmasking for text frames
         guard data.count > 2 else { return }
-        
+
         let header1 = data[0]
         let header2 = data[1]
-        
-        _ = (header1 & 0x80) != 0 // isFinal — reserved for future fragmentation support
+
+        _ = (header1 & 0x80) != 0  // isFinal — reserved for future fragmentation support
         let opCode = header1 & 0x0F
         let isMasked = (header2 & 0x80) != 0
         var payloadLength = Int(header2 & 0x7F)
-        
+
         var offset = 2
-        
+
         if payloadLength == 126 {
             guard data.count >= 4 else { return }
             payloadLength = Int(data[2]) << 8 | Int(data[3])
@@ -158,26 +160,27 @@ final class BrowserExtensionServer {
             // we don't handle very large frames
             return
         }
-        
+
         var maskingKey: [UInt8] = []
         if isMasked {
             guard data.count >= offset + 4 else { return }
-            maskingKey = [data[offset], data[offset+1], data[offset+2], data[offset+3]]
+            maskingKey = [data[offset], data[offset + 1], data[offset + 2], data[offset + 3]]
             offset += 4
         }
-        
+
         guard data.count >= offset + payloadLength else { return }
-        
-        var payload = Data(data[offset..<offset+payloadLength])
+
+        var payload = Data(data[offset..<offset + payloadLength])
         if isMasked {
             for i in 0..<payloadLength {
                 payload[i] ^= maskingKey[i % 4]
             }
         }
-        
-        if opCode == 1 { // Text frame
+
+        if opCode == 1 {  // Text frame
             if String(data: payload, encoding: .utf8) != nil,
-               let decoded = try? JSONDecoder().decode(BrowserMediaState.self, from: payload) {
+                let decoded = try? JSONDecoder().decode(BrowserMediaState.self, from: payload)
+            {
                 statePublisher.send(decoded)
             }
         }
@@ -185,10 +188,10 @@ final class BrowserExtensionServer {
 
     func sendCommand(_ command: BrowserMediaCommand) {
         guard let payload = try? JSONEncoder().encode(command) else { return }
-        
-        var frame = Data([0x81]) // text frame
+
+        var frame = Data([0x81])  // text frame
         let length = payload.count
-        
+
         if length < 126 {
             frame.append(UInt8(length))
         } else if length <= 65535 {
@@ -199,9 +202,9 @@ final class BrowserExtensionServer {
             // Not supported for this simple server
             return
         }
-        
+
         frame.append(payload)
-        
+
         for connection in activeConnections.values {
             connection.send(content: frame, completion: .contentProcessed { _ in })
         }
@@ -212,8 +215,6 @@ final class BrowserExtensionServer {
         return insecureSHA1Base64(string: magic)
     }
 }
-
-import CryptoKit
 
 private func insecureSHA1Base64(string: String) -> String? {
     guard let data = string.data(using: .utf8) else { return nil }

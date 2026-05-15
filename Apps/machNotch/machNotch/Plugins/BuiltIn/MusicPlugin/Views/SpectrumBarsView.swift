@@ -127,7 +127,8 @@ struct SpectrumBarsView: NSViewRepresentable {
 private extension NSColor {
     func isApproximatelyEqual(to other: NSColor, threshold: CGFloat = 0.02) -> Bool {
         guard let c1 = usingColorSpace(.deviceRGB),
-              let c2 = other.usingColorSpace(.deviceRGB) else { return false }
+            let c2 = other.usingColorSpace(.deviceRGB)
+        else { return false }
         return abs(c1.redComponent - c2.redComponent) < threshold
             && abs(c1.greenComponent - c2.greenComponent) < threshold
             && abs(c1.blueComponent - c2.blueComponent) < threshold

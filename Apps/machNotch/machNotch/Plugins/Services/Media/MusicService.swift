@@ -1,6 +1,6 @@
-import Foundation
-import Combine
 import AppKit
+import Combine
+import Foundation
 import SwiftUI
 
 /// Concrete implementation of MusicService wrapping MusicManager
@@ -20,11 +20,11 @@ final class MusicService: MusicServiceProtocol {
     var isFavorite: Bool = false
 
     // MARK: - Advanced Properties (Delegated)
-    
+
     var currentLyrics: String { manager.currentLyrics }
     var isFetchingLyrics: Bool { manager.isFetchingLyrics }
     var syncedLyrics: [(time: Double, text: String)] { manager.syncedLyrics }
-    
+
     var songDuration: TimeInterval { manager.songDuration }
     var elapsedTime: TimeInterval { manager.elapsedTime }
     var timestampDate: Date { manager.timestampDate }
@@ -43,7 +43,7 @@ final class MusicService: MusicServiceProtocol {
     var playbackStatePublisher: AnyPublisher<PlaybackState, Never> {
         _playbackStateSubject.eraseToAnyPublisher()
     }
-    
+
     var sneakPeekPublisher: AnyPublisher<SneakPeekRequest, Never> {
         manager.sneakPeekPublisher
     }
@@ -65,7 +65,7 @@ final class MusicService: MusicServiceProtocol {
         self.isShuffled = manager.isShuffled
         self.repeatMode = manager.repeatMode
         self.isFavorite = manager.isFavoriteTrack
-        
+
         // Note: We don't have full playback state initially unless we force update or wait for first event
         manager.forceUpdate()
     }
@@ -155,23 +155,23 @@ final class MusicService: MusicServiceProtocol {
     func toggleFavorite() async {
         manager.toggleFavoriteTrack()
     }
-    
+
     func openMusicApp() async {
         manager.openMusicApp()
     }
-    
+
     func syncVolumeFromActiveApp() async {
         await manager.syncVolumeFromActiveApp()
     }
-    
+
     func destroy() {
         manager.destroy()
     }
-    
+
     func forceUpdate() {
         manager.forceUpdate()
     }
-    
+
     func estimatedPlaybackPosition(at date: Date) -> TimeInterval {
         manager.estimatedPlaybackPosition(at: date)
     }

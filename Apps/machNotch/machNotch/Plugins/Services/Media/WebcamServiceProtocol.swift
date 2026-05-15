@@ -5,8 +5,8 @@
 //  Created by Agent on 01/01/26.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 import SwiftUI
 
 @MainActor
@@ -17,7 +17,7 @@ protocol WebcamServiceProtocol: Observable {
     var authorizationStatus: AVAuthorizationStatus { get }
     var availableCameras: [WebcamDeviceDescriptor] { get }
     var selectedCameraID: String { get set }
-    
+
     func startSession()
     func stopSession()
     func refreshAuthorizationStatus()

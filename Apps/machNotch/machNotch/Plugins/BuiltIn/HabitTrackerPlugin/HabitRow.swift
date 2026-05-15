@@ -138,7 +138,9 @@ struct InactiveHabitRow: View {
             Spacer()
 
             HStack(spacing: 6) {
-                Button { onDelete() } label: {
+                Button {
+                    onDelete()
+                } label: {
                     Image(systemName: "trash")
                         .font(.system(size: 11))
                         .foregroundStyle(.red.opacity(0.55))
@@ -192,8 +194,8 @@ struct HabitDropDelegate: DropDelegate {
 
     func dropEntered(info: DropInfo) {
         guard let dragging = draggingId, dragging != targetId,
-              let from = store.habits.firstIndex(where: { $0.id == dragging }),
-              let to = store.habits.firstIndex(where: { $0.id == targetId })
+            let from = store.habits.firstIndex(where: { $0.id == dragging }),
+            let to = store.habits.firstIndex(where: { $0.id == targetId })
         else { return }
         withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
             store.reorderHabits(from: IndexSet(integer: from), to: to > from ? to + 1 : to)

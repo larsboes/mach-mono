@@ -24,7 +24,7 @@ struct GeneralSettings: View {
                 }
                 .tint(.effectiveAccent(from: settings))
                 LaunchAtLogin.Toggle("Launch at login")
-                .tint(.effectiveAccent(from: settings))
+                    .tint(.effectiveAccent(from: settings))
                 Toggle(isOn: $settings.showOnAllDisplays) {
                     Text("Show on all displays")
                 }
@@ -40,11 +40,11 @@ struct GeneralSettings: View {
                     }
                 }
                 .disabled(settings.showOnAllDisplays)
-                
+
                 Toggle(isOn: $settings.automaticallySwitchDisplay) {
                     Text("Automatically switch displays")
                 }
-                    .disabled(settings.showOnAllDisplays)
+                .disabled(settings.showOnAllDisplays)
             } header: {
                 Text("System features")
             }
@@ -95,14 +95,14 @@ struct GeneralSettings: View {
                 if settings.nonNotchHeightMode == .custom {
                     // Custom binding to skip values 1-14 (jump from 0 to 10)
                     let sliderValue = Binding<Double>(
-                        get: { 
+                        get: {
                             settings.nonNotchHeight == 0 ? 0 : settings.nonNotchHeight - 14
                         },
                         set: { newValue in
                             settings.nonNotchHeight = newValue == 0 ? 0 : newValue + 14
                         }
                     )
-                    
+
                     Slider(value: sliderValue, in: 0...26, step: 1) {
                         Text("Custom notch size - \(settings.nonNotchHeight, specifier: "%.0f")")
                     }
@@ -110,7 +110,7 @@ struct GeneralSettings: View {
             } header: {
                 Text("Notch sizing")
             }
-            
+
             Section {
                 Toggle(isOn: $settings.useInactiveNotchHeight) {
                     Text("Use smaller height when inactive")
@@ -149,7 +149,7 @@ struct GeneralSettings: View {
             Toggle(isOn: $settings.enableGestures) {
                 Text("Enable gestures")
             }
-                .disabled(!settings.openNotchOnHover)
+            .disabled(!settings.openNotchOnHover)
             if settings.enableGestures {
                 Toggle("Change media with horizontal gestures", isOn: .constant(false))
                     .disabled(true)
@@ -191,7 +191,7 @@ struct GeneralSettings: View {
                 Text("Open notch on hover")
             }
             Toggle(isOn: $settings.enableHaptics) {
-                    Text("Enable haptic feedback")
+                Text("Enable haptic feedback")
             }
             Toggle("Remember last tab", isOn: $settings.openLastTabByDefault)
             if settings.openNotchOnHover {
@@ -204,7 +204,7 @@ struct GeneralSettings: View {
                     }
                 }
             }
-            
+
             Slider(value: $settings.sneakPeakDuration, in: 0.5...5, step: 0.5) {
                 HStack {
                     Text("Sneak peak duration")
@@ -223,17 +223,17 @@ struct InactiveNotchHeightSlider: View {
     @State private var localValue: Double
     let maxHeight: Double
     @Environment(\.bindableSettings) var settings
-    
+
     init(maxHeight: Double) {
         self.maxHeight = maxHeight
-        self._localValue = State(initialValue: 0) // Will be updated in onAppear
+        self._localValue = State(initialValue: 0)  // Will be updated in onAppear
     }
-    
+
     var body: some View {
         @Bindable var settings = settings
         let effectiveMax = max(1, maxHeight)
         let clampedValue = min(localValue, effectiveMax)
-        
+
         VStack(spacing: 8) {
             HStack {
                 Text("Inactive notch height")
@@ -241,17 +241,19 @@ struct InactiveNotchHeightSlider: View {
                 Text("\(Int(clampedValue))")
                     .foregroundColor(.secondary)
             }
-            
-            Slider(value: Binding(
-                get: { clampedValue },
-                set: { newValue in
-                    localValue = newValue
-                }
-            ), in: 1...effectiveMax, step: 1)
-                .onChange(of: localValue) { _, newValue in
-                    let finalValue = min(newValue, effectiveMax)
-                    settings.inactiveNotchHeight = finalValue
-                }
+
+            Slider(
+                value: Binding(
+                    get: { clampedValue },
+                    set: { newValue in
+                        localValue = newValue
+                    }
+                ), in: 1...effectiveMax, step: 1
+            )
+            .onChange(of: localValue) { _, newValue in
+                let finalValue = min(newValue, effectiveMax)
+                settings.inactiveNotchHeight = finalValue
+            }
         }
         .onAppear {
             localValue = settings.inactiveNotchHeight

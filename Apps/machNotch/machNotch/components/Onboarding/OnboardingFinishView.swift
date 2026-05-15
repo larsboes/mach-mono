@@ -30,7 +30,7 @@ struct OnboardingFinishView: View {
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
-            
+
             Spacer()
             Spacer()
 
@@ -57,5 +57,5 @@ struct OnboardingFinishView: View {
 }
 
 #Preview {
-    OnboardingFinishView(onFinish: { }, onOpenSettings: { })
+    OnboardingFinishView(onFinish: {}, onOpenSettings: {})
 }

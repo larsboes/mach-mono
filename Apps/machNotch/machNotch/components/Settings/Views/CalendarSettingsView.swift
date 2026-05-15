@@ -16,7 +16,7 @@ struct CalendarSettings: View {
         @Bindable var settings = settings
         // Safe unwrap of calendar service
         let calendarService = pluginManager?.services.calendar
-        
+
         Form {
             Toggle(isOn: $settings.showCalendar) {
                 Text("Show calendar")
@@ -130,7 +130,9 @@ struct CalendarSettings: View {
                     print("CalendarSettingsView: Checking authorization...")
                     await service.checkCalendarAuthorization()
                     await service.checkReminderAuthorization()
-                    print("CalendarSettingsView: Status - Calendar: \(service.calendarAuthorizationStatus.rawValue), Reminders: \(service.reminderAuthorizationStatus.rawValue)")
+                    print(
+                        "CalendarSettingsView: Status - Calendar: \(service.calendarAuthorizationStatus.rawValue), Reminders: \(service.reminderAuthorizationStatus.rawValue)"
+                    )
                 } else {
                     print("CalendarSettingsView: CalendarService is NIL")
                 }

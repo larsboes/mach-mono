@@ -30,10 +30,14 @@ public struct BriefEngine: Sendable {
         return await resolvedEntry(sourceID: sourceID, slot: slot, date: date, settings: settings)
     }
 
-    private func resolvedEntry(sourceID: String, slot: DailySlot, date: Date, settings: BriefSettings) async -> BriefEntry {
+    private func resolvedEntry(
+        sourceID: String, slot: DailySlot, date: Date, settings: BriefSettings
+    ) async -> BriefEntry {
         if sourceID == "word" {
             let customURL = settings.customWordListPath.map { URL(fileURLWithPath: $0) }
-            return await WordSource(language: settings.wordLanguage, vocabularyLevel: settings.vocabularyLevel, customWordsURL: customURL).entry(for: slot, date: date)
+            return await WordSource(
+                language: settings.wordLanguage, vocabularyLevel: settings.vocabularyLevel, customWordsURL: customURL
+            ).entry(for: slot, date: date)
         } else if sourceID == "mood" {
             return await MoodCheckInSource(language: settings.wordLanguage).entry(for: slot, date: date)
         } else if sourceID == "quote" {

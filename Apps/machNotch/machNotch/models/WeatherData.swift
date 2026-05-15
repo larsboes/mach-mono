@@ -27,15 +27,15 @@ struct WeatherData: Sendable, Equatable {
     let location: String
     let lastUpdated: Date
     let source: WeatherDataSource
-    
+
     var temperatureString: String {
         return String(format: "%.0f°", temperature)
     }
-    
+
     var systemIconName: String {
         return symbolName
     }
-    
+
     var humidityInt: Int {
         return Int(humidity * 100)
     }

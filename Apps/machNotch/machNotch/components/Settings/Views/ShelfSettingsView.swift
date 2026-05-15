@@ -16,7 +16,7 @@ struct Shelf: View {
     private var selectedProvider: QuickShareProvider? {
         quickShareService?.availableProviders.first(where: { $0.id == settings.quickShareProvider })
     }
-    
+
     var body: some View {
         @Bindable var settings = settings
         Form {
@@ -36,7 +36,7 @@ struct Shelf: View {
                 Toggle(isOn: $settings.autoRemoveShelfItems) {
                     Text("Remove from shelf after dragging")
                 }
-                
+
                 VStack(alignment: .leading) {
                     Text("Auto-close delay: \(String(format: "%.1f", settings.shelfHoverDelay))s")
                     Slider(value: $settings.shelfHoverDelay, in: 1.0...10.0, step: 0.5) {
@@ -53,7 +53,7 @@ struct Shelf: View {
                     Text("General")
                 }
             }
-            
+
             Section {
                 Picker("Quick Share Service", selection: $settings.quickShareProvider) {
                     ForEach(quickShareService?.availableProviders ?? [], id: \.id) { provider in
@@ -75,7 +75,7 @@ struct Shelf: View {
                     }
                 }
                 .pickerStyle(.menu)
-                
+
                 if let selectedProvider = selectedProvider {
                     HStack {
                         Group {
@@ -100,15 +100,17 @@ struct Shelf: View {
                     }
                     .padding(.vertical, 4)
                 }
-                
+
             } header: {
                 HStack {
                     Text("Quick Share")
                 }
             } footer: {
-                Text("Choose which service to use when sharing files from the shelf. Click the shelf button to select files, or drag files onto it to share immediately.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Text(
+                    "Choose which service to use when sharing files from the shelf. Click the shelf button to select files, or drag files onto it to share immediately."
+                )
+                .font(.caption)
+                .foregroundColor(.secondary)
             }
 
             Section {

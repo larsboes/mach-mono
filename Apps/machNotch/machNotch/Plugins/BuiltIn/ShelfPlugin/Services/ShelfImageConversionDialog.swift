@@ -26,7 +26,8 @@ extension ShelfMenuActionTarget {
         alert.addButton(withTitle: "Convert")
         alert.addButton(withTitle: "Cancel")
 
-        let (accessoryView, formatPopup, imageSizePopup, customSizeField, metadataCheckbox, qualitySlider) = buildConvertImageAccessoryView()
+        let (accessoryView, formatPopup, imageSizePopup, customSizeField, metadataCheckbox, qualitySlider) =
+            buildConvertImageAccessoryView()
         alert.accessoryView = accessoryView
 
         let response = alert.runModal()
@@ -54,7 +55,9 @@ extension ShelfMenuActionTarget {
 
     // MARK: - Accessory View Builder
 
-    private func buildConvertImageAccessoryView() -> (NSView, NSPopUpButton, NSPopUpButton, NSTextField, NSButton, NSSlider) {
+    private func buildConvertImageAccessoryView() -> (
+        NSView, NSPopUpButton, NSPopUpButton, NSTextField, NSButton, NSSlider
+    ) {
         let accessoryView = NSView(frame: NSRect(x: 0, y: 0, width: 380, height: 180))
         accessoryView.wantsLayer = true
 
@@ -174,7 +177,10 @@ class ConvertDialogHandler: NSObject {
     weak var imageSizePopup: NSPopUpButton?
     weak var customSizeField: NSTextField?
 
-    init(formatPopup: NSPopUpButton, qualitySlider: NSSlider, qualityValueLabel: NSTextField, qualityLabel: NSTextField, imageSizePopup: NSPopUpButton, customSizeField: NSTextField) {
+    init(
+        formatPopup: NSPopUpButton, qualitySlider: NSSlider, qualityValueLabel: NSTextField, qualityLabel: NSTextField,
+        imageSizePopup: NSPopUpButton, customSizeField: NSTextField
+    ) {
         self.formatPopup = formatPopup
         self.qualitySlider = qualitySlider
         self.qualityValueLabel = qualityValueLabel

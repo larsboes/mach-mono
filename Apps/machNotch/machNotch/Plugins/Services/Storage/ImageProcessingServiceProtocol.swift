@@ -5,8 +5,8 @@
 //  Created by Agent on 01/01/26.
 //
 
-import Foundation
 import CoreGraphics
+import Foundation
 
 @MainActor
 protocol ImageProcessingServiceProtocol: Sendable {

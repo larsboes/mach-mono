@@ -22,12 +22,12 @@ extension NSScreen {
         let uuidString = CFUUIDCreateString(nil, uuid.takeRetainedValue()) as String
         return uuidString
     }
-    
+
     /// Find a screen by its UUID
     @MainActor static func screen(withUUID uuid: String) -> NSScreen? {
         return ScreenDisplayRegistry.shared.screen(forUUID: uuid)
     }
-    
+
     /// Get UUID to NSScreen mapping for all screens
     @MainActor static var screensByUUID: [String: NSScreen] {
         return ScreenDisplayRegistry.shared.screensByUUID

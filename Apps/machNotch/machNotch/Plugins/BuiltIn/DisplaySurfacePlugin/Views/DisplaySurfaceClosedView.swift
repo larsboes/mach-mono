@@ -2,7 +2,7 @@ import SwiftUI
 
 struct DisplaySurfaceClosedView: View {
     let state: DisplaySurfaceState
-    
+
     var body: some View {
         Group {
             switch state.content {

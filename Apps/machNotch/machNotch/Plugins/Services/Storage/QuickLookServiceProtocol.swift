@@ -11,7 +11,7 @@ protocol QuickLookServiceProtocol: AnyObject, Observable {
     var urls: [URL] { get }
     var selectedURL: URL? { get set }
     var isQuickLookOpen: Bool { get }
-    
+
     func show(urls: [URL], selectFirst: Bool, slideshow: Bool)
     func hide()
     func updateSelection(urls: [URL])

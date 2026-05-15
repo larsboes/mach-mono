@@ -14,7 +14,7 @@ struct VolumeControlView: View {
     @State private var showVolumeSlider: Bool = false
     @State private var lastVolumeUpdateTime: Date = Date.distantPast
     private let volumeUpdateThrottle: TimeInterval = 0.1
-    
+
     var body: some View {
         Group {
             if let service = pluginManager?.services.music {
@@ -81,7 +81,7 @@ struct VolumeControlView: View {
             }
         }
     }
-    
+
     private func volumeIcon(service: any MusicServiceProtocol) -> String {
         if !service.volumeControlSupported {
             return "speaker.slash"

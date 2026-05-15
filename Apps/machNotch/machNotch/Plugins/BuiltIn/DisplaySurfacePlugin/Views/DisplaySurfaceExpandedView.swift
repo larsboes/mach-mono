@@ -2,7 +2,7 @@ import SwiftUI
 
 struct DisplaySurfaceExpandedView: View {
     let state: DisplaySurfaceState
-    
+
     var body: some View {
         VStack(spacing: 12) {
             switch state.content {
@@ -11,7 +11,7 @@ struct DisplaySurfaceExpandedView: View {
                     .font(.system(size: 14, weight: .medium))
                     .multilineTextAlignment(.center)
             case .markdown(let md):
-                Text(md) // Simplified for MVP
+                Text(md)  // Simplified for MVP
                     .font(.system(size: 14))
             case .progress(let label, let value):
                 VStack(spacing: 8) {

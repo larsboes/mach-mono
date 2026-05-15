@@ -111,7 +111,7 @@ final class MusicArtworkService {
     func calculateAverageColor() {
         albumArt.averageColor { [weak self] color in
             Task { @MainActor in
-let newColor = color ?? .white
+                let newColor = color ?? .white
                 self?.avgColor = newColor
                 self?.avgColorSubject.send(newColor)
             }

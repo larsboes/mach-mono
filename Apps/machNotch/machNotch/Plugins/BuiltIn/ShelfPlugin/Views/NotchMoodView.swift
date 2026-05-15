@@ -10,21 +10,21 @@ import SwiftUI
 struct NotchMoodView: View {
     @Environment(\.settings) var settings
     @Environment(\.pluginManager) var pluginManager
-    
+
     // Fallback if pluginManager is nil (shouldn't happen in production)
     var faceService: any FaceServiceProtocol {
         pluginManager?.services.face ?? FaceService(settings: settings)
     }
-    
+
     @State private var blink = false
     @State private var breathe = false
-    
+
     var spacing: CGFloat = 8
-    
+
     var body: some View {
         let currentMood = faceService.isSleepy ? .sleepy : settings.selectedMood
         let isSplit = spacing > 20
-        
+
         ZStack {
             // Eyes
             HStack(spacing: spacing) {
@@ -34,13 +34,13 @@ struct NotchMoodView: View {
                     .offset(faceService.eyeOffset)
             }
             .offset(y: breathe ? -1 : 0)
-            
+
             // Mouth (only show if not split)
             if !isSplit {
                 MouthView(mood: currentMood)
                     .offset(y: 8 + (breathe ? 0.5 : 0))
             }
-            
+
             // Eyebrows
             HStack(spacing: isSplit ? spacing + 4 : 12) {
                 EyebrowView(mood: currentMood)
@@ -52,7 +52,7 @@ struct NotchMoodView: View {
             startAnimations()
         }
     }
-    
+
     private func startAnimations() {
         // Blinking
         Timer.scheduledTimer(withTimeInterval: 4.0, repeats: true) { _ in
@@ -60,13 +60,13 @@ struct NotchMoodView: View {
                 blink = true
             }
             Task { @MainActor in
-    try? await Task.sleep(nanoseconds: 100000000)
-withAnimation(.easeInOut(duration: 0.1)) {
+                try? await Task.sleep(nanoseconds: 100000000)
+                withAnimation(.easeInOut(duration: 0.1)) {
                     blink = false
                 }
             }
         }
-        
+
         // Breathing
         withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
             breathe = true
@@ -77,14 +77,14 @@ withAnimation(.easeInOut(duration: 0.1)) {
 struct EyeView: View {
     let mood: Mood
     let blink: Bool
-    
+
     var body: some View {
         Capsule()
             .fill(Color.white)
             .frame(width: 4, height: blink ? 1 : height)
             .animation(.spring(), value: blink)
     }
-    
+
     private var height: CGFloat {
         switch mood {
         case .sleepy: return 1
@@ -96,7 +96,7 @@ struct EyeView: View {
 
 struct MouthView: View {
     let mood: Mood
-    
+
     var body: some View {
         Group {
             if mood == .surprised {
@@ -117,7 +117,7 @@ struct MouthView: View {
             }
         }
     }
-    
+
     private var controlY: CGFloat {
         switch mood {
         case .happy: return 4
@@ -129,7 +129,7 @@ struct MouthView: View {
 
 struct EyebrowView: View {
     let mood: Mood
-    
+
     var body: some View {
         if mood == .angry || mood == .sad || mood == .surprised {
             Path { path in
@@ -142,7 +142,7 @@ struct EyebrowView: View {
             EmptyView()
         }
     }
-    
+
     private var yOffset: CGFloat {
         switch mood {
         case .angry: return 2

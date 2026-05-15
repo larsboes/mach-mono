@@ -13,12 +13,12 @@ struct HoverButton: View {
     var scale: Image.Scale = .medium
     var action: () -> Void
     var contentTransition: ContentTransition = .symbolEffect
-    
+
     @State private var isHovering = false
 
     var body: some View {
         let size = CGFloat(scale == .large ? 36 : 28)
-        
+
         Button(action: action) {
             Rectangle()
                 .fill(.clear)

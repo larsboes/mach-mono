@@ -1,81 +1,81 @@
-import Foundation
-import Cocoa
 @preconcurrency import AsyncXPCConnection
+import Cocoa
+import Foundation
 
 @MainActor
 final class XPCHelperClient: NSObject {
     static let shared = XPCHelperClient()
-    
+
     private let serviceName = "com.larsboes.machnotch.xpc-helper"
-    
+
     private var remoteService: RemoteXPCService<MachNotchXPCHelperProtocol>?
     private var connection: NSXPCConnection?
     private var lastKnownAuthorization: Bool?
     private var monitoringTask: Task<Void, Never>?
-    
+
     // Backoff state
     private var consecutiveFailures = 0
     private var nextAllowedAttempt: Date = .distantPast
     private let backoffDelays: [TimeInterval] = [1, 2, 4, 8, 15, 30]
-    
+
     deinit {
         // connection?.invalidate() // Cannot invalidate in deinit if isolated
         // stopMonitoringAccessibilityAuthorization() // Cannot call isolated method in deinit
-        
+
         // Invalidate manually or rely on system cleanup
     }
-    
+
     // MARK: - Connection Management
-    
+
     private func ensureRemoteService() -> RemoteXPCService<MachNotchXPCHelperProtocol>? {
         if let existing = remoteService {
             return existing
         }
-        
+
         // Check backoff
         guard Date() >= nextAllowedAttempt else {
             return nil
         }
-        
+
         let conn = NSXPCConnection(serviceName: serviceName)
-        
+
         conn.interruptionHandler = { [weak self] in
             Task { @MainActor in
                 self?.handleConnectionFailure()
             }
         }
-        
+
         conn.invalidationHandler = { [weak self] in
             Task { @MainActor in
                 self?.handleConnectionFailure()
             }
         }
-        
+
         conn.resume()
-        
+
         let service = RemoteXPCService<MachNotchXPCHelperProtocol>(
             connection: conn,
             remoteInterface: MachNotchXPCHelperProtocol.self
         )
-        
+
         connection = conn
         remoteService = service
-        
+
         // Success (potentially) - we'll reset failures when a command actually succeeds
         return service
     }
-    
+
     private func handleConnectionFailure() {
         connection = nil
         remoteService = nil
-        
+
         consecutiveFailures += 1
         let delay = backoffDelays[min(consecutiveFailures - 1, backoffDelays.count - 1)]
         nextAllowedAttempt = Date().addingTimeInterval(delay)
-        
+
         print("XPC Connection failed. Consecutive failures: \(consecutiveFailures). Backing off for \(delay)s.")
     }
-    
+
     private func resetBackoff() {
         if consecutiveFailures > 0 {
             consecutiveFailures = 0
@@ -83,11 +83,11 @@ final class XPCHelperClient: NSObject {
             print("XPC Connection stable. Resetting backoff.")
         }
     }
-    
+
     private func getRemoteService() -> RemoteXPCService<MachNotchXPCHelperProtocol>? {
         remoteService
     }
-    
+
     private func notifyAuthorizationChange(_ granted: Bool) {
         guard lastKnownAuthorization != granted else { return }
         lastKnownAuthorization = granted
@@ -122,9 +122,9 @@ final class XPCHelperClient: NSObject {
     var isMonitoring: Bool {
         return monitoringTask != nil
     }
-    
+
     // MARK: - Accessibility
-    
+
     func requestAccessibilityAuthorization() {
         guard let service = ensureRemoteService() else { return }
         Task {
@@ -133,7 +133,7 @@ final class XPCHelperClient: NSObject {
             }
         }
     }
-    
+
     func isAccessibilityAuthorized() async -> Bool {
         guard let service = ensureRemoteService() else { return lastKnownAuthorization ?? false }
         do {
@@ -150,7 +150,7 @@ final class XPCHelperClient: NSObject {
             return false
         }
     }
-    
+
     func ensureAccessibilityAuthorization(promptIfNeeded: Bool) async -> Bool {
         guard let service = ensureRemoteService() else { return lastKnownAuthorization ?? false }
         do {
@@ -167,9 +167,9 @@ final class XPCHelperClient: NSObject {
             return false
         }
     }
-    
+
     // MARK: - Keyboard Brightness
-    
+
     func isKeyboardBrightnessAvailable() async -> Bool {
         guard let service = ensureRemoteService() else { return false }
         do {
@@ -217,9 +217,9 @@ final class XPCHelperClient: NSObject {
             return false
         }
     }
-    
+
     // MARK: - Screen Brightness
-    
+
     func isScreenBrightnessAvailable() async -> Bool {
         guard let service = ensureRemoteService() else { return false }
         do {
@@ -267,7 +267,7 @@ final class XPCHelperClient: NSObject {
             return false
         }
     }
-    
+
     // MARK: - Bluetooth Device Info
     func getBluetoothDeviceMinorClass(with deviceName: String) async -> String? {
         guard let service = ensureRemoteService() else { return nil }

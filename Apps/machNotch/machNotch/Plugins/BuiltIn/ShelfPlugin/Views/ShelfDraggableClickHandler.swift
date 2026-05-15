@@ -93,7 +93,8 @@ struct DraggableClickHandler<Content: View>: NSViewRepresentable {
         private func startDragSession(with event: NSEvent) {
             guard let item, let service, let selection else { return }
             let selectedItems = selection.selectedItems(in: service.items)
-            let itemsToDrag = (selectedItems.count > 1 && selectedItems.contains { $0.id == item.id })
+            let itemsToDrag =
+                (selectedItems.count > 1 && selectedItems.contains { $0.id == item.id })
                 ? selectedItems : [item]
             draggedItems = itemsToDrag
 
@@ -131,7 +132,9 @@ struct DraggableClickHandler<Content: View>: NSViewRepresentable {
 
         // MARK: NSDraggingSource
 
-        func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
+        func draggingSession(
+            _ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext
+        ) -> NSDragOperation {
             if settings?.copyOnDrag == true { return [.copy] }
             switch context {
             case .outsideApplication: return [.copy, .move]

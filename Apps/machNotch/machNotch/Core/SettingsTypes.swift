@@ -5,8 +5,8 @@
 //  Settings value types — all Defaults.Serializable enums used in user preferences.
 //
 
-import SwiftUI
 import Defaults
+import SwiftUI
 
 enum CalendarSelectionState: Codable, Defaults.Serializable, Sendable {
     case all

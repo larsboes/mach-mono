@@ -100,13 +100,13 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Install swift-format
         run: brew install swift-format
-      # Non-strict mode: only real syntax/rule errors fail the build; style
-      # warnings are reported but exit 0. The codebase has ~3.3k style
-      # warnings as of this commit; flipping to --strict requires running
-      # `swift-format format -i` across the tree first to clear the baseline.
+      # Strict mode: any style violation fails CI. The baseline was cleared
+      # via `swift-format format -i` once .swift-format dropped the
+      # AlwaysUseLowerCamelCase rule (it fired on legit C-API bindings and
+      # SwiftUI-style helper-view functions).
       - name: Lint Swift formatting
         run: |
-          swift-format lint --recursive --parallel \
+          swift-format lint --strict --recursive --parallel \
             Apps/machNotch/machNotch/ \
             Packages/MachBriefKit/Sources/ \
             Packages/MacroVisionKit/Sources/

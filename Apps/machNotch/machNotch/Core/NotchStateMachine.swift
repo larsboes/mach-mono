@@ -23,7 +23,7 @@ enum NotchDisplayState: Equatable, Sendable {
     /// Content displayed when the notch is closed
     enum ClosedContent: Equatable, Sendable {
         case idle
-        case plugin(String) // Generic plugin content
+        case plugin(String)  // Generic plugin content
         case face
         case inlineHUD(type: SneakContentType, value: CGFloat, icon: String)
         case sneakPeek(type: SneakContentType, value: CGFloat, icon: String)
@@ -47,22 +47,15 @@ struct NotchStateInput: Equatable {
     var showInlineHUD: Bool
     var showNotHumanFace: Bool
     var sneakPeekStyle: SneakPeekStyle
-    
+
     static func == (lhs: NotchStateInput, rhs: NotchStateInput) -> Bool {
-        lhs.isHelloAnimationRunning == rhs.isHelloAnimationRunning &&
-        lhs.notchState == rhs.notchState &&
-        lhs.currentView == rhs.currentView &&
-        lhs.sneakPeek.show == rhs.sneakPeek.show &&
-        lhs.sneakPeek.type == rhs.sneakPeek.type &&
-        lhs.expandingView.show == rhs.expandingView.show &&
-        lhs.expandingView.type == rhs.expandingView.type &&
-        lhs.activePluginId == rhs.activePluginId &&
-        lhs.isPlayerIdle == rhs.isPlayerIdle &&
-        lhs.isPlaying == rhs.isPlaying &&
-        lhs.hideOnClosed == rhs.hideOnClosed &&
-        lhs.showInlineHUD == rhs.showInlineHUD &&
-        lhs.showNotHumanFace == rhs.showNotHumanFace &&
-        lhs.sneakPeekStyle == rhs.sneakPeekStyle
+        lhs.isHelloAnimationRunning == rhs.isHelloAnimationRunning && lhs.notchState == rhs.notchState
+            && lhs.currentView == rhs.currentView && lhs.sneakPeek.show == rhs.sneakPeek.show
+            && lhs.sneakPeek.type == rhs.sneakPeek.type && lhs.expandingView.show == rhs.expandingView.show
+            && lhs.expandingView.type == rhs.expandingView.type && lhs.activePluginId == rhs.activePluginId
+            && lhs.isPlayerIdle == rhs.isPlayerIdle && lhs.isPlaying == rhs.isPlaying
+            && lhs.hideOnClosed == rhs.hideOnClosed && lhs.showInlineHUD == rhs.showInlineHUD
+            && lhs.showNotHumanFace == rhs.showNotHumanFace && lhs.sneakPeekStyle == rhs.sneakPeekStyle
     }
 }
 
@@ -76,7 +69,7 @@ class NotchStateMachine {
     private weak var coordinator: (any ViewCoordinating)?
     private weak var pluginManager: PluginManager?
     private let settings: NotchSettings
-    
+
     @ObservationIgnored nonisolated(unsafe) private var observationTask: Task<Void, Never>?
 
     /// Production initializer
@@ -90,10 +83,10 @@ class NotchStateMachine {
         self.coordinator = coordinator
         self.pluginManager = pluginManager
         self.settings = settings
-        
+
         startObserving()
     }
-    
+
     /// Testable initializer with injected settings
     init(settings: NotchSettings) {
         self.settings = settings
@@ -101,7 +94,7 @@ class NotchStateMachine {
         self.coordinator = nil
         self.pluginManager = nil
     }
-    
+
     deinit {
         observationTask?.cancel()
     }
@@ -110,7 +103,7 @@ class NotchStateMachine {
     func transition(to state: NotchDisplayState) {
         displayState = state
     }
-    
+
     private func startObserving() {
         observationTask = Task { @MainActor [weak self] in
             while !Task.isCancelled {
@@ -122,7 +115,7 @@ class NotchStateMachine {
                         self?.startObserving()
                     }
                 }
-                
+
                 try? await Task.sleep(for: .seconds(86400))
             }
         }
@@ -134,17 +127,17 @@ class NotchStateMachine {
         if displayState != newState {
             displayState = newState
         }
-        
+
         // Sync plugin preferred height for notch sizing
         if let activePluginId = pluginManager?.highestPriorityClosedNotchPlugin(),
-           let plugin = pluginManager?.plugin(id: activePluginId),
-           let preferredHeight = plugin.displayRequest?.preferredHeight {
+            let plugin = pluginManager?.plugin(id: activePluginId),
+            let preferredHeight = plugin.displayRequest?.preferredHeight
+        {
             viewModel?.pluginPreferredHeight = preferredHeight
         } else {
             viewModel?.pluginPreferredHeight = nil
         }
     }
-
 
     func getCurrentInput(forcingClosed: Bool = false) -> NotchStateInput {
         return NotchStateInput(
@@ -166,7 +159,7 @@ class NotchStateMachine {
     /// Compute the display state based on current inputs.
     func computeDisplayState(from input: NotchStateInput? = nil) -> NotchDisplayState {
         let input = input ?? getCurrentInput()
-        
+
         // Priority 1: Hello animation
         if input.isHelloAnimationRunning {
             return .helloAnimation
@@ -180,39 +173,39 @@ class NotchStateMachine {
         // From here, we're in closed state
 
         // Priority 3: Inline HUD
-        if input.sneakPeek.show &&
-           input.showInlineHUD &&
-           input.sneakPeek.type != .music &&
-           input.sneakPeek.type != .battery {
-            return .closed(content: .inlineHUD(
-                type: input.sneakPeek.type,
-                value: input.sneakPeek.value,
-                icon: input.sneakPeek.icon
-            ))
+        if input.sneakPeek.show && input.showInlineHUD && input.sneakPeek.type != .music
+            && input.sneakPeek.type != .battery
+        {
+            return .closed(
+                content: .inlineHUD(
+                    type: input.sneakPeek.type,
+                    value: input.sneakPeek.value,
+                    icon: input.sneakPeek.icon
+                ))
         }
 
         // Priority 4: Standard sneak peek
-        if input.sneakPeek.show &&
-           !input.showInlineHUD &&
-           input.sneakPeek.type != .music &&
-           input.sneakPeek.type != .battery {
-            return .closed(content: .sneakPeek(
-                type: input.sneakPeek.type,
-                value: input.sneakPeek.value,
-                icon: input.sneakPeek.icon
-            ))
+        if input.sneakPeek.show && !input.showInlineHUD && input.sneakPeek.type != .music
+            && input.sneakPeek.type != .battery
+        {
+            return .closed(
+                content: .sneakPeek(
+                    type: input.sneakPeek.type,
+                    value: input.sneakPeek.value,
+                    icon: input.sneakPeek.icon
+                ))
         }
 
         // Priority 5: Music sneak peek
-        if input.sneakPeek.show &&
-           input.sneakPeek.type == .music &&
-           !input.hideOnClosed &&
-           input.sneakPeekStyle == .standard {
-            return .closed(content: .sneakPeek(
-                type: .music,
-                value: input.sneakPeek.value,
-                icon: input.sneakPeek.icon
-            ))
+        if input.sneakPeek.show && input.sneakPeek.type == .music && !input.hideOnClosed
+            && input.sneakPeekStyle == .standard
+        {
+            return .closed(
+                content: .sneakPeek(
+                    type: .music,
+                    value: input.sneakPeek.value,
+                    icon: input.sneakPeek.icon
+                ))
         }
 
         // Priority 5.5: Battery Expanding View
@@ -222,17 +215,16 @@ class NotchStateMachine {
 
         // Priority 6: Active Plugin Content
         if let pluginId = input.activePluginId,
-           !input.hideOnClosed,
-           !input.expandingView.show || input.expandingView.type == .music {
+            !input.hideOnClosed,
+            !input.expandingView.show || input.expandingView.type == .music
+        {
             return .closed(content: .plugin(pluginId))
         }
 
         // Priority 7: Face animation
-        if !input.expandingView.show &&
-           !input.isPlaying &&
-           input.isPlayerIdle &&
-           input.showNotHumanFace &&
-           !input.hideOnClosed {
+        if !input.expandingView.show && !input.isPlaying && input.isPlayerIdle && input.showNotHumanFace
+            && !input.hideOnClosed
+        {
             return .closed(content: .face)
         }
 

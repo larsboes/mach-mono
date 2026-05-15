@@ -12,7 +12,8 @@ struct DisplayPrioritizer {
             return (plugin.id, request)
         }
 
-        return requests
+        return
+            requests
             .sorted { $0.request.priority > $1.request.priority }
             .first?.id
     }

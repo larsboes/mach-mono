@@ -26,7 +26,7 @@ enum MusicControlButton: String, CaseIterable, Identifiable, Codable, Defaults.S
         .previous,
         .playPause,
         .next,
-        .none
+        .none,
     ]
 
     static let minSlotCount: Int = 3
@@ -41,7 +41,7 @@ enum MusicControlButton: String, CaseIterable, Identifiable, Codable, Defaults.S
         .favorite,
         .volume,
         .goBackward,
-        .goForward
+        .goForward,
     ]
 
     var label: String {

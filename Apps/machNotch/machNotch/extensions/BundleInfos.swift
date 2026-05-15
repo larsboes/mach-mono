@@ -17,12 +17,12 @@ extension Bundle {
     var releaseVersionNumberPretty: String {
         return "v\(releaseVersionNumber ?? "1.0.0")"
     }
-    
+
     var iconFileName: String? {
         guard let icons = infoDictionary?["CFBundleIcons"] as? [String: Any],
-              let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
-              let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
-              let iconFileName = iconFiles.last
+            let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
+            let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
+            let iconFileName = iconFiles.last
         else { return nil }
         return iconFileName
     }
@@ -40,7 +40,7 @@ func isNewVersion() -> Bool {
     let defaults = UserDefaults.standard
     let currentVersion = Bundle.main.releaseVersionNumber ?? "1.0"
     let savedVersion = defaults.string(forKey: "LastVersionRun") ?? ""
-    
+
     if currentVersion != savedVersion {
         defaults.set(currentVersion, forKey: "LastVersionRun")
         return true
@@ -49,9 +49,9 @@ func isNewVersion() -> Bool {
 }
 
 func isExtensionRunning(_ bundleID: String) -> Bool {
-    if NSWorkspace.shared.runningApplications.first(where: {$0.bundleIdentifier == bundleID}) != nil {
+    if NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == bundleID }) != nil {
         return true
     }
-    
+
     return false
 }

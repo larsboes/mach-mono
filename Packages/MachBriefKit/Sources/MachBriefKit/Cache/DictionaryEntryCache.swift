@@ -29,7 +29,7 @@ public actor DictionaryEntryCache {
 
     private static func load() -> [String: WordItem] {
         guard let data = MachSharedDefaults.suite.data(forKey: storageKey),
-              let decoded = try? JSONDecoder().decode([String: WordItem].self, from: data)
+            let decoded = try? JSONDecoder().decode([String: WordItem].self, from: data)
         else { return [:] }
         return decoded
     }

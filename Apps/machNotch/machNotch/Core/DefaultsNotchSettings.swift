@@ -14,10 +14,10 @@
 //    +Shelf.swift       — shelf, calendar, and integration settings
 //
 
-import Foundation
 import Defaults
-import Observation
+import Foundation
 import NotchSettingsMacro
+import Observation
 import SwiftUI
 
 @MainActor
@@ -26,7 +26,8 @@ final class DefaultsNotchSettings: NotchSettings {
     static let shared = DefaultsNotchSettings()
 
     static var defaultMediaController: MediaControllerType {
-        MediaControllerType.defaultController(isNowPlayingDeprecated: Defaults[Defaults.Key<Bool>("isNowPlayingDeprecated", default: false)])
+        MediaControllerType.defaultController(
+            isNowPlayingDeprecated: Defaults[Defaults.Key<Bool>("isNowPlayingDeprecated", default: false)])
     }
 
     // MARK: - Bluetooth

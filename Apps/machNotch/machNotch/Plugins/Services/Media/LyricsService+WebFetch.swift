@@ -8,7 +8,9 @@
 import Foundation
 
 extension LyricsService {
-    func fetchLyricsFromWeb(title: String, artist: String) async -> (plain: String, synced: [(time: Double, text: String)]) {
+    func fetchLyricsFromWeb(
+        title: String, artist: String
+    ) async -> (plain: String, synced: [(time: Double, text: String)]) {
         let cleanTitle = normalizedQuery(title)
         let cleanArtist = normalizedQuery(artist)
 
@@ -19,8 +21,10 @@ extension LyricsService {
         let searchStrategies: [String] = {
             var strategies: [String] = []
             if !cleanArtist.isEmpty,
-               let encodedArtist = cleanArtist.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
-                strategies.append("https://lrclib.net/api/search?track_name=\(encodedTitle)&artist_name=\(encodedArtist)")
+                let encodedArtist = cleanArtist.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+            {
+                strategies.append(
+                    "https://lrclib.net/api/search?track_name=\(encodedTitle)&artist_name=\(encodedArtist)")
             }
             strategies.append("https://lrclib.net/api/search?track_name=\(encodedTitle)")
             return strategies
@@ -39,9 +43,11 @@ extension LyricsService {
                 }
 
                 if let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]],
-                   let first = findBestMatch(in: jsonArray, title: cleanTitle, artist: cleanArtist) {
+                    let first = findBestMatch(in: jsonArray, title: cleanTitle, artist: cleanArtist)
+                {
                     let plain = (first["plainLyrics"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-                    let synced = (first["syncedLyrics"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                    let synced =
+                        (first["syncedLyrics"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
 
                     if !plain.isEmpty || !synced.isEmpty {
                         let resolvedPlain = plain.isEmpty ? synced : plain
@@ -73,7 +79,9 @@ extension LyricsService {
             if let resultTitle = result["trackName"] as? String {
                 if resultTitle.lowercased() == normalizedTitle {
                     score += 10
-                } else if resultTitle.lowercased().contains(normalizedTitle) || normalizedTitle.contains(resultTitle.lowercased()) {
+                } else if resultTitle.lowercased().contains(normalizedTitle)
+                    || normalizedTitle.contains(resultTitle.lowercased())
+                {
                     score += 5
                 }
             }
@@ -81,7 +89,9 @@ extension LyricsService {
             if !normalizedArtist.isEmpty, let resultArtist = result["artistName"] as? String {
                 if resultArtist.lowercased() == normalizedArtist {
                     score += 8
-                } else if resultArtist.lowercased().contains(normalizedArtist) || normalizedArtist.contains(resultArtist.lowercased()) {
+                } else if resultArtist.lowercased().contains(normalizedArtist)
+                    || normalizedArtist.contains(resultArtist.lowercased())
+                {
                     score += 4
                 }
             }

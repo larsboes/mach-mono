@@ -14,5 +14,5 @@ struct CalendarModel: Equatable {
     let title: String
     let color: NSColor
     let isSubscribed: Bool
-    let isReminder: Bool // true if this is a reminder calendar
+    let isReminder: Bool  // true if this is a reminder calendar
 }

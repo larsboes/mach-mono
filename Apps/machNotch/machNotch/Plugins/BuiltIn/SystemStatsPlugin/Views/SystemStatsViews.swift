@@ -65,7 +65,8 @@ struct SystemStatsExpandedView: View {
                         value: stats.cpuUsage,
                         history: history.map(\.cpuUsage),
                         color: .cyan,
-                        hoverDetail: "User \(SystemStatsFormatter.percent(stats.cpuUserPercent))  ·  Sys \(SystemStatsFormatter.percent(stats.cpuSystemPercent))  ·  Idle \(SystemStatsFormatter.percent(max(0, 1 - stats.cpuUsage)))"
+                        hoverDetail:
+                            "User \(SystemStatsFormatter.percent(stats.cpuUserPercent))  ·  Sys \(SystemStatsFormatter.percent(stats.cpuSystemPercent))  ·  Idle \(SystemStatsFormatter.percent(max(0, 1 - stats.cpuUsage)))"
                     )
                 }
                 if configuration.showRAM {
@@ -74,7 +75,8 @@ struct SystemStatsExpandedView: View {
                         value: stats.ramUsage,
                         history: history.map(\.ramUsage),
                         color: .purple,
-                        hoverDetail: "\(SystemStatsFormatter.gigabytes(stats.ramUsedBytes)) used  of  \(SystemStatsFormatter.gigabytes(stats.ramTotalBytes))"
+                        hoverDetail:
+                            "\(SystemStatsFormatter.gigabytes(stats.ramUsedBytes)) used  of  \(SystemStatsFormatter.gigabytes(stats.ramTotalBytes))"
                     )
                 }
                 if configuration.showDisk {
@@ -83,7 +85,8 @@ struct SystemStatsExpandedView: View {
                         value: stats.diskUsage,
                         history: history.map(\.diskUsage),
                         color: .orange,
-                        hoverDetail: "\(SystemStatsFormatter.gigabytes(stats.diskUsedBytes)) used  ·  \(SystemStatsFormatter.gigabytes(stats.diskTotalBytes - stats.diskUsedBytes)) free"
+                        hoverDetail:
+                            "\(SystemStatsFormatter.gigabytes(stats.diskUsedBytes)) used  ·  \(SystemStatsFormatter.gigabytes(stats.diskTotalBytes - stats.diskUsedBytes)) free"
                     )
                 }
                 if configuration.showNetwork {
@@ -100,11 +103,13 @@ struct SystemStatsExpandedView: View {
     private var metricColumns: [GridItem] {
         [
             GridItem(.flexible(minimum: 180), spacing: 8),
-            GridItem(.flexible(minimum: 180), spacing: 8)
+            GridItem(.flexible(minimum: 180), spacing: 8),
         ]
     }
 
-    private func metricCard(title: String, value: Double, history: [Double], color: Color, hoverDetail: String) -> some View {
+    private func metricCard(
+        title: String, value: Double, history: [Double], color: Color, hoverDetail: String
+    ) -> some View {
         let isHovered = hoveredCard == title
         return HStack(spacing: 12) {
             SystemMetricRing(label: title.uppercased(), value: value, color: color, size: 38)
@@ -252,4 +257,3 @@ struct SystemStatsSettingsView: View {
         )
     }
 }
-

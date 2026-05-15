@@ -17,7 +17,10 @@ struct Habit: Identifiable, Codable, Equatable, Hashable {
     var createdAt: Date
     var isActive: Bool
 
-    init(id: UUID = UUID(), title: String, symbol: String = "circle.fill", colorHex: String = "#FFFFFF", createdAt: Date = Date(), isActive: Bool = true) {
+    init(
+        id: UUID = UUID(), title: String, symbol: String = "circle.fill", colorHex: String = "#FFFFFF",
+        createdAt: Date = Date(), isActive: Bool = true
+    ) {
         self.id = id
         self.title = title
         self.symbol = symbol
@@ -25,7 +28,7 @@ struct Habit: Identifiable, Codable, Equatable, Hashable {
         self.createdAt = createdAt
         self.isActive = isActive
     }
-    
+
     var color: Color {
         Color(hex: colorHex)
     }
@@ -35,9 +38,9 @@ struct Habit: Identifiable, Codable, Equatable, Hashable {
 struct HabitCompletion: Identifiable, Codable, Equatable, Hashable {
     var id: UUID
     var habitId: UUID
-    var date: Date // Canonicalized to start of day
+    var date: Date  // Canonicalized to start of day
     var completedAt: Date
-    
+
     init(id: UUID = UUID(), habitId: UUID, date: Date, completedAt: Date = Date()) {
         self.id = id
         self.habitId = habitId
@@ -64,11 +67,11 @@ extension Color {
         Scanner(string: hex).scanHexInt64(&int)
         let a, r, g, b: UInt64
         switch hex.count {
-        case 3: // RGB (12-bit)
+        case 3:  // RGB (12-bit)
             (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
-        case 6: // RGB (24-bit)
+        case 6:  // RGB (24-bit)
             (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-        case 8: // ARGB (32-bit)
+        case 8:  // ARGB (32-bit)
             (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
         default:
             (a, r, g, b) = (255, 255, 255, 255)
@@ -82,16 +85,16 @@ extension Color {
             opacity: Double(a) / 255
         )
     }
-    
+
     var hexFormat: String {
         let nsColor = NSColor(self)
         guard let rgbColor = nsColor.usingColorSpace(.sRGB) else { return "#FFFFFF" }
-        
+
         let red = Int(round(rgbColor.redComponent * 0xFF))
         let green = Int(round(rgbColor.greenComponent * 0xFF))
         let blue = Int(round(rgbColor.blueComponent * 0xFF))
         let alpha = Int(round(rgbColor.alphaComponent * 0xFF))
-        
+
         if alpha == 0xFF {
             return String(format: "#%02X%02X%02X", red, green, blue)
         } else {

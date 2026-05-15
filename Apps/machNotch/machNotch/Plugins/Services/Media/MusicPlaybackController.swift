@@ -156,7 +156,8 @@ final class MusicPlaybackController {
 
     private func setActiveControllerBasedOnPreference() {
         let preferredType = settings.mediaController
-        let controllerType = (isNowPlayingDeprecated && preferredType == .nowPlaying)
+        let controllerType =
+            (isNowPlayingDeprecated && preferredType == .nowPlaying)
             ? .appleMusic
             : preferredType
 
@@ -175,7 +176,7 @@ final class MusicPlaybackController {
 
     func updateFromPlaybackState(_ state: PlaybackState) {
         playbackStateSubject.send(state)
-        
+
         if let controller = activeController {
             if self.songDuration != controller.duration { self.songDuration = controller.duration }
             if self.elapsedTime != controller.currentTime { self.elapsedTime = controller.currentTime }
@@ -192,7 +193,8 @@ final class MusicPlaybackController {
             }
         }
 
-        let hasContentChange = state.title != songTitle
+        let hasContentChange =
+            state.title != songTitle
             || state.artist != artistName
             || state.album != album
             || state.bundleIdentifier != bundleIdentifier

@@ -50,7 +50,7 @@ final class WindowCoordinator {
         self.detector = detector
         self.spaceManager = spaceManager
     }
-    
+
     // MARK: - Window Lifecycle
     func cleanupWindows(shouldInvert: Bool = false) {
         let shouldCleanupMulti = shouldInvert ? !settings.showOnAllDisplays : settings.showOnAllDisplays
@@ -71,7 +71,9 @@ final class WindowCoordinator {
     }
 
     // MARK: - Window Creation
-    func createNotchWindow(for screen: NSScreen, with viewModel: NotchViewModel, stateMachine: NotchStateMachine) -> NSWindow {
+    func createNotchWindow(
+        for screen: NSScreen, with viewModel: NotchViewModel, stateMachine: NotchStateMachine
+    ) -> NSWindow {
         let rect = NSRect(x: 0, y: 0, width: windowSize.width, height: windowSize.height)
         let styleMask: NSWindow.StyleMask = [.borderless, .nonactivatingPanel, .utilityWindow, .hudWindow]
 

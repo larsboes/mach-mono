@@ -6,22 +6,24 @@
 //
 
 import Cocoa
-import SkyLightWindow
-import Defaults
 import Combine
+import Defaults
+import SkyLightWindow
 
 extension SkyLightOperator {
     func undelegateWindow(_ window: NSWindow) {
         typealias F_SLSRemoveWindowsFromSpaces = @convention(c) (Int32, CFArray, CFArray) -> Int32
-        
+
         let handler = dlopen("/System/Library/PrivateFrameworks/SkyLight.framework/Versions/A/SkyLight", RTLD_NOW)
-        guard let SLSRemoveWindowsFromSpaces = unsafeBitCast(
-            dlsym(handler, "SLSRemoveWindowsFromSpaces"),
-            to: F_SLSRemoveWindowsFromSpaces?.self
-        ) else {
+        guard
+            let SLSRemoveWindowsFromSpaces = unsafeBitCast(
+                dlsym(handler, "SLSRemoveWindowsFromSpaces"),
+                to: F_SLSRemoveWindowsFromSpaces?.self
+            )
+        else {
             return
         }
-        
+
         // Remove the window from the SkyLight space
         _ = SLSRemoveWindowsFromSpaces(
             connection,
@@ -52,15 +54,15 @@ class NotchSkyLightWindow: NSPanel {
             backing: backing,
             defer: flag
         )
-        
+
         configureWindow()
         setupObservers()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private func configureWindow() {
         isFloatingPanel = true
         isOpaque = false
@@ -71,16 +73,16 @@ class NotchSkyLightWindow: NSPanel {
         level = .mainMenu + 3
         hasShadow = false
         isReleasedWhenClosed = false
-        
+
         // Force dark appearance regardless of system setting
         appearance = NSAppearance(named: .darkAqua)
-        
+
         updateCollectionBehavior()
-        
+
         // Apply initial sharing type setting
         updateSharingType()
     }
-    
+
     private func setupObservers() {
         // NOTE: Defaults.publisher is required because DefaultsNotchSettings uses
         // @Observable with computed properties, which don't trigger observation tracking.
@@ -98,20 +100,20 @@ class NotchSkyLightWindow: NSPanel {
                 self?.updateCollectionBehavior()
             }
             .store(in: &observers)
-            
+
         NotificationCenter.default.publisher(for: NSWindow.didChangeScreenNotification, object: self)
             .sink { [weak self] _ in
                 self?.updateCollectionBehavior()
             }
             .store(in: &observers)
     }
-    
+
     private func updateCollectionBehavior() {
         let newBehavior: NSWindow.CollectionBehavior = [
             .fullScreenAuxiliary,
             .stationary,
             .canJoinAllSpaces,
-            .ignoresCycle
+            .ignoresCycle,
         ]
 
         let hasNotch = (self.screen?.safeAreaInsets.top ?? 0) > 0
@@ -119,11 +121,11 @@ class NotchSkyLightWindow: NSPanel {
         // NOTE: .transient is intentionally NOT used here. On macOS 16+, .transient
         // can cause windows to be hidden on external displays when combined with
         // MachWindowSpace management. Mission Control hiding is handled via window level instead.
-        _ = hasNotch // Silence unused warning; screen type may be used for future per-display behavior
+        _ = hasNotch  // Silence unused warning; screen type may be used for future per-display behavior
 
         collectionBehavior = newBehavior
     }
-    
+
     private func updateSharingType() {
         if settings.hideFromScreenRecording {
             sharingType = .none
@@ -131,27 +133,27 @@ class NotchSkyLightWindow: NSPanel {
             sharingType = .readOnly
         }
     }
-    
+
     func enableSkyLight() {
         if !isSkyLightEnabled {
             SkyLightOperator.shared.delegateWindow(self)
             isSkyLightEnabled = true
         }
     }
-    
+
     func disableSkyLight() {
         if isSkyLightEnabled {
             SkyLightOperator.shared.undelegateWindow(self)
             isSkyLightEnabled = false
         }
     }
-    
+
     private var observers: Set<AnyCancellable> = []
-    
+
     deinit {
         observers.removeAll()
     }
-    
+
     /// Dynamic canBecomeKey: only accept key status when notch is open.
     /// This enables button clicks while preventing focus stealing when closed.
     override var canBecomeKey: Bool { isNotchOpen }
@@ -161,8 +163,8 @@ class NotchSkyLightWindow: NSPanel {
     /// Without this, pressing Tab while the notch is open causes macOS
     /// to deactivate the panel, leaving the notch in a broken state.
     override func keyDown(with event: NSEvent) {
-        if event.keyCode == 48 { // Tab key
-            return // swallow
+        if event.keyCode == 48 {  // Tab key
+            return  // swallow
         }
         super.keyDown(with: event)
     }
@@ -171,8 +173,8 @@ class NotchSkyLightWindow: NSPanel {
     /// macOS routes modifier+Tab through performKeyEquivalent: before keyDown:, so the
     /// keyDown swallow above doesn't fire — causing the same panel-deactivation glitch.
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
-        if event.keyCode == 48 { // Tab key
-            return true // swallow
+        if event.keyCode == 48 {  // Tab key
+            return true  // swallow
         }
         return super.performKeyEquivalent(with: event)
     }

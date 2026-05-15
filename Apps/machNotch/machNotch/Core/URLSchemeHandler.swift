@@ -19,8 +19,9 @@ enum URLSchemeHandler {
         case "plugins":
             // machnotch://plugins?id=music
             if let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-               let queryItems = components.queryItems,
-               let pluginId = queryItems.first(where: { $0.name == "id" })?.value {
+                let queryItems = components.queryItems,
+                let pluginId = queryItems.first(where: { $0.name == "id" })?.value
+            {
                 Task {
                     try? await graph.pluginManager.enablePlugin(pluginId)
                 }

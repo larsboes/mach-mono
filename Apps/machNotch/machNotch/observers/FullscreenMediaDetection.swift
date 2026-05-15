@@ -21,7 +21,7 @@ import MacroVisionKit
         self.settings = settings
         startMonitoring()
     }
-    
+
     private func startMonitoring() {
         monitorTask = Task { @MainActor in
             let stream = await FullScreenMonitor.shared.spaceChanges()
@@ -30,10 +30,10 @@ import MacroVisionKit
             }
         }
     }
-    
+
     private func updateStatus(with spaces: [MacroVisionKit.FullScreenMonitor.SpaceInfo]) {
         var newStatus: [String: Bool] = [:]
-        
+
         for space in spaces {
             if let uuid = space.screenUUID {
                 let shouldDetect: Bool
@@ -45,7 +45,7 @@ import MacroVisionKit
                 newStatus[uuid] = shouldDetect
             }
         }
-        
+
         self.fullscreenStatus = newStatus
     }
 }

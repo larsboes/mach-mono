@@ -1,5 +1,5 @@
-import Foundation
 import Combine
+import Foundation
 
 @MainActor
 final class LocalAPIServerController {
@@ -134,7 +134,7 @@ final class LocalAPIServerController {
     private func mapEvent(_ event: any PluginEvent) -> APIEventPayload {
         var data: [String: String] = [
             "sourcePluginId": event.sourcePluginId,
-            "timestamp": ISO8601DateFormatter().string(from: event.timestamp)
+            "timestamp": ISO8601DateFormatter().string(from: event.timestamp),
         ]
 
         // Add event-specific data

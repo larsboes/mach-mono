@@ -12,7 +12,7 @@ struct NotesView: View {
     @State private var newNoteTitle = ""
     @State private var newNoteContent = ""
     @State private var isAdding = false
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -25,7 +25,7 @@ struct NotesView: View {
                 .buttonStyle(PlainButtonStyle())
             }
             .padding(.horizontal)
-            
+
             if isAdding {
                 VStack(spacing: 8) {
                     TextField("Title", text: $newNoteTitle)
@@ -43,7 +43,7 @@ struct NotesView: View {
                 }
                 .padding(.horizontal)
             }
-            
+
             ScrollView {
                 LazyVStack(spacing: 4) {
                     ForEach(manager.notes) { note in
@@ -91,7 +91,9 @@ struct NoteRow: View {
                                 .foregroundStyle(.secondary)
                         }
                         .buttonStyle(PlainButtonStyle())
-                        Button { manager.deleteNote(note) } label: {
+                        Button {
+                            manager.deleteNote(note)
+                        } label: {
                             Image(systemName: "trash")
                                 .foregroundColor(.red)
                         }

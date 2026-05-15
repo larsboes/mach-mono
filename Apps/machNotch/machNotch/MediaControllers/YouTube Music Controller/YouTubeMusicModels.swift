@@ -13,7 +13,7 @@ struct YouTubeMusicConfiguration: Sendable {
     let bundleIdentifier: String
     let reconnectDelay: ClosedRange<TimeInterval>
     let updateInterval: TimeInterval
-    
+
     static let `default` = YouTubeMusicConfiguration(
         baseURL: "http://localhost:26538",
         bundleIdentifier: "com.github.th-ch.youtube-music",
@@ -59,7 +59,8 @@ struct WebSocketMessage {
     init?(from data: Data) {
         let json = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])
         guard let typeString = json?["type"] as? String,
-              let messageType = WebSocketMessageType(rawValue: typeString) else {
+            let messageType = WebSocketMessageType(rawValue: typeString)
+        else {
             return nil
         }
 
@@ -77,7 +78,7 @@ struct WebSocketMessage {
 extension PlaybackResponse {
     static func from(websocketData: [String: Any]) -> PlaybackResponse? {
         let songData = websocketData["song"] as? [String: Any]
-        
+
         let isPaused: Bool
         if let paused = songData?["isPaused"] as? Bool {
             isPaused = paused
@@ -86,19 +87,20 @@ extension PlaybackResponse {
         } else {
             isPaused = true
         }
-        
-        let title = (songData?["title"] as? String) ??
-                   (songData?["alternativeTitle"] as? String) ??
-                   (websocketData["title"] as? String)
+
+        let title =
+            (songData?["title"] as? String) ?? (songData?["alternativeTitle"] as? String)
+            ?? (websocketData["title"] as? String)
         let artist = (songData?["artist"] as? String) ?? (websocketData["artist"] as? String)
         let album = songData?["album"] as? String
 
-        let elapsed = extractDouble(from: songData, key: "elapsedSeconds") ??
-                     extractDouble(from: websocketData, key: "position")
+        let elapsed =
+            extractDouble(from: songData, key: "elapsedSeconds") ?? extractDouble(from: websocketData, key: "position")
 
-        let duration = extractDouble(from: songData, key: "songDuration") ??
-                      extractDouble(from: websocketData, key: "songDuration")
-        
+        let duration =
+            extractDouble(from: songData, key: "songDuration")
+            ?? extractDouble(from: websocketData, key: "songDuration")
+
         let imageSrc = (songData?["imageSrc"] as? String) ?? (websocketData["imageSrc"] as? String)
         let isShuffled = (websocketData["shuffle"] as? Bool) ?? (songData?["isShuffled"] as? Bool)
 
@@ -118,7 +120,7 @@ extension PlaybackResponse {
             default: break
             }
         }
-        
+
         let volume = extractDouble(from: websocketData, key: "volume") ?? extractDouble(from: songData, key: "volume")
 
         return PlaybackResponse(
@@ -134,7 +136,7 @@ extension PlaybackResponse {
             volume: volume
         )
     }
-    
+
     func with(elapsedSeconds: Double) -> PlaybackResponse {
         PlaybackResponse(
             isPaused: isPaused,

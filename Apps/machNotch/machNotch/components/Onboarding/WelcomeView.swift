@@ -41,8 +41,18 @@ struct WelcomeView: View {
                             .padding(.vertical, 3)
                             .background(
                                 Capsule()
-                                    .fill(LinearGradient(colors: [.white.opacity(0.7), .white.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                    .strokeBorder(LinearGradient(stops: [.init(color: .white.opacity(0.7), location: 0.3), .init(color: .clear, location: 0.6)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [.white.opacity(0.7), .white.opacity(0.3)], startPoint: .topLeading,
+                                            endPoint: .bottomTrailing)
+                                    )
+                                    .strokeBorder(
+                                        LinearGradient(
+                                            stops: [
+                                                .init(color: .white.opacity(0.7), location: 0.3),
+                                                .init(color: .clear, location: 0.6),
+                                            ], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                    )
                                     .blendMode(.overlay)
                             )
                             .padding(.bottom, 30)
@@ -59,7 +69,7 @@ struct WelcomeView: View {
                 }
                 .padding(.top)
             }
-            
+
             Image("machnotch")
                 .resizable()
                 .aspectRatio(contentMode: .fit)

@@ -5,20 +5,20 @@
 //  Created by Alexander on 2025-03-29.
 //
 
-import Foundation
 import AppKit
 import Combine
+import Foundation
 
 /// All concrete implementations must be `@Observable @MainActor`.
 @MainActor
 protocol MediaControllerProtocol: AnyObject {
     var playbackState: PlaybackState { get }
-    
+
     var currentTime: Double { get }
     var duration: Double { get }
     var supportsVolumeControl: Bool { get }
     var supportsFavorite: Bool { get }
-    
+
     func setFavorite(_ favorite: Bool) async
     func play() async
     func pause() async

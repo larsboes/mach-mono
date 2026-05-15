@@ -65,11 +65,13 @@ struct HabitExpandedView: View {
                                 draggingHabitId = habit.id
                                 return NSItemProvider(object: habit.id.uuidString as NSString)
                             }
-                            .onDrop(of: [UTType.plainText], delegate: HabitDropDelegate(
-                                targetId: habit.id,
-                                store: store,
-                                draggingId: $draggingHabitId
-                            ))
+                            .onDrop(
+                                of: [UTType.plainText],
+                                delegate: HabitDropDelegate(
+                                    targetId: habit.id,
+                                    store: store,
+                                    draggingId: $draggingHabitId
+                                ))
                         }
 
                         if !inactiveHabits.isEmpty { inactiveSection }
@@ -188,9 +190,9 @@ private struct HabitSuggestion {
     let color: Color
 
     static let defaults: [HabitSuggestion] = [
-        HabitSuggestion(title: "Exercise",    symbol: "figure.walk", color: .orange),
-        HabitSuggestion(title: "Read",        symbol: "book.fill",   color: .purple),
-        HabitSuggestion(title: "Drink Water", symbol: "drop.fill",   color: .blue),
+        HabitSuggestion(title: "Exercise", symbol: "figure.walk", color: .orange),
+        HabitSuggestion(title: "Read", symbol: "book.fill", color: .purple),
+        HabitSuggestion(title: "Drink Water", symbol: "drop.fill", color: .blue),
     ]
 }
 
@@ -275,4 +277,3 @@ private struct HabitProgressBar: View {
         .animation(.smooth(duration: 0.25), value: progress)
     }
 }
-

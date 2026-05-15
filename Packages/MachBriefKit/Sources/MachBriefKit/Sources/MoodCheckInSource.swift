@@ -19,16 +19,16 @@ public struct MoodCheckInSource: BriefSource {
 
     public func entry(for slot: DailySlot, date: Date) async -> BriefEntry {
         let isGerman = language.id == "de"
-        
+
         return BriefEntry(
             sourceID: id,
             slot: slot,
             title: isGerman ? "Wie fühlst du dich?" : "How are you feeling?",
-            subtitle: isGerman ? "Großartig / Gut / Okay / Schlecht / Furchtbar" : "Awesome / Good / Okay / Bad / Terrible",
+            subtitle: isGerman
+                ? "Großartig / Gut / Okay / Schlecht / Furchtbar" : "Awesome / Good / Okay / Bad / Terrible",
             body: nil,
             metadata: ["kind": "mood_prompt"],
             revealedAt: date
         )
     }
 }
-

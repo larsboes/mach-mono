@@ -10,7 +10,7 @@ import Foundation
 import UniformTypeIdentifiers
 
 extension NSItemProvider {
-    
+
     func extractItem() async -> URL? {
         return await loadFileURL(typeIdentifier: UTType.item.identifier)
     }
@@ -22,7 +22,7 @@ extension NSItemProvider {
         }
         return nil
     }
-    
+
     /// Helper struct to silence Sendable warnings for NSItemProvider
     private struct UncheckedSendableProvider: @unchecked Sendable {
         let provider: NSItemProvider
@@ -32,11 +32,12 @@ extension NSItemProvider {
     func loadData() async -> Data? {
         NSLog(String(describing: self.registeredTypeIdentifiers))
         guard hasItemConformingToTypeIdentifier(UTType.data.identifier) else { return nil }
-        
+
         let sendableSelf = UncheckedSendableProvider(provider: self)
-        
+
         return await withCheckedContinuation { (cont: CheckedContinuation<Data?, Never>) in
-            sendableSelf.provider.loadItem(forTypeIdentifier: UTType.data.identifier, options: nil) { @Sendable item, error in
+            sendableSelf.provider.loadItem(forTypeIdentifier: UTType.data.identifier, options: nil) {
+                @Sendable item, error in
                 if let error = error {
                     print("Error loading data for type \(UTType.data.identifier): \(error.localizedDescription)")
                     cont.resume(returning: nil)
@@ -47,7 +48,7 @@ extension NSItemProvider {
                         cont.resume(returning: nil)
                         return
                     }
-                    
+
                     let fileManager = FileManager.default
                     let folderURL = url.deletingLastPathComponent()
 
@@ -68,7 +69,7 @@ extension NSItemProvider {
                     } catch {
                         print("Error: \(error.localizedDescription)")
                     }
-                    
+
                     cont.resume(returning: data)
                 } else if let data = item as? Data {
                     cont.resume(returning: data)
@@ -196,7 +197,8 @@ extension NSItemProvider {
                 if let string = item as? String {
                     cont.resume(returning: string)
                 } else if let data = item as? Data,
-                          let string = String(data: data, encoding: .utf8) {
+                    let string = String(data: data, encoding: .utf8)
+                {
                     cont.resume(returning: string)
                 } else {
                     cont.resume(returning: nil)

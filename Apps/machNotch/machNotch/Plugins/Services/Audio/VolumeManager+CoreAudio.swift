@@ -47,7 +47,8 @@ extension VolumeManager {
 
         var written = false
         if writeValidatedScalar(
-            deviceID: deviceID, element: kAudioObjectPropertyElementMain, value: newVal) {
+            deviceID: deviceID, element: kAudioObjectPropertyElementMain, value: newVal)
+        {
             written = true
         } else {
             var any = false

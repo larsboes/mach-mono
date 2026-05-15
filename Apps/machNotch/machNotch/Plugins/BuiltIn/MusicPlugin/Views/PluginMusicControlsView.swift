@@ -106,7 +106,8 @@ struct PluginMusicControlsView: View {
         HStack(spacing: 4) {
             HoverButton(
                 icon: "waveform",
-                iconColor: settings.ambientVisualizerEnabled ? Color(nsColor: service.avgColor).ensureMinimumBrightness(factor: 0.6) : .gray
+                iconColor: settings.ambientVisualizerEnabled
+                    ? Color(nsColor: service.avgColor).ensureMinimumBrightness(factor: 0.6) : .gray
             ) {
                 withAnimation(.smooth(duration: 0.3)) {
                     bindableSettings.ambientVisualizerEnabled.toggle()
@@ -115,16 +116,18 @@ struct PluginMusicControlsView: View {
 
             Menu {
                 Button(action: { Task { await service.toggleShuffle() } }) {
-                    Label(service.isShuffled ? "Shuffle On" : "Shuffle Off",
-                          systemImage: "shuffle")
+                    Label(
+                        service.isShuffled ? "Shuffle On" : "Shuffle Off",
+                        systemImage: "shuffle")
                 }
                 Button(action: { Task { await service.toggleRepeat() } }) {
                     Label(repeatLabel, systemImage: repeatIcon)
                 }
                 if service.canFavoriteTrack {
                     Button(action: { Task { await service.toggleFavorite() } }) {
-                        Label(service.isFavorite ? "Remove from Favorites" : "Add to Favorites",
-                              systemImage: service.isFavorite ? "heart.fill" : "heart")
+                        Label(
+                            service.isFavorite ? "Remove from Favorites" : "Add to Favorites",
+                            systemImage: service.isFavorite ? "heart.fill" : "heart")
                     }
                 }
             } label: {
@@ -170,7 +173,7 @@ struct IsolatedLyricsView: View {
             content(at: Date())
         }
     }
-    
+
     @ViewBuilder
     private func content(at date: Date) -> some View {
         let currentElapsed: Double = {
@@ -202,7 +205,11 @@ struct IsolatedLyricsView: View {
             color: service.isFetchingLyrics ? .gray.opacity(0.7) : .gray,
             frameWidth: width
         )
-        .font(isPersian ? .custom("Vazirmatn-Regular", size: NSFont.preferredFont(forTextStyle: .subheadline).pointSize) : .subheadline)
+        .font(
+            isPersian
+                ? .custom("Vazirmatn-Regular", size: NSFont.preferredFont(forTextStyle: .subheadline).pointSize)
+                : .subheadline
+        )
         .lineLimit(1)
         .opacity(service.playbackState.isPlaying ? 1 : 0)
         .transition(.opacity.combined(with: .move(edge: .top)))
@@ -227,7 +234,7 @@ struct IsolatedScrubberView: View {
             content(at: Date())
         }
     }
-    
+
     @ViewBuilder
     private func content(at date: Date) -> some View {
         HStack(spacing: 8) {
@@ -235,7 +242,7 @@ struct IsolatedScrubberView: View {
                 .font(.caption2)
                 .foregroundColor(
                     settings.playerColorTinting
-                    ? Color(nsColor: service.avgColor).ensureMinimumBrightness(factor: 0.6) : .gray
+                        ? Color(nsColor: service.avgColor).ensureMinimumBrightness(factor: 0.6) : .gray
                 )
                 .monospacedDigit()
                 .frame(width: 50, alignment: .trailing)
@@ -259,7 +266,7 @@ struct IsolatedScrubberView: View {
                 .font(.caption2)
                 .foregroundColor(
                     settings.playerColorTinting
-                    ? Color(nsColor: service.avgColor).ensureMinimumBrightness(factor: 0.6) : .gray
+                        ? Color(nsColor: service.avgColor).ensureMinimumBrightness(factor: 0.6) : .gray
                 )
                 .monospacedDigit()
                 .frame(width: 50, alignment: .leading)

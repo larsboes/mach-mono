@@ -102,10 +102,10 @@ extension EnvironmentValues {
 // MARK: - Preview Support
 
 #if DEBUG
-extension PluginManager {
-    /// Create a preview manager with mock services
-    static func preview() -> PluginManager {
-        fatalError("Preview not implemented - needs mock services")
+    extension PluginManager {
+        /// Create a preview manager with mock services
+        static func preview() -> PluginManager {
+            fatalError("Preview not implemented - needs mock services")
+        }
     }
-}
 #endif

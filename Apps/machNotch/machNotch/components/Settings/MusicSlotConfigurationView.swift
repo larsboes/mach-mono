@@ -49,13 +49,15 @@ struct MusicSlotConfigurationView: View {
                                 .frame(maxWidth: 44)
                                 .onDrag {
                                     Task { @MainActor in
-draggedSlot = slot }
+                                        draggedSlot = slot
+                                    }
                                     return NSItemProvider(object: NSString(string: "slot:\(index)"))
                                 }
                                 .onDrop(of: [UTType.plainText.identifier], isTargeted: nil) { providers in
                                     let handled = handleDrop(providers, toIndex: index)
                                     Task { @MainActor in
-draggedSlot = nil }
+                                        draggedSlot = nil
+                                    }
                                     return handled
                                 }
                         } else {
@@ -64,7 +66,8 @@ draggedSlot = nil }
                                 .onDrop(of: [UTType.plainText.identifier], isTargeted: nil) { providers in
                                     let handled = handleDrop(providers, toIndex: index)
                                     Task { @MainActor in
-draggedSlot = nil }
+                                        draggedSlot = nil
+                                    }
                                     return handled
                                 }
                         }

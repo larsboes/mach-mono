@@ -91,7 +91,7 @@ final class ServiceContainer: NotchServiceProvider {
 
     /// Face tracking service
     public let face: any FaceServiceProtocol
-    
+
     /// Drag and drop detection service
     public let dragDrop: any DragDropServiceProtocol
 
@@ -128,7 +128,8 @@ final class ServiceContainer: NotchServiceProvider {
         self.thumbnails = ThumbnailService()
 
         // Initialize Shelf helpers first
-        self.shelfImageProcessor = ShelfImageProcessor(imageProcessingService: self.imageProcessing, thumbnailService: self.thumbnails)
+        self.shelfImageProcessor = ShelfImageProcessor(
+            imageProcessingService: self.imageProcessing, thumbnailService: self.thumbnails)
         self.shelfFileHandler = ShelfFileHandler(temporaryFileStorage: self.temporaryFileStorage)
         self.shelf = ShelfService(imageProcessor: self.shelfImageProcessor, fileHandler: self.shelfFileHandler)
 
@@ -142,7 +143,8 @@ final class ServiceContainer: NotchServiceProvider {
         self.systemStats = SystemStatsService()
         self.sharing = SharingStateManager()
         self.quickLook = QuickLookService()
-        self.quickShare = QuickShareService(temporaryFileStorage: self.temporaryFileStorage, sharingStateManager: self.sharing)
+        self.quickShare = QuickShareService(
+            temporaryFileStorage: self.temporaryFileStorage, sharingStateManager: self.sharing)
         self.bluetoothManager = BluetoothManager(settings: settings)
         self.notesManager = NotesManager()
         self.clipboardManager = ClipboardManager()

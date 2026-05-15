@@ -41,7 +41,7 @@ struct TeleprompterClosedView: View {
                                     Color.blue.opacity(0.8),
                                     Color.indigo.opacity(0.6),
                                     Color.purple.opacity(0.4),
-                                    Color.clear
+                                    Color.clear,
                                 ],
                                 startPoint: .top,
                                 endPoint: .bottom
@@ -56,7 +56,8 @@ struct TeleprompterClosedView: View {
                         .blendMode(.screen)
                         // Top aligned so it beams out directly from beneath the notch
                         .frame(maxHeight: .infinity, alignment: .top)
-                        .animation(.interpolatingSpring(stiffness: 120, damping: 14), value: state.micMonitor.normalizedLevel)
+                        .animation(
+                            .interpolatingSpring(stiffness: 120, damping: 14), value: state.micMonitor.normalizedLevel)
                 }
 
                 if state.text.isEmpty {
@@ -66,11 +67,13 @@ struct TeleprompterClosedView: View {
                 } else {
                     ScrollView {
                         Text(state.text)
-                            .font(.system(
-                                size: state.config.fontSize,
-                                weight: .medium,
-                                design: .default
-                            ))
+                            .font(
+                                .system(
+                                    size: state.config.fontSize,
+                                    weight: .medium,
+                                    design: .default
+                                )
+                            )
                             .foregroundStyle(state.textColor.color.opacity(0.95))
                             .lineSpacing(8)
                             .multilineTextAlignment(.center)
@@ -79,7 +82,8 @@ struct TeleprompterClosedView: View {
                             .padding(.bottom, readingAreaHeight)
                             .background(
                                 GeometryReader { geo in
-                                    Color.clear.preference(key: TeleprompterContentHeightKey.self, value: geo.size.height)
+                                    Color.clear.preference(
+                                        key: TeleprompterContentHeightKey.self, value: geo.size.height)
                                 }
                             )
                             .offset(y: -state.scrollPosition)
@@ -93,7 +97,7 @@ struct TeleprompterClosedView: View {
                                 .init(color: .white, location: 0),
                                 .init(color: .white, location: 0.35),
                                 .init(color: .white.opacity(0.5), location: 0.65),
-                                .init(color: .clear, location: 0.9)
+                                .init(color: .clear, location: 0.9),
                             ],
                             startPoint: .top,
                             endPoint: .bottom

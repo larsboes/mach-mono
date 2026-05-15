@@ -7,6 +7,7 @@
 
 import AppKit
 import Foundation
+import Observation
 import UniformTypeIdentifiers
 
 /// Dynamic representation of a sharing provider discovered at runtime
@@ -14,8 +15,6 @@ struct QuickShareProvider: Identifiable, Hashable, Sendable {
     var id: String
     var supportsRawText: Bool
 }
-
-import Observation
 
 @MainActor
 @Observable
@@ -47,7 +46,7 @@ class QuickShareService {
             await self?.discoverAvailableProviders()
         }
     }
-    
+
     // MARK: - Icon Retrieval
 
     @MainActor
@@ -56,40 +55,41 @@ class QuickShareService {
         if let cachedIcon = cachedIcons[providerId] {
             return resizedIcon(cachedIcon, to: size)
         }
-        
+
         // Try to get icon from cached service
         if let service = cachedServices[providerId] {
             cachedIcons[providerId] = service.image
             return resizedIcon(service.image, to: size)
         }
-        
+
         // For system share menu, return a generic share icon
         if providerId == "System Share Menu" {
             return NSImage(systemSymbolName: "square.and.arrow.up", accessibilityDescription: "Share")
         }
-        
+
         return nil
     }
-    
+
     private func resizedIcon(_ image: NSImage, to size: CGFloat) -> NSImage {
         let targetSize = NSSize(width: size, height: size)
         return NSImage(size: targetSize, flipped: false) { rect in
-            image.draw(in: rect,
-                       from: NSRect(origin: .zero, size: image.size),
-                       operation: .copy,
-                       fraction: 1.0)
+            image.draw(
+                in: rect,
+                from: NSRect(origin: .zero, size: image.size),
+                operation: .copy,
+                fraction: 1.0)
             return true
         }
     }
     // MARK: - Provider Discovery
-    
+
     @MainActor
     func discoverAvailableProviders() async {
         let finder = ShareServiceFinder()
 
         let testItems: [Any] = [
             URL(string: "http://example.com")!,
-            "Test" as NSString
+            "Test" as NSString,
         ]
 
         let services = await finder.findApplicableServices(for: testItems)
@@ -106,7 +106,7 @@ class QuickShareService {
                 cachedIcons[title] = svc.image
             }
         }
-        
+
         if let idx = providers.firstIndex(where: { $0.id == "AirDrop" }) {
             let ad = providers.remove(at: idx)
             providers.insert(ad, at: 0)
@@ -119,7 +119,7 @@ class QuickShareService {
         self.availableProviders = providers
 
     }
-    
+
     // MARK: - File Picker
     @MainActor
     func showFilePicker(for provider: QuickShareProvider, from view: NSView?) async {
@@ -154,7 +154,7 @@ class QuickShareService {
         let response = panel.runModal()
         completion(response)
     }
-    
+
     // MARK: - Sharing
     @MainActor
     func shareFilesOrText(_ items: [Any], using provider: QuickShareProvider, from view: NSView?) async {
@@ -195,12 +195,15 @@ class QuickShareService {
         }
         sharingAccessingURLs.removeAll()
     }
-// MARK: - SharingServiceDelegate
+    // MARK: - SharingServiceDelegate
 
-private class SharingServiceDelegate: NSObject {}
-    
+    private class SharingServiceDelegate: NSObject {}
+
     @MainActor
-    func shareDroppedFiles(_ providers: [NSItemProvider], using shareProvider: QuickShareProvider, from view: NSView?, service: ShelfServiceProtocol) async {
+    func shareDroppedFiles(
+        _ providers: [NSItemProvider], using shareProvider: QuickShareProvider, from view: NSView?,
+        service: ShelfServiceProtocol
+    ) async {
         var itemsToShare: [Any] = []
         var foundText: String?
 
@@ -236,7 +239,7 @@ private class SharingServiceDelegate: NSObject {}
     func share(items: [ShelfItem], from view: NSView?, service: ShelfServiceProtocol) {
         Task {
             var itemsToShare: [Any] = []
-            
+
             for item in items {
                 switch item.kind {
                 case .file:
@@ -249,9 +252,9 @@ private class SharingServiceDelegate: NSObject {}
                     itemsToShare.append(url)
                 }
             }
-            
+
             guard !itemsToShare.isEmpty else { return }
-            
+
             // Default to System Share Menu if no specific provider is chosen
             let provider = QuickShareProvider(id: "System Share Menu", supportsRawText: true)
             await shareFilesOrText(itemsToShare, using: provider, from: view)

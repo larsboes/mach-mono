@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Observation
 import SwiftUI
 
 enum Browser {
@@ -19,8 +20,6 @@ struct DownloadFile {
     var formattedSize: String
     var browser: Browser
 }
-
-import Observation
 
 @Observable
 @MainActor

@@ -41,6 +41,6 @@ extension QuoteSource {
     static let fallbackQuotes: [QuoteItem] = [
         .init(text: "Well done is better than well said.", author: "Benjamin Franklin"),
         .init(text: "The best way out is always through.", author: "Robert Frost"),
-        .init(text: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci")
+        .init(text: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci"),
     ]
 }

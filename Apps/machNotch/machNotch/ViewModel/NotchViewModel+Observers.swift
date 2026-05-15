@@ -71,7 +71,8 @@ extension NotchViewModel {
 
                 let _ = withObservationTracking {
                     self.earsShouldShowForCurrentMediaState()
-                } onChange: {}
+                } onChange: {
+                }
 
                 debounceClosedEarsUpdate()
 
@@ -90,12 +91,9 @@ extension NotchViewModel {
     private func earsShouldShowForCurrentMediaState() -> Bool {
         let playback = services.music.playbackState
         let idlePortraitEligible =
-            !playback.isPlaying &&
-            services.music.isPlayerIdle &&
-            settings.showNotHumanFace
+            !playback.isPlaying && services.music.isPlayerIdle && settings.showNotHumanFace
         let liveActivityEligible =
-            (playback.isPlaying || !services.music.isPlayerIdle) &&
-            settings.musicLiveActivityEnabled
+            (playback.isPlaying || !services.music.isPlayerIdle) && settings.musicLiveActivityEnabled
         return (idlePortraitEligible || liveActivityEligible) && !hideOnClosed
     }
 
@@ -147,7 +145,9 @@ extension NotchViewModel {
                         _ = self?.displaySettings.nonNotchHeightMode
                         _ = self?.displaySettings.inactiveNotchHeight
                         _ = self?.displaySettings.useInactiveNotchHeight
-                    } onChange: { c.resume() }
+                    } onChange: {
+                        c.resume()
+                    }
                 }
                 guard let self, !Task.isCancelled else { return }
                 self.updateNotchSize()

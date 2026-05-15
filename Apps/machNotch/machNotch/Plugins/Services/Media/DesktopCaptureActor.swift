@@ -18,20 +18,20 @@ private struct UncheckedPixelBuffer: @unchecked Sendable {
 /// Captures the desktop region behind the notch, excluding the notch window itself.
 actor DesktopCaptureActor {
     // MARK: - Types
-    
+
     struct CaptureConfiguration {
         let screen: SCDisplay
         let excludedWindowIDs: [CGWindowID]
-        let captureRect: CGRect // Region to capture (notch area)
-        let frameRate: Int // Target frame rate
+        let captureRect: CGRect  // Region to capture (notch area)
+        let frameRate: Int  // Target frame rate
     }
-    
+
     enum CaptureError: Error, LocalizedError {
         case notAuthorized
         case noDisplayFound
         case streamCreationFailed
         case captureNotRunning
-        
+
         var errorDescription: String? {
             switch self {
             case .notAuthorized:
@@ -45,28 +45,28 @@ actor DesktopCaptureActor {
             }
         }
     }
-    
+
     // MARK: - Properties
-    
+
     private var stream: SCStream?
     private var streamOutput: StreamOutput?
     private var isCapturing = false
     private var currentConfiguration: CaptureConfiguration?
-    
+
     /// Continuation for delivering frames
     private var frameContinuation: AsyncStream<CVPixelBuffer>.Continuation?
-    
+
     /// The async stream of captured frames
     private(set) var frameStream: AsyncStream<CVPixelBuffer>?
-    
+
     // MARK: - Authorization
-    
+
     /// Check if screen recording is authorized (without triggering a prompt)
     static func isAuthorized() async -> Bool {
         // CGPreflightScreenCaptureAccess checks WITHOUT triggering the permission dialog
         return CGPreflightScreenCaptureAccess()
     }
-    
+
     /// Request screen recording permission by triggering the system dialog
     /// Only call this when user explicitly requests permission (e.g., clicks a button)
     static func requestPermission() async -> Bool {
@@ -74,18 +74,18 @@ actor DesktopCaptureActor {
         if CGPreflightScreenCaptureAccess() {
             return true
         }
-        
+
         // Request permission - this triggers the dialog
         // CGRequestScreenCaptureAccess() only shows dialog once, subsequent calls are silent
         let granted = CGRequestScreenCaptureAccess()
-        
+
         // If first dialog was shown, user needs to grant in System Settings
         // Return current state
         return granted
     }
-    
+
     // MARK: - Capture Control
-    
+
     /// Start capturing the desktop for a specific screen
     /// - Parameters:
     ///   - screen: The NSScreen to capture
@@ -102,7 +102,7 @@ actor DesktopCaptureActor {
         if isCapturing {
             await stopCapture()
         }
-        
+
         // Get shareable content
         let content: SCShareableContent
         do {
@@ -110,14 +110,16 @@ actor DesktopCaptureActor {
         } catch {
             throw CaptureError.notAuthorized
         }
-        
+
         // Find the display matching our screen
-        guard let display = content.displays.first(where: { display in
-            display.displayID == screen.displayID
-        }) else {
+        guard
+            let display = content.displays.first(where: { display in
+                display.displayID == screen.displayID
+            })
+        else {
             throw CaptureError.noDisplayFound
         }
-        
+
         // Get windows to exclude
         var excludedWindows: [SCWindow] = []
         if let windowID = excludingWindowID {
@@ -125,40 +127,40 @@ actor DesktopCaptureActor {
                 excludedWindows.append(scWindow)
             }
         }
-        
+
         // Create content filter - capture entire display, excluding our windows
         let filter = SCContentFilter(display: display, excludingWindows: excludedWindows)
-        
+
         // Configure stream
         let streamConfig = SCStreamConfiguration()
-        
+
         // Set capture size to the notch region
         streamConfig.width = Int(captureRect.width * screen.backingScaleFactor)
         streamConfig.height = Int(captureRect.height * screen.backingScaleFactor)
-        
+
         // Set source rect to capture only the notch region
         streamConfig.sourceRect = captureRect
-        
+
         // Configure frame rate
         streamConfig.minimumFrameInterval = CMTime(value: 1, timescale: CMTimeScale(frameRate))
-        
+
         // Pixel format - use BGRA for Metal compatibility
         streamConfig.pixelFormat = kCVPixelFormatType_32BGRA
-        
+
         // Color settings
         streamConfig.colorSpaceName = CGColorSpace.sRGB
-        
+
         // Don't show cursor in capture
         streamConfig.showsCursor = false
-        
+
         // Create the stream
         let newStream = SCStream(filter: filter, configuration: streamConfig, delegate: nil)
-        
+
         // Create frame stream
         let (stream, continuation) = AsyncStream<CVPixelBuffer>.makeStream()
         self.frameStream = stream
         self.frameContinuation = continuation
-        
+
         // Create and add output
         let output = StreamOutput { [weak self] pixelBuffer in
             let wrapped = UncheckedPixelBuffer(buffer: pixelBuffer)
@@ -167,12 +169,12 @@ actor DesktopCaptureActor {
             }
         }
         self.streamOutput = output
-        
+
         try newStream.addStreamOutput(output, type: .screen, sampleHandlerQueue: .global(qos: .userInteractive))
-        
+
         // Start the stream
         try await newStream.startCapture()
-        
+
         self.stream = newStream
         self.isCapturing = true
         self.currentConfiguration = CaptureConfiguration(
@@ -181,20 +183,20 @@ actor DesktopCaptureActor {
             captureRect: captureRect,
             frameRate: frameRate
         )
-        
+
         print("DesktopCaptureActor: Started capture for display \(display.displayID)")
     }
-    
+
     /// Stop capturing
     func stopCapture() async {
         guard isCapturing, let stream = stream else { return }
-        
+
         do {
             try await stream.stopCapture()
         } catch {
             print("DesktopCaptureActor: Error stopping capture: \(error)")
         }
-        
+
         // Clean up
         self.stream = nil
         self.streamOutput = nil
@@ -202,12 +204,12 @@ actor DesktopCaptureActor {
         self.currentConfiguration = nil
         self.frameContinuation?.finish()
         self.frameContinuation = nil
-        
+
         print("DesktopCaptureActor: Stopped capture")
     }
-    
+
     // MARK: - Private Methods
-    
+
     private func handleFrame(_ pixelBuffer: UncheckedPixelBuffer) {
         frameContinuation?.yield(pixelBuffer.buffer)
     }
@@ -217,19 +219,19 @@ actor DesktopCaptureActor {
 
 private class StreamOutput: NSObject, SCStreamOutput {
     private let frameHandler: (CVPixelBuffer) -> Void
-    
+
     init(frameHandler: @escaping (CVPixelBuffer) -> Void) {
         self.frameHandler = frameHandler
         super.init()
     }
-    
+
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
         guard type == .screen else { return }
-        
+
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
             return
         }
-        
+
         frameHandler(pixelBuffer)
     }
 }

@@ -3,8 +3,8 @@
 //  machNotch
 //
 
-import Foundation
 import CoreBluetooth
+import Foundation
 import Observation
 
 /// Protocol for background polling services that can be paused to save battery
@@ -20,7 +20,8 @@ protocol BackgroundServiceRestartable {
 /// Use NotchServiceProvider only when full access is genuinely required.
 @MainActor
 protocol NotchServiceProvider: MediaServiceProvider, SystemServiceProvider,
-    StorageServiceProvider, UIServiceProvider, PluginExtensionServiceProvider {}
+    StorageServiceProvider, UIServiceProvider, PluginExtensionServiceProvider
+{}
 
 @MainActor
 protocol NotesServiceProtocol: AnyObject, Observable {

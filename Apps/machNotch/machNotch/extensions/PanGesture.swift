@@ -19,7 +19,10 @@ enum PanDirection {
 }
 
 extension View {
-    func panGesture(direction: PanDirection, threshold: CGFloat = 4, disabled: Bool = false, action: @escaping (CGFloat, NSEvent.Phase) -> Void) -> some View {
+    func panGesture(
+        direction: PanDirection, threshold: CGFloat = 4, disabled: Bool = false,
+        action: @escaping (CGFloat, NSEvent.Phase) -> Void
+    ) -> some View {
         self
             .gesture(
                 DragGesture(minimumDistance: 0)
@@ -53,8 +56,8 @@ private struct ScrollMonitor: NSViewRepresentable {
 
     static func dismantleNSView(_ nsView: NSView, coordinator: Coordinator) { coordinator.removeMonitor() }
 
-    func makeCoordinator() -> Coordinator { 
-        Coordinator(direction: direction, threshold: threshold, disabled: disabled, action: action) 
+    func makeCoordinator() -> Coordinator {
+        Coordinator(direction: direction, threshold: threshold, disabled: disabled, action: action)
     }
 
     @MainActor final class Coordinator: NSObject {
@@ -69,7 +72,10 @@ private struct ScrollMonitor: NSViewRepresentable {
         private var endTask: Task<Void, Never>?
         private let noiseThreshold: CGFloat = 0.2
 
-        init(direction: PanDirection, threshold: CGFloat, disabled: Bool, action: @escaping (CGFloat, NSEvent.Phase) -> Void) {
+        init(
+            direction: PanDirection, threshold: CGFloat, disabled: Bool,
+            action: @escaping (CGFloat, NSEvent.Phase) -> Void
+        ) {
             self.direction = direction
             self.threshold = threshold
             self.disabled = disabled
@@ -114,14 +120,16 @@ private struct ScrollMonitor: NSViewRepresentable {
                 return event
             }
 
-            // Global monitor to catch edge cases 
-            globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.scrollWheel]) { [weak self, weak view] event in
+            // Global monitor to catch edge cases
+            globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.scrollWheel]) {
+                [weak self, weak view] event in
                 guard let self = self, let view = view, let viewWindow = view.window else { return }
 
                 // Translate event to screen coordinates.
                 let eventScreenPoint: NSPoint
                 if let eventWindow = event.window {
-                    eventScreenPoint = eventWindow.convertToScreen(NSRect(origin: event.locationInWindow, size: .zero)).origin
+                    eventScreenPoint =
+                        eventWindow.convertToScreen(NSRect(origin: event.locationInWindow, size: .zero)).origin
                 } else {
                     eventScreenPoint = NSEvent.mouseLocation
                 }
@@ -129,7 +137,7 @@ private struct ScrollMonitor: NSViewRepresentable {
                 // Compute this view's frame in screen coordinates and expand it slightly.
                 let viewRectInWindow = view.convert(view.bounds, to: nil)
                 let viewRectInScreen = viewWindow.convertToScreen(viewRectInWindow)
-                let expansion: CGFloat = 4 // small tolerance for very-edge events
+                let expansion: CGFloat = 4  // small tolerance for very-edge events
                 let expandedRect = viewRectInScreen.insetBy(dx: 0, dy: -expansion)
 
                 if expandedRect.contains(eventScreenPoint) {
@@ -171,13 +179,14 @@ private struct ScrollMonitor: NSViewRepresentable {
             let absDY = abs(event.scrollingDeltaY)
             // Require the movement along the gesture axis to be at least 1.5x the orthogonal axis.
             let axisDominanceFactor: CGFloat = 1.5
-            let isAxisDominant: Bool = direction.isHorizontal ? (absDX >= axisDominanceFactor * absDY) : (absDY >= axisDominanceFactor * absDX)
+            let isAxisDominant: Bool =
+                direction.isHorizontal ? (absDX >= axisDominanceFactor * absDY) : (absDY >= axisDominanceFactor * absDX)
             guard isAxisDominant else { return }
 
             // Normalize to the physical scroll direction so macOS “Natural scrolling”
             // does not invert the gesture semantics.
             let deviceDirectionMultiplier: CGFloat = event.isDirectionInvertedFromDevice ? -1 : 1
-            
+
             // Scale non-precise (mouse wheel) scrolling deltas so they feel similar to
             // trackpad gestures.
             let raw = direction.signed(

@@ -48,7 +48,8 @@ public struct WordSource: BriefSource {
         self.dictionaryClient = dictionaryClient
         self.language = language
         self.entryCache = entryCache
-        let allWords = words
+        let allWords =
+            words
             ?? Self.loadCustomWords(from: customWordsURL)
             ?? BundleJSON.load(language.wordResourceName, fallback: Self.fallbackWords(for: language))
         if let level = vocabularyLevel {
@@ -110,9 +111,10 @@ public struct WordSource: BriefSource {
 extension WordSource {
     private static func loadCustomWords(from url: URL?) -> [WordItem]? {
         guard let url,
-              let data = try? Data(contentsOf: url),
-              let words = try? JSONDecoder().decode([WordItem].self, from: data),
-              !words.isEmpty else { return nil }
+            let data = try? Data(contentsOf: url),
+            let words = try? JSONDecoder().decode([WordItem].self, from: data),
+            !words.isEmpty
+        else { return nil }
         return words
     }
 
@@ -121,14 +123,19 @@ extension WordSource {
     }
 
     static let fallbackEnglishWords: [WordItem] = [
-        .init(word: "serendipity", definition: "The occurrence of events by chance in a happy way.", partOfSpeech: "noun"),
+        .init(
+            word: "serendipity", definition: "The occurrence of events by chance in a happy way.", partOfSpeech: "noun"),
         .init(word: "lucid", definition: "Expressed clearly; easy to understand.", partOfSpeech: "adjective"),
         .init(word: "steadfast", definition: "Resolutely firm and unwavering.", partOfSpeech: "adjective"),
     ]
 
     static let fallbackGermanWords: [WordItem] = [
-        .init(word: "Fernweh", definition: "Die Sehnsucht nach fernen Orten und neuen Erfahrungen.", partOfSpeech: "Substantiv"),
+        .init(
+            word: "Fernweh", definition: "Die Sehnsucht nach fernen Orten und neuen Erfahrungen.",
+            partOfSpeech: "Substantiv"),
         .init(word: "achtsam", definition: "Bewusst aufmerksam, ruhig und gegenwärtig.", partOfSpeech: "Adjektiv"),
-        .init(word: "Augenblick", definition: "Der gegenwärtige Moment; ein flüchtiger Zeitpunkt.", partOfSpeech: "Substantiv"),
+        .init(
+            word: "Augenblick", definition: "Der gegenwärtige Moment; ein flüchtiger Zeitpunkt.",
+            partOfSpeech: "Substantiv"),
     ]
 }

@@ -63,7 +63,10 @@ extension ShelfActionService {
 
 @MainActor
 final class ShelfContextMenuHandler {
-    static func present(event: NSEvent, in view: NSView, item: ShelfItem, service: ShelfServiceProtocol, selection: ShelfSelectionModel, quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService) {
+    static func present(
+        event: NSEvent, in view: NSView, item: ShelfItem, service: ShelfServiceProtocol, selection: ShelfSelectionModel,
+        quickLookService: any QuickLookServiceProtocol, quickShareService: QuickShareService
+    ) {
         ensureContextMenuSelection(item: item, service: service, selection: selection)
         let menu = NSMenu()
 
@@ -128,7 +131,9 @@ final class ShelfContextMenuHandler {
         menu.addItem(NSMenuItem.separator())
         addMenuItem(title: "Remove")
 
-        let target = ShelfMenuActionTarget(item: item, view: view, service: service, selection: selection, quickLookService: quickLookService, quickShareService: quickShareService)
+        let target = ShelfMenuActionTarget(
+            item: item, view: view, service: service, selection: selection, quickLookService: quickLookService,
+            quickShareService: quickShareService)
         wireMenuTargets(menu: menu, target: target)
 
         menu.retainActionTarget(target)
@@ -137,7 +142,9 @@ final class ShelfContextMenuHandler {
 
     // MARK: - Private Helpers
 
-    private static func ensureContextMenuSelection(item: ShelfItem, service: ShelfServiceProtocol, selection: ShelfSelectionModel) {
+    private static func ensureContextMenuSelection(
+        item: ShelfItem, service: ShelfServiceProtocol, selection: ShelfSelectionModel
+    ) {
         if !selection.isSelected(item.id) { selection.selectSingle(item) }
     }
 
@@ -150,7 +157,7 @@ final class ShelfContextMenuHandler {
     static func defaultAppURL(for url: URL?) -> URL? {
         guard let url = url else { return nil }
         if let uti = try? url.resourceValues(forKeys: [.contentTypeKey]).contentType {
-             return NSWorkspace.shared.urlForApplication(toOpen: uti)
+            return NSWorkspace.shared.urlForApplication(toOpen: uti)
         }
         return NSWorkspace.shared.urlForApplication(toOpen: url)
     }
@@ -200,14 +207,18 @@ final class ShelfContextMenuHandler {
                 def.representedObject = defaultApp
                 def.image = nsAppIcon(for: defaultApp, size: 16)
 
-                let title = NSMutableAttributedString(string: appName, attributes: [
-                    .font: NSFont.menuFont(ofSize: 0),
-                    .foregroundColor: NSColor.labelColor
-                ])
-                let defaultPart = NSAttributedString(string: " (default)", attributes: [
-                    .font: NSFont.menuFont(ofSize: 0),
-                    .foregroundColor: NSColor.secondaryLabelColor
-                ])
+                let title = NSMutableAttributedString(
+                    string: appName,
+                    attributes: [
+                        .font: NSFont.menuFont(ofSize: 0),
+                        .foregroundColor: NSColor.labelColor,
+                    ])
+                let defaultPart = NSAttributedString(
+                    string: " (default)",
+                    attributes: [
+                        .font: NSFont.menuFont(ofSize: 0),
+                        .foregroundColor: NSColor.secondaryLabelColor,
+                    ])
                 title.append(defaultPart)
                 def.attributedTitle = title
                 submenu.addItem(def)

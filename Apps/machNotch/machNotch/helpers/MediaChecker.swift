@@ -18,8 +18,9 @@ final class MediaChecker: Sendable {
     func checkDeprecationStatus() async throws -> Bool {
         try await Task.detached(priority: .userInitiated) {
             guard let scriptURL = Bundle.main.url(forResource: "mediaremote-adapter", withExtension: "pl"),
-                  let nowPlayingTestClientPath = Bundle.main.url(forResource: "MediaRemoteAdapterTestClient", withExtension: nil)?.path,
-                  let frameworkPath = Bundle.main.privateFrameworksPath?.appending("/MediaRemoteAdapter.framework")
+                let nowPlayingTestClientPath = Bundle.main.url(
+                    forResource: "MediaRemoteAdapterTestClient", withExtension: nil)?.path,
+                let frameworkPath = Bundle.main.privateFrameworksPath?.appending("/MediaRemoteAdapter.framework")
             else {
                 throw MediaCheckerError.missingResources
             }
@@ -45,7 +46,7 @@ final class MediaChecker: Sendable {
                     if process.isRunning {
                         process.terminate()
                     }
-                    return false // Timed out
+                    return false  // Timed out
                 }
                 for try await exited in group {
                     if exited {

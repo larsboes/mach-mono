@@ -16,9 +16,11 @@ struct PluginOrderSettingsView: View {
     var body: some View {
         Form {
             Section {
-                Text("Drag to reorder how plugins appear in the notch tab bar. Disabled plugins are hidden but retain their settings.")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
+                Text(
+                    "Drag to reorder how plugins appear in the notch tab bar. Disabled plugins are hidden but retain their settings."
+                )
+                .font(.callout)
+                .foregroundStyle(.secondary)
             }
 
             Section("Plugins") {
@@ -54,7 +56,8 @@ struct PluginOrderSettingsView: View {
         guard let pm = pluginManager else { return [] }
         return orderedIDs.compactMap { id in
             guard let plugin = pm.allPlugins.first(where: { $0.id == id }) else { return nil }
-            return PluginRow(id: id, name: plugin.metadata.name, icon: plugin.metadata.icon, isEnabled: plugin.isEnabled)
+            return PluginRow(
+                id: id, name: plugin.metadata.name, icon: plugin.metadata.icon, isEnabled: plugin.isEnabled)
         }
     }
 

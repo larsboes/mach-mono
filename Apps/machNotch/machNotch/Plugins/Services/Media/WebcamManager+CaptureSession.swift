@@ -36,7 +36,7 @@ extension WebcamManager {
                 guard let videoDevice else {
                     NSLog("No video devices available")
                     Task { @MainActor in
-self.isSessionRunning = false
+                        self.isSessionRunning = false
                         self.cameraAvailable = false
                     }
                     completion(false)
@@ -50,7 +50,9 @@ self.isSessionRunning = false
 
                 let videoInput = try AVCaptureDeviceInput(device: videoDevice)
                 guard session.canAddInput(videoInput) else {
-                    throw NSError(domain: "MachNotch.WebcamManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Cannot add video input"])
+                    throw NSError(
+                        domain: "MachNotch.WebcamManager", code: -1,
+                        userInfo: [NSLocalizedDescriptionKey: "Cannot add video input"])
                 }
 
                 session.beginConfiguration()
@@ -67,7 +69,7 @@ self.isSessionRunning = false
                 self.sessionContainer.session = session
 
                 Task { @MainActor in
-self.cameraAvailable = true
+                    self.cameraAvailable = true
                     let previewLayer = AVCaptureVideoPreviewLayer(session: session)
                     previewLayer.videoGravity = .resizeAspectFill
                     self.previewLayer = previewLayer
@@ -78,7 +80,7 @@ self.cameraAvailable = true
             } catch {
                 NSLog("Failed to setup capture session: \(error.localizedDescription)")
                 Task { @MainActor in
-self.isSessionRunning = false
+                    self.isSessionRunning = false
                     self.cameraAvailable = false
                     self.previewLayer = nil
                 }
@@ -103,7 +105,7 @@ self.isSessionRunning = false
             existingSession.commitConfiguration()
             self.sessionContainer.session = nil
             Task { @MainActor in
-self.previewLayer = nil
+                self.previewLayer = nil
             }
         }
     }
@@ -122,7 +124,7 @@ self.previewLayer = nil
     nonisolated func updateSessionState() {
         let isRunning = self.sessionContainer.session?.isRunning ?? false
         Task { @MainActor in
-self.isSessionRunning = isRunning
+            self.isSessionRunning = isRunning
         }
     }
 }
