@@ -66,12 +66,14 @@ for await fullScreenSpaces in stream {
 To test the framework, you can run the included example application. First, ensure you have Swift installed on your macOS system.
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/TheBoredTeam/MacroVisionKit.git
    cd MacroVisionKit
    ```
 
 2. Build and run the example:
+
    ```bash
    swift run FullScreenMonitorExample
    ```
@@ -88,4 +90,4 @@ Created by [github.com/theboringhumane](https://github.com/theboringhumane)
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. 
+Contributions are welcome! Please feel free to submit a Pull Request.

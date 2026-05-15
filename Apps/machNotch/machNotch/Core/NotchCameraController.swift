@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import AppKit
 
 /// Controller for managing camera preview functionality
 @MainActor
@@ -43,34 +42,8 @@ import AppKit
                 isCameraExpanded = true
             }
 
-        case .denied, .restricted:
-            Task { @MainActor in
-NSApp.setActivationPolicy(.regular)
-                NSApp.activate(ignoringOtherApps: true)
-
-                let alert = NSAlert()
-                alert.messageText = "Camera Access Required"
-                alert.informativeText = "Please allow camera access in System Settings."
-                alert.addButton(withTitle: "Open Settings")
-                alert.addButton(withTitle: "Cancel")
-
-                if alert.runModal() == .alertFirstButtonReturn {
-                    if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera") {
-                        NSWorkspace.shared.open(url)
-                    }
-                }
-
-                NSApp.setActivationPolicy(.accessory)
-                NSApp.deactivate()
-            }
-
-        case .notDetermined:
-            isRequestingAuthorization = true
-            webcamService.checkAndRequestVideoAuthorization()
-            Task { @MainActor in
-    try? await Task.sleep(nanoseconds: 2000000000)
-self.isRequestingAuthorization = false
-            }
+        case .denied, .restricted, .notDetermined:
+            isCameraExpanded = true
 
         default:
             break

@@ -3,9 +3,11 @@
 Monorepo context: read [`AGENTS.md`](../../AGENTS.md) and [`repo.yaml`](../../repo.yaml) for suite-wide facts, build entrypoints, and policies. This file is **app-local** (structure, DDD, plugins, standards).
 
 ## Overview
+
 macOS SwiftUI app that replaces the MacBook notch with an interactive widget system. Plugin-first architecture — every feature (music, battery, calendar, weather, shelf, webcam, notifications, clipboard, pomodoro, teleprompter, habits) is a plugin. Part of the [mach-mono](https://github.com/larsboes/mach-mono) suite. See `repo.yaml` for system requirements.
 
 ## Build & Test
+
 - **Build:** `bazelisk build //Apps/machNotch:machNotch` from repo root
 - **Test:** `bazelisk test //Apps/machNotch:machNotchTests //Packages/MachBriefKit:MachBriefKitTests` from repo root
 - Always build after changes. Don't commit without a green build.
@@ -101,6 +103,7 @@ machNotch/
 **Note:** When calculating closed sizes, rely on target properties without strictly requiring `phase == .closed`. Restricting size calculations to the terminal closed phase causes sudden width bounces at the end of animations.
 
 ## Files to Not Touch
+
 - `Plugins/Core/NotchPlugin.swift` — stable protocol
 - `Plugins/Core/PluginEventBus.swift` — stable; add new event types as new structs
 - `Core/NotchStateMachine.swift` — pure domain; only modify if state logic changes

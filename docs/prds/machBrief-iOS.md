@@ -64,6 +64,7 @@ DailyScheduler
 ## Content Sources — v1
 
 ### WordSource
+
 - Bundled list: ~5,000 curated English words (public domain JSON)
 - API enrichment: `GET https://api.dictionaryapi.dev/api/v2/entries/en/{word}` (no key, free)
 - Returns: definition, part of speech, phonetics, example sentence
@@ -71,21 +72,25 @@ DailyScheduler
 - Word list: [english-words](https://github.com/dwyl/english-words) filtered to 4–12 letters, no proper nouns
 
 ### FactSource
+
 - Bundled list: ~1,000 curated trivia facts (JSON, hand-curated)
 - Categories: science, history, nature, language, culture
 - No API dependency — fully offline
 
 ### QuoteSource
+
 - Bundled list: ~500 curated motivational/philosophical quotes (JSON)
 - Format: quote text + author
 - No API dependency
 
 ### MantraSource
+
 - Bundled list: ~100 loving kindness / mindfulness mantras (JSON)
 - Short, one-line phrases — designed for lock screen
 - No API dependency
 
 ### MoodCheckInSource
+
 - Prompt: "How are you feeling?" with 5 options: Awesome / Good / Okay / Bad / Terrible
 - Optional one-line note after selection
 - Writes to `BriefStore` (SwiftData)
@@ -97,11 +102,13 @@ DailyScheduler
 ## Integrations — Sinks
 
 ### ObsidianSink (Recommended)
+
 The flagship integration. Appends each slot entry to the user's Obsidian daily note as clean markdown. User owns all data — no API, no plugin required in Obsidian.
 
 **Setup:** User selects vault path in settings. mach.brief gets file access via security-scoped bookmark (persists across relaunches without re-prompting).
 
 **Output format (configurable template):**
+
 ```markdown
 ## Daily Brief — 12:00
 
@@ -113,6 +120,7 @@ The flagship integration. Appends each slot entry to the user's Obsidian daily n
 ```
 
 **Mood entry format:**
+
 ```markdown
 ## Mood — 18:00
 Feeling: Good
@@ -161,6 +169,7 @@ enum DailySlot: Int, CaseIterable, Codable {
 ## Features — v1 MVP
 
 ### iOS App (machBrief)
+
 - **Today view:** Current slot card — layout adapts per source (word card, quote card, mood prompt)
 - **Archive:** Past entries newest-first, filterable by source, searchable
 - **Favorites:** Bookmarked entries across all sources
@@ -169,11 +178,13 @@ enum DailySlot: Int, CaseIterable, Codable {
 - **Widget setup prompt:** First-launch nudge
 
 ### Widgets (WidgetKit)
+
 - **Lock screen widget:** Title + subtitle of current slot entry. Updates at each slot via `TimelineProvider` with 4 entries/day pre-loaded.
 - **Home screen widget (medium):** Full entry card — title, subtitle, body snippet.
 - **Interactive widget (iOS 17+):** Mood check-in tappable directly from lock/home screen — no app open required.
 
 ### machNotch Plugin (macOS)
+
 - `MachBriefKit` linked as Bazel dependency in machNotch
 - `closedNotchContent` — source icon + title snippet (right-aligned, yields to music)
 - `expandedPanelContent` — full entry card with source-appropriate layout
@@ -245,6 +256,7 @@ See `docs/guides/sideloading.md` for full setup guide.
 **Reengineering mandate:** mach.brief is inspired by commercial apps (Vocabulary - Learn words daily, Self Growth Essentials by Monkey Taps) and open-source projects. No code is copied. Every component is an original implementation of independently-arrived-at ideas. This is a design principle, not just a legal requirement — reengineering forces better architecture.
 
 **Content licensing:** All bundled JSON content (`words.json`, `facts.json`, `quotes.json`, `mantras.json`) must be public domain or CC0 before ship. Sources:
+
 - `words.json` — [english-words](https://github.com/dwyl/english-words) (public domain) + manual curation
 - `facts.json` — hand-written originals or CC0 sources only (e.g. Wikipedia summaries rewritten)
 - `quotes.json` — pre-1928 authors only (public domain) OR original paraphrases — NO post-1928 direct quotes

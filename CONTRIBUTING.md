@@ -33,27 +33,33 @@ You can contribute in many ways: writing code, improving documentation, reportin
 1. **Fork the repository**: Click the "Fork" button at the top of the repository page to create your own copy.
 
 2. **Clone your fork**:
+
    ```bash
    git clone https://github.com/{your-username}/mach-mono.git
    cd mach-mono
    ```
+
    Replace `{your-username}` with your GitHub username.
 
 3. **Make sure `main` is up to date**:
+
    ```bash
    git checkout main
    git pull origin main
    ```
 
 4. **Create a new feature branch**:
+
    ```bash
    git checkout -b feature/{your-feature-name}
    ```
+
    Replace `{your-feature-name}` with a descriptive name. Use lowercase letters, numbers, and hyphens only (e.g., `feature/add-dark-mode` or `fix/notification-crash`).
 
 ### Making Changes
 
 1. **Activate the commit hook** (once per clone):
+
    ```bash
    git config core.hooksPath .githooks
    ```
@@ -61,17 +67,20 @@ You can contribute in many ways: writing code, improving documentation, reportin
 2. **Make your changes**: Implement your feature or bug fix. Write clean, well-documented code.
 3. **Test your changes**: Ensure your changes work as expected and don't break existing functionality.
 4. **Commit your changes** using [Conventional Commits](https://www.conventionalcommits.org/) format:
+
    ```bash
    git commit -m "feat(music): add lyrics scroll animation"
    git commit -m "fix(ci): correct bazelrc cache key"
    git commit -m "chore(deps): update Sparkle to 2.9.0"
    ```
+
    Types: `feat` · `fix` · `chore` · `docs` · `refactor` · `test` · `style` · `ci` · `perf` · `revert`
 
-4. **Keep your branch up to date**:
+5. **Keep your branch up to date**:
    Regularly sync your branch with the latest changes from `main` to avoid conflicts.
 
-5. **Push to your fork**:
+6. **Push to your fork**:
+
    ```bash
    git push origin feature/{your-feature-name}
    ```
@@ -80,8 +89,9 @@ You can contribute in many ways: writing code, improving documentation, reportin
 
 machNotch uses a plugin-first architecture. Adding a new feature usually means creating a new plugin.
 
-1.  **Create the Plugin File**: Add a new Swift file in `Plugins/BuiltIn/{YourFeature}Plugin/`.
-2.  **Implement `NotchPlugin`**:
+1. **Create the Plugin File**: Add a new Swift file in `Plugins/BuiltIn/{YourFeature}Plugin/`.
+2. **Implement `NotchPlugin`**:
+
     ```swift
     @MainActor @Observable
     final class YourFeaturePlugin: NotchPlugin {
@@ -95,7 +105,8 @@ machNotch uses a plugin-first architecture. Adding a new feature usually means c
         func deactivate() async { /* tear down */ }
     }
     ```
-3.  **Register the Plugin**: Add your plugin instance to `PluginRegistry.makeBuiltInPlugins()` in `Apps/machNotch/machNotch/Plugins/Core/PluginRegistry.swift`.
+
+3. **Register the Plugin**: Add your plugin instance to `PluginRegistry.makeBuiltInPlugins()` in `Apps/machNotch/machNotch/Plugins/Core/PluginRegistry.swift`.
 
 For more details, see the [Architecture Guide](docs/architecture/overview.md) and [Plugin Development Guide](docs/guides/plugin-development.md).
 
@@ -118,7 +129,9 @@ For more details, see the [Architecture Guide](docs/architecture/overview.md) an
 The project has recently undergone a major refactoring. Please adhere to these guidelines for all new code:
 
 ### 1. No Singletons in Views
+
 ❌ **Don't** use `.shared` instances directly in SwiftUI views.
+
 ```swift
 // Avoid this
 struct MyView: View {
@@ -127,6 +140,7 @@ struct MyView: View {
 ```
 
 ✅ **Do** inject dependencies via `@Environment` or initialization.
+
 ```swift
 // Do this
 struct MyView: View {
@@ -140,11 +154,14 @@ struct MyView: View {
 ```
 
 ### 2. Use the Service Container
+
 All core logic (Music, Calendar, Shelf, etc.) interacts with the system via the `ServiceContainer`.
-*   If you need a system service, access it via `context.services` in your Plugin or `pluginManager.services` in Views.
-*   If you need a new system capability, define a protocol for it (e.g., `BluetoothServiceProtocol`), implement it, and add it to the container.
+
+- If you need a system service, access it via `context.services` in your Plugin or `pluginManager.services` in Views.
+- If you need a new system capability, define a protocol for it (e.g., `BluetoothServiceProtocol`), implement it, and add it to the container.
 
 ### 3. Use `@Observable`
+
 All state objects use Swift's `@Observable` macro (migration complete).
 ❌ **Avoid** `ObservableObject` and `@Published`.
 ✅ **Use** `@Observable` + `@MainActor` for all state objects.

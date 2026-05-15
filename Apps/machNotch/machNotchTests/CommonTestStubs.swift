@@ -394,9 +394,35 @@ final class StubDragDropService: DragDropServiceProtocol {
     var isSessionRunning: Bool = false
     var cameraAvailable: Bool = false
     var authorizationStatus: AVAuthorizationStatus = .notDetermined
-    func startSession() {}
-    func stopSession() {}
-    func checkAndRequestVideoAuthorization() {}
+    var availableCameras: [WebcamDeviceDescriptor] = []
+    var selectedCameraID: String = ""
+    var startSessionCallCount = 0
+    var stopSessionCallCount = 0
+    var authorizationRequestCallCount = 0
+    var refreshAuthorizationCallCount = 0
+    var refreshCameraDevicesCallCount = 0
+
+    func startSession() {
+        startSessionCallCount += 1
+        isSessionRunning = true
+    }
+
+    func stopSession() {
+        stopSessionCallCount += 1
+        isSessionRunning = false
+    }
+
+    func refreshAuthorizationStatus() {
+        refreshAuthorizationCallCount += 1
+    }
+
+    func refreshCameraDevices() {
+        refreshCameraDevicesCallCount += 1
+    }
+
+    func checkAndRequestVideoAuthorization() {
+        authorizationRequestCallCount += 1
+    }
 }
 
 @MainActor

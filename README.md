@@ -33,7 +33,7 @@
 
 ## Design System
 
-This monorepo adheres to a strict **Minimalistic Aesthetic**. 
+This monorepo adheres to a strict **Minimalistic Aesthetic**.
 
 > **Core Principles:** Clarity, Cohesion, Tech-Forward, Subtlety.
 
@@ -53,8 +53,8 @@ See [`docs/roadmaps/bazel.md`](docs/roadmaps/bazel.md) and [`docs/decisions/0007
 
 ## Critical Blockers (last update: 10.05.2026)
 
-*   **Notch stability:** Intermittent random expansion (root cause unknown).
-*   **Music UI:** Music display is functional but requires significant cleanup and timeline implementation.
+* **Notch stability:** Intermittent random expansion (root cause unknown).
+* **Music UI:** Music display is functional but requires significant cleanup and timeline implementation.
 
 *Tracking Issues: [issue tracker](https://github.com/larsboes/mach-mono/issues).*
 
@@ -62,10 +62,9 @@ See [`docs/roadmaps/bazel.md`](docs/roadmaps/bazel.md) and [`docs/decisions/0007
 
 This repo heavily relies on **Agentic Coding**. It grew organically out of curiosity for features and functionality, so code and architectural quality varies. Hardening reliability and improving code quality are the next big steps, but my priority remains on working features—after all, these are just quality-of-life additions.
 
-For me, this is a playground to experiment with monorepo setups, Swift, and open-source practices. I took heavy inspiration from the existing Notch projects listed below, but my goal is to reengineer them significantly. :) 
+For me, this is a playground to experiment with monorepo setups, Swift, and open-source practices. I took heavy inspiration from the existing Notch projects listed below, but my goal is to reengineer them significantly. :)
 
 If you plan to explore the codebase or contribute, you'll see the "clanker's" work. Please don't judge the agents—judge me for not guiding them properly. My long-term goal is to make this a truly "AI-ready" repository.
-
 
 ### Documentation model
 
@@ -85,17 +84,18 @@ Tool-specific entrypoints ([`CLAUDE.md`](CLAUDE.md), [`GEMINI.md`](GEMINI.md), [
 ## Apps
 
 ### `mach.notch` — Notch Utility
+>
 > Transforms the MacBook notch into an interactive, plugin-driven command surface.
 
 machNotch is focused on architectural quality: DDD layer boundaries, a SOLID plugin system, full dependency injection, and zero singletons in views or services. Every feature is a plugin — music, media controls, calendar, habits, pomodoro, shelf, teleprompter, battery, webcam, notifications, clipboard, weather, and more.
 
-- **Location:** `Apps/machNotch/`
+* **Location:** `Apps/machNotch/`
 
 ### `mach.brief` — Daily brief
 
 Configurable daily content (words, facts, quotes, mantras, mood prompts) with optional sinks such as Obsidian. Shares [`Packages/MachBriefKit`](Packages/MachBriefKit). **In active development** — see [`docs/prds/machBrief-macOS.md`](docs/prds/machBrief-macOS.md).
 
-- **Location:** `Apps/machBrief/`
+* **Location:** `Apps/machBrief/`
 
 ---
 
@@ -284,10 +284,10 @@ No CocoaPods, no Carthage, no SPM at the repo root for development. All targets,
 
 ## Roadmap
 
-- [x] `mach.notch` — notch utility (shipped)
-- [~] `mach.brief` — standalone daily brief app + [`MachBriefKit`](Packages/MachBriefKit) (in development)
-- [~] `SystemStats` plugin — CPU/GPU/RAM/disk/network rings (in progress)
-- [ ] `mach.window`, `mach.bar`, plus more notch plugins (PreventSleep, ExternalBrightness, ColorPicker, FocusMode, MenuBar) and shared `MachUI` package
+* [x] `mach.notch` — notch utility (shipped)
+* [~] `mach.brief` — standalone daily brief app + [`MachBriefKit`](Packages/MachBriefKit) (in development)
+* [~] `SystemStats` plugin — CPU/GPU/RAM/disk/network rings (in progress)
+* [ ] `mach.window`, `mach.bar`, plus more notch plugins (PreventSleep, ExternalBrightness, ColorPicker, FocusMode, MenuBar) and shared `MachUI` package
 
 The full, prioritised plan with phases and debt triage lives in [`docs/prds/machNotch.md`](docs/prds/machNotch.md). The doc index is at [`docs/README.md`](docs/README.md).
 
@@ -303,19 +303,19 @@ All system requirements, including minimum OS versions (macOS/iOS) and Swift lan
 
 `mach-mono` builds on the shoulders of several exceptional open-source projects:
 
-- [**boring.notch**](https://github.com/TheBoredTeam/boring.notch) — the foundational notch utility this fork originated from. The plugin architecture, media integration, shelf, and core notch interaction model all trace back here. An outstanding project by TheBoredTeam.
+* [**boring.notch**](https://github.com/TheBoredTeam/boring.notch) — the foundational notch utility this fork originated from. The plugin architecture, media integration, shelf, and core notch interaction model all trace back here. An outstanding project by TheBoredTeam.
 
-- [**Atoll**](https://github.com/Ebullioscopic/Atoll) — a feature-rich notch utility that expanded on boring.notch with live activities, lock screen widgets, system stats, and more. A major source of feature inspiration for what this suite aims to become.
+* [**Atoll**](https://github.com/Ebullioscopic/Atoll) — a feature-rich notch utility that expanded on boring.notch with live activities, lock screen widgets, system stats, and more. A major source of feature inspiration for what this suite aims to become.
 
-- [**DockDoor**](https://github.com/ejbills/DockDoor) — window peeking, alt-tab, and dock enhancements for macOS. Inspiration for the upcoming `mach.window` app.
+* [**DockDoor**](https://github.com/ejbills/DockDoor) — window peeking, alt-tab, and dock enhancements for macOS. Inspiration for the upcoming `mach.window` app.
 
-- [**MacroVisionKit**](https://github.com/TheBoredTeam/MacroVisionKit) — real-time fullscreen and window state detection framework powering the notch's context awareness.
+* [**MacroVisionKit**](https://github.com/TheBoredTeam/MacroVisionKit) — real-time fullscreen and window state detection framework powering the notch's context awareness.
 
-- [**Stats**](https://github.com/exelban/stats) — reference implementation for macOS system metrics (CPU, GPU, memory, network, disk) via SMC and IOReport bindings.
+* [**Stats**](https://github.com/exelban/stats) — reference implementation for macOS system metrics (CPU, GPU, memory, network, disk) via SMC and IOReport bindings.
 
-- [**SkyLightWindow**](https://github.com/Lakr233/SkyLightWindow) — private API window rendering techniques.
+* [**SkyLightWindow**](https://github.com/Lakr233/SkyLightWindow) — private API window rendering techniques.
 
-- [**KeyboardShortcuts**](https://github.com/sindresorhus/KeyboardShortcuts), [**Defaults**](https://github.com/sindresorhus/defaults), [**Sparkle**](https://sparkle-project.org), [**Lottie**](https://github.com/airbnb/lottie-ios) — essential macOS development libraries used throughout.
+* [**KeyboardShortcuts**](https://github.com/sindresorhus/KeyboardShortcuts), [**Defaults**](https://github.com/sindresorhus/defaults), [**Sparkle**](https://sparkle-project.org), [**Lottie**](https://github.com/airbnb/lottie-ios) — essential macOS development libraries used throughout.
 
 ---
 
@@ -334,10 +334,10 @@ Full GPL-3.0 text: [LICENSE](LICENSE). Per-package licenses live next to each pa
 
 ### What GPL-3.0 means for you
 
-- You may **use, modify, and redistribute** machNotch.
-- Distributed binaries must come with **source** for any modifications, under GPL-3.0.
-- Plugins compiled into the machNotch app fall under GPL-3.0 (linking).
-- Contributions to machNotch will be GPL-3.0 until the migration described below completes.
+* You may **use, modify, and redistribute** machNotch.
+* Distributed binaries must come with **source** for any modifications, under GPL-3.0.
+* Plugins compiled into the machNotch app fall under GPL-3.0 (linking).
+* Contributions to machNotch will be GPL-3.0 until the migration described below completes.
 
 ### The MIT migration
 

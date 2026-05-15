@@ -5,7 +5,6 @@
 //  Created by Richard Kunkli on 07/08/2024.
 //
 
-import AVFoundation
 import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
@@ -15,6 +14,8 @@ struct Appearance: View {
 
     let icons: [String] = ["logo2"]
     @State private var selectedIcon: String = "logo2"
+    @State private var cameraDevices: [WebcamDeviceDescriptor] = []
+
     var body: some View {
         @Bindable var settings = settings
         Form {
@@ -139,9 +140,26 @@ struct Appearance: View {
 
             Section {
                 Toggle(isOn: $settings.showMirror) {
-                    Text("Enable notch mirror")
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Webcam mirror")
+                        Text(cameraDevices.isEmpty ? "No camera detected" : "Show a camera button in the notch header")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
-                    .disabled(!checkVideoInput())
+                .disabled(cameraDevices.isEmpty)
+
+                if settings.showMirror, cameraDevices.count > 1 {
+                    Picker("Camera", selection: $settings.selectedWebcamDeviceID) {
+                        Text("Default camera").tag("")
+                        ForEach(cameraDevices) { device in
+                            Text(device.displayName).tag(device.id)
+                        }
+                    }
+                } else if settings.showMirror, let camera = cameraDevices.first {
+                    LabeledContent("Camera", value: camera.displayName)
+                }
+
                 Picker("Mirror shape", selection: $settings.mirrorShape) {
                     Text("Circle")
                         .tag(MirrorShapeEnum.circle)
@@ -159,13 +177,15 @@ struct Appearance: View {
         }
         .accentColor(.effectiveAccent(from: settings))
         .navigationTitle("Appearance")
+        .onAppear(perform: refreshCameraDevices)
     }
 
-    func checkVideoInput() -> Bool {
-        if AVCaptureDevice.default(for: .video) != nil {
-            return true
-        }
+    private func refreshCameraDevices() {
+        cameraDevices = WebcamDeviceDescriptor.discover()
 
-        return false
+        if !settings.selectedWebcamDeviceID.isEmpty,
+           !cameraDevices.contains(where: { $0.id == settings.selectedWebcamDeviceID }) {
+            settings.selectedWebcamDeviceID = ""
+        }
     }
 }

@@ -78,6 +78,21 @@ final class HabitStoreTests: XCTestCase {
         XCTAssertFalse(store.isCompleted(habitId: habit.id))
     }
 
+    func testToggleDoneHabitClearsDuplicateCompletions() {
+        let store = makeStore()
+        let habit = makeHabit()
+        store.addHabit(habit)
+
+        let today = Calendar.current.startOfDay(for: Date())
+        store.completions.append(HabitCompletion(habitId: habit.id, date: today))
+        store.completions.append(HabitCompletion(habitId: habit.id, date: today))
+
+        store.toggleCompletion(for: habit.id)
+
+        XCTAssertFalse(store.isCompleted(habitId: habit.id))
+        XCTAssertFalse(store.completions.contains { $0.habitId == habit.id && $0.date == today })
+    }
+
     func testCompletionIsDateIsolated() {
         let store = makeStore()
         let habit = makeHabit()

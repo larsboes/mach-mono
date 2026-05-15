@@ -25,6 +25,12 @@ extension DefaultsNotchSettings {
         set { Defaults[Self.mirrorShapeKey] = newValue }
     }
 
+    @Setting<String>(key: "selectedWebcamDeviceID", default: "")
+    var selectedWebcamDeviceID: String {
+        get { Defaults[Self.selectedWebcamDeviceIDKey] }
+        set { Defaults[Self.selectedWebcamDeviceIDKey] = newValue }
+    }
+
     @Setting<Bool>(key: "showNotHumanFace", default: false)
     var showNotHumanFace: Bool {
         get { Defaults[Self.showNotHumanFaceKey] }

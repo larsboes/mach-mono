@@ -16,18 +16,14 @@ struct Habit: Identifiable, Codable, Equatable, Hashable {
     var colorHex: String
     var createdAt: Date
     var isActive: Bool
-    
-    // Legacy support or specific days of week could be added here
-    var targetDaysPerWeek: Int?
-    
-    init(id: UUID = UUID(), title: String, symbol: String = "circle.fill", colorHex: String = "#FFFFFF", createdAt: Date = Date(), isActive: Bool = true, targetDaysPerWeek: Int? = nil) {
+
+    init(id: UUID = UUID(), title: String, symbol: String = "circle.fill", colorHex: String = "#FFFFFF", createdAt: Date = Date(), isActive: Bool = true) {
         self.id = id
         self.title = title
         self.symbol = symbol
         self.colorHex = colorHex
         self.createdAt = createdAt
         self.isActive = isActive
-        self.targetDaysPerWeek = targetDaysPerWeek
     }
     
     var color: Color {

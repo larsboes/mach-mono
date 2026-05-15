@@ -38,6 +38,9 @@ import SwiftUI
     var currentView: NotchViews = .home
 
     func navigate(to view: NotchViews) {
+        // Calendar onHover won't fire false when the home view leaves the hierarchy,
+        // so the sticky isHoveringCalendar blocks swipe-up-to-close on other views.
+        isHoveringCalendar = false
         withAnimation(.smooth) {
             self.currentView = view
         }

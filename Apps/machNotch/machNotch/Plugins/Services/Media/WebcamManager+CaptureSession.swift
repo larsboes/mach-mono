@@ -9,7 +9,10 @@
 
 extension WebcamManager {
     /// Sets up the capture session with a completion handler
-    nonisolated func setupCaptureSession(completion: @escaping @Sendable (Bool) -> Void) {
+    nonisolated func setupCaptureSession(
+        preferredDeviceID: String,
+        completion: @escaping @Sendable (Bool) -> Void
+    ) {
         sessionQueue.async { [weak self] in
             guard let self = self else {
                 completion(false)
@@ -27,7 +30,10 @@ extension WebcamManager {
                     position: .unspecified
                 )
 
-                guard let videoDevice = discoverySession.devices.first else {
+                let devices = discoverySession.devices
+                let videoDevice = devices.first { $0.uniqueID == preferredDeviceID } ?? devices.first
+
+                guard let videoDevice else {
                     NSLog("No video devices available")
                     Task { @MainActor in
 self.isSessionRunning = false

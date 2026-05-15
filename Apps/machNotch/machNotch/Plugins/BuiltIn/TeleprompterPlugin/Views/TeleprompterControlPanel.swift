@@ -100,29 +100,13 @@ struct TeleprompterControlPanel: View {
                     .frame(width: 20)
             }
 
-            // Text color swatches
             HStack(spacing: 4) {
                 Text("Color")
                     .font(.system(size: 10))
                     .foregroundStyle(.tertiary)
                     .frame(width: 30, alignment: .leading)
 
-                ForEach(PrompterColor.allCases, id: \.self) { color in
-                    Circle()
-                        .fill(color.color)
-                        .frame(width: 14, height: 14)
-                        .overlay(
-                            Circle()
-                                .strokeBorder(
-                                    state.textColor == color ? Color.accentColor : Color.clear,
-                                    lineWidth: 2
-                                )
-                                .frame(width: 18, height: 18)
-                        )
-                        .onTapGesture {
-                            state.textColor = color
-                        }
-                }
+                PrompterColorPicker(selection: $state.textColor)
             }
         }
     }
@@ -153,23 +137,26 @@ struct TeleprompterControlPanel: View {
 
     // MARK: - Script Info
 
-    private var scriptInfoSection: some View {
-        let wordCount = state.text.split(whereSeparator: \.isWhitespace).count
-        let estimatedMinutes = Double(wordCount) / 150.0 // ~150 wpm speaking pace
-        let sections = state.text.components(separatedBy: "\n")
-            .filter { $0.hasPrefix("##") }.count
+    private var wordCount: Int {
+        state.text.split(whereSeparator: \.isWhitespace).count
+    }
 
-        return VStack(alignment: .leading, spacing: 2) {
+    private var sectionCount: Int {
+        state.text.components(separatedBy: "\n").filter { $0.hasPrefix("##") }.count
+    }
+
+    private var scriptInfoSection: some View {
+        VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 8) {
                 Label("\(wordCount) words", systemImage: "text.word.spacing")
-                if sections > 0 {
-                    Label("\(sections) sections", systemImage: "list.bullet")
+                if sectionCount > 0 {
+                    Label("\(sectionCount) sections", systemImage: "list.bullet")
                 }
             }
             .font(.system(size: 9))
             .foregroundStyle(.tertiary)
 
-            Text("~\(String(format: "%.0f", ceil(estimatedMinutes)))m reading time")
+            Text("~\(String(format: "%.0f", ceil(Double(wordCount) / 150.0)))m reading time")
                 .font(.system(size: 9))
                 .foregroundStyle(.quaternary)
         }
@@ -195,7 +182,7 @@ struct TeleprompterControlPanel: View {
         .padding(.horizontal, 6)
         .padding(.vertical, 3)
         .background(Color.orange.opacity(0.1))
-        .cornerRadius(4)
+        .clipShape(RoundedRectangle(cornerRadius: 4))
     }
 
     // MARK: - AI Action
@@ -207,12 +194,11 @@ struct TeleprompterControlPanel: View {
         aiError = nil
 
         Task {
+            defer { isAIProcessing = false }
             do {
                 try await state.aiAssist(action: action, ai: ai)
-                isAIProcessing = false
             } catch {
                 aiError = error.localizedDescription
-                isAIProcessing = false
             }
         }
     }
@@ -228,6 +214,28 @@ extension PrompterColor {
         case .yellow: .yellow
         case .green: .green
         case .cyan: .cyan
+        }
+    }
+}
+
+// MARK: - Color Picker
+
+struct PrompterColorPicker: View {
+    @Binding var selection: PrompterColor
+
+    var body: some View {
+        HStack(spacing: 4) {
+            ForEach(PrompterColor.allCases, id: \.self) { color in
+                Circle()
+                    .fill(color.color)
+                    .frame(width: 14, height: 14)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(selection == color ? Color.accentColor : Color.clear, lineWidth: 2)
+                            .frame(width: 18, height: 18)
+                    )
+                    .onTapGesture { selection = color }
+            }
         }
     }
 }
@@ -261,11 +269,8 @@ private struct CompactAIButton: View {
             .font(.system(size: 9, weight: .semibold))
             .padding(.vertical, 4)
             .padding(.horizontal, 7)
-            .background(
-                Capsule()
-                    .fill(Color.white.opacity(0.06))
-                    .strokeBorder(Color.white.opacity(0.05), lineWidth: 0.5)
-            )
+            .background(Capsule().fill(Color.white.opacity(0.06)))
+            .overlay(Capsule().strokeBorder(Color.white.opacity(0.05), lineWidth: 0.5))
         }
         .buttonStyle(.plain)
     }

@@ -133,7 +133,7 @@ final class ServiceContainer: NotchServiceProvider {
         self.shelf = ShelfService(imageProcessor: self.shelfImageProcessor, fileHandler: self.shelfFileHandler)
 
         self.lyrics = LyricsService()
-        self.webcam = WebcamManager()
+        self.webcam = WebcamManager(settings: settings)
         self.notifications = NotificationCenterManager(settings: settings)
         self.systemNotificationObserver = SystemNotificationObserver(notificationManager: self.notifications)
         self.volume = VolumeManager(eventBus: eventBus)

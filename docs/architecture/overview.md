@@ -1,6 +1,6 @@
 # Architecture Overview
 
-> **Note:** This document reflects the system architecture as of May 2026 (v1.0 Plugin System + SOLID/DDD hardening + DDD directory restructure + mach-mono migration). For full debt triage with P1/P2/P3 priorities, see `docs/prds/machNotch.md → Known Architecture Debt`.
+> **Note:** This document reflects the system architecture as of May 2026. For deep details on the plugin system, see the [Plugin System Architecture](plugin-system.md) guide. For full debt triage with P1/P2/P3 priorities, see `docs/prds/machNotch.md → Known Architecture Debt`.
 
 machNotch is a macOS application designed to transform the static camera notch into a dynamic, interactive utility hub. The architecture is built on a **modular, plugin-first** foundation, ensuring extensibility, testability, and separation of concerns.
 
@@ -79,12 +79,12 @@ graph TB
 
 ### Key Components
 
-1.  **PluginManager**: The brain of the extension system. It manages the lifecycle (load, activate, deactivate) of all plugins and acts as the central registry.
-2.  **ServiceContainer**: A dependency injection container that holds all system services (`MusicService`, `BatteryService`, etc.). Plugins request services from here.
-3.  **NotchStateMachine**: A pure logic component that determines *what* should be shown on the screen based on various inputs (is music playing? is battery low? is user hovering?).
-4.  **NotchContentRouter**: The View layer component that maps the State Machine's output to actual SwiftUI views.
-5.  **DisplayPrioritizer**: Pure struct that determines which plugin wins the closed notch based on `DisplayRequest` priorities. Extracted from PluginManager (SRP).
-6.  **PluginID**: Centralized enum of all plugin identifiers — eliminates stringly-typed references across 30+ call sites.
+1. **PluginManager**: The brain of the extension system. It manages the lifecycle (load, activate, deactivate) of all plugins and acts as the central registry.
+2. **ServiceContainer**: A dependency injection container that holds all system services (`MusicService`, `BatteryService`, etc.). Plugins request services from here.
+3. **NotchStateMachine**: A pure logic component that determines *what* should be shown on the screen based on various inputs (is music playing? is battery low? is user hovering?).
+4. **NotchContentRouter**: The View layer component that maps the State Machine's output to actual SwiftUI views.
+5. **DisplayPrioritizer**: Pure struct that determines which plugin wins the closed notch based on `DisplayRequest` priorities. Extracted from PluginManager (SRP).
+6. **PluginID**: Centralized enum of all plugin identifiers — eliminates stringly-typed references across 30+ call sites.
 
 ---
 
@@ -128,10 +128,10 @@ sequenceDiagram
 
 ### Priority Levels
 
-1.  **Critical (30)**: Urgent system warnings (e.g., "Battery Low").
-2.  **High (20)**: Active user engagement (e.g., "Music Playing", "Timer Running").
-3.  **Normal (10)**: Passive information (e.g., "Weather").
-4.  **Background (0)**: Idle state.
+1. **Critical (30)**: Urgent system warnings (e.g., "Battery Low").
+2. **High (20)**: Active user engagement (e.g., "Music Playing", "Timer Running").
+3. **Normal (10)**: Passive information (e.g., "Weather").
+4. **Background (0)**: Idle state.
 
 ---
 
@@ -182,7 +182,7 @@ graph LR
     Visualizer -.->|Reacts to| Music
 ```
 
-*   **Example**: The `VisualizerPlugin` doesn't need to know about `MusicPlugin`. It just listens for `playbackChanged` events on the bus.
+* **Example**: The `VisualizerPlugin` doesn't need to know about `MusicPlugin`. It just listens for `playbackChanged` events on the bus.
 
 ---
 
@@ -204,10 +204,10 @@ Structured concurrency (`async/await`) and Actors are strictly used to ensure th
 
 Plugins are sandboxed. `UserDefaults.standard` is not accessed directly.
 
-*   **`PluginSettings`**: A wrapper around `Defaults` that namespaces keys.
-    *   Plugin ID: `com.machnotch.weather`
-    *   Key: `showTemperature`
-    *   Actual UserDefaults Key: `plugin.com.machnotch.weather.showTemperature`
+* **`PluginSettings`**: A wrapper around `Defaults` that namespaces keys.
+  * Plugin ID: `com.machnotch.weather`
+  * Key: `showTemperature`
+  * Actual UserDefaults Key: `plugin.com.machnotch.weather.showTemperature`
 
 This prevents key collisions and facilitates resetting a specific plugin without wiping the entire app settings.
 
@@ -217,19 +217,21 @@ This prevents key collisions and facilitates resetting a specific plugin without
 
 **Unidirectional Data Flow** is strictly adhered to.
 
-1.  **System Event**: A system event occurs (e.g., Song changed).
-2.  **Service Update**: The `MusicService` updates its `@Observable` properties.
-3.  **Plugin Reaction**: The `MusicPlugin` (observing the service) updates its own state.
-4.  **UI Render**: SwiftUI detects the change in the Plugin and re-renders the View.
+1. **System Event**: A system event occurs (e.g., Song changed).
+2. **Service Update**: The `MusicService` updates its `@Observable` properties.
+3. **Plugin Reaction**: The `MusicPlugin` (observing the service) updates its own state.
+4. **UI Render**: SwiftUI detects the change in the Plugin and re-renders the View.
 
 **❌ Anti-Pattern (Avoid):**
-*   Views observing singletons (`MusicManager.shared`).
-*   Plugins directly modifying Views.
+
+* Views observing singletons (`MusicManager.shared`).
+* Plugins directly modifying Views.
 
 **✅ Correct Pattern:**
-*   Views observe `Plugin`.
-*   Plugin observes `Service`.
-*   Service observes `System`.
+
+* Views observe `Plugin`.
+* Plugin observes `Service`.
+* Service observes `System`.
 
 ---
 
@@ -317,8 +319,8 @@ Last reviewed: 2026-05-02. Full triage (P1/P2/P3 + blocks annotations) in `docs/
 
 The architecture is designed for testability.
 
-*   **Unit Tests**: Plugins are tested in isolation by injecting **Mock Services**.
-*   **Mocking**: Every Service is defined by a protocol (e.g., `MusicServiceProtocol`), allowing the injection of fake implementations that return controlled data.
+* **Unit Tests**: Plugins are tested in isolation by injecting **Mock Services**.
+* **Mocking**: Every Service is defined by a protocol (e.g., `MusicServiceProtocol`), allowing the injection of fake implementations that return controlled data.
 
 ### Example: Testing Music Display Logic
 

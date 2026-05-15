@@ -58,15 +58,15 @@ extension PluginManager {
 
     /// Export data from a specific plugin
     func exportPluginData(id: String, format: ExportFormat) async throws -> Data {
-        guard let plugin = plugin(id: id) else {
-            throw PluginError.notFound(id)
+        guard let plugin = plugin(id: id) else { throw PluginError.notFound(id) }
+        guard plugin.state.isActive else { throw PluginError.invalidState("Plugin not active") }
+        guard let exportable = plugin.underlying as? any ExportablePlugin else {
+            throw PluginError.exportFailed("Export not supported for plugin '\(id)'")
         }
-
-        guard plugin.state.isActive else {
-            throw PluginError.invalidState("Plugin not active")
+        guard exportable.supportedExportFormats.contains(format) else {
+            throw PluginError.exportFailed("Format '\(format.rawValue)' not supported by plugin '\(id)'")
         }
-
-        throw PluginError.exportFailed("Export not implemented for this plugin")
+        return try await exportable.exportData(format: format)
     }
 
     /// Export data from all exportable plugins

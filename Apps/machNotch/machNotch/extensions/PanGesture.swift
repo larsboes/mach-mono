@@ -46,7 +46,11 @@ private struct ScrollMonitor: NSViewRepresentable {
         context.coordinator.installMonitor(on: view)
         return view
     }
-    func updateNSView(_ nsView: NSView, context: Context) {}
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        context.coordinator.update(disabled: disabled, action: action)
+    }
+
     static func dismantleNSView(_ nsView: NSView, coordinator: Coordinator) { coordinator.removeMonitor() }
 
     func makeCoordinator() -> Coordinator { 
@@ -56,13 +60,13 @@ private struct ScrollMonitor: NSViewRepresentable {
     @MainActor final class Coordinator: NSObject {
         private let direction: PanDirection
         private let threshold: CGFloat
-        private let disabled: Bool
-        private let action: (CGFloat, NSEvent.Phase) -> Void
+        private var disabled: Bool
+        private var action: (CGFloat, NSEvent.Phase) -> Void
         private var localMonitor: Any?
         private var globalMonitor: Any?
         private var accumulated: CGFloat = 0
         private var active = false
-            private var endTask: Task<Void, Never>?
+        private var endTask: Task<Void, Never>?
         private let noiseThreshold: CGFloat = 0.2
 
         init(direction: PanDirection, threshold: CGFloat, disabled: Bool, action: @escaping (CGFloat, NSEvent.Phase) -> Void) {
@@ -70,6 +74,17 @@ private struct ScrollMonitor: NSViewRepresentable {
             self.threshold = threshold
             self.disabled = disabled
             self.action = action
+        }
+
+        func update(disabled: Bool, action: @escaping (CGFloat, NSEvent.Phase) -> Void) {
+            self.disabled = disabled
+            self.action = action
+            if disabled {
+                accumulated = 0
+                active = false
+                endTask?.cancel()
+                endTask = nil
+            }
         }
 
         private func scheduleEndTimeout() {

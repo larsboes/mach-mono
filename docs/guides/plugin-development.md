@@ -35,6 +35,7 @@ final class MyFeaturePlugin: NotchPlugin {
     
     // 2. Dependencies
     private var settings: PluginSettings?
+    private var cancellables = Set<AnyCancellable>()
     
     // 3. Lifecycle
     func activate(context: PluginContext) async throws {
@@ -49,12 +50,12 @@ final class MyFeaturePlugin: NotchPlugin {
 }
 ```
 
-
 ### 2. Define the UI
 
 Plugins implement four UI slots via `@ViewBuilder` methods with concrete return types (no `AnyView`):
 
 #### A. Closed Notch (Compact)
+
 Shown inside the black notch bar. Space is limited.
 
 ```swift
@@ -73,6 +74,7 @@ func closedNotchContent() -> some View {
 ```
 
 #### B. Expanded Panel (Interactive)
+
 Shown when the user hovers/clicks the notch. This provides a full canvas.
 
 ```swift
@@ -92,6 +94,7 @@ func expandedPanelContent() -> some View {
 ```
 
 #### C. Settings
+
 Shown in the Settings panel for this plugin.
 
 ```swift
@@ -102,6 +105,7 @@ func settingsContent() -> some View {
 ```
 
 #### D. Menu Bar
+
 Items contributed to the app's menu bar extra dropdown.
 
 ```swift
@@ -188,6 +192,19 @@ final class MyPluginTests: XCTestCase {
 ## 📦 Registration
 
 Finally, add the plugin to `PluginRegistry.swift` to register it. `AppObjectGraph` reads this registry when constructing `PluginManager`.
+
+```swift
+// Plugins/Core/PluginRegistry.swift
+@MainActor
+enum PluginRegistry {
+    static func makeBuiltInPlugins() -> [any NotchPlugin] {
+        [
+            MusicPlugin(),
+            MyFeaturePlugin() // <--- Add this
+        ]
+    }
+}
+``` register it. `AppObjectGraph` reads this registry when constructing `PluginManager`.
 
 ```swift
 // Plugins/Core/PluginRegistry.swift

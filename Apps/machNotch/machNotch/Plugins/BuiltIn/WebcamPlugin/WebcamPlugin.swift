@@ -46,8 +46,8 @@ final class WebcamPlugin: NotchPlugin {
         self.webcamService = context.uiServices.webcam
         self.settings = context.settings
 
-        // Check for camera availability
-        self.webcamService?.checkAndRequestVideoAuthorization()
+        self.webcamService?.refreshAuthorizationStatus()
+        self.webcamService?.refreshCameraDevices()
 
         state = .active
     }

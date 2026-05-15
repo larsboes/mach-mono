@@ -28,9 +28,7 @@ struct NotchHomeView: View {
     }
 
     private var shouldShowCamera: Bool {
-        settings.showMirror
-            && (pluginManager?.services.webcam.cameraAvailable ?? false)
-            && vm.isCameraExpanded
+        settings.showMirror && vm.isCameraExpanded
     }
     
     private var shouldShowCalendar: Bool {

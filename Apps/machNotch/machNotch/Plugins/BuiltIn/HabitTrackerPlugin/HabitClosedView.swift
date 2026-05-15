@@ -7,35 +7,58 @@ import SwiftUI
 
 struct HabitClosedView: View {
     let plugin: HabitTrackerPlugin
-    
-    // Only fetch for UI updates without modifying directly here
     private var store: HabitStore { plugin.store }
-    
+
     var body: some View {
-        HStack(spacing: 4) {
-            let activeHabits = store.habits.filter { $0.isActive }
-            
+        let activeHabits = store.habits.filter(\.isActive)
+        let completedCount = activeHabits.filter { store.isCompleted(habitId: $0.id) }.count
+        let progress = activeHabits.isEmpty ? 0.0 : Double(completedCount) / Double(activeHabits.count)
+
+        Group {
             if activeHabits.isEmpty {
-                 Image(systemName: "checkmark.circle")
-                     .font(.system(size: 14, weight: .medium))
-                     .foregroundColor(.white.opacity(0.5))
+                EmptyView()
+            } else if activeHabits.count <= 5 {
+                HStack(spacing: 5) {
+                    ForEach(activeHabits) { habit in
+                        let isDone = store.isCompleted(habitId: habit.id)
+                        ZStack {
+                            Circle()
+                                .fill(isDone ? habit.color : .clear)
+                                .frame(width: 8, height: 8)
+                            Circle()
+                                .stroke(isDone ? habit.color : .white.opacity(0.35), lineWidth: 1.5)
+                                .frame(width: 8, height: 8)
+                        }
+                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isDone)
+                    }
+                }
+                .padding(.horizontal, 4)
             } else {
-                ForEach(activeHabits.prefix(5)) { habit in
-                    let isDone = store.isCompleted(habitId: habit.id)
-                    Circle()
-                        .fill(isDone ? habit.color : .white.opacity(0.2))
-                        .frame(width: 8, height: 8)
+                HStack(spacing: 6) {
+                    ZStack {
+                        Circle()
+                            .stroke(.white.opacity(0.2), lineWidth: 2)
+                            .frame(width: 14, height: 14)
+                        Circle()
+                            .trim(from: 0, to: progress)
+                            .stroke(.green, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                            .frame(width: 14, height: 14)
+                            .rotationEffect(.degrees(-90))
+                            .animation(.smooth(duration: 0.25), value: progress)
+                        if progress >= 1 {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 7, weight: .bold))
+                                .foregroundStyle(.green)
+                        }
+                    }
+                    Text("\(completedCount)/\(activeHabits.count)")
+                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .foregroundStyle(progress >= 1 ? .green : .white.opacity(0.72))
+                        .contentTransition(.numericText())
                 }
-                
-                if activeHabits.count > 5 {
-                    Text("+\(activeHabits.count - 5)")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundColor(.white.opacity(0.7))
-                        .padding(.leading, 2)
-                }
+                .padding(.horizontal, 4)
             }
         }
-        .padding(.horizontal, 6)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: store.completions)
     }
 }

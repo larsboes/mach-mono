@@ -51,6 +51,7 @@ Free Apple ID certificates expire after **7 days**. The app will refuse to launc
 [AltStore](https://altstore.io) installs a small server on your Mac and refreshes your apps over WiFi automatically, so you never think about the 7-day limit.
 
 Setup:
+
 1. Download AltServer (Mac app) from altstore.io
 2. Install AltStore onto your iPhone via AltServer
 3. Open AltStore on your iPhone → My Apps → refresh machBrief

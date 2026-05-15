@@ -159,7 +159,7 @@ struct TeleprompterExpandedView: View {
 
 // MARK: - Action Bar Button Style
 
-private struct ActionBarSecondaryStyle: ButtonStyle {
+struct ActionBarSecondaryStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .padding(.vertical, 5)

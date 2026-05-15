@@ -135,7 +135,9 @@ docs:
   overall_model_description: docs/README.md  # "Where the overall model is defined" — layered facts, agents, PRDs, ADRs, adapters
   prds: docs/prds
   architecture: docs/architecture/overview.md
+  plugin_system: docs/architecture/plugin-system.md
   guides: docs/guides
+  bazel_task_map: docs/guides/bazel-task-map.md
   roadmaps: docs/roadmaps
   decisions: docs/decisions
   sideloading: docs/guides/sideloading.md

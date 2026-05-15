@@ -62,7 +62,9 @@ These files should **point to** the table above, not restate it.
 ## Architecture and guides
 
 - [`architecture/overview.md`](architecture/overview.md) — machNotch architecture overview.
+- [`architecture/plugin-system.md`](architecture/plugin-system.md) — deep dive into the plugin architecture.
 - [`guides/plugin-development.md`](guides/plugin-development.md) — plugin development guide.
+- [`guides/bazel-task-map.md`](guides/bazel-task-map.md) — Bazel and Task command cheat sheet.
 - [`guides/sideloading.md`](guides/sideloading.md) — free Apple ID sideloading guide.
 
 ## Roadmaps

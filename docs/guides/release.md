@@ -21,6 +21,7 @@ Apps/machNotch/Configuration/sparkle/generate_keys
 ```
 
 The tool prints both keys:
+
 - **Public key** → paste into `Apps/machNotch/machNotch/Info.plist` under `SUPublicEDKey`
 - **Private key** → store as the `PRIVATE_SPARKLE_KEY` GitHub Actions secret (never commit this)
 
@@ -72,6 +73,7 @@ Monitor at: `https://github.com/larsboes/mach-mono/actions`
 ### 5. Verify the release
 
 After the pipeline completes:
+
 - GitHub release exists with the correct tag and DMG attached
 - `Apps/machNotch/updater/appcast.xml` in `main` has the new version entry
 - Sparkle update check from an installed app picks up the new release

@@ -69,6 +69,7 @@ final class MockNotchSettings: NotchSettings {
     var isNowPlayingDeprecated: Bool = false
     var mediaController: MediaControllerType = .nowPlaying
     var mirrorShape: MirrorShapeEnum = .circle
+    var selectedWebcamDeviceID: String = ""
     var musicControlSlots: [MusicControlButton] = MusicControlButton.defaultLayout
     var selectedVisualizerURL: URL?
     var selectedVisualizerSpeed: Double = 1.0

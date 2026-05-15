@@ -9,6 +9,7 @@ import SwiftUI
 
 @MainActor class WebcamManager: NSObject, WebcamServiceProtocol {
     var previewLayer: AVCaptureVideoPreviewLayer?
+    var availableCameras: [WebcamDeviceDescriptor] = []
 
     final class SessionContainer: @unchecked Sendable {
         var session: AVCaptureSession?
@@ -26,6 +27,24 @@ import SwiftUI
     var cameraAvailable: Bool = false
     let sessionQueue = DispatchQueue(label: "MachNotch.WebcamManager.SessionQueue", qos: .userInitiated)
     private var isCleaningUp: Bool = false
+    private var settings: (any MediaSettings)?
+    private var storedSelectedCameraID: String = ""
+
+    var selectedCameraID: String {
+        get { settings?.selectedWebcamDeviceID ?? storedSelectedCameraID }
+        set {
+            if settings != nil {
+                settings?.selectedWebcamDeviceID = newValue
+            } else {
+                storedSelectedCameraID = newValue
+            }
+
+            if isSessionRunning {
+                stopSession()
+                startSession()
+            }
+        }
+    }
 
     enum WebcamError: Error, LocalizedError {
         case deviceUnavailable
@@ -41,11 +60,13 @@ import SwiftUI
         }
     }
 
-    override init() {
+    init(settings: (any MediaSettings)? = nil) {
+        self.settings = settings
         super.init()
         NotificationCenter.default.addObserver(self, selector: #selector(deviceWasDisconnected), name: AVCaptureDevice.wasDisconnectedNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(deviceWasConnected), name: AVCaptureDevice.wasConnectedNotification, object: nil)
-        checkCameraAvailability()
+        refreshAuthorizationStatus()
+        refreshCameraDevices()
     }
 
     deinit {
@@ -56,10 +77,25 @@ import SwiftUI
     }
 
     // MARK: - Camera Management
+    func refreshAuthorizationStatus() {
+        authorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
+    }
+
+    func refreshCameraDevices() {
+        let devices = WebcamDeviceDescriptor.discover()
+        availableCameras = devices
+        cameraAvailable = !devices.isEmpty
+
+        if !selectedCameraID.isEmpty, !devices.contains(where: { $0.id == selectedCameraID }) {
+            selectedCameraID = ""
+        }
+    }
+
     func checkAndRequestVideoAuthorization() {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
         Task { @MainActor in
-self.authorizationStatus = status }
+            self.authorizationStatus = status
+        }
 
         switch status {
         case .authorized: checkCameraAvailability()
@@ -79,14 +115,12 @@ self.authorizationStatus = status }
     }
 
     func checkCameraAvailability() {
-        let availableDevices = AVCaptureDevice.DiscoverySession(
-            deviceTypes: [.external, .builtInWideAngleCamera],
-            mediaType: .video,
-            position: .unspecified
-        ).devices
+        let availableDevices = WebcamDeviceDescriptor.discover()
         let hasAvailableDevices = !availableDevices.isEmpty
         Task { @MainActor in
-self.cameraAvailable = hasAvailableDevices }
+            self.availableCameras = availableDevices
+            self.cameraAvailable = hasAvailableDevices
+        }
     }
 
     @objc private func deviceWasDisconnected(notification: Notification) {
@@ -98,7 +132,8 @@ self.cameraAvailable = hasAvailableDevices }
                 self.isSessionRunning = self.sessionContainer.session?.isRunning ?? false
             }
             Task { @MainActor in
-self.cameraAvailable = false }
+                self.cameraAvailable = false
+            }
         }
     }
 
@@ -111,10 +146,11 @@ self.cameraAvailable = false }
     }
 
     func startSession() {
+        let preferredDeviceID = selectedCameraID
         sessionQueue.async { [weak self] in
             guard let self = self else { return }
             if self.sessionContainer.session == nil {
-                self.setupCaptureSession { success in
+                self.setupCaptureSession(preferredDeviceID: preferredDeviceID) { success in
                     if success { self.startRunningCaptureSession() }
                 }
             } else {
@@ -127,7 +163,8 @@ self.cameraAvailable = false }
         sessionQueue.async { [weak self] in
             guard let self = self else { return }
             Task { @MainActor in
-self.isSessionRunning = false }
+                self.isSessionRunning = false
+            }
             self.cleanupExistingSession()
             NSLog("Capture session stopped and cleaned up")
         }

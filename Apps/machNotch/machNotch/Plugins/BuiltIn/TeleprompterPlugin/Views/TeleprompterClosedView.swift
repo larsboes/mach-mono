@@ -140,8 +140,6 @@ struct TeleprompterClosedView: View {
     /// Progress bar, section title, speed slider, stop button, and elapsed/remaining time.
     private var readingChrome: some View {
         VStack(spacing: 4) {
-            Spacer()
-
             // Speed slider row
             HStack(spacing: 6) {
                 Image(systemName: "tortoise")

@@ -19,6 +19,7 @@ Upgrade the dependency triple to versions with explicit Bazel 9.x LTS support:
 | `rules_swift` | 3.1.2 | 3.6.1 |
 
 Removed:
+
 - `register_toolchains("@rules_swift//swift/toolchains:all")` — auto-registered via Bzlmod in rules_swift 3.x.
 - `--apple_platform_type=macos` from `.bazelrc` — part of the same removed-in-Bazel-9 Apple flag family.
 - `rules_xcodeproj` — not used; IDE integration is handled by opening the existing `.xcodeproj` files in Xcode directly.

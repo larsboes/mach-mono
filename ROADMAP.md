@@ -5,19 +5,23 @@ subtitle: What's being built, what's next, and what has shipped. For release not
 ## ↑ In Development
 
 ### mach.brief [New App]
+
 A minimal daily briefing widget for macOS and iOS. Calendar, tasks, weather — without noise. Phase 1 (App Group infrastructure, cross-app settings sync) and Phase 2 (vocabulary level system, onboarding picker) shipped in v1.3.0. iOS and full feature set in progress.
 
 ### Obsidian Vault Sync [Shelf]
+
 Notes created in the Shelf plugin write to a configurable Obsidian vault folder as Markdown files, kept in sync on every save.
 
 ## ⌛ Planned
 
 ### Plugin SDK [Platform]
+
 Public API and documentation so third-party developers can build and distribute their own notch plugins.
 
 ## 🚀 Launched
 
 ### v1.3.0 — 2026-05-10
+
 - **PluginUIContext**: New environment type resolves DIP violations — plugin views no longer depend directly on `NotchViewModel`. All built-in plugin views migrated.
 - **mach.brief Phase 1+2**: App Group infrastructure for cross-app settings sync; vocabulary level system with onboarding picker; word cache and offline fallback.
 - **Bazel native build**: Full migration to native Bazel rules for machNotch and XPC service bundle. Taskfile.yml replaces Makefile.
@@ -25,6 +29,7 @@ Public API and documentation so third-party developers can build and distribute 
 - **Fixes**: Bluetooth permission suppression; persistent TCC/accessibility sentinel; Calendar compact access prompt; stats `UInt64` underflow guard.
 
 ### v1.2.0 — 2026-05-03
+
 First public release.
 
 - **Plugin System**: `PluginManager` + `NotchPlugin` protocol. All core features (Music, Battery, Calendar, Shelf, Weather, Webcam) are standalone plugins.

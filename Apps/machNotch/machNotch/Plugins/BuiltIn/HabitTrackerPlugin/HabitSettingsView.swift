@@ -3,122 +3,79 @@
 //  machNotch
 //
 
+import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct HabitSettingsView: View {
     let plugin: HabitTrackerPlugin
     private var store: HabitStore { plugin.store }
-    
-    @State private var showingAddHabit = false
-    @State private var newHabitTitle = ""
-    @State private var newHabitColor: Color = .blue
-    @State private var newHabitSymbol = "star.fill"
-    
+
     @Environment(\.bindableSettings) var settings
-    
+
     var body: some View {
         @Bindable var settings = settings
-        
-        Form {
+
+        // List gives proper drag handles for .onMove on macOS; Form does not.
+        List {
             Section {
                 Toggle(isOn: $settings.showHabitTracker) {
                     Text("Enable Habit Tracker")
                 }
             }
-            
+
             if settings.showHabitTracker {
-            
-            // Habits List
-            List {
-                ForEach(store.habits) { habit in
-                    HStack {
-                        Image(systemName: habit.symbol)
-                            .foregroundColor(habit.color)
-                            .frame(width: 24, alignment: .center)
-                        
-                        Text(habit.title)
-                        
-                        Spacer()
-                        
-                        Toggle("", isOn: Binding(
-                            get: { habit.isActive },
-                            set: { newValue in
-                                var modified = habit
-                                modified.isActive = newValue
-                                store.updateHabit(modified)
+                Section("Habits") {
+                    if store.habits.isEmpty {
+                        Text("No habits yet — add them from the notch.")
+                            .foregroundStyle(.secondary)
+                            .font(.callout)
+                    } else {
+                        ForEach(store.habits) { habit in
+                            HStack(spacing: 10) {
+                                Image(systemName: habit.symbol)
+                                    .foregroundStyle(habit.color)
+                                    .frame(width: 20, alignment: .center)
+                                Text(habit.title)
+                                    .foregroundStyle(habit.isActive ? .primary : .secondary)
+                                Spacer()
+                                Toggle("", isOn: Binding(
+                                    get: { habit.isActive },
+                                    set: { newValue in
+                                        var modified = habit
+                                        modified.isActive = newValue
+                                        store.updateHabit(modified)
+                                    }
+                                ))
+                                .labelsHidden()
                             }
-                        ))
-                        .labelsHidden()
-                        
-                        Button(role: .destructive, action: {
-                            store.deleteHabit(id: habit.id)
-                        }) {
-                            Image(systemName: "trash")
                         }
-                        .buttonStyle(.plain)
-                        .foregroundColor(.red)
-                        .padding(.leading, 8)
+                        .onMove { from, to in store.reorderHabits(from: from, to: to) }
                     }
                 }
-            }
-            .frame(height: 200)
-            .cornerRadius(8)
-            
-            // Add New Habit
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Add New Habit")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                
-                HStack {
-                    TextField("Habit name...", text: $newHabitTitle)
-                        .textFieldStyle(.roundedBorder)
-                    
-                    ColorPicker("", selection: $newHabitColor)
-                        .labelsHidden()
-                    
-                    Picker("Symbol", selection: $newHabitSymbol) {
-                        ForEach(HabitStore.predefinedSymbols, id: \.self) { symbol in
-                            Image(systemName: symbol)
-                                .tag(symbol)
-                        }
-                    }
-                    .frame(width: 60)
-                    .labelsHidden()
-                    
-                    Button("Add") {
-                        let habit = Habit(
-                            title: newHabitTitle,
-                            symbol: newHabitSymbol,
-                            colorHex: newHabitColor.hexFormat,
-                            isActive: true
-                        )
-                        store.addHabit(habit)
-                        
-                        // Reset form
-                        newHabitTitle = ""
-                        newHabitColor = HabitStore.predefinedColors.randomElement() ?? .blue
-                    }
-                    .disabled(newHabitTitle.trimmingCharacters(in: .whitespaces).isEmpty)
+
+                Section("Statistics") {
+                    LabeledContent("Total Habits", value: "\(store.habits.count)")
+                    LabeledContent("Total Completions", value: "\(store.completions.count)")
                 }
-            }
-            
-            // Stats & Data
-            Divider()
-            
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("Total Habits: \(store.habits.count)")
-                    Text("Total Completions: \(store.completions.count)")
+
+                Section("Export Data") {
+                    Button("Export as JSON") { exportData(format: .json) }
+                    Button("Export as CSV")  { exportData(format: .csv)  }
                 }
-                .font(.footnote)
-                .foregroundColor(.secondary)
-                
-                Spacer()
-            }
             }
         }
-        .padding()
-        .frame(width: 450)
+        .frame(width: 420)
+    }
+
+    private func exportData(format: ExportFormat) {
+        Task { @MainActor in
+            guard let data = try? await plugin.exportData(format: format) else { return }
+            let panel = NSSavePanel()
+            panel.nameFieldStringValue = "habits.\(format.rawValue)"
+            panel.allowedContentTypes = [format == .json ? .json : .commaSeparatedText]
+            guard panel.runModal() == .OK, let url = panel.url else { return }
+            try? data.write(to: url, options: .atomic)
+        }
     }
 }

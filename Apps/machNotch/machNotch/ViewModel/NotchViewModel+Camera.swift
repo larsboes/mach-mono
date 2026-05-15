@@ -2,10 +2,8 @@
 //  NotchViewModel+Camera.swift
 //  machNotch — mach-mono
 //
-//  Webcam preview toggle with System Settings hand-off when access is denied.
+//  Webcam preview toggle. Permission actions are handled inside the mirror tile.
 //
-
-import AppKit
 
 extension NotchViewModel {
 
@@ -15,10 +13,8 @@ extension NotchViewModel {
         switch services.webcam.authorizationStatus {
         case .authorized:
             flipRunningCameraSession()
-        case .denied, .restricted:
-            promptOpenCameraPrivacySettings()
-        case .notDetermined:
-            requestInitialCameraAuthorization()
+        case .denied, .restricted, .notDetermined:
+            isCameraExpanded = true
         default:
             break
         }
@@ -34,34 +30,4 @@ extension NotchViewModel {
         }
     }
 
-    private func promptOpenCameraPrivacySettings() {
-        Task { @MainActor in
-NSApp.setActivationPolicy(.regular)
-            NSApp.activate(ignoringOtherApps: true)
-
-            let alert = NSAlert()
-            alert.messageText = "Camera Access Required"
-            alert.informativeText = "Please allow camera access in System Settings."
-            alert.addButton(withTitle: "Open Settings")
-            alert.addButton(withTitle: "Cancel")
-
-            if alert.runModal() == .alertFirstButtonReturn,
-               let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera") {
-                NSWorkspace.shared.open(url)
-            }
-
-            NSApp.setActivationPolicy(.accessory)
-            NSApp.deactivate()
-        }
-    }
-
-    private func requestInitialCameraAuthorization() {
-        isRequestingAuthorization = true
-        services.webcam.checkAndRequestVideoAuthorization()
-        Task { @MainActor [weak self] in
-            
-    try? await Task.sleep(nanoseconds: 2000000000)
-self?.isRequestingAuthorization = false
-        }
-    }
 }

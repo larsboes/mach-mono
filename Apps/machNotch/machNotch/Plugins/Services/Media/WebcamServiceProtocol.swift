@@ -15,8 +15,12 @@ protocol WebcamServiceProtocol: Observable {
     var isSessionRunning: Bool { get }
     var cameraAvailable: Bool { get }
     var authorizationStatus: AVAuthorizationStatus { get }
+    var availableCameras: [WebcamDeviceDescriptor] { get }
+    var selectedCameraID: String { get set }
     
     func startSession()
     func stopSession()
+    func refreshAuthorizationStatus()
+    func refreshCameraDevices()
     func checkAndRequestVideoAuthorization()
 }

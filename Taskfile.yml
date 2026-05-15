@@ -112,6 +112,16 @@ tasks:
     cmds:
       - bazelisk test //Apps/machNotch:machNotchTests //Packages/MachBriefKit:MachBriefKitTests
 
+  lint:md:
+    desc: "lint: check markdown files for style issues"
+    cmds:
+      - npx markdownlint-cli "**/*.md" --ignore "node_modules" --ignore ".build" --ignore "bazel-*" --ignore "external" --ignore "website/node_modules"
+
+  lint:md:fix:
+    desc: "lint: fix markdown style issues automatically"
+    cmds:
+      - npx markdownlint-cli "**/*.md" --fix --ignore "node_modules" --ignore ".build" --ignore "bazel-*" --ignore "external" --ignore "website/node_modules"
+
   # ── skills ────────────────────────────────────────────────────────────────
 
   skills:sync:

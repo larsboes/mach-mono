@@ -24,6 +24,7 @@ Do not add GPL or MPL dependencies to new clean-slate apps or packages. For mach
 Track remaining BoringNotch-origin code. Check off as each area is reengineered from scratch.
 
 ### Infrastructure (reengineered — no BoringNotch code remaining)
+
 - [x] Plugin system (`NotchPlugin`, `PluginManager`, `PluginEventBus`, `ServiceContainer`)
 - [x] State machine (`NotchStateMachine`, `NotchPhase`, `NotchPhaseCoordinator`)
 - [x] Window management (`NotchSkyLightWindow`, `WindowCoordinator`)
@@ -34,6 +35,7 @@ Track remaining BoringNotch-origin code. Check off as each area is reengineered 
 - [x] All `Plugins/BuiltIn/` — independently implemented features
 
 ### Still needs formal audit / sign-off
+
 - [ ] `private/MachWindowSpace.swift` — private API wrapper (verify no BoringNotch origin)
 - [ ] `mediaremote-adapter/` — pre-built framework (verify license of original)
 - [ ] `observers/` directory — check for BoringNotch-origin event monitoring code
@@ -43,6 +45,7 @@ Track remaining BoringNotch-origin code. Check off as each area is reengineered 
 - [ ] `sizing/matters.swift` — sizing functions
 
 ### Legal steps (after all code is clean)
+
 - [ ] Update `Apps/machNotch/LICENSE` from GPL-3.0 to MIT
 - [ ] Update root `/LICENSE` from GPL-3.0 to MIT
 - [ ] Update `repo.yaml` `license.current` fields

@@ -77,6 +77,7 @@ protocol MediaSettings {
     var hideNotchOption: HideNotchOption { get set }
     var mediaController: MediaControllerType { get set }
     var mirrorShape: MirrorShapeEnum { get set }
+    var selectedWebcamDeviceID: String { get set }
     var musicControlSlots: [MusicControlButton] { get set }
     var selectedVisualizerURL: URL? { get set }
     var selectedVisualizerSpeed: Double { get set }
