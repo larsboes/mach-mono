@@ -45,6 +45,7 @@ jobs:
       - name: Build Astro site
         working-directory: website
         run: |
+          cp ../Apps/machNotch/updater/appcast.xml public/appcast.xml
           bun install
           bun run build
       - name: Upload artifact
