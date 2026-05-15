@@ -6,7 +6,7 @@ struct TeleprompterControlPanel: View {
     @Environment(\.pluginManager) var pluginManager
     @Environment(\.settings) var settings
 
-    @State private var isAIProcessing: Bool = false
+    @State private var activeAIAction: TeleprompterAIAction? = nil
     @State private var aiError: String?
 
     var body: some View {
@@ -22,7 +22,7 @@ struct TeleprompterControlPanel: View {
             Divider().opacity(0.3)
 
             // MARK: - AI Actions
-            if settings.isAIEnabled && !state.text.isEmpty {
+            if settings.isAIEnabled {
                 aiSection
             }
 
@@ -120,18 +120,17 @@ struct TeleprompterControlPanel: View {
                 .foregroundStyle(.secondary)
 
             HStack(spacing: 4) {
-                CompactAIButton(title: "Refine", icon: "sparkles") {
+                CompactAIButton(title: "Refine", icon: "sparkles", isLoading: activeAIAction == .refine) {
                     performAIAction(.refine)
                 }
-                CompactAIButton(title: "Summarize", icon: "text.badge.minus") {
+                CompactAIButton(title: "Summarize", icon: "text.badge.minus", isLoading: activeAIAction == .summarize) {
                     performAIAction(.summarize)
                 }
-                CompactAIButton(title: "Intro", icon: "mic.badge.plus") {
+                CompactAIButton(title: "Intro", icon: "mic.badge.plus", isLoading: activeAIAction == .draftIntro) {
                     performAIAction(.draftIntro)
                 }
             }
-            .disabled(isAIProcessing)
-            .opacity(isAIProcessing ? 0.5 : 1.0)
+            .disabled(activeAIAction != nil || state.text.isEmpty)
         }
     }
 
@@ -190,11 +189,11 @@ struct TeleprompterControlPanel: View {
     private func performAIAction(_ action: TeleprompterAIAction) {
         guard let ai = pluginManager?.services.ai else { return }
 
-        isAIProcessing = true
+        activeAIAction = action
         aiError = nil
 
         Task {
-            defer { isAIProcessing = false }
+            defer { activeAIAction = nil }
             do {
                 try await state.aiAssist(action: action, ai: ai)
             } catch {
@@ -258,20 +257,23 @@ private struct CompactControlStyle: ButtonStyle {
 private struct CompactAIButton: View {
     let title: String
     let icon: String
+    let isLoading: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             HStack(spacing: 3) {
-                Image(systemName: icon)
+                if isLoading {
+                    ProgressView()
+                        .controlSize(.mini)
+                        .tint(.secondary)
+                } else {
+                    Image(systemName: icon)
+                }
                 Text(title)
             }
             .font(.system(size: 9, weight: .semibold))
-            .padding(.vertical, 4)
-            .padding(.horizontal, 7)
-            .background(Capsule().fill(Color.white.opacity(0.06)))
-            .overlay(Capsule().strokeBorder(Color.white.opacity(0.05), lineWidth: 0.5))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(ActionBarSecondaryStyle())
     }
 }
