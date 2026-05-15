@@ -1,27 +1,46 @@
 name: CodeQL
 
+# DISABLED — CodeQL Swift extraction is incompatible with this repo's build
+# system (Bazel + rules_swift). Three approaches were tried; all failed:
+#
+#   1. bazelisk build with `--spawn_strategy=local`.
+#      Worker theory: persistent workers spawn before CodeQL sets up its
+#      tracing env (DYLD_INSERT_LIBRARIES + CODEQL_EXTRACTOR_SWIFT_*), so the
+#      tracer never sees the swiftc invocations. Build succeeded, extractor
+#      saw nothing.
+#
+#   2. bazelisk build with `--strategy=SwiftCompile=local` (mnemonic-specific
+#      override) plus the other Swift mnemonics. Build stats confirmed zero
+#      workers (`347 processes: 210 internal, 137 local`) — workers were
+#      genuinely gone. Extractor STILL saw nothing.
+#
+#      Most likely real cause: macOS SIP strips DYLD_INSERT_LIBRARIES when a
+#      protected binary in /usr/bin (xcrun is the most likely culprit) is
+#      launched. By the time the actual swiftc child process spawns, the
+#      tracer dylib is no longer injected.
+#
+#   3. Switch CodeQL to xcodebuild against Apps/machNotch/machNotch.xcodeproj.
+#      Hits a Bazel/SPM duality: MachBriefKit ships a manual
+#      Sources/MachBriefKit/Support/Bundle+Module.swift declaring
+#      `Bundle.module` for Bazel builds; SPM auto-generates the same accessor
+#      via resource_bundle_accessor.swift. xcodebuild fails with
+#      "invalid redeclaration of 'module'" before CodeQL gets a chance to
+#      trace anything.
+#
+# To re-enable, one of the following needs to happen:
+#   - Resolve the Bundle.module duality (gate the manual declaration on
+#     `#if !SWIFT_PACKAGE` or similar) so xcodebuild can compile the package,
+#     then switch this workflow to the xcodebuild path.
+#   - Wait for github/codeql-action to ship native Bazel support
+#     (tracking github/codeql-action#2506).
+#   - Move the security-scanning need to a different tool (Semgrep,
+#     swift-security-checker, etc.) that doesn't require compile-time tracing.
+#
+# Until then, this workflow runs only on manual dispatch so the failing
+# status doesn't pollute the main branch's check history.
+
 on:
-  push:
-    branches: [main]
-    paths:
-      - '**/*.swift'
-      - '**/BUILD.bazel'
-      - 'MODULE.bazel'
-      - 'Package.resolved'
-      - '.bazelrc'
-      - '.github/workflows/codeql.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - '**/*.swift'
-      - '**/BUILD.bazel'
-      - 'MODULE.bazel'
-      - 'Package.resolved'
-      - '.bazelrc'
-      - '.github/workflows/codeql.yml'
-  schedule:
-    # Weekly on Mondays at 09:00 UTC — catches new CVEs without code changes
-    - cron: "0 9 * * 1"
+  workflow_dispatch:
 
 permissions:
   actions: read
@@ -30,76 +49,11 @@ permissions:
 
 jobs:
   analyze:
-    name: Analyze (Swift)
+    name: Analyze (Swift) — DISABLED, manual dispatch only
     runs-on: macos-26
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
-        with:
-          languages: swift
-          # Default query suite. Use security-extended for broader coverage (more noise).
-          queries: security-and-quality
-          # Use the freshest CodeQL bundle — Swift 6.2 support landed in 2.23.5.
-          tools: latest
-
-      - name: Cache Bazelisk binary
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
-        with:
-          path: ~/Library/Caches/bazelisk
-          key: bazelisk-${{ runner.os }}-${{ hashFiles('.bazelversion') }}
-
-      - name: Cache Bazel repositories
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
-        with:
-          path: ~/.cache/bazel-repos
-          key: bazel-repos-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved') }}
-          restore-keys: |
-            bazel-repos-${{ runner.os }}-
-
-      # CodeQL intercepts compiler calls during this build step to instrument the source.
-      # The Bazel output cache is intentionally NOT restored here — a warm cache causes
-      # Bazel to skip compilation entirely, leaving CodeQL nothing to extract.
-      #
-      # The strategy flags below force every Swift compilation to run as a one-shot
-      # local process that inherits CODEQL_EXTRACTOR_SWIFT_* and the libtrace.dylib
-      # DYLD_INSERT_LIBRARIES env from the parent shell. Why each one matters:
-      #   --spawn_strategy=local            : sets the *default* strategy.
-      #   --strategy=SwiftCompile=local     : rules_swift registers swift_library
-      #                                       actions under the SwiftCompile mnemonic
-      #                                       which defaults to `worker`. Persistent
-      #                                       workers are long-lived processes spawned
-      #                                       before CodeQL's tracing env is set, so
-      #                                       every swiftc call is invisible to the
-      #                                       extractor. This override is the actual
-      #                                       fix; --spawn_strategy alone does NOT
-      #                                       override mnemonic-specific strategies.
-      #   --strategy=SwiftCompileModule=… and SwiftDeriveObjCHeader=… : same problem
-      #                                       for the secondary Swift mnemonics.
-      #   --nouse_action_cache / --noremote_accept_cached / --disk_cache= :
-      #                                       insurance against any cache layer that
-      #                                       might short-circuit compilation.
-      # See: bazelbuild/rules_swift#559, github/codeql-action#2506.
-      - name: Build
+      - name: Note
         run: |
-          bazelisk shutdown || true
-          bazelisk build --config=ci \
-            --strategy=SwiftCompile=local \
-            --strategy=SwiftCompileModule=local \
-            --strategy=SwiftDeriveObjCHeader=local \
-            --spawn_strategy=local \
-            --nouse_action_cache \
-            --noremote_accept_cached \
-            --noremote_upload_local_results \
-            --disk_cache= \
-            //Apps/machNotch:machNotch \
-            //Apps/machBrief:machBrief
-          bazelisk shutdown
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
-        with:
-          category: "/language:swift"
+          echo "::warning title=CodeQL Swift disabled::See codeql.yml header for why."
+          echo "Triggered intentionally via workflow_dispatch."
+          exit 1
