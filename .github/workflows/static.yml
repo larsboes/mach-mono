@@ -34,20 +34,10 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Setup Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22
       - name: Build Astro site
-        working-directory: website
-        run: |
-          cp ../Apps/machNotch/updater/appcast.xml public/appcast.xml
-          bun install --frozen-lockfile
-          bun run build
+        uses: ./.github/actions/website-build
+        with:
+          copy-appcast: "true"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
         with:

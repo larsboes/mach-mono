@@ -1,0 +1,51 @@
+name: "Website Build"
+description: "Install dependencies and build the Astro site under website/. Optionally audit or copy the latest appcast.xml first."
+
+inputs:
+  audit:
+    description: "Run `bun audit` against the website lockfile."
+    required: false
+    default: "false"
+  copy-appcast:
+    description: "Copy the in-repo appcast.xml into website/public/ before building (used by the Pages deploy)."
+    required: false
+    default: "false"
+  node-version:
+    description: "Node.js version to install. Astro 6 requires Node >=22.12; Bun still reports Node 20 for the Astro CLI unless a modern Node is on PATH first."
+    required: false
+    default: "22"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: latest
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Copy appcast.xml
+      if: ${{ inputs.copy-appcast == 'true' }}
+      shell: bash
+      working-directory: website
+      run: cp ../Apps/machNotch/updater/appcast.xml public/appcast.xml
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: website
+      run: bun install --frozen-lockfile
+
+    - name: Audit dependencies
+      if: ${{ inputs.audit == 'true' }}
+      shell: bash
+      working-directory: website
+      run: bun audit
+
+    - name: Build Astro site
+      shell: bash
+      working-directory: website
+      run: bun run build

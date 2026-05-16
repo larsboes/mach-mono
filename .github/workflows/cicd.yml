@@ -123,6 +123,7 @@ jobs:
   # Exercises the same Bazel build + codesign + DMG path as `release.yml` so
   # bugs in the release pipeline (like the codesign path bug that hid through
   # v1.2.0–v1.3.1) are caught within one commit instead of three releases.
+  # Artifacts are uploaded so "try the latest main" works without local Bazel.
   release-dryrun:
     name: Release Dry-Run
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -130,7 +131,7 @@ jobs:
     with:
       head_ref: ${{ github.ref_name }}
       code_sign_identity: "-"
-      upload_artifacts: false
+      upload_artifacts: true
     secrets: inherit
 
   website:
@@ -139,26 +140,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Audit + Build
+        uses: ./.github/actions/website-build
         with:
-          bun-version: latest
-
-      # Astro 6 requires Node >=22.12 (see website/package.json engines). Bun still
-      # reports Node 20 for the Astro CLI unless a modern Node is on PATH first.
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22
-
-      - name: Install dependencies
-        working-directory: website
-        run: bun install --frozen-lockfile
-
-      - name: Audit dependencies
-        working-directory: website
-        run: bun audit
-
-      - name: Build Astro site
-        working-directory: website
-        run: bun run build
+          audit: "true"
