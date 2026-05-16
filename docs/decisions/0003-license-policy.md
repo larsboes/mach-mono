@@ -17,6 +17,7 @@ Do not add GPL or MPL dependencies to new clean-slate apps or packages. For mach
 
 - `repo.yaml` tracks current and target license state.
 - `docs/prds/machNotch.md` remains the source of truth for the machNotch GPL-to-MIT migration plan.
+- `docs/licensing/machnotch-provenance.md` tracks file/bucket-level provenance evidence for closeout.
 - Root `/LICENSE` should be updated only after machNotch is clean for relicensing.
 
 ## Migration Checklist (GPL → MIT)
@@ -34,15 +35,26 @@ Track remaining BoringNotch-origin code. Check off as each area is reengineered 
 - [x] `ViewModel/NotchViewModel` and extensions
 - [x] All `Plugins/BuiltIn/` — independently implemented features
 
+### Provenance ledger started
+
+- [x] `docs/licensing/machnotch-provenance.md` — working evidence ledger created
+- [x] `private/MachWindowSpace.swift` — private API wrapper verified clean of remaining Parrot/MPL references
+- [x] `mediaremote-adapter/` — BSD notice retained; artifact hashes recorded, upstream URL still required before final closeout
+- [x] `observers/FullscreenMediaDetection.swift` — reauthored policy
+- [x] `observers/MediaKeyInterceptor.swift` — split and reauthored
+- [x] `components/Notch/NotchHomeView.swift` — reauthored
+- [x] `components/Notch/NotchExtrasMenu.swift` — reauthored
+- [x] `sizing/matters.swift` — reauthored as `NotchGeometry`
+
 ### Still needs formal audit / sign-off
 
-- [ ] `private/MachWindowSpace.swift` — private API wrapper (verify no BoringNotch origin)
-- [ ] `mediaremote-adapter/` — pre-built framework (verify license of original)
-- [ ] `observers/` directory — check for BoringNotch-origin event monitoring code
 - [ ] `extensions/` directory — Swift extensions audit
 - [ ] `helpers/` directory — utility helpers audit
-- [ ] `components/Notch/` — notch chrome shape/rendering
-- [ ] `sizing/matters.swift` — sizing functions
+- [ ] Remaining `components/Notch/` files — header/buttons/SkyLight chrome audit
+- [ ] `ContentView*` — notch shell/layout audit
+- [ ] `NotchViewCoordinator*` — coordinator audit
+- [ ] `Core/Controllers/` — reconcile PRD/ADR status discrepancy
+- [ ] `MusicPlugin` — audit plugin logic and MediaRemote boundaries
 
 ### Legal steps (after all code is clean)
 

@@ -57,7 +57,7 @@ public final class MachWindowSpace {
     }
 }
 
-// CGSSpace stuff:
+// Private Spaces API declarations:
 private typealias CGSConnectionID = UInt
 private typealias CGSSpaceID = UInt64
 @_silgen_name("_CGSDefaultConnection")

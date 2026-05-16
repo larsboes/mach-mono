@@ -54,11 +54,13 @@ license:
 
 ## License Migration — GPL v3 → MIT
 
-**Current state:** Both `/LICENSE` (root) and `Apps/machNotch/LICENSE` are GPL v3, inherited from the BoringNotch fork. `CGSSpace.swift` is additionally MPL 2.0 (from avaidyam/Parrot). `MacroVisionKit` is already MIT. `MachBriefKit` and `Apps/machBrief/` will be MIT from creation.
+**Current state:** Both `/LICENSE` (root) and `Apps/machNotch/LICENSE` are GPL v3, inherited from the BoringNotch fork. The former MPL `CGSSpace.swift` path has been replaced by `MachWindowSpace.swift`; no remaining Parrot/MPL attribution is shipped in machNotch third-party notices. `MacroVisionKit` is already MIT. `MachBriefKit` and `Apps/machBrief/` will be MIT from creation.
 
 **Goal:** Relicense machNotch and the mach-mono root to MIT once all BoringNotch-origin code is genuinely reengineered. This is a deliberate, file-by-file process — not a one-liner. Renaming `Boring*` → `Notch*` was cosmetic; rewriting the logic is the actual work.
 
 **Principle:** Reengineering means understanding what a component does, then implementing the same behavior from scratch with different design choices. The ideas, APIs, and patterns are not owned by BoringNotch. The specific expression in code is. Replace the expression.
+
+**Evidence ledger:** [`docs/licensing/machnotch-provenance.md`](../licensing/machnotch-provenance.md) is the working status ledger for reengineering evidence, retained compatible third-party code, and remaining closeout blockers.
 
 ---
 
@@ -105,6 +107,11 @@ Files/areas that were **renamed** (cosmetic) rather than **rewritten** (genuine)
 | Plugin architecture (`NotchPlugin`, `PluginEventBus`, `PluginContext`) | ✅ Likely clean | Architecture redesign is substantial original work |
 | `AppObjectGraph` (DI root) | ✅ Likely clean | DI pattern introduced post-fork |
 | `private/LocalAPI/` | ✅ Clean | Built entirely after fork — original work |
+| `sizing/matters.swift` | ✅ Rewritten | Reauthored as `NotchGeometry` with compatibility wrappers; covered by `LicenseMigrationReengineeringTests` |
+| `observers/FullscreenMediaDetection.swift` | ✅ Rewritten | Reauthored around snapshot policy; covered by `LicenseMigrationReengineeringTests` |
+| `observers/MediaKeyInterceptor.swift` | ✅ Rewritten | Split into event parsing, routing, feedback playback, and event-tap ownership |
+| `components/Notch/NotchHomeView.swift` | ✅ Rewritten | Reauthored layout expression and removed direct Defaults dependency |
+| `components/Notch/NotchExtrasMenu.swift` | ✅ Rewritten | Reauthored current menu tile behavior |
 
 **Process for each "Audit needed" file:**
 

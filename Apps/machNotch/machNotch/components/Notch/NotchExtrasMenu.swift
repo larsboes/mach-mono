@@ -1,30 +1,25 @@
-//
-//  NotchExtrasMenu.swift
-//  machNotch
-//
-//  Created by Harsh Vardhan  Goswami  on 04/08/24.
-//
-
 import SwiftUI
 
-struct NotchMenuButton: View {
-    var action: () -> Void
-    var icon: Image
-    var title: String
+private struct NotchMenuTile: View {
+    let title: String
+    let systemImage: String
+    let action: () -> Void
+
     var body: some View {
-        Button(
-            action: action,
-            label: {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12.0).fill(.black).frame(width: 70, height: 70)
-                    VStack(spacing: 8) {
-                        icon.resizable()
-                            .aspectRatio(contentMode: .fit).frame(width: 20)
-                        Text(title).font(.body)
-                    }
-                }
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 20, weight: .medium))
+                    .frame(height: 22)
+                Text(title)
+                    .font(.body)
             }
-        ).buttonStyle(PlainButtonStyle()).shadow(color: .black.opacity(0.5), radius: 10)
+            .foregroundStyle(.white)
+            .frame(width: 70, height: 70)
+            .background(.black, in: RoundedRectangle(cornerRadius: 12))
+            .shadow(color: .black.opacity(0.5), radius: 10)
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -33,70 +28,22 @@ struct NotchExtrasMenu: View {
     @Environment(\.showSettingsWindow) var showSettingsWindow
 
     var body: some View {
-        VStack {
-            HStack(spacing: 20) {
-                hide
-                settings
-                close
+        HStack(spacing: 20) {
+            NotchMenuTile(
+                title: "Hide",
+                systemImage: "arrow.down.forward.and.arrow.up.backward"
+            ) {
+                vm.close(force: true)
+            }
+
+            NotchMenuTile(title: "Settings", systemImage: "gear") {
+                showSettingsWindow()
+            }
+
+            NotchMenuTile(title: "Exit", systemImage: "xmark") {
+                NSApp.terminate(nil)
             }
         }
-    }
-
-    var github: some View {
-        NotchMenuButton(
-            action: {
-                if let url = URL(string: "https://github.com/larsboes/mach-mono") {
-                    NSWorkspace.shared.open(url)
-                }
-            },
-            icon: Image(.github),
-            title: "Checkout"
-        )
-    }
-
-    var settings: some View {
-        Button(action: {
-            showSettingsWindow()
-        }) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 12.0).fill(.black).frame(width: 70, height: 70)
-                VStack(spacing: 8) {
-                    Image(systemName: "gear").resizable()
-                        .aspectRatio(contentMode: .fit).frame(width: 20)
-                    Text("Settings").font(.body)
-                }
-            }
-        }
-        .buttonStyle(PlainButtonStyle()).shadow(color: .black.opacity(0.5), radius: 10)
-    }
-
-    var hide: some View {
-        NotchMenuButton(
-            action: {
-                Task { @MainActor in
-                    try? await Task.sleep(nanoseconds: 250000000)
-                    // vm.openMusic()
-                }
-            },
-            icon: Image(systemName: "arrow.down.forward.and.arrow.up.backward"),
-            title: "Hide"
-        )
-    }
-
-    var close: some View {
-        NotchMenuButton(
-            action: {
-                Task { @MainActor in
-                    try? await Task.sleep(nanoseconds: 250000000)
-                    Task { @MainActor in
-                        try? await Task.sleep(nanoseconds: 250000000)
-                        NSApp.terminate(nil)
-                    }
-                }
-            },
-            icon: Image(systemName: "xmark"),
-            title: "Exit"
-        )
     }
 }
 

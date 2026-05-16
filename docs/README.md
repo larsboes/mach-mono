@@ -14,6 +14,7 @@ There is **no single file** that replaces the layers below; together they are th
 | **Agent Guidelines** | How coding agents should work in this repo | [`AGENT-GUIDELINES.md`](AGENT-GUIDELINES.md) |
 | **Product direction** | What each product should become, phases, status | [`prds/`](prds/) |
 | **Decisions (why)** | ADRs for durable choices | [`decisions/`](decisions/) |
+| **License provenance** | Evidence for relicensing gates | [`licensing/machnotch-provenance.md`](licensing/machnotch-provenance.md) |
 | **Architecture & how-tos** | Design reference and guides | [`architecture/`](architecture/), [`guides/`](guides/) |
 | **Tool adapters** | Cursor, Claude Code, workflows — consume the above | [`../CLAUDE.md`](../CLAUDE.md), [`../.cursor/`](../.cursor/), [`../.claude/`](../.claude/), [`../.agent/`](../.agent/) |
 
@@ -40,6 +41,7 @@ Rule of thumb from [`AGENT-GUIDELINES.md`](AGENT-GUIDELINES.md): `repo.yaml` say
 | Guides | [`guides/`](guides/) | Practical guides and how-tos. |
 | Roadmaps | [`roadmaps/`](roadmaps/) | Technical migration and build-system plans. |
 | Decisions | [`decisions/`](decisions/) | ADR-style records explaining why important choices were made. |
+| License provenance | [`licensing/machnotch-provenance.md`](licensing/machnotch-provenance.md) | Evidence ledger for machNotch GPL-to-MIT migration status. |
 
 ## Agent and tooling files (adapters only)
 
@@ -70,6 +72,10 @@ These files should **point to** the table above, not restate it.
 ## Roadmaps
 
 - [`roadmaps/bazel.md`](roadmaps/bazel.md) — Bazel/Bzlmod orchestration roadmap.
+
+## Licensing
+
+- [`licensing/machnotch-provenance.md`](licensing/machnotch-provenance.md) — machNotch GPL-to-MIT provenance ledger.
 
 ## Decisions
 

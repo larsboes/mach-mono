@@ -2,50 +2,97 @@
 //  FullscreenMediaDetection.swift
 //  machNotch
 //
-//  Created by Richard Kunkli on 06/09/2024.
+//  Reauthored fullscreen-media detection policy for MIT-readiness.
 //
 
 import Foundation
 import MacroVisionKit
 
+struct FullscreenSpaceSnapshot: Equatable {
+    let runningApps: [String]
+    let screenUUID: String?
+
+    init(runningApps: [String], screenUUID: String?) {
+        self.runningApps = runningApps
+        self.screenUUID = screenUUID
+    }
+
+    init(_ space: MacroVisionKit.FullScreenMonitor.SpaceInfo) {
+        self.init(runningApps: space.runningApps, screenUUID: space.screenUUID)
+    }
+}
+
+enum FullscreenMediaDetectionPolicy {
+    static func statusByScreen(
+        spaces: [FullscreenSpaceSnapshot],
+        hideOption: HideNotchOption,
+        nowPlayingBundleIdentifier: String?
+    ) -> [String: Bool] {
+        spaces.reduce(into: [:]) { result, space in
+            guard let uuid = space.screenUUID else { return }
+            result[uuid] = shouldMarkFullscreen(
+                space: space,
+                hideOption: hideOption,
+                nowPlayingBundleIdentifier: nowPlayingBundleIdentifier
+            )
+        }
+    }
+
+    private static func shouldMarkFullscreen(
+        space: FullscreenSpaceSnapshot,
+        hideOption: HideNotchOption,
+        nowPlayingBundleIdentifier: String?
+    ) -> Bool {
+        guard hideOption == .nowPlayingOnly, let bundle = nowPlayingBundleIdentifier else {
+            return true
+        }
+        return space.runningApps.contains(bundle)
+    }
+}
+
 @MainActor
 @Observable final class FullscreenMediaDetector {
+    typealias SpaceStreamProvider = () async -> AsyncStream<[MacroVisionKit.FullScreenMonitor.SpaceInfo]>
+
     var fullscreenStatus: [String: Bool] = [:]
 
     private let musicService: any MusicServiceProtocol
     private let settings: any MediaSettings
-    private var monitorTask: Task<Void, Never>?
+    private let streamProvider: SpaceStreamProvider
+    @ObservationIgnored nonisolated(unsafe) private var monitorTask: Task<Void, Never>?
 
-    init(musicService: any MusicServiceProtocol, settings: any MediaSettings) {
+    init(
+        musicService: any MusicServiceProtocol,
+        settings: any MediaSettings,
+        streamProvider: @escaping SpaceStreamProvider = {
+            FullScreenMonitor.shared.spaceChanges()
+        }
+    ) {
         self.musicService = musicService
         self.settings = settings
+        self.streamProvider = streamProvider
         startMonitoring()
     }
 
-    private func startMonitoring() {
-        monitorTask = Task { @MainActor in
-            let stream = await FullScreenMonitor.shared.spaceChanges()
-            for await spaces in stream {
-                updateStatus(with: spaces)
-            }
-        }
+    deinit {
+        monitorTask?.cancel()
     }
 
-    private func updateStatus(with spaces: [MacroVisionKit.FullScreenMonitor.SpaceInfo]) {
-        var newStatus: [String: Bool] = [:]
+    func apply(spaces: [FullscreenSpaceSnapshot]) {
+        fullscreenStatus = FullscreenMediaDetectionPolicy.statusByScreen(
+            spaces: spaces,
+            hideOption: settings.hideNotchOption,
+            nowPlayingBundleIdentifier: musicService.bundleIdentifier
+        )
+    }
 
-        for space in spaces {
-            if let uuid = space.screenUUID {
-                let shouldDetect: Bool
-                if settings.hideNotchOption == .nowPlayingOnly, let musicSourceBundle = musicService.bundleIdentifier {
-                    shouldDetect = space.runningApps.contains(musicSourceBundle)
-                } else {
-                    shouldDetect = true
-                }
-                newStatus[uuid] = shouldDetect
+    private func startMonitoring() {
+        monitorTask = Task { @MainActor [streamProvider] in
+            let stream = await streamProvider()
+            for await spaces in stream {
+                guard !Task.isCancelled else { return }
+                apply(spaces: spaces.map(FullscreenSpaceSnapshot.init))
             }
         }
-
-        self.fullscreenStatus = newStatus
     }
 }

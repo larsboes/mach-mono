@@ -1,17 +1,10 @@
-//
-//  NotchHomeView.swift
-//  machNotch
-//
-//  Created by Hugo Persson on 2024-08-18.
-//  Modified by Harsh Vardhan Goswami & Richard Kunkli & Mustafa Ramadan & Arsh Anwar
-//
-
-import Defaults
 import SwiftUI
 
-// MARK: - Main View
-
 struct NotchHomeView: View {
+    private let horizontalPadding: CGFloat = 32
+    private let musicPanelWidth: CGFloat = 330
+    private let openPanelWidth: CGFloat = 860
+
     @Environment(NotchViewModel.self) var vm
     @Environment(\.settings) var settings
     @Environment(\.pluginManager) var pluginManager
@@ -24,7 +17,7 @@ struct NotchHomeView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .padding(.top, 4)
             .transition(.opacity)
-            .environment(\.albumArtNamespace, albumArtNamespace)  // Inject namespace for plugins
+            .environment(\.albumArtNamespace, albumArtNamespace)
     }
 
     private var shouldShowCamera: Bool {
@@ -36,28 +29,17 @@ struct NotchHomeView: View {
     }
 
     private var additionalItemsCount: Int {
-        var count = 0
-        if shouldShowCalendar { count += 1 }
-        if shouldShowCamera { count += 1 }
-        return count
+        [shouldShowCalendar, shouldShowCamera].filter { $0 }.count
     }
 
-    private let musicPlayerReservedWidth: CGFloat = 330
-
     private var itemWidth: CGFloat {
-        // Calculate max width for side-plugins before overflowing the 860 total width
-        // 860 width, 64 total padding (32 each side)
-        let maxAvailableWidth: CGFloat = 860 - 64 - musicPlayerReservedWidth
-        if additionalItemsCount == 0 { return maxAvailableWidth }
-
-        // Base width, clamped to ensure it doesn't get too small or too large
-        let calculatedWidth = maxAvailableWidth / CGFloat(additionalItemsCount)
-        return min(max(calculatedWidth - 10, 80), 300)
+        let sidePanelArea = openPanelWidth - (horizontalPadding * 2) - musicPanelWidth
+        guard additionalItemsCount > 0 else { return sidePanelArea }
+        return min(max(sidePanelArea / CGFloat(additionalItemsCount) - 10, 80), 300)
     }
 
     private var mainContent: some View {
         HStack(alignment: .top, spacing: additionalItemsCount >= 2 ? 10 : 15) {
-            // Render Music Plugin
             if let pluginManager {
                 pluginManager.expandedPanelView(for: PluginID.music)
                     .contentReveal(progress: contentProgress, staggerIndex: 0)
@@ -84,7 +66,7 @@ struct NotchHomeView: View {
                 }
             }
         }
-        .padding(.horizontal, 32)
+        .padding(.horizontal, horizontalPadding)
         .transition(.asymmetric(insertion: .opacity.combined(with: .move(edge: .top)), removal: .opacity))
     }
 }
