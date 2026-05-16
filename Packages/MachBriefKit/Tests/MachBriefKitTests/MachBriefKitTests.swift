@@ -34,6 +34,7 @@ final class MachBriefKitTests: XCTestCase {
     func testWordSourceCarriesVocabMetadata() async {
         let source = WordSource(
             dictionaryClient: EmptyDictionaryClient(),
+            entryCache: DictionaryEntryCache(loadPersisted: false),
             words: [
                 WordItem(
                     word: "ineffable",
@@ -91,8 +92,12 @@ final class MachBriefKitTests: XCTestCase {
 
     func testArchiveFilteringSearchAndFavorites() async {
         let store = InMemoryBriefStore()
-        let favorite = BriefEntry(sourceID: "quote", slot: .morning, title: "Steady work", subtitle: "A", body: "Focus", isFavorited: true, revealedAt: .now)
-        let other = BriefEntry(sourceID: "fact", slot: .midday, title: "Moon fact", subtitle: nil, body: nil, revealedAt: .now)
+        let favorite = BriefEntry(
+            sourceID: "quote", slot: .morning, title: "Steady work", subtitle: "A", body: "Focus",
+            isFavorited: true, revealedAt: .now)
+        let other = BriefEntry(
+            sourceID: "fact", slot: .midday, title: "Moon fact", subtitle: nil, body: nil,
+            revealedAt: .now)
 
         await store.save(favorite)
         await store.save(other)

@@ -132,11 +132,4 @@ tasks:
   skills:check:
     desc: "skills: verify .gemini/skills/ and .cursor/skills/ match .claude/skills/"
     cmds:
-      - |
-        bash tools/sync-skills.sh
-        if ! git diff --exit-code --quiet .gemini/skills/ .cursor/skills/ 2>/dev/null; then
-          echo ""
-          echo "error: skills are out of sync — run 'task skills:sync' and commit the result"
-          exit 1
-        fi
-        echo "skills:check — all targets in sync"
+      - bash tools/sync-skills.sh --check

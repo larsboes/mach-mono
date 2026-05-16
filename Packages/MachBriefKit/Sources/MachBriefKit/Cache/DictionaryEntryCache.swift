@@ -7,8 +7,8 @@ public actor DictionaryEntryCache {
     private var mem: [String: WordItem] = [:]
     private static let storageKey = "com.machNotch.brief.wordCache.v1"
 
-    public init() {
-        mem = Self.load()
+    public init(loadPersisted: Bool = true) {
+        mem = loadPersisted ? Self.load() : [:]
     }
 
     public func lookup(word: String, languageCode: String) -> WordItem? {

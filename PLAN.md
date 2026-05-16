@@ -11,7 +11,7 @@ related:
   plugin_system: docs/architecture/plugin-system.md
   bazel_roadmap: docs/roadmaps/bazel.md
   repo_manifest: repo.yaml
-last_updated: 2026-05-15
+last_updated: 2026-05-16
 ---
 
 # Local Model Integration Plan — mach-mono
@@ -21,6 +21,25 @@ last_updated: 2026-05-15
 **Scope:** `Apps/machNotch` (macOS), `Apps/machBrief` (macOS + iOS in v2), `Packages/MachBriefKit`, and a new `Packages/MachIntelligenceKit` package. Both apps consume the same `AITextGenerationService` contract.
 
 **Status:** Planned. Phase 11 (FoundationModels) is the prerequisite; this plan layers MLX on top.
+
+---
+
+## Before Implementation — Repo Health Gate
+
+Before starting this local-model integration, finish or explicitly defer the current
+repo-health items from `Analysis.md`:
+
+- **Land the CI-signal slice first:** test result artifacts, LCOV coverage artifact,
+  `skills-check`, `tools/sync-skills.sh --check`, and the MachBriefKit deterministic-cache
+  test fix are implemented in the current working tree and locally verified.
+- **Keep SDK drift visible:** local Bazel verification still needs
+  `--macos_sdk_version=$(xcrun --sdk macosx --show-sdk-version)` on SDK 26.5; do not fold
+  an SDK policy change into the AI integration unless builds start failing again.
+- **Do before the next release:** inline or otherwise repair the issue-form version dropdown
+  update, because `release: published` events created by `GITHUB_TOKEN` do not trigger the
+  standalone workflow.
+- **Do before wider distribution:** add SBOM/SCA coverage for Swift dependencies and
+  clarify build/release source-of-truth links across the Bazel ADRs.
 
 ---
 
