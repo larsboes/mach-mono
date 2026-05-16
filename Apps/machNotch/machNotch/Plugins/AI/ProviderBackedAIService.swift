@@ -7,9 +7,9 @@ final class ProviderBackedAIService: AITextGenerationService {
     private let provider: any AIProvider
 
     var isAvailable: Bool {
-        // Synchronous approximation — true if we have a provider.
-        // Actual availability checked per-call.
-        true
+        get async {
+            await provider.isAvailable
+        }
     }
 
     init(provider: any AIProvider) {

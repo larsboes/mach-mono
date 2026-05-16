@@ -81,6 +81,9 @@ packages:
     MachBriefKit:
       path: Packages/MachBriefKit
       license: MIT
+    MachIntelligenceKit:
+      path: Packages/MachIntelligenceKit
+      license: MIT
     MacroVisionKit:
       path: Packages/MacroVisionKit
       license: MIT

@@ -47,16 +47,7 @@ This monorepo adheres to a strict **Minimalistic Aesthetic**.
 
 **Build system:** **[Bazel](https://bazel.build/)** ([Bzlmod](https://bazel.build/external/module)) is the primary build system — all targets, tests, and CI run through Bazel. [`mach-mono.xcworkspace`](mach-mono.xcworkspace) is available for IDE navigation only.
 
-> "We go Bazel or we go home!"
-
 See [`docs/roadmaps/bazel.md`](docs/roadmaps/bazel.md) and [`docs/decisions/0007-native-bazel-builds.md`](docs/decisions/0007-native-bazel-builds.md).
-
-## Critical Blockers (last update: 10.05.2026)
-
-* **Notch stability:** Intermittent random expansion (root cause unknown).
-* **Music UI:** Music display is functional but requires significant cleanup and timeline implementation.
-
-*Tracking Issues: [issue tracker](https://github.com/larsboes/mach-mono/issues).*
 
 ## Background
 

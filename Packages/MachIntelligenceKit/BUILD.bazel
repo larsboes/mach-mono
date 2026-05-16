@@ -1,0 +1,15 @@
+load("@rules_swift//swift:swift.bzl", "swift_library", "swift_test")
+
+swift_library(
+    name = "MachIntelligenceKit",
+    srcs = glob(["Sources/**/*.swift"]),
+    module_name = "MachIntelligenceKit",
+    visibility = ["//visibility:public"],
+    deps = [],
+)
+
+swift_test(
+    name = "MachIntelligenceKitTests",
+    srcs = glob(["Tests/**/*.swift"]),
+    deps = [":MachIntelligenceKit"],
+)

@@ -35,11 +35,11 @@ repo-health items from `Analysis.md`:
 - **Keep SDK drift visible:** local Bazel verification still needs
   `--macos_sdk_version=$(xcrun --sdk macosx --show-sdk-version)` on SDK 26.5; do not fold
   an SDK policy change into the AI integration unless builds start failing again.
-- **Do before the next release:** inline or otherwise repair the issue-form version dropdown
-  update, because `release: published` events created by `GITHUB_TOKEN` do not trigger the
-  standalone workflow.
-- **Do before wider distribution:** add SBOM/SCA coverage for Swift dependencies and
-  clarify build/release source-of-truth links across the Bazel ADRs.
+- **Done before the next release:** the release publish job updates the issue-form
+  version dropdown inline on `main`; the standalone updater is manual-only.
+- **Done before wider distribution:** dependency review covers PR dependency
+  changes, main/manual runs export the GitHub dependency graph SBOM artifact,
+  and Bazel/release source-of-truth links are documented in ADR 0009.
 
 ---
 

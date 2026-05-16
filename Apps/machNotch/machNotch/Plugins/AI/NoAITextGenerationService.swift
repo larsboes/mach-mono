@@ -4,29 +4,31 @@ import Foundation
 /// Returns clear error messages — never silently fails.
 @MainActor
 final class NoAITextGenerationService: AITextGenerationService {
-    var isAvailable: Bool { false }
+    var isAvailable: Bool {
+        get async { false }
+    }
 
     func rewrite(_ text: String, style: AIRewriteStyle) async throws -> String {
         throw AIError.providerUnavailable(
-            "No AI provider available. Install Ollama (ollama.com) or use macOS 26+ for on-device AI."
+            "No AI provider is configured for this device."
         )
     }
 
     func summarize(_ text: String) async throws -> String {
         throw AIError.providerUnavailable(
-            "No AI provider available. Install Ollama (ollama.com) or use macOS 26+ for on-device AI."
+            "No AI provider is configured for this device."
         )
     }
 
     func section(_ text: String) async throws -> [String] {
         throw AIError.providerUnavailable(
-            "No AI provider available. Install Ollama (ollama.com) or use macOS 26+ for on-device AI."
+            "No AI provider is configured for this device."
         )
     }
 
     func draftIntro(topic: String, durationSeconds: Int) async throws -> String {
         throw AIError.providerUnavailable(
-            "No AI provider available. Install Ollama (ollama.com) or use macOS 26+ for on-device AI."
+            "No AI provider is configured for this device."
         )
     }
 }

@@ -144,9 +144,9 @@ final class TeleprompterState {
 
     /// Domain-level AI assist — delegates to the service protocol.
     func aiAssist(action: TeleprompterAIAction, ai: any AITextGenerationService) async throws {
-        guard ai.isAvailable else {
+        guard await ai.isAvailable else {
             throw AIError.providerUnavailable(
-                "No AI provider available. Install Ollama or use macOS 26+ for on-device AI."
+                "No AI provider is configured for this device."
             )
         }
 

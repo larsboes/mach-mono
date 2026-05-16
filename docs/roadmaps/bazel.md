@@ -30,6 +30,7 @@ Bazel (Bzlmod) is the primary build and orchestration layer for this monorepo. X
 
 - [x] Replace Xcode-based CI with `bazel build` + `bazel test` in GitHub Actions (cicd.yml fully on `bazelisk --config=ci`).
 - [x] Cache remote build results — `~/.cache/bazel-repos` + `~/.cache/bazel` keyed on `MODULE.bazel` / `Package.resolved` / BUILD files.
+- [x] Add dependency security signal — PR dependency review enforces high+ vulnerability and GPL/MPL-family license policy, while main/manual runs export the GitHub dependency graph SBOM artifact.
 
 ## Phase 4: iOS / Cross-Platform
 

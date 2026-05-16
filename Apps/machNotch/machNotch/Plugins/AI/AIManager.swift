@@ -28,8 +28,6 @@ final class AIManager {
     /// - Parameter isEnabled: Closure reading the setting. Avoids singleton coupling.
     init(isEnabled: @escaping () -> Bool = { true }) {
         self.isEnabledProvider = isEnabled
-        registerProvider(OllamaProvider())
-        activeProviderId = "ollama"
     }
 
     func registerProvider(_ provider: any AIProvider) {
@@ -39,6 +37,19 @@ final class AIManager {
     func setActiveProvider(id: String) {
         guard providers.keys.contains(id) else { return }
         activeProviderId = id
+    }
+
+    func enableOllama(model: String = "llama3", host: String = "http://127.0.0.1:11434") {
+        let provider = OllamaProvider(model: model, host: host)
+        registerProvider(provider)
+        activeProviderId = provider.id
+    }
+
+    func disableOllama() {
+        providers.removeValue(forKey: "ollama")
+        if activeProviderId == "ollama" {
+            activeProviderId = nil
+        }
     }
 
     /// Check if the currently active provider is reachable.

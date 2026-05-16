@@ -5,7 +5,7 @@ import Foundation
 /// Decouples prompt engineering from plugin logic.
 @MainActor
 protocol AITextGenerationService {
-    var isAvailable: Bool { get }
+    var isAvailable: Bool { get async }
 
     /// Rewrite text for clarity and professionalism.
     func rewrite(_ text: String, style: AIRewriteStyle) async throws -> String

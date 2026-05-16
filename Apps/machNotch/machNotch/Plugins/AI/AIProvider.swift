@@ -10,6 +10,23 @@ protocol AIProvider: Sendable {
     var isAvailable: Bool { get async }
 
     func generate(prompt: String, config: AIGenerationConfig) async throws -> String
+    func generateStream(prompt: String, config: AIGenerationConfig) -> AsyncThrowingStream<String, Error>
+}
+
+extension AIProvider {
+    func generateStream(prompt: String, config: AIGenerationConfig) -> AsyncThrowingStream<String, Error> {
+        AsyncThrowingStream { continuation in
+            Task {
+                do {
+                    let result = try await generate(prompt: prompt, config: config)
+                    continuation.yield(result)
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+        }
+    }
 }
 
 // MARK: - Generation Config

@@ -32,3 +32,9 @@ Three-phase migration:
 - Xcode version drift no longer affects compilation
 - Release artifacts are produced identically in CI and locally
 - `minimum_os_version = "26.0"` enforced at build time
+
+## Source of Truth
+
+- Build graph: `MODULE.bazel`, the root `Package.swift` SwiftPM shim, and package/app `BUILD.bazel` files.
+- CI/release orchestration: `.github/workflows/cicd.yml`, `.github/workflows/build_reusable.yml`, and `.github/workflows/release.yml`.
+- Dependency security: GitHub dependency graph for supported manifests, `Package.resolved` for Swift package resolution, and `.github/workflows/dependency-security.yml` for PR dependency review plus SBOM artifact export.

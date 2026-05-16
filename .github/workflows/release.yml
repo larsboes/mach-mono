@@ -21,6 +21,7 @@ env:
   PROJECT_NAME: machNotch
   APP_DIR: Apps/machNotch
   APPCAST_PATH: Apps/machNotch/updater/appcast.xml
+  ISSUE_FORM_PATH: .github/ISSUE_TEMPLATE/1-bug-report-form.yml
   BETA_CHANNEL_NAME: beta
   CODE_SIGN_IDENTITY: "-"
 
@@ -105,25 +106,54 @@ jobs:
             Release/
           echo "generated=true" >> "$GITHUB_OUTPUT"
 
-      - name: Commit appcast
-        id: commit_appcast
-        if: ${{ steps.generate_appcast.outputs.generated == 'true' }}
+      - name: Commit release metadata
+        id: commit_release_metadata
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          cp "${APPCAST_PATH}" "$RUNNER_TEMP/appcast.xml"
-          
-          # Since we are on a tag, we need to push the appcast to the main branch
-          git fetch origin main
+          if [[ "${{ steps.generate_appcast.outputs.generated }}" == "true" ]]; then
+            cp "${APPCAST_PATH}" "$RUNNER_TEMP/appcast.xml"
+          fi
+
+          # Since we are on a tag, release metadata needs to land on main.
+          git fetch origin main --tags
           git checkout main
           git pull --rebase origin main
-          cp "$RUNNER_TEMP/appcast.xml" "${APPCAST_PATH}"
-          git add "${APPCAST_PATH}"
-          git commit -m "Update appcast for v${{ needs.preparation.outputs.version }}" || echo "appcast already up to date"
-          git push origin main
-          
+
+          if [[ "${{ steps.generate_appcast.outputs.generated }}" == "true" ]]; then
+            cp "$RUNNER_TEMP/appcast.xml" "${APPCAST_PATH}"
+          fi
+
+          ruby <<'RUBY'
+          require "yaml"
+
+          issue_form = ENV.fetch("ISSUE_FORM_PATH")
+          tags = `git tag --sort=-v:refname`
+            .lines
+            .map(&:strip)
+            .grep(/\Av\d+\.\d+\.\d+(?:[-+].*)?\z/)
+            .first(5)
+
+          form = YAML.load_file(issue_form)
+          version_dropdown = form.fetch("body").find do |item|
+            item["type"] == "dropdown" && item["id"] == "version"
+          end
+          raise "version dropdown not found in #{issue_form}" unless version_dropdown
+
+          version_dropdown.fetch("attributes")["options"] = ["Select a version"] + tags
+          File.write(issue_form, YAML.dump(form, line_width: -1))
+          RUBY
+
+          git add "${APPCAST_PATH}" "${ISSUE_FORM_PATH}"
+          if git diff --cached --quiet; then
+            echo "Release metadata already up to date."
+          else
+            git commit -m "Update release metadata for v${{ needs.preparation.outputs.version }}"
+            git push origin main
+          fi
+
           RELEASE_SHA=$(git rev-parse HEAD)
           echo "release_sha=$RELEASE_SHA" >> "$GITHUB_OUTPUT"
 

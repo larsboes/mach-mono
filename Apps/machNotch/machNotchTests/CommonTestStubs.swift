@@ -434,7 +434,10 @@ final class StubFaceService: FaceServiceProtocol {
 }
 
 final class StubAIService: AITextGenerationService {
-    var isAvailable: Bool = false
+    var available = false
+    var isAvailable: Bool {
+        get async { available }
+    }
     func rewrite(_ text: String, style: AIRewriteStyle) async throws -> String { text }
     func summarize(_ text: String) async throws -> String { text }
     func section(_ text: String) async throws -> [String] { [text] }

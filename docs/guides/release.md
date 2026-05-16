@@ -68,6 +68,11 @@ Beta/RC tags (containing `beta` or `rc`) are automatically published as pre-rele
 2. **Build and sign** (`build_reusable.yml`) — Bazel build → codesign → DMG
 3. **Publish** — generates signed Sparkle appcast → commits `appcast.xml` to `main` → creates GitHub release with DMG attached
 
+The publish job also refreshes the bug report issue-form version dropdown on
+`main` before creating the GitHub release. The standalone "Update Version
+Dropdown" workflow is manual-only for backfills, because releases created with
+`GITHUB_TOKEN` do not trigger a second `release: published` workflow.
+
 Monitor at: `https://github.com/larsboes/mach-mono/actions`
 
 ### 5. Verify the release
@@ -76,6 +81,7 @@ After the pipeline completes:
 
 - GitHub release exists with the correct tag and DMG attached
 - `Apps/machNotch/updater/appcast.xml` in `main` has the new version entry
+- `.github/ISSUE_TEMPLATE/1-bug-report-form.yml` in `main` includes the new version in the dropdown
 - Sparkle update check from an installed app picks up the new release
 
 ## Signing notes

@@ -3,13 +3,12 @@ name: Update Version Dropdown in Issue Form
 permissions:
   contents: write
 on:
-  release:
-    types:
-      - published
   workflow_dispatch: {}
 jobs:
   update-dropdown:
     runs-on: ubuntu-latest
+    env:
+      ISSUE_FORM_PATH: .github/ISSUE_TEMPLATE/1-bug-report-form.yml
 
     steps:
       - name: Checkout repository
@@ -22,29 +21,37 @@ jobs:
       - name: Fetch tags
         run: git fetch --tags
 
-      - name: Get latest 5 versions with placeholder
-        id: tags
+      - name: Update version dropdown
         run: |
-          TAGS=$(git tag --sort=-v:refname | head -n 5 | jq -R -s -c 'split("\n")[:-1]')
-          VERSIONS=$(echo '["Select a version"]' | jq -c --argjson tags "$TAGS" '. + $tags')
-          echo "versions=$VERSIONS" >> $GITHUB_OUTPUT
+          ruby <<'RUBY'
+          require "yaml"
 
-      - name: Issue Forms Dropdown Options
-        uses: ShaMan123/gha-form-dropdown-options@124b08a39f06a6a4fcafdec501ecaca8db019db2 # v2.1.0
-        with:
-          form: .github/ISSUE_TEMPLATE/1-bug-report-form.yml
-          dropdown: version
-          options: ${{ steps.tags.outputs.versions }}
+          issue_form = ENV.fetch("ISSUE_FORM_PATH")
+          tags = `git tag --sort=-v:refname`
+            .lines
+            .map(&:strip)
+            .grep(/\Av\d+\.\d+\.\d+(?:[-+].*)?\z/)
+            .first(5)
+
+          form = YAML.load_file(issue_form)
+          version_dropdown = form.fetch("body").find do |item|
+            item["type"] == "dropdown" && item["id"] == "version"
+          end
+          raise "version dropdown not found in #{issue_form}" unless version_dropdown
+
+          version_dropdown.fetch("attributes")["options"] = ["Select a version"] + tags
+          File.write(issue_form, YAML.dump(form, line_width: -1))
+          RUBY
 
       - name: Commit changes
         run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "actions@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
           if git diff --quiet; then
             echo "No changes to commit."
           else
-            git add .github/ISSUE_TEMPLATE/1-bug-report-form.yml
-            git commit -m "Update issue form version dropdown with placeholder and latest tags"
+            git add "${ISSUE_FORM_PATH}"
+            git commit -m "Update issue form version dropdown"
             git push
           fi
