@@ -19,7 +19,7 @@ let package = Package(
         .package(url: "https://github.com/Lakr233/SkyLightWindow", exact: "1.0.0"),
         .package(url: "https://github.com/sparkle-project/Sparkle", exact: "2.9.1"),
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", exact: "0.16.0"),
-        .package(url: "https://github.com/apple/swift-collections.git", exact: "1.5.0"),
+        .package(url: "https://github.com/apple/swift-collections.git", exact: "1.6.0"),
         .package(url: "https://github.com/apple/swift-syntax.git", exact: "602.0.0"),
         .package(url: "https://github.com/1998code/SwiftGlass.git", exact: "26.0.1"),
     ],
