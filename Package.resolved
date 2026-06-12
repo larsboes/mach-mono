@@ -1,5 +1,5 @@
 {
-  "originHash" : "2e462d6691819f5fe295f89fa7152b5bca5eeb80a6b95bc6ba298ca084620d7d",
+  "originHash" : "e18d4542197f2beeaa53746d8f957de182e64572837325e7f38dd8395696958a",
   "pins" : [
     {
       "identity" : "asyncxpcconnection",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "da31dbcaa1b57949e46dcc19360b17d1a8de06bd",
         "version" : "1.3.0"
+      }
+    },
+    {
+      "identity" : "csqlite",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/stephencelis/CSQLite",
+      "state" : {
+        "revision" : "bdb5580e54cdf49251b365ea34e2651199473240",
+        "version" : "3.50.4"
       }
     },
     {
@@ -69,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sparkle-project/Sparkle",
       "state" : {
-        "revision" : "066e75a8b3e99962685d6a90cdd5293ebffd9261",
-        "version" : "2.9.1"
+        "revision" : "d46d456107feacc80711b21847b82b07bd9fb46e",
+        "version" : "2.9.3"
       }
     },
     {
