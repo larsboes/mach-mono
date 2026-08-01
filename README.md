@@ -24,9 +24,7 @@
 </p>
 
 <p align="center">
-  <img src="resources/images/mach-notch-closed.png" alt="Mach Notch Closed" width="300"/>
-  &nbsp;&nbsp;&nbsp;
-  <img src="resources/images/mach-notch-expanded.png" alt="Mach Notch Expanded" width="300"/>
+  <img src="docs/assets/notch-preview.webp" alt="Mach Notch Preview" width="720"/>
 </p>
 
 ---
