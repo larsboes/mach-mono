@@ -2,6 +2,16 @@
 subtitle: What's being built, what's next, and what has shipped. For release notes see the [Changelog](changelog.html). Have a request? [Open an issue](https://github.com/larsboes/mach-mono/issues).
 ---
 
+## Execution stack (issue-driven)
+
+- **Tracking model:** Priority and milestone state are driven from GitHub issues + project board, not in-repo PLAN/PRD files.
+- **Current order:** 
+  1. machBrief: complete iOS v2 prep milestone (#56)
+  2. machBrief: complete M2 data and sync hardening milestone (#55)
+  3. machBrief: complete M1 macOS v1 experience milestone (#54)
+  4. machBrief: complete M0 repo alignment milestone (#53)
+  5. machIntelligence: implement M4 embeddings + shelf semantic search (#52)
+
 ## ↑ In Development
 
 ### mach.brief [New App]
