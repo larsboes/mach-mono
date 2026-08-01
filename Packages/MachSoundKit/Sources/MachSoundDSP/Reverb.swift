@@ -48,9 +48,9 @@ private struct Allpass {
 /// Mono Freeverb (Schroeder–Moorer: 8 comb + 4 allpass).
 ///
 /// Deliberate deviation from the prototype's generated-impulse convolution
-/// reverb (recorded in `tmp/ENGINE-SPEC.md`): Freeverb is lush, cheap, fully
-/// owned, and deterministic — partitioned-FFT convolution is overkill for a
-/// notch app. Buffers allocate once; `process` is allocation-free.
+/// reverb: Freeverb is lush, cheap, fully owned, and deterministic.
+/// Partitioned-FFT convolution is overkill for a notch app.
+/// Buffers allocate once; `process` is allocation-free.
 public final class Reverb {
     private var combs: [Comb]
     private var allpasses: [Allpass]

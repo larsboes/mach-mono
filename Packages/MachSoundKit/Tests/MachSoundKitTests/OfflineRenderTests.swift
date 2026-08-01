@@ -195,23 +195,49 @@ final class OfflineRenderTests: XCTestCase {
         }
     }
 
-    /// Verify reverb return gains match the v2 `applyPresetFx` table.
-    func testReverbReturnGainsMatchPrototype() {
+    /// Verify reverb controls match the native v2 preset table for parity work.
+    func testReverbControlsMatchPrototype() {
         let engine = SoundEngine(context: SoundContext())
         let params = SoundEngineParameters.defaults
 
         engine.setMode(.edm)
-        XCTAssertEqual(engine.currentControls(parameters: params, mode: .edm).reverbReturnGain, 0.16, accuracy: 1e-9)
+        var c = engine.currentControls(parameters: params, mode: .edm)
+        XCTAssertEqual(c.reverbReturnGain, 0.16, accuracy: 1e-9)
+        XCTAssertEqual(c.reverbRoom, 0.78, accuracy: 1e-9)
+        XCTAssertEqual(c.reverbDamping, 0.48, accuracy: 1e-9)
 
         engine.setMode(.ambient)
-        XCTAssertEqual(engine.currentControls(parameters: params, mode: .ambient).reverbReturnGain, 0.55, accuracy: 1e-9)
+        c = engine.currentControls(parameters: params, mode: .ambient)
+        XCTAssertEqual(c.reverbReturnGain, 0.55, accuracy: 1e-9)
+        XCTAssertEqual(c.reverbRoom, 0.94, accuracy: 1e-9)
+        XCTAssertEqual(c.reverbDamping, 0.28, accuracy: 1e-9)
 
         engine.setMode(.lofi)
-        XCTAssertEqual(engine.currentControls(parameters: params, mode: .lofi).reverbReturnGain, 0.22, accuracy: 1e-9)
+        c = engine.currentControls(parameters: params, mode: .lofi)
+        XCTAssertEqual(c.reverbReturnGain, 0.22, accuracy: 1e-9)
+        XCTAssertEqual(c.reverbRoom, 0.82, accuracy: 1e-9)
+        XCTAssertEqual(c.reverbDamping, 0.42, accuracy: 1e-9)
 
         engine.setMode(.focus)
         engine.setParameters(pace: 0.5, density: 0.5, brightness: 0.5, space: 0.5, pulse: 0.4, texture: 0.4)
-        XCTAssertEqual(engine.currentControls(parameters: params, mode: .focus).reverbReturnGain, 0.4, accuracy: 1e-9)
+        c = engine.currentControls(parameters: params, mode: .focus)
+        XCTAssertEqual(c.reverbReturnGain, 0.4, accuracy: 1e-9)
+        XCTAssertEqual(c.reverbRoom, 0.90, accuracy: 1e-9)
+        XCTAssertEqual(c.reverbDamping, 0.32, accuracy: 1e-9)
+
+        engine.setMode(.relax)
+        engine.setParameters(pace: 0.5, density: 0.5, brightness: 0.5, space: 0.5, pulse: 0.4, texture: 0.4)
+        c = engine.currentControls(parameters: params, mode: .relax)
+        XCTAssertEqual(c.reverbReturnGain, 0.4, accuracy: 1e-9)
+        XCTAssertEqual(c.reverbRoom, 0.90, accuracy: 1e-9)
+        XCTAssertEqual(c.reverbDamping, 0.32, accuracy: 1e-9)
+
+        engine.setMode(.sleep)
+        engine.setParameters(pace: 0.5, density: 0.5, brightness: 0.5, space: 0.5, pulse: 0.4, texture: 0.4)
+        c = engine.currentControls(parameters: params, mode: .sleep)
+        XCTAssertEqual(c.reverbReturnGain, 0.4, accuracy: 1e-9)
+        XCTAssertEqual(c.reverbRoom, 0.90, accuracy: 1e-9)
+        XCTAssertEqual(c.reverbDamping, 0.32, accuracy: 1e-9)
     }
 
     private func writeWav(_ samples: [Float], to path: String) {
