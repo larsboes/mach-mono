@@ -15,8 +15,13 @@ import Foundation
 /// Plugins emit events and subscribe to events from other plugins.
 @MainActor
 public final class PluginEventBus: Observable {
-    private var cancellables = Set<AnyCancellable>()
+    private typealias Subscriber = @MainActor (any PluginEvent) -> Void
+
     private let eventSubject = PassthroughSubject<any PluginEvent, Never>()
+
+    private var typeSubscribers: [String: [UUID: Subscriber]] = [:]
+    private var pluginSubscribers: [String: [UUID: Subscriber]] = [:]
+    private var eventTypeSubscribers: [PluginEventType: [UUID: Subscriber]] = [:]
 
     /// Stream of all events
     public var events: AnyPublisher<any PluginEvent, Never> {
@@ -30,6 +35,10 @@ public final class PluginEventBus: Observable {
     /// Emit an event to all subscribers
     public func emit(_ event: any PluginEvent) {
         eventSubject.send(event)
+
+        emitTyped(event)
+        emitByPluginId(event)
+        emitByType(event)
     }
 
     // MARK: - Subscribing to Events
@@ -41,13 +50,20 @@ public final class PluginEventBus: Observable {
         to eventType: T.Type,
         handler: @escaping @MainActor (T) -> Void
     ) -> AnyCancellable {
-        events
-            .compactMap { $0 as? T }
-            .sink { event in
-                MainActor.assumeIsolated {
-                    handler(event)
-                }
+        let subscriberId = UUID()
+        let typeKey = String(reflecting: eventType)
+
+        typeSubscribers[typeKey, default: [:]][subscriberId] = { [handler] event in
+            guard let typedEvent = event as? T else { return }
+            handler(typedEvent)
+        }
+
+        return AnyCancellable { [weak self] in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.typeSubscribers[typeKey, default: [:]].removeValue(forKey: subscriberId)
             }
+        }
     }
 
     /// Subscribe to events from a specific plugin
@@ -55,13 +71,16 @@ public final class PluginEventBus: Observable {
         from pluginId: String,
         handler: @escaping @MainActor (any PluginEvent) -> Void
     ) -> AnyCancellable {
-        events
-            .filter { $0.sourcePluginId == pluginId }
-            .sink { event in
-                MainActor.assumeIsolated {
-                    handler(event)
-                }
+        let subscriberId = UUID()
+
+        pluginSubscribers[pluginId, default: [:]][subscriberId] = handler
+
+        return AnyCancellable { [weak self] in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.pluginSubscribers[pluginId, default: [:]].removeValue(forKey: subscriberId)
             }
+        }
     }
 
     /// Subscribe to events of a specific type string
@@ -69,13 +88,41 @@ public final class PluginEventBus: Observable {
         toType type: PluginEventType,
         handler: @escaping @MainActor (any PluginEvent) -> Void
     ) -> AnyCancellable {
-        events
-            .filter { $0.type == type }
-            .sink { event in
-                MainActor.assumeIsolated {
-                    handler(event)
-                }
+        let subscriberId = UUID()
+
+        eventTypeSubscribers[type, default: [:]][subscriberId] = handler
+
+        return AnyCancellable { [weak self] in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.eventTypeSubscribers[type, default: [:]].removeValue(forKey: subscriberId)
             }
+        }
+    }
+
+    private func emitTyped(_ event: any PluginEvent) {
+        let typeKey = String(reflecting: type(of: event))
+        let subscribers = typeSubscribers[typeKey] ?? [:]
+
+        for subscriber in subscribers.values {
+            subscriber(event)
+        }
+    }
+
+    private func emitByPluginId(_ event: any PluginEvent) {
+        let subscribers = pluginSubscribers[event.sourcePluginId] ?? [:]
+
+        for subscriber in subscribers.values {
+            subscriber(event)
+        }
+    }
+
+    private func emitByType(_ event: any PluginEvent) {
+        let subscribers = eventTypeSubscribers[event.type] ?? [:]
+
+        for subscriber in subscribers.values {
+            subscriber(event)
+        }
     }
 }
 
