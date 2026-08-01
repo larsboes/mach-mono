@@ -19,7 +19,7 @@ public final class PluginEventBus: Observable {
 
     private let eventSubject = PassthroughSubject<any PluginEvent, Never>()
 
-    private var typeSubscribers: [String: [UUID: Subscriber]] = [:]
+    private var typeSubscribers: [ObjectIdentifier: [UUID: Subscriber]] = [:]
     private var pluginSubscribers: [String: [UUID: Subscriber]] = [:]
     private var eventTypeSubscribers: [PluginEventType: [UUID: Subscriber]] = [:]
 
@@ -51,7 +51,7 @@ public final class PluginEventBus: Observable {
         handler: @escaping @MainActor (T) -> Void
     ) -> AnyCancellable {
         let subscriberId = UUID()
-        let typeKey = String(reflecting: eventType)
+        let typeKey = ObjectIdentifier(eventType)
 
         typeSubscribers[typeKey, default: [:]][subscriberId] = { [handler] event in
             guard let typedEvent = event as? T else { return }
@@ -101,7 +101,7 @@ public final class PluginEventBus: Observable {
     }
 
     private func emitTyped(_ event: any PluginEvent) {
-        let typeKey = String(reflecting: type(of: event))
+        let typeKey = ObjectIdentifier(type(of: event))
         let subscribers = typeSubscribers[typeKey] ?? [:]
 
         for subscriber in subscribers.values {
