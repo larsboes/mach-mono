@@ -13,6 +13,7 @@ struct BriefTimelineEntry: TimelineEntry {
 
 struct BriefProvider: TimelineProvider {
     private let engine = BriefEngine()
+    private let calendar = Calendar.current
 
     func placeholder(in context: Context) -> BriefTimelineEntry {
         BriefTimelineEntry(date: .now, title: "lucid", subtitle: "(adjective.) /LOO-sid/", body: "Clear, easy to understand, or mentally sharp.", sourceID: "word", metadata: ["kind": "word"])
@@ -26,8 +27,20 @@ struct BriefProvider: TimelineProvider {
         Task {
             let now = Date()
             let settings = BriefSettingsCoding.load()
-            let items = await engine.timelineEntries(for: now, settings: settings)
-            let entries = items.map { item in
+            let tomorrow = calendar.date(byAdding: .day, value: 1, to: now) ?? now
+            let allItems = (
+                await engine.timelineEntries(for: now, settings: settings)
+            ) + (
+                await engine.timelineEntries(for: tomorrow, settings: settings)
+            )
+
+            let sorted = allItems.sorted { $0.date < $1.date }
+            let currentIndex = max(
+                0,
+                sorted.lastIndex { $0.date <= now } ?? 0
+            )
+            let visibleItems = Array(sorted[currentIndex...]).prefix(4)
+            let entries = visibleItems.map { item in
                 BriefTimelineEntry(
                     date: item.date,
                     title: item.entry.title,
@@ -37,7 +50,9 @@ struct BriefProvider: TimelineProvider {
                     metadata: item.entry.metadata
                 )
             }
-            completion(Timeline(entries: entries, policy: .after(now.addingTimeInterval(60 * 60 * 6))))
+
+            let refreshDate = entries.dropFirst().first?.date ?? now.addingTimeInterval(60 * 60 * 6)
+            completion(Timeline(entries: Array(entries), policy: .after(refreshDate)))
         }
     }
 }

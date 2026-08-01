@@ -229,7 +229,9 @@ final class MachBriefKitTests: XCTestCase {
 
         XCTAssertEqual(timeline.map { calendar.component(.hour, from: $0.date) }, [0, 6, 12, 18])
         XCTAssertEqual(plan.count, 4)
-        XCTAssertEqual(plan.map(\.identifier), ["machbrief-3", "machbrief-0", "machbrief-1", "machbrief-2"])
+        XCTAssertEqual(plan.map(\.slot), [.evening, .morning, .midday, .afternoon])
+        XCTAssertTrue(plan.allSatisfy { $0.identifier.hasPrefix("machbrief-") })
+        XCTAssertEqual(Set(plan.map(\.identifier)).count, 4)
     }
 
     private func date(

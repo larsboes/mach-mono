@@ -10,7 +10,15 @@ struct TodayView: View {
             if let entry = viewModel.currentEntry {
                 entryCard(entry)
             } else {
-                ContentUnavailableView("No entry yet", systemImage: "book.closed")
+                VStack(spacing: 10) {
+                    ContentUnavailableView("No entry yet", systemImage: "book.closed")
+                        .font(.headline)
+                    Button("Generate today's entry") {
+                        Task { await viewModel.refresh() }
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .frame(maxWidth: .infinity)
             }
             if let status = viewModel.statusMessage {
                 Text(status)

@@ -9,6 +9,7 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: BriefTodayViewModel?
     @State private var selectedTab: BriefTab = .today
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         VStack(spacing: 0) {
@@ -40,7 +41,18 @@ struct ContentView: View {
         .frame(width: 380, height: 480)
         .task {
             guard viewModel == nil else { return }
-            viewModel = BriefTodayViewModel(store: SwiftDataBriefStore(context: modelContext))
+            let model = BriefTodayViewModel(store: SwiftDataBriefStore(context: modelContext))
+            viewModel = model
+            await model.refresh()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            guard newPhase == .active else { return }
+            guard let viewModel else { return }
+            Task { await viewModel.refresh() }
+        }
+        .onChange(of: selectedTab) { _, _ in
+            guard let viewModel else { return }
+            Task { await viewModel.refresh() }
         }
     }
 }

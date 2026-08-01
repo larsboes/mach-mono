@@ -14,6 +14,8 @@ final class BriefTodayViewModel {
     let sourceDescriptors = BriefSourceRegistry.descriptors
     private let engine = BriefEngine()
     private let store: any BriefStore
+    private let notificationCenter = UNUserNotificationCenter.current()
+    private let calendar = Calendar.current
 
     init(store: any BriefStore) {
         self.store = store
@@ -23,6 +25,7 @@ final class BriefTodayViewModel {
     func refresh(date: Date = Date()) async {
         currentSlot = engine.currentSlot(for: date)
         currentEntry = await engine.ensureEntry(for: date, settings: settings, store: store, sinks: obsidianSinks())
+        await syncNotificationSchedule()
     }
 
     func toggleFavorite() async {
@@ -71,9 +74,24 @@ final class BriefTodayViewModel {
     func setNotificationsEnabled(_ isEnabled: Bool) async {
         settings.notificationsEnabled = isEnabled
         persistSettings()
-        guard isEnabled else { return }
-        let granted = (try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound])) ?? false
-        statusMessage = granted ? "Notifications enabled" : "Notifications not allowed"
+
+        guard isEnabled else {
+            await clearPendingNotifications()
+            statusMessage = "Notifications disabled"
+            return
+        }
+
+        let granted = (try? await notificationCenter.requestAuthorization(options: [.alert, .sound])) ?? false
+        if !granted {
+            settings.notificationsEnabled = false
+            persistSettings()
+            statusMessage = "Notifications not allowed"
+            await clearPendingNotifications()
+            return
+        }
+
+        await syncNotificationSchedule()
+        statusMessage = "Notifications enabled"
     }
 
     func setObsidianNotePath(_ path: String?) {
@@ -94,6 +112,71 @@ final class BriefTodayViewModel {
         }
         await ObsidianSink(noteURL: URL(fileURLWithPath: path)).receive(entry)
         statusMessage = "Test write sent"
+    }
+
+    private func syncNotificationSchedule() async {
+        guard settings.notificationsEnabled else { return }
+        let authorized = await notificationAuthorizationStatus() == .authorized
+        if !authorized {
+            settings.notificationsEnabled = false
+            persistSettings()
+            statusMessage = "Notifications disabled"
+            await clearPendingNotifications()
+            return
+        }
+
+        await clearPendingNotifications()
+
+        guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: Date()) else { return }
+        let timeline = (
+            await engine.timelineEntries(for: Date(), settings: settings)
+        ) + (
+            await engine.timelineEntries(for: tomorrow, settings: settings)
+        )
+
+        let upcoming = timeline
+            .filter { $0.date > Date() }
+            .sorted { $0.date < $1.date }
+            .prefix(4)
+
+        let plan = BriefNotificationPlanner.plan(for: Array(upcoming))
+
+        for item in plan {
+            do {
+                try await notificationCenter.add(NotificationSink.request(for: item))
+            } catch {
+                statusMessage = "Notification scheduling failed"
+                return
+            }
+        }
+
+        statusMessage = plan.isEmpty ? "No notifications available" : "Notifications scheduled"
+    }
+
+    private func clearPendingNotifications() async {
+        let identifiers = await machBriefNotificationIdentifiers()
+        notificationCenter.removePendingNotificationRequests(withIdentifiers: identifiers)
+        notificationCenter.removeDeliveredNotifications(withIdentifiers: identifiers)
+    }
+
+    private func machBriefNotificationIdentifiers() async -> [String] {
+        await withCheckedContinuation { continuation in
+            notificationCenter.getPendingNotificationRequests { requests in
+                continuation.resume(
+                    returning: requests
+                        .map(\.identifier)
+                        .filter { $0.hasPrefix(NotificationSink.identifierPrefix) }
+                )
+            }
+        }
+    }
+
+    private func notificationAuthorizationStatus() async -> UNAuthorizationStatus {
+        await withCheckedContinuation { continuation in
+            notificationCenter.getNotificationSettings { settings in
+                continuation.resume(returning: settings.authorizationStatus)
+            }
+        }
     }
 
     private func persistSettings() {
