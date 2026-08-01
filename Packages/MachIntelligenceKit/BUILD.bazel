@@ -5,7 +5,9 @@ swift_library(
     srcs = glob(["Sources/**/*.swift"]),
     module_name = "MachIntelligenceKit",
     visibility = ["//visibility:public"],
-    deps = [],
+    deps = [
+        "@swiftpkg_sqlite.swift//:SQLite",
+    ],
 )
 
 swift_test(

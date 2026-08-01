@@ -8,6 +8,7 @@
 //
 
 import Foundation
+import MachIntelligenceKit
 
 // MARK: - Media Services
 
@@ -68,6 +69,7 @@ public protocol UIServiceProvider {
 public protocol PluginExtensionServiceProvider {
     var apiRouteRegistrar: (any APIRouteRegistrar)? { get }
     var ai: any AITextGenerationService { get }
+    var aiEmbedding: any AIEmbeddingService { get }
     var bluetooth: (any BluetoothServiceProtocol)? { get }
     var bluetoothManager: any BluetoothStateServiceProtocol { get }
     var notesManager: any NotesServiceProtocol { get }

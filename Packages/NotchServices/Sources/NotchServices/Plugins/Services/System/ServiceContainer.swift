@@ -1,4 +1,5 @@
 import Foundation
+import MachIntelligenceKit
 
 /// Container for all services used by plugins.
 /// Provides dependency injection for plugin activation.
@@ -70,6 +71,9 @@ public final class ServiceContainer: NotchServiceProvider {
 
     /// AI Service (domain-level text generation)
     public let ai: any AITextGenerationService
+
+    /// AI Embedding service (domain-level text embeddings)
+    public let aiEmbedding: any AIEmbeddingService
 
     /// Bluetooth service (wraps BluetoothManager) - optional until implemented
     public var bluetooth: (any BluetoothServiceProtocol)?
@@ -151,5 +155,6 @@ public final class ServiceContainer: NotchServiceProvider {
         self.xpcHelper = xpcHelper
 
         self.ai = AITextGenerationServiceFactory.make(settings: settings)
+        self.aiEmbedding = AIEmbeddingServiceFactory.make(settings: settings)
     }
 }

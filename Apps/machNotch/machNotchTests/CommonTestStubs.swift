@@ -14,6 +14,7 @@ import EventKit
 import MacroVisionKit
 import UserNotifications
 import XCTest
+import MachIntelligenceKit
 
 @testable import machNotch
 
@@ -59,6 +60,7 @@ final class TestNotchServiceProvider: NotchServiceProvider {
     // PluginExtensionServiceProvider
     let apiRouteRegistrar: (any APIRouteRegistrar)? = nil
     let ai: any AITextGenerationService
+    let aiEmbedding: any AIEmbeddingService
     let bluetooth: (any BluetoothServiceProtocol)? = nil
     let bluetoothManager: any BluetoothStateServiceProtocol
     let notesManager: any NotesServiceProtocol
@@ -105,6 +107,7 @@ final class TestNotchServiceProvider: NotchServiceProvider {
         self.webcam = StubWebcamService()
         self.face = StubFaceService()
         self.ai = StubAIService()
+        self.aiEmbedding = StubAIEmbeddingService()
         self.bluetoothManager = StubBluetoothStateService()
         self.notesManager = StubNotesService()
         self.clipboardManager = StubClipboardService()
@@ -457,6 +460,12 @@ final class StubAIService: AITextGenerationService {
             continuation.yield(text)
             continuation.finish()
         }
+    }
+}
+
+final class StubAIEmbeddingService: AIEmbeddingService {
+    func embedding(for text: String) async throws -> [Float] {
+        []
     }
 }
 

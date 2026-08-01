@@ -14,6 +14,7 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../NotchCore"),
+        .package(path: "../MachIntelligenceKit"),
         .package(path: "../MacroVisionKit"),
         .package(url: "https://github.com/ChimeHQ/AsyncXPCConnection", exact: "1.3.0"),
         .package(url: "https://github.com/sindresorhus/Defaults", exact: "9.0.9"),
@@ -26,6 +27,7 @@ let package = Package(
             name: "NotchServices",
             dependencies: [
                 .product(name: "NotchCore", package: "NotchCore"),
+                .product(name: "MachIntelligenceKit", package: "MachIntelligenceKit"),
                 .product(name: "MacroVisionKit", package: "MacroVisionKit"),
                 .product(name: "AsyncXPCConnection", package: "AsyncXPCConnection"),
                 .product(name: "Defaults", package: "Defaults"),

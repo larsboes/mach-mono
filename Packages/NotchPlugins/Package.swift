@@ -15,6 +15,7 @@ let package = Package(
     dependencies: [
         .package(path: "../NotchCore"),
         .package(path: "../NotchServices"),
+        .package(path: "../MachIntelligenceKit"),
         .package(path: "../NotchUI"),
         .package(path: "../MachBriefKit"),
         .package(path: "../MachSoundKit"),
@@ -27,6 +28,7 @@ let package = Package(
             dependencies: [
                 .product(name: "NotchCore", package: "NotchCore"),
                 .product(name: "NotchServices", package: "NotchServices"),
+                .product(name: "MachIntelligenceKit", package: "MachIntelligenceKit"),
                 .product(name: "NotchUI", package: "NotchUI"),
                 .product(name: "MachBriefKit", package: "MachBriefKit"),
                 .product(name: "MachSoundKit", package: "MachSoundKit"),

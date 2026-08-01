@@ -10,6 +10,7 @@ swift_library(
     deps = [
         "//Packages/NotchCore:NotchCore",
         "//Packages/MacroVisionKit:MacroVisionKit",
+        "//Packages/MachIntelligenceKit:MachIntelligenceKit",
         "@swiftpkg_asyncxpcconnection//:AsyncXPCConnection",
         "@swiftpkg_defaults//:Defaults",
         "@swiftpkg_keyboardshortcuts//:KeyboardShortcuts",
