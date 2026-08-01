@@ -47,11 +47,11 @@ public actor InMemoryBriefStore: BriefStore {
     public func saveMoodResponse(entryID: UUID, rating: MoodRating, note: String?) {
         guard let index = values.firstIndex(where: { $0.id == entryID }) else { return }
         var entry = values[index]
-        entry.metadata["moodRating"] = rating.rawValue
+        entry.metadata[MoodMetadataKey.moodRating.rawValue] = rating.rawValue
         if let note, !note.isEmpty {
-            entry.metadata["moodNote"] = note
+            entry.metadata[MoodMetadataKey.moodNote.rawValue] = note
         } else {
-            entry.metadata.removeValue(forKey: "moodNote")
+            entry.metadata.removeValue(forKey: MoodMetadataKey.moodNote.rawValue)
         }
         values[index] = entry
     }

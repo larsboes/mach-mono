@@ -30,9 +30,10 @@ public struct ObsidianSink: BriefSink {
         let minute = calendar.component(.minute, from: entry.revealedAt)
         let time = String(format: "%02d:%02d", hour, minute)
 
-        if entry.metadata["kind"] == "mood_prompt" || entry.sourceID == "mood" {
-            let rating = entry.metadata["moodRating"] ?? "Unanswered"
-            let note = entry.metadata["moodNote"]
+        if entry.metadata[MoodMetadataKey.promptKind.rawValue] == MoodMetadataKey.promptKindValue
+            || entry.sourceID == "mood" {
+            let rating = entry.metadata[MoodMetadataKey.moodRating.rawValue] ?? "Unanswered"
+            let note = entry.metadata[MoodMetadataKey.moodNote.rawValue]
             return """
                 ## Mood - \(time)
                 Feeling: \(rating.capitalized)

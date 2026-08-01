@@ -3,10 +3,21 @@ load("@rules_apple//apple:macos.bzl", "macos_application", "macos_extension")
 load("//resources/tools:defs.bzl", "MINIMUM_MACOS_VERSION")
 
 swift_library(
+    name = "machBriefIntents_Lib",
+    srcs = glob(["machBrief/AppIntents/**/*.swift"]),
+    module_name = "machBriefIntents",
+    deps = ["//Packages/MachBriefKit"],
+    visibility = ["//visibility:private"],
+)
+
+swift_library(
     name = "machBriefWidget_Lib",
     srcs = glob(["machBriefWidget/**/*.swift"]),
     module_name = "machBriefWidget",
-    deps = ["//Packages/MachBriefKit"],
+    deps = [
+        ":machBriefIntents_Lib",
+        "//Packages/MachBriefKit",
+    ],
     visibility = ["//visibility:private"],
 )
 
@@ -14,7 +25,10 @@ swift_library(
     name = "machBrief_Lib",
     srcs = glob(["machBrief/**/*.swift"]),
     module_name = "machBrief",
-    deps = ["//Packages/MachBriefKit"],
+    deps = [
+        ":machBriefIntents_Lib",
+        "//Packages/MachBriefKit",
+    ],
     visibility = ["//visibility:private"],
 )
 

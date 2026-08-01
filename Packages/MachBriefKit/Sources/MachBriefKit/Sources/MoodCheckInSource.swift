@@ -8,6 +8,14 @@ public enum MoodRating: String, CaseIterable, Codable, Sendable {
     case terrible
 }
 
+public enum MoodMetadataKey: String, Sendable {
+    case moodRating = "moodRating"
+    case moodNote = "moodNote"
+    case promptKind = "kind"
+
+    public static let promptKindValue = "mood_prompt"
+}
+
 public struct MoodCheckInSource: BriefSource {
     public let id = "mood"
     public let displayName = "Mood Check-In"
@@ -27,7 +35,7 @@ public struct MoodCheckInSource: BriefSource {
             subtitle: isGerman
                 ? "Großartig / Gut / Okay / Schlecht / Furchtbar" : "Awesome / Good / Okay / Bad / Terrible",
             body: nil,
-            metadata: ["kind": "mood_prompt"],
+            metadata: [MoodMetadataKey.promptKind.rawValue: MoodMetadataKey.promptKindValue],
             revealedAt: date
         )
     }
