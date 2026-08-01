@@ -11,7 +11,7 @@ The repository has Bzlmod files and a Bazel roadmap. As the monorepo grows, we h
 
 Treat Bazel as the source of truth for build orchestration. Xcode will remain the IDE entrypoint, but Bazel targets are now production requirements.
 
-Keep the roadmap in `docs/roadmaps/bazel.md` instead of a root-level `BAZEL.md` so it is clearly part of docs.
+Keep the roadmap in `docs/Roadmap.md` instead of a root-level `BAZEL.md` so it is clearly part of docs.
 
 ## Consequences
 

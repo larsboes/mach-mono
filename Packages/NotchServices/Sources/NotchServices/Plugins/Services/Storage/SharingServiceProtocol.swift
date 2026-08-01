@@ -1,0 +1,17 @@
+//
+//  SharingServiceProtocol.swift
+//  machNotch
+//
+//  Created by Agent on 01/01/26.
+//
+
+import Foundation
+
+@MainActor
+public protocol SharingServiceProtocol: Observable {
+    var preventNotchClose: Bool { get }
+    func requestCloseIfReady()
+    func beginInteraction()
+    func endInteraction()
+    func makeDelegate(onEnd: (() -> Void)?) -> SharingLifecycleDelegate
+}

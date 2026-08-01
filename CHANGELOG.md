@@ -109,14 +109,14 @@ Completion of massive architectural refactoring. Monolithic singleton-based desi
 
 ### ✨ New Features
 
-* **Teleprompter Pro**: Full-featured teleprompter with countdown timer, mic monitoring, hover-to-pause, keyboard shortcuts, AI text assist (refine/summarize/draft via Ollama), control panel with speed/font/color.
+* **Teleprompter Pro**: Full-featured teleprompter with countdown timer, mic monitoring, hover-to-pause, keyboard shortcuts, AI text assist, control panel with speed/font/color.
 * **Browser Extension**: Safari web extension for media control from the notch.
 * **Habit Tracker Plugin**: Daily habit tracking with streaks, progress rings, persistent storage.
 * **Pomodoro Plugin**: Focus timer with work/break intervals, session history, notch-integrated controls.
 * **Display Surface Plugin**: Generic display arbitration for surfacing prioritized content.
 * **Notifications Plugin**: Dedicated system notification handling.
 * **Clipboard Plugin**: Clipboard history management from the notch.
-* **AI Subsystem**: `AIManager` + `AIProvider` protocol with Ollama backend for text generation.
+* **AI Subsystem**: `AIManager` + `AIProvider` protocol for text generation.
 * **Local API Server**: HTTP + WebSocket server for external integrations (`notchctl` CLI, browser extension). Auth middleware, rate limiting, plugin API routes.
 * **App Intents & URL Scheme**: Siri Shortcuts integration + `machnotch://` URL scheme handler.
 * **Protocol-Based Services**: Clean APIs enabling easy provider swaps.

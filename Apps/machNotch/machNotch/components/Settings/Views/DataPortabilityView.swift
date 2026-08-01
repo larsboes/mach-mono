@@ -14,8 +14,8 @@ struct DataPortabilityView: View {
     @State private var exportSuccess: String?
     @State private var isExporting = false
 
-    private var exportablePlugins: [any ExportablePlugin] {
-        pluginManager?.allPlugins.compactMap { $0.underlying as? (any ExportablePlugin) } ?? []
+    private var exportablePlugins: [PluginSummary] {
+        pluginManager?.allPluginSummaries.filter(\.isExportable) ?? []
     }
 
     var body: some View {
@@ -65,7 +65,7 @@ struct DataPortabilityView: View {
     }
 
     @ViewBuilder
-    private func pluginRow(_ plugin: any ExportablePlugin) -> some View {
+    private func pluginRow(_ plugin: PluginSummary) -> some View {
         Section(plugin.metadata.name) {
             HStack {
                 Image(systemName: plugin.metadata.icon)
@@ -94,14 +94,14 @@ struct DataPortabilityView: View {
         }
     }
 
-    private func formatBinding(for plugin: any ExportablePlugin) -> Binding<ExportFormat> {
+    private func formatBinding(for plugin: PluginSummary) -> Binding<ExportFormat> {
         Binding(
             get: { selectedFormats[plugin.id] ?? plugin.supportedExportFormats.first ?? .json },
             set: { selectedFormats[plugin.id] = $0 }
         )
     }
 
-    private func exportPlugin(_ plugin: any ExportablePlugin) {
+    private func exportPlugin(_ plugin: PluginSummary) {
         guard let pm = pluginManager else { return }
         let format = selectedFormats[plugin.id] ?? plugin.supportedExportFormats.first ?? .json
         let coordinator = ExportCoordinator(pluginManager: pm)
@@ -112,7 +112,7 @@ struct DataPortabilityView: View {
 
         Task {
             do {
-                try await coordinator.exportPlugin(plugin, format: format)
+                try await coordinator.exportPlugin(id: plugin.id, format: format)
                 exportSuccess = "\(plugin.metadata.name) exported successfully."
             } catch {
                 exportError = "Export failed: \(error.localizedDescription)"

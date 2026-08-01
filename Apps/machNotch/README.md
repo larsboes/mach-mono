@@ -47,14 +47,14 @@ Cherry-picked and adapted the best community contributions that were pending on 
 
 ### New Plugins
 
-- **Teleprompter Pro** — full-featured teleprompter with countdown timer, mic monitoring, hover-to-pause, keyboard shortcuts, AI text assist (refine/summarize/draft via Ollama), speed/font/color controls
+- **Teleprompter Pro** — full-featured teleprompter with countdown timer, mic monitoring, hover-to-pause, keyboard shortcuts, AI text assist, speed/font/color controls
 - **Habit Tracker** — daily habit tracking with streaks, progress rings, and persistent storage
 - **Pomodoro Timer** — focus timer with work/break intervals, session history, and notch-integrated controls
 - **Display Surface** — generic display arbitration for surfacing prioritized content
 
 ### AI & Integrations
 
-- **AI subsystem** — `AIManager` + `AIProvider` protocol with Ollama backend for on-device text generation
+- **AI subsystem** — Foundation Models by default with oMLX as an advanced localhost provider
 - **Local API server** — HTTP + WebSocket server for external integrations. Auth middleware, rate limiting, plugin API routes
 - **`notchctl` CLI** — command-line control of machNotch via the Local API
 - **App Intents & URL Scheme** — Siri Shortcuts integration + `machnotch://` deep links
@@ -134,7 +134,7 @@ The extension connects directly to machNotch via a local WebSocket to transmit m
 SwiftUI Views -> PluginManager -> NotchPlugin instances -> Service Protocols -> System APIs
 ```
 
-Every feature is a plugin. Plugins communicate via `PluginEventBus`, never by importing each other. See [docs/architecture/overview.md](../../docs/architecture/overview.md) for the full reference and [docs/guides/plugin-development.md](../../docs/guides/plugin-development.md) for the plugin development guide.
+Every feature is a plugin. Plugins communicate via `PluginEventBus`, never by importing each other. See [docs/Architecture.md](../../docs/Architecture.md) for the full reference and [docs/Guide.md](../../docs/Guide.md) for the plugin development guide.
 
 ---
 

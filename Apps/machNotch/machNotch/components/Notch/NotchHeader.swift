@@ -117,10 +117,8 @@ struct NotchHeader: View {
                 vm.toggleCameraPreview()
             }
         }
-        if settings.showBatteryIndicator,
-            let batteryPlugin = pluginManager?.plugin(id: PluginID.battery, as: BatteryPlugin.self)
-        {
-            batteryPlugin.headerContent()
+        if settings.showBatteryIndicator, let pluginManager {
+            pluginManager.batteryHeaderContent()
         }
         if settings.settingsIconInNotch {
             HeaderActionButton(icon: "gear") {

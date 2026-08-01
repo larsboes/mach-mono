@@ -42,4 +42,6 @@ use_repo(
     "swiftpkg_swift_collections",
     "swiftpkg_swift_syntax",
     "swiftpkg_swiftglass",
+    "swiftpkg_audiokit",
+    "swiftpkg_soundpipeaudiokit",
 )

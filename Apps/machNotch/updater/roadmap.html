@@ -158,9 +158,9 @@
 </div>
 <div class="rm-progress">
   <div class="rm-progress-track">
-    <div class="rm-progress-fill" style="width:0%"></div>
+    <div class="rm-progress-fill" style="width:30%"></div>
   </div>
-  <span class="rm-progress-label"><strong>0</strong> of 8 shipped</span>
+  <span class="rm-progress-label"><strong>3</strong> of 10 shipped</span>
 </div>
 <div class="rm-section">
   <div class="rm-label active">
@@ -170,38 +170,17 @@
   <div class="rm-cards">
     <div class="rm-card">
       <div class="rm-card-body">
+        <div class="rm-card-title">mach.brief</div>
+        <div class="rm-card-desc">A minimal daily briefing widget for macOS and iOS. Calendar, tasks, weather — without noise. Phase 1 (App Group infrastructure, cross-app settings sync) and Phase 2 (vocabulary level system, onboarding picker) shipped in v1.3.0. iOS and full feature set in progress.</div>
+      </div>
+      <div class="rm-card-meta"><span class="rm-tag">New App</span></div>
+    </div>
+    <div class="rm-card">
+      <div class="rm-card-body">
         <div class="rm-card-title">Obsidian Vault Sync</div>
         <div class="rm-card-desc">Notes created in the Shelf plugin write to a configurable Obsidian vault folder as Markdown files, kept in sync on every save.</div>
       </div>
       <div class="rm-card-meta"><span class="rm-tag">Shelf</span></div>
-    </div>
-    <div class="rm-card">
-      <div class="rm-card-body">
-        <div class="rm-card-title">Teleprompter Pro</div>
-        <div class="rm-card-desc">Full-featured teleprompter with countdown, mic monitoring, hover-to-pause, keyboard control, and AI text refinement via Ollama.</div>
-      </div>
-      <div class="rm-card-meta"><span class="rm-tag">Plugin</span></div>
-    </div>
-    <div class="rm-card">
-      <div class="rm-card-body">
-        <div class="rm-card-title">Habit Tracker</div>
-        <div class="rm-card-desc">Daily habit tracking with streaks, progress rings, and persistent storage — all from the notch.</div>
-      </div>
-      <div class="rm-card-meta"><span class="rm-tag">Plugin</span></div>
-    </div>
-    <div class="rm-card">
-      <div class="rm-card-body">
-        <div class="rm-card-title">Pomodoro Timer</div>
-        <div class="rm-card-desc">Focus timer with configurable work/break intervals, session history, and notch-integrated controls.</div>
-      </div>
-      <div class="rm-card-meta"><span class="rm-tag">Plugin</span></div>
-    </div>
-    <div class="rm-card">
-      <div class="rm-card-body">
-        <div class="rm-card-title">Browser Extension</div>
-        <div class="rm-card-desc">Safari web extension that surfaces media controls and SoundCloud metadata into the notch without leaving the browser.</div>
-      </div>
-      <div class="rm-card-meta"><span class="rm-tag">Extension</span></div>
     </div>
   </div>
 </div>
@@ -213,24 +192,10 @@
   <div class="rm-cards">
     <div class="rm-card">
       <div class="rm-card-body">
-        <div class="rm-card-title">mach.brief</div>
-        <div class="rm-card-desc">A minimal daily briefing widget for macOS and iOS. Calendar, tasks, weather — without noise.</div>
-      </div>
-      <div class="rm-card-meta"><span class="rm-tag">New App</span></div>
-    </div>
-    <div class="rm-card">
-      <div class="rm-card-body">
         <div class="rm-card-title">Plugin SDK</div>
         <div class="rm-card-desc">Public API and documentation so third-party developers can build and distribute their own notch plugins.</div>
       </div>
       <div class="rm-card-meta"><span class="rm-tag">Platform</span></div>
-    </div>
-    <div class="rm-card">
-      <div class="rm-card-body">
-        <div class="rm-card-title">Local API &amp; notchctl</div>
-        <div class="rm-card-desc">HTTP + WebSocket server for external integrations. CLI tool to control the notch from scripts, shortcuts, and other apps.</div>
-      </div>
-      <div class="rm-card-meta"><span class="rm-tag">Integration</span></div>
     </div>
   </div>
 </div>
@@ -240,7 +205,56 @@
     <span class="rm-title">Launched</span>
   </div>
   <div class="rm-cards">
-    <div class="rm-empty">No releases yet — first release coming soon.</div>
+    <div class="rm-card">
+      <div class="rm-card-body">
+        <div class="rm-card-title">v1.3.2 — 2026-05-16</div>
+        <div class="rm-card-desc">- <strong>Release pipeline unbroken</strong>: Codesign now uses the correct <code>rules_apple</code> bundle path (<code>bazel-bin/Apps/machNotch/machNotch_archive-root/machNotch.app</code>) — root cause of the v1.2.0/v1.3.0/v1.3.1 release-build failures. - <strong>Release dry-run on every <code>main</code> push</strong>: Packaging and codesign regressions caught pre-tag; release SHA matches build SHA; <code>cancel-in-progress: false</code> prevents split-state releases. - <strong>CI hardening</strong>: Consolidated Bazel cache keys + Bazelisk binary cache; swift-format strict mode enabled with cleared baseline; tag pattern restricted to semver; arch-check SRC path corrected; CodeQL Swift moved to manual dispatch. - <strong>Teleprompter UI cleanup (closes #11)</strong>: Final polish — <code>readingAreaHeightMultiplier</code> extraction and <code>ActionBarSecondaryStyle</code> relocation complete the cleanup tracked across prior sessions. - <strong>Note</strong>: v1.3.1 was tagged on 2026-05-15 but its release build failed at codesign and produced no artifact. v1.3.2 supersedes it.</div>
+      </div>
+    </div>
+    <div class="rm-card">
+      <div class="rm-card-body">
+        <div class="rm-card-title">v1.3.0 — 2026-05-10</div>
+        <div class="rm-card-desc">- <strong>PluginUIContext</strong>: New environment type resolves DIP violations — plugin views no longer depend directly on <code>NotchViewModel</code>. All built-in plugin views migrated. - <strong>mach.brief Phase 1+2</strong>: App Group infrastructure for cross-app settings sync; vocabulary level system with onboarding picker; word cache and offline fallback. - <strong>Bazel native build</strong>: Full migration to native Bazel rules for machNotch and XPC service bundle. Taskfile.yml replaces Makefile. - <strong>macOS 26 compatibility</strong>: Fixed XCTest async teardown crashes across multiple test files; switched CI to <code>macos-26</code> runner. - <strong>Fixes</strong>: Bluetooth permission suppression; persistent TCC/accessibility sentinel; Calendar compact access prompt; stats <code>UInt64</code> underflow guard.</div>
+      </div>
+    </div>
+    <div class="rm-card">
+      <div class="rm-card-body">
+        <div class="rm-card-title">v1.2.0 — 2026-05-03</div>
+        <div class="rm-card-desc">First public release. - <strong>Plugin System</strong>: <code>PluginManager</code> + <code>NotchPlugin</code> protocol. All core features (Music, Battery, Calendar, Shelf, Weather, Webcam) are standalone plugins. - <strong>Teleprompter Pro</strong>: Countdown timer, mic monitoring, hover-to-pause, keyboard shortcuts, AI text refinement. - <strong>Habit Tracker</strong>: Daily tracking with streaks, progress rings, and persistent storage. - <strong>Pomodoro Timer</strong>: Work/break intervals, session history, notch-integrated controls. - <strong>Browser Extension</strong>: Safari extension for media controls and SoundCloud metadata. - <strong>Local API &amp; notchctl</strong>: HTTP + WebSocket server for external integrations; <code>machnotch://</code> URL scheme; App Intents for Siri Shortcuts. - <strong>AI Subsystem</strong>: Foundation Models by default with oMLX as an advanced localhost provider. - <strong>SOLID/DDD hardening</strong>: 300+ singleton sites removed; <code>PluginID</code> enum; <code>DisplayPrioritizer</code>; <code>@Observable</code> migration. - <strong>Performance</strong>: Background service backoff, <code>AnyView</code> elimination, GPU/CoreAnimation gating, high-frequency leaf view isolation. ---</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="rm-section">
+  <div class="rm-label active">
+    <span class="rm-icon">↑</span>
+    <span class="rm-title">Bazel Monorepo Roadmap</span>
+  </div>
+  <div class="rm-cards">
+    <div class="rm-card">
+      <div class="rm-card-body">
+        <div class="rm-card-title">Phase 1: macOS Foundation</div>
+        <div class="rm-card-desc">1. [x] <strong>Install Bazel:</strong> Used <code>bazelisk</code>. 2. [x] <strong>Initialize Monorepo:</strong> Setup <code>MODULE.bazel</code> with <code>rules_apple</code>, <code>rules_swift</code>. 3. [x] <strong>Create Shared Core:</strong> Migrated <code>Packages/</code> to Bazel <code>swift_library</code> targets. 4. [x] <strong>Create macOS App:</strong> Defined <code>macos_application</code> target in <code>Apps/machNotch/BUILD.bazel</code>. 5. [x] <strong>Native Builds:</strong> Resolved <code>apple_crosstool_top</code> toolchain issue — upgraded to <code>rules_apple 4.5.3</code>, <code>rules_swift 3.6.1</code>, <code>apple_support 2.5.4</code>.</div>
+      </div>
+    </div>
+    <div class="rm-card">
+      <div class="rm-card-body">
+        <div class="rm-card-title">Phase 2: machBrief Integration</div>
+        <div class="rm-card-desc">1. [x] <strong>machBrief BUILD.bazel:</strong> Defined <code>macos_application</code> + <code>macos_extension</code> targets. 2. [x] <strong>MachBriefKit Bazel Tests:</strong> Added <code>swift_test</code> coverage at <code>//Packages/MachBriefKit:MachBriefKitTests</code>. 3. [x] <strong>XPC Service Bundling:</strong> <code>MachNotchXPCHelper</code> is wired as an embedded <code>macos_xpc_service</code> via <code>xpc_services</code> in <code>Apps/machNotch/BUILD.bazel</code>. 4. [x] <strong>Code Signing:</strong> Local builds sign via <code>task run</code> (Apple Development cert); CI signs Bazel output via <code>codesign --deep</code> in <code>build_reusable.yml</code>.</div>
+      </div>
+    </div>
+    <div class="rm-card">
+      <div class="rm-card-body">
+        <div class="rm-card-title">Phase 3: CI/CD</div>
+        <div class="rm-card-desc">- [x] Replace Xcode-based CI with <code>bazel build</code> + <code>bazel test</code> in GitHub Actions (cicd.yml fully on <code>bazelisk --config=ci</code>). - [x] Cache remote build results — <code>~/.cache/bazel-repos</code> + <code>~/.cache/bazel</code> keyed on <code>MODULE.bazel</code> / <code>Package.resolved</code> / BUILD files. - [x] Add dependency security signal — PR dependency review enforces high+ vulnerability and GPL/MPL-family license policy, while main/manual runs export the GitHub dependency graph SBOM artifact.</div>
+      </div>
+    </div>
+    <div class="rm-card">
+      <div class="rm-card-body">
+        <div class="rm-card-title">Phase 4: iOS / Cross-Platform</div>
+        <div class="rm-card-desc">- [ ] Create <code>ios_application</code> targets reusing <code>Packages/</code> modules. - [ ] Future: Integrate <code>rules_android</code> and <code>rules_kotlin</code> for machBrief Android.</div>
+      </div>
+    </div>
   </div>
 </div>
   </div>

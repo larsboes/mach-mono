@@ -2,9 +2,9 @@
 //  NotchHoverController.swift
 //  machNotch
 //
-//  Heartbeat-based hover controller. Polls NSEvent.mouseLocation every 16ms
-//  instead of trusting NSTrackingArea events (which fire spuriously during
-//  SwiftUI layout shifts).
+//  Heartbeat-based hover controller. Polls NSEvent.mouseLocation at an adaptive rate
+//  (16ms when mouse moves, 100ms when stationary) instead of trusting NSTrackingArea
+//  events (which fire spuriously during SwiftUI layout shifts).
 //
 
 import SwiftUI
@@ -95,10 +95,18 @@ enum HoverState: Equatable {
     func startHeartbeat() {
         guard heartbeat == nil else { return }
         heartbeat = Task { [weak self] in
+            var lastMouseLocation = NSEvent.mouseLocation
             while !Task.isCancelled {
                 guard let self else { break }
                 self.tick()
-                try? await Task.sleep(for: .milliseconds(32))
+
+                // Adapt polling rate to mouse activity:
+                // - Moving → 16ms (60Hz) for responsive hover detection
+                // - Stationary → 100ms (10Hz) to save CPU/battery
+                let currentLocation = NSEvent.mouseLocation
+                let isMoving = currentLocation != lastMouseLocation
+                lastMouseLocation = currentLocation
+                try? await Task.sleep(for: .milliseconds(isMoving ? 16 : 100))
             }
         }
     }

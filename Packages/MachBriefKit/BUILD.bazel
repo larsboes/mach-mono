@@ -4,7 +4,12 @@ load("@rules_apple//apple:resources.bzl", "apple_resource_bundle")
 apple_resource_bundle(
     name = "MachBriefKit_Resources",
     bundle_name = "MachBriefKit_MachBriefKit",
-    resources = glob(["Resources/**"]),
+    # Single source of truth: the SPM target's resource directory (also
+    # referenced by Package.swift's `.process("Resources")`). Do not
+    # reintroduce a package-root `Resources/` directory — a prior duplicate
+    # there drifted out of sync (missing quotes_de.json, stale word lists)
+    # and shipped silently broken in Bazel release builds.
+    resources = glob(["Sources/MachBriefKit/Resources/**"]),
 )
 
 swift_library(

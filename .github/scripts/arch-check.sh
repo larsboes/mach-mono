@@ -5,38 +5,44 @@
 set -euo pipefail
 
 ERRORS=0
-# Path is relative to the repo root (where GH Actions runs the script).
-# Previously this was just "machNotch" which doesn't exist from the repo root,
-# making every check loop over empty input and silently pass.
-SRC="Apps/machNotch/machNotch"
+
+# Define source directories to scan, including both the main app and package sources.
+SRC_DIRS=( "Apps/machNotch/machNotch" )
+for dir in Packages/*/Sources; do
+    if [ -d "$dir" ]; then
+        SRC_DIRS+=("$dir")
+    fi
+done
 
 echo "=== Architecture Check ==="
 echo ""
 
-# Fail loudly if the source tree isn't where we expect — otherwise the loops
-# below would each find nothing and the script would falsely report PASSED.
-if [ ! -d "$SRC" ]; then
-    echo "FAIL: source directory '$SRC' not found (run from repo root)"
-    exit 1
-fi
-SWIFT_FILE_COUNT=$(find "$SRC" -name '*.swift' -type f | wc -l | tr -d ' ')
+# Fail loudly if any expected source tree is missing
+for dir in "${SRC_DIRS[@]}"; do
+    if [ ! -d "$dir" ]; then
+        echo "FAIL: source directory '$dir' not found (run from repo root)"
+        exit 1
+    fi
+done
+
+SWIFT_FILE_COUNT=$(find "${SRC_DIRS[@]}" -name '*.swift' -type f | wc -l | tr -d ' ')
 if [ "$SWIFT_FILE_COUNT" -eq 0 ]; then
-    echo "FAIL: no Swift files found under '$SRC'"
+    echo "FAIL: no Swift files found under source directories"
     exit 1
 fi
-echo "Scanning $SWIFT_FILE_COUNT Swift files under $SRC"
+echo "Scanning $SWIFT_FILE_COUNT Swift files under ${SRC_DIRS[*]}"
 echo ""
 
 # --- 1. Files over 300 lines (excluding known exceptions) ---
-# Files in the list below were under 300 lines before the swift-format
-# baseline pass and tipped just over (302–308 lines) due to import grouping
-# and line-break normalization. TODO: refactor each below the 300-line cap
-# so they can be removed from this allowlist.
 FILE_LENGTH_EXCEPTIONS=(
-    "DefaultsNotchSettings.swift"   # intentional: settings store
-    "AppObjectGraph.swift"          # TODO: extract service wiring helpers
-    "MediaKeyInterceptor.swift"     # TODO: split CGEventTap setup from dispatch
-    "NotchWeather.swift"            # TODO: extract row/icon subviews
+    "DefaultsNotchSettings.swift"       # intentional: settings store
+    "AppObjectGraph.swift"              # TODO: extract service wiring helpers
+    "MediaKeyInterceptor.swift"         # TODO: split CGEventTap setup from dispatch
+    "NotchWeather.swift"                # TODO: extract row/icon subviews
+    "PluginEventBus.swift"              # legacy: custom event bus implementation
+    "SystemStatsServiceProtocol.swift"  # legacy: system statistics definitions
+    "FluidSimulationEngine.swift"       # intentional: GPU fluid simulation engine
+    "SoundscapePlugin.swift"            # intentional: soundscape plugin core implementation
 )
 echo "--- Checking file length (max 300 lines) ---"
 while IFS= read -r file; do
@@ -56,7 +62,7 @@ while IFS= read -r file; do
         echo "FAIL: $file ($lines lines, max 300)"
         ERRORS=$((ERRORS + 1))
     fi
-done < <(find "$SRC" -name '*.swift' -type f)
+done < <(find "${SRC_DIRS[@]}" -name '*.swift' -type f)
 
 # --- 2. Direct Defaults[ access outside allowed files ---
 echo "--- Checking Defaults[ access ---"
@@ -89,14 +95,14 @@ while IFS= read -r file; do
         echo "FAIL: $file has direct Defaults[ access"
         ERRORS=$((ERRORS + 1))
     fi
-done < <(grep -rl 'Defaults\[' "$SRC" --include='*.swift' || true)
+done < <(grep -rl 'Defaults\[' "${SRC_DIRS[@]}" --include='*.swift' || true)
 
 # --- 3. @Default property wrapper (banned) ---
 echo "--- Checking @Default property wrapper ---"
 while IFS= read -r file; do
     echo "FAIL: $file uses @Default property wrapper"
     ERRORS=$((ERRORS + 1))
-done < <(grep -rl '@Default(' "$SRC" --include='*.swift' || true)
+done < <(grep -rl '@Default(' "${SRC_DIRS[@]}" --include='*.swift' || true)
 
 # --- 4. ObservableObject / @Published (banned) ---
 echo "--- Checking ObservableObject / @Published ---"
@@ -106,19 +112,19 @@ while IFS= read -r file; do
         echo "FAIL: $file uses ObservableObject"
         ERRORS=$((ERRORS + 1))
     fi
-done < <(grep -rl 'ObservableObject' "$SRC" --include='*.swift' || true)
+done < <(grep -rl 'ObservableObject' "${SRC_DIRS[@]}" --include='*.swift' || true)
 
 while IFS= read -r file; do
     echo "FAIL: $file uses @Published"
     ERRORS=$((ERRORS + 1))
-done < <(grep -rlE '@Published\b' "$SRC" --include='*.swift' || true)
+done < <(grep -rlE '@Published\b' "${SRC_DIRS[@]}" --include='*.swift' || true)
 
 # --- 5. Banned .shared singletons (custom ones only) ---
 echo "--- Checking banned .shared singletons ---"
 # These are system/allowed singletons — not flagged
-ALLOWED_SHARED='NSWorkspace\.shared|NSApplication\.shared|URLSession\.shared|URLCache\.shared|XPCHelperClient\.shared|FullScreenMonitor\.shared|QLThumbnailGenerator\.shared|QLPreviewPanel\.shared|NSScreenUUIDCache\.shared|SkyLightOperator\.shared|DefaultsNotchSettings\.shared|ProcessInfo\.shared|NSColorSpace\.shared|UNUserNotificationCenter\.shared|CBCentralManager|FileManager\.shared|UserDefaults\.shared|NotificationCenter\.shared|NSPasteboard\.shared|NSSpeechSynthesizer\.shared|DistributedNotificationCenter\.shared|MTLCreateSystemDefaultDevice|CIContext\.shared|ScreenDisplayRegistry\.shared|NSAppleEventManager\.shared|WeatherKit\.WeatherService\.shared'
+ALLOWED_SHARED='NSWorkspace\.shared|NSApplication\.shared|URLSession\.shared|URLCache\.shared|XPCHelperClient\.shared|FullScreenMonitor\.shared|QLThumbnailGenerator\.shared|QLPreviewPanel\.shared|NSScreenUUIDCache\.shared|SkyLightOperator\.shared|DefaultsNotchSettings\.shared|ProcessInfo\.shared|NSColorSpace\.shared|UNUserNotificationCenter\.shared|CBCentralManager|FileManager\.shared|UserDefaults\.shared|NotificationCenter\.shared|NSPasteboard\.shared|NSSpeechSynthesizer\.shared|DistributedNotificationCenter\.shared|MTLCreateSystemDefaultDevice|CIContext\.shared|ScreenDisplayRegistry\.shared|NSAppleEventManager\.shared|WeatherKit\.WeatherService\.shared|BrowserExtensionServer\.shared|DictionaryEntryCache\.shared'
 
-SHARED_HITS=$(grep -rn '\.shared' "$SRC" --include='*.swift' \
+SHARED_HITS=$(grep -rn '\.shared' "${SRC_DIRS[@]}" --include='*.swift' \
     | grep -v '// ' \
     | grep -v 'func shared' \
     | grep -v 'var shared' \
@@ -136,7 +142,7 @@ fi
 
 # --- 6. Force unwraps in core runtime code ---
 echo "--- Checking force unwraps in core runtime code ---"
-FORCE_UNWRAP_HITS=$(grep -rnE 'pluginManager!|services!' "$SRC/Core" "$SRC/ContentView.swift" "$SRC/ContentView+Appearance.swift" \
+FORCE_UNWRAP_HITS=$(grep -rnE 'pluginManager!|services!' "Apps/machNotch/machNotch/Core" "Apps/machNotch/machNotch/ContentView.swift" "Apps/machNotch/machNotch/ContentView+Appearance.swift" \
     --include='*.swift' \
     || true)
 

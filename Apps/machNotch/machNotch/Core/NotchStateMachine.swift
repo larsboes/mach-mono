@@ -9,26 +9,7 @@
 import Foundation
 import Observation
 
-// MARK: - Display State Types
 
-/// Represents what the notch should display at any given moment.
-/// This enum centralizes the branching logic currently scattered in ContentView.
-enum NotchDisplayState: Equatable, Sendable {
-    case closed(content: ClosedContent)
-    case open(view: NotchViews)
-    case helloAnimation
-    case sneakPeek(type: SneakContentType, value: CGFloat, icon: String)
-    case expanding(type: SneakContentType)
-
-    /// Content displayed when the notch is closed
-    enum ClosedContent: Equatable, Sendable {
-        case idle
-        case plugin(String)  // Generic plugin content
-        case face
-        case inlineHUD(type: SneakContentType, value: CGFloat, icon: String)
-        case sneakPeek(type: SneakContentType, value: CGFloat, icon: String)
-    }
-}
 
 // MARK: - State Machine
 
@@ -71,6 +52,7 @@ class NotchStateMachine {
     private let settings: NotchSettings
 
     @ObservationIgnored nonisolated(unsafe) private var observationTask: Task<Void, Never>?
+    @ObservationIgnored private var lastInput: NotchStateInput?
 
     /// Production initializer
     init(
@@ -123,12 +105,28 @@ class NotchStateMachine {
 
     /// Update the display state and publish changes
     func update() {
-        let newState = computeDisplayState()
+        let currentInput = getCurrentInput()
+
+        // Skip full evaluation if inputs haven't changed.
+        // Guards against redundant decision-tree walks on every observed property tick
+        // (e.g. closed-notch sizing cycles, music playback pings).
+        guard currentInput != lastInput else {
+            // Still sync pluginPreferredHeight — it can change independently
+            syncPluginPreferredHeight()
+            return
+        }
+        lastInput = currentInput
+
+        let newState = computeDisplayState(from: currentInput)
         if displayState != newState {
             displayState = newState
         }
 
-        // Sync plugin preferred height for notch sizing
+        syncPluginPreferredHeight()
+    }
+
+    /// Sync the plugin preferred height for notch sizing without re-evaluating the full state.
+    private func syncPluginPreferredHeight() {
         if let activePluginId = pluginManager?.highestPriorityClosedNotchPlugin(),
             let plugin = pluginManager?.plugin(id: activePluginId),
             let preferredHeight = plugin.displayRequest?.preferredHeight

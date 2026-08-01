@@ -1,0 +1,39 @@
+{
+  "skill-mirror": {
+    "PostToolUse": [
+      {
+        "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"$(git rev-parse --show-toplevel)/scripts/sync-skills.ts\" --quiet",
+            "timeout": 20
+          }
+        ]
+      }
+    ]
+  },
+  "command-gate": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"$(git rev-parse --show-toplevel)/scripts/hooks/command-gate.ts\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "green-gate": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "bun \"$(git rev-parse --show-toplevel)/scripts/hooks/stop-gate.ts\"",
+        "timeout": 60
+      }
+    ]
+  }
+}

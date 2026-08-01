@@ -1,0 +1,15 @@
+//
+//  ThumbnailServiceProtocol.swift
+//  machNotch
+//
+//  Created by Agent on 01/01/26.
+//
+
+import CoreGraphics
+import Foundation
+
+public protocol ThumbnailServiceProtocol: Sendable {
+    func thumbnail(for url: URL, size: CGSize) async -> CGImage?
+    func clearCache() async
+    func clearCache(for url: URL) async
+}

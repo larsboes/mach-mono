@@ -1,5 +1,5 @@
 ---
-name: swift
+name: "swift"
 description: "Use when working with Swift code, especially macOS SwiftUI apps with modern concurrency, plugin architectures, and dependency injection. Covers @MainActor, @Observable, structured concurrency, protocol-based design, and Swift 6 migration."
 # @sync: public
 ---
@@ -332,3 +332,7 @@ Before claiming a Swift refactor is complete:
 - [ ] File length ≤ 300 lines
 - [ ] Protocol-based services injected via init
 - [ ] `@Observable` used instead of `ObservableObject`
+
+## Codex Invocation
+
+Use this skill for Swift and SwiftUI work. The Claude sync marker is not a Codex skill field; the migrated Codex skill keeps the operative guidance here.

@@ -51,6 +51,10 @@ swift_library(
 )
 
 _SHARED_DEPS = [
+    "//Packages/NotchCore",
+    "//Packages/NotchUI",
+    "//Packages/NotchPlugins",
+    "//Packages/NotchServices:NotchServices",
     "//Packages/NotchSettingsMacro:NotchSettingsMacro",
     "//Packages/MacroVisionKit",
     "//Packages/MachBriefKit",
@@ -66,20 +70,33 @@ _SHARED_DEPS = [
     "@swiftpkg_swiftglass//:SwiftGlass",
 ]
 
+_MACH_NOTCH_LIB_SRCS = glob(
+    ["machNotch/**/*.swift"],
+    # Exclude @main entry point so tests can link against this library.
+    # Exclude StatusBarMenu.swift (WIP, not in Xcode target).
+    exclude = [
+        "machNotch/machNotchApp.swift",
+        "machNotch/menu/StatusBarMenu.swift",
+    ],
+)
+
 # Testable core — all sources except the @main entry point.
 swift_library(
     name = "machNotch_Lib",
-    srcs = glob(
-        ["machNotch/**/*.swift"],
-        # Exclude @main entry point so tests can link against this library.
-        # Exclude StatusBarMenu.swift (WIP, not in Xcode target).
-        exclude = [
-            "machNotch/machNotchApp.swift",
-            "machNotch/menu/StatusBarMenu.swift",
-        ],
-    ),
+    srcs = _MACH_NOTCH_LIB_SRCS,
     module_name = "machNotch",
     deps = _SHARED_DEPS,
+    visibility = ["//visibility:private"],
+)
+
+swift_library(
+    name = "machNotch_LibWithSoundscape",
+    srcs = _MACH_NOTCH_LIB_SRCS,
+    module_name = "machNotchWithSoundscape",
+    defines = ["MACH_NOTCH_SOUNDSCAPE"],
+    deps = _SHARED_DEPS + [
+        "//Packages/NotchPlugins:NotchPluginsWithSoundscape",
+    ],
     visibility = ["//visibility:private"],
 )
 
@@ -88,12 +105,24 @@ swift_library(
 # app bundle but not in the test binary (which cannot load it without embedding).
 swift_library(
     name = "machNotch_App",
-    srcs = glob(
-        ["machNotch/**/*.swift"],
-        exclude = ["machNotch/menu/StatusBarMenu.swift"],
-    ),
-    module_name = "machNotch",
-    deps = [":MediaRemoteAdapter"] + _SHARED_DEPS,
+    srcs = ["machNotch/machNotchApp.swift"],
+    module_name = "machNotchApp",
+    deps = [
+        ":MediaRemoteAdapter",
+        ":machNotch_Lib",
+    ],
+    visibility = ["//visibility:private"],
+)
+
+swift_library(
+    name = "machNotch_AppWithSoundscape",
+    srcs = ["machNotch/machNotchApp.swift"],
+    module_name = "machNotchAppWithSoundscape",
+    defines = ["MACH_NOTCH_SOUNDSCAPE"],
+    deps = [
+        ":MediaRemoteAdapter",
+        ":machNotch_LibWithSoundscape",
+    ],
     visibility = ["//visibility:private"],
 )
 
@@ -125,6 +154,19 @@ macos_xpc_service(
     deps = [":MachNotchXPCHelper_Lib"],
 )
 
+macos_xpc_service(
+    name = "MachNotchXPCHelperWithSoundscape",
+    bundle_id = "com.larsboes.machNotch.soundscape.MachNotchXPCHelper",
+    infoplists = [
+        "MachNotchXPCHelper/Info.plist",
+        "MachNotchXPCHelper/bazel_xpc_info.plist",
+    ],
+    minimum_os_version = MINIMUM_MACOS_VERSION,
+    entitlements = "MachNotchXPCHelper/MachNotchXPCHelper.entitlements",
+    version = ":machNotchVersion",
+    deps = [":MachNotchXPCHelper_Lib"],
+)
+
 macos_application(
     name = "machNotch",
     bundle_id = "com.larsboes.machNotch",
@@ -139,5 +181,22 @@ macos_application(
     deps = [":machNotch_App"],
     resources = [":machNotch_Resources"],
     xpc_services = [":MachNotchXPCHelper"],
+    visibility = ["//visibility:public"],
+)
+
+macos_application(
+    name = "machNotchWithSoundscape",
+    bundle_id = "com.larsboes.machNotch.soundscape",
+    infoplists = [
+        "machNotch/Info.plist",
+        "bazel_info.plist",
+    ],
+    minimum_os_version = MINIMUM_MACOS_VERSION,
+    entitlements = "machNotch/machNotch.entitlements",
+    stamp = 1,
+    version = ":machNotchVersion",
+    deps = [":machNotch_AppWithSoundscape"],
+    resources = [":machNotch_Resources"],
+    xpc_services = [":MachNotchXPCHelperWithSoundscape"],
     visibility = ["//visibility:public"],
 )

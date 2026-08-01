@@ -39,7 +39,7 @@ Rationale:
 Accepted:
 
 - Every release will trigger a Gatekeeper warning on first launch.
-- The README install section and `docs/guides/sideloading.md` must document the workaround so users don't bounce.
+- The README install section and `docs/Guide.md` must document the workaround so users don't bounce.
 - Sparkle auto-update will still work (ed25519 signatures are independent of Developer ID), but the **first** install still hits the warning.
 - The CHANGELOG `v1.3.2` entry already notes this as a known limitation.
 

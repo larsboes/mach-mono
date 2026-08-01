@@ -6,8 +6,13 @@
 //
 
 import Combine
+import Defaults
 import Foundation
 import SwiftUI
+
+#if MACH_NOTCH_SOUNDSCAPE
+    import NotchPluginsWithSoundscape
+#endif
 
 @MainActor
 final class AppObjectGraph {
@@ -62,9 +67,17 @@ final class AppObjectGraph {
             appState: NotchAppState(),
             mediaSettings: settings,
             coordinator: coordinator,
-            builtInPlugins: PluginRegistry.makeBuiltInPlugins()
+            builtInDescriptors: Self.makeBuiltInPluginDescriptors()
         )
     }()
+
+    private static func makeBuiltInPluginDescriptors() -> [PluginDescriptor] {
+        #if MACH_NOTCH_SOUNDSCAPE
+            SoundscapePluginRegistry.makeBuiltInDescriptors()
+        #else
+            PluginRegistry.makeBuiltInDescriptors()
+        #endif
+    }
 
     // MARK: - View Model
 
@@ -191,7 +204,7 @@ final class AppObjectGraph {
     private var screenUnlockedObserver: Any?
 
     func startObservationTracking() {
-        // System event — not settings-driven, stays as notification
+        // System events — not settings-driven, stay as notification observers
         NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didActivateApplicationNotification,
             object: nil,
@@ -200,7 +213,6 @@ final class AppObjectGraph {
             Task { @MainActor in self?.adjustWindowPosition() }
         }
 
-        // Screen lock/unlock via distributed notifications — no @Observable equivalent
         screenLockedObserver = DistributedNotificationCenter.default().addObserver(
             forName: NSNotification.Name(rawValue: "com.apple.screenIsLocked"),
             object: nil, queue: .main
@@ -214,81 +226,57 @@ final class AppObjectGraph {
             Task { @MainActor in self?.onScreenUnlocked() }
         }
 
-        // showOnAllDisplays → full window layout reset
+        // ─── Merged Defaults-backed observations ─────────────────────────────
+        // Replaced 5 separate withObservationTracking+withCheckedContinuation loops
+        // with 2 streamlined tasks using Defaults.updates (async sequences).
+        // Defaults.updates uses lightweight KVO internally — no continuation overhead.
+
+        // Group A: showOnAllDisplays → full window layout reset (separate because
+        // it calls cleanupWindows which is expensive and should not run on every
+        // sizing property change).
         observerTasks.append(
             Task { @MainActor [weak self] in
-                while !Task.isCancelled {
-                    await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
-                        withObservationTracking {
-                            _ = self?.settings.showOnAllDisplays
-                        } onChange: {
-                            c.resume()
-                        }
-                    }
-                    guard let self, !Task.isCancelled else { return }
+                for await _ in Defaults.updates(DefaultsNotchSettings.showOnAllDisplaysKey) {
+                    guard let self, !Task.isCancelled else { break }
                     self.cleanupWindows(shouldInvert: true)
                     self.adjustWindowPosition(changeAlpha: true)
                     self.setupDragDetectors()
                 }
             })
 
-        // automaticallySwitchDisplay → window alpha for multi-display
+        // Group B: All other Defaults-backed properties → window position &
+        // drag detector geometry. Uses Defaults.updates with an array of keys
+        // to watch sizing, drag, and auto-switch properties in a single task.
+        // Duplicate calls to adjustWindowPosition/setupDragDetectors are harmless
+        // (they're idempotent).
         observerTasks.append(
             Task { @MainActor [weak self] in
-                while !Task.isCancelled {
-                    await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
-                        withObservationTracking {
-                            _ = self?.settings.automaticallySwitchDisplay
-                        } onChange: {
-                            c.resume()
-                        }
-                    }
-                    guard let self, !Task.isCancelled else { return }
-                    guard let window = self.window else { continue }
-                    window.alphaValue =
-                        self.coordinator.selectedScreenUUID == self.coordinator.preferredScreenUUID ? 1 : 0
-                }
-            })
+                for await _ in Defaults.updates([
+                    DefaultsNotchSettings.automaticallySwitchDisplayKey,
+                    DefaultsNotchSettings.notchHeightKey,
+                    DefaultsNotchSettings.notchHeightModeKey,
+                    DefaultsNotchSettings.nonNotchHeightKey,
+                    DefaultsNotchSettings.nonNotchHeightModeKey,
+                    DefaultsNotchSettings.inactiveNotchHeightKey,
+                    DefaultsNotchSettings.useInactiveNotchHeightKey,
+                    DefaultsNotchSettings.expandedDragDetectionKey,
+                ]) {
+                    guard let self, !Task.isCancelled else { break }
 
-        // Sizing properties → window position + drag detector geometry
-        observerTasks.append(
-            Task { @MainActor [weak self] in
-                while !Task.isCancelled {
-                    await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
-                        withObservationTracking {
-                            _ = self?.settings.notchHeight
-                            _ = self?.settings.notchHeightMode
-                            _ = self?.settings.nonNotchHeight
-                            _ = self?.settings.nonNotchHeightMode
-                            _ = self?.settings.inactiveNotchHeight
-                            _ = self?.settings.useInactiveNotchHeight
-                        } onChange: {
-                            c.resume()
-                        }
+                    // Update alpha for auto-switch (no-op if feature is off)
+                    if let window = self.window {
+                        window.alphaValue =
+                            self.coordinator.selectedScreenUUID == self.coordinator.preferredScreenUUID ? 1 : 0
                     }
-                    guard let self, !Task.isCancelled else { return }
+
                     self.adjustWindowPosition()
                     self.setupDragDetectors()
                 }
             })
 
-        // expandedDragDetection → drag detector rebuild
-        observerTasks.append(
-            Task { @MainActor [weak self] in
-                while !Task.isCancelled {
-                    await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
-                        withObservationTracking {
-                            _ = self?.settings.expandedDragDetection
-                        } onChange: {
-                            c.resume()
-                        }
-                    }
-                    guard let self, !Task.isCancelled else { return }
-                    self.setupDragDetectors()
-                }
-            })
-
-        // coordinator.selectedScreenUUID → window position after preferred screen change
+        // ─── @Observable property ────────────────────────────────────────────
+        // coordinator.selectedScreenUUID is @Observable, not Defaults-backed.
+        // This is the single remaining withObservationTracking task (reduced from 6).
         observerTasks.append(
             Task { @MainActor [weak self] in
                 while !Task.isCancelled {

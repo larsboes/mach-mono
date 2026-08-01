@@ -1,0 +1,19 @@
+load("@rules_swift//swift:swift.bzl", "swift_library", "swift_test")
+
+swift_library(
+    name = "NotchCore",
+    srcs = glob(["Sources/**/*.swift"]),
+    module_name = "NotchCore",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//Packages/NotchSettingsMacro:NotchSettingsMacro",
+        "@swiftpkg_defaults//:Defaults",
+    ],
+    defines = ["SWIFT_PACKAGE"],
+)
+
+swift_test(
+    name = "NotchCoreTests",
+    srcs = glob(["Tests/**/*.swift"]),
+    deps = [":NotchCore"],
+)

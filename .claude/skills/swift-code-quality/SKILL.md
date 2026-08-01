@@ -1,6 +1,6 @@
 ---
-name: swift-code-quality
-description: Swift code quality rules for mach-mono — 300-line file limit, @Observable, no singletons in views, no direct Defaults access, protocol-based services. Auto-loaded when editing .swift files.
+name: "swift-code-quality"
+description: "Swift code quality rules for mach-mono \u2014 300-line file limit, @Observable, no singletons in views, no direct Defaults access, protocol-based services. Auto-loaded when editing .swift files."
 user-invocable: false
 paths: "**/*.swift"
 ---
@@ -96,3 +96,7 @@ Never depend on concrete service types — always use the protocol.
 - [ ] New state classes use `@Observable @MainActor final class`
 - [ ] New services have a protocol
 - [ ] `bazelisk build //Apps/machNotch:machNotch` passes
+
+## Codex Invocation
+
+Use this skill for Swift file edits and reviews. Codex does not enforce Claude `paths` or `user-invocable` metadata, so the file-scope trigger is preserved in the description.

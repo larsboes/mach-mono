@@ -4,17 +4,17 @@
 
 # Agent Guidelines
 
-> **Adapter note:** Canonical architecture docs live in `docs/architecture/overview.md`, and canonical repo facts live in `repo.yaml`. Keep this file as an agent-focused quick reference.
+> **Adapter note:** Canonical architecture docs live in `docs/Architecture.md`, and canonical repo facts live in `repo.yaml`. Keep this file as an agent-focused quick reference.
 
 ## Documentation Pointers
 
-- **Architecture Details:** See [`docs/architecture/plugin-system.md`](architecture/plugin-system.md) and [`docs/architecture/overview.md`](architecture/overview.md).
-- **Feature Ideas & Concepts:** See [`docs/prds/ideas.md`](prds/ideas.md) and [`docs/prds/machNotch.md`](prds/machNotch.md).
-- **Plugin Guide:** See [`docs/guides/plugin-development.md`](guides/plugin-development.md).
+- **Architecture Details:** See [`docs/Architecture.md`](Architecture.md).
+- **Feature Ideas & Concepts:** See [`Plans/PRDs/machNotch-ideas.md`](../Plans/PRDs/machNotch-ideas.md) and [`Plans/PRDs/machNotch.md`](../Plans/PRDs/machNotch.md).
+- **Plugin Guide:** See [`docs/Guide.md`](Guide.md).
 
 # Plugin Architecture Conventions
 
-> **Adapter note:** Canonical repo facts live in `repo.yaml`; product and architecture details live in `docs/prds/machNotch.md` and `docs/architecture/overview.md`. Keep this file as an agent-focused checklist.
+> **Adapter note:** Canonical repo facts live in `repo.yaml`; product and architecture details live in `Plans/PRDs/machNotch.md` and `docs/Architecture.md`. Keep this file as an agent-focused checklist.
 >
 > **Purpose:** Define the coding patterns and conventions for the plugin architecture to ensure consistency and avoid common pitfalls.
 
@@ -123,7 +123,7 @@ protocol AppStateProviding: AnyObject {
 
 # Design System: Minimalistic Aesthetic
 
-> **Adapter note:** Durable repo facts belong in `repo.yaml`; product-specific design scope belongs in the relevant PRD under `docs/prds/`. Keep this file as a concise cross-app design checklist.
+> **Adapter note:** Durable repo facts belong in `repo.yaml`; product-specific design scope belongs in the relevant PRD under `Plans/PRDs/`. Keep this file as a concise cross-app design checklist.
 
 All applications within this monorepo must adhere to a strict **Minimalistic Aesthetic**.
 

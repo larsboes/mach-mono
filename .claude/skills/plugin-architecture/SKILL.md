@@ -1,6 +1,6 @@
 ---
-name: plugin-architecture
-description: machNotch plugin architecture rules — NotchPlugin protocol, lifecycle, DI via PluginContext, HUD event bus, PluginSettings. Auto-loaded when working in Plugins/.
+name: "plugin-architecture"
+description: "machNotch plugin architecture rules \u2014 NotchPlugin protocol, lifecycle, DI via PluginContext, HUD event bus, PluginSettings. Auto-loaded when working in Plugins/."
 user-invocable: false
 paths: "**/Plugins/**/*.swift, **/machNotch/**/*.swift"
 ---
@@ -113,3 +113,7 @@ Choose appropriate priority — don't default to `.high` or `.critical`:
 - [ ] Settings via `PluginSettings(namespace: id)`, not `Defaults`
 - [ ] No imports of sibling plugins
 - [ ] Protocol added to `ServiceContainer` if new service needed
+
+## Codex Invocation
+
+Use this skill for work in plugin-related Swift files. Codex does not enforce Claude `paths` or `user-invocable` metadata, so the file-scope trigger is preserved in the description.

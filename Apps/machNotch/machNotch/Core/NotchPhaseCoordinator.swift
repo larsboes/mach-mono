@@ -84,9 +84,15 @@ protocol NotchPhaseDelegate: AnyObject {
             delegate.hoverController.startHeartbeat()
         }
 
-        // Content reveals independently — shell leads, content follows
-        withAnimation(StandardAnimations.contentReveal) {
-            delegate.contentRevealProgress = 1
+        // Content reveals with a staggered easeOut curve — shell leads, content follows.
+        // Uses a single delayed Task instead of a separate withAnimation block to avoid
+        // an extra animation transaction for SwiftUI to manage.
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(80))
+            guard self.phase == .opening || self.phase == .open else { return }
+            withAnimation(StandardAnimations.contentRevealNoDelay) {
+                delegate.contentRevealProgress = 1
+            }
         }
 
         delegate.services.music.forceUpdate()

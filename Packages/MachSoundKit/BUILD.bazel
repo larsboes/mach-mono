@@ -1,0 +1,31 @@
+load("@rules_swift//swift:swift.bzl", "swift_library", "swift_test")
+
+# Pure, AudioKit-free DSP primitives (sample-accurate synth voice engine).
+# Kept in its own module so its type names (Oscillator, Reverb, WhiteNoise, …)
+# never collide with AudioKit/SoundpipeAudioKit, and so the synth core can drop
+# AudioKit entirely in a later phase.
+swift_library(
+    name = "MachSoundDSP",
+    srcs = glob(["Sources/MachSoundDSP/**/*.swift"]),
+    module_name = "MachSoundDSP",
+    visibility = ["//visibility:public"],
+)
+
+swift_library(
+    name = "MachSoundKit",
+    srcs = glob(["Sources/MachSoundKit/**/*.swift"]),
+    module_name = "MachSoundKit",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":MachSoundDSP",
+    ],
+)
+
+swift_test(
+    name = "MachSoundKitTests",
+    srcs = glob(["Tests/**/*.swift"]),
+    deps = [
+        ":MachSoundDSP",
+        ":MachSoundKit",
+    ],
+)

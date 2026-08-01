@@ -1,0 +1,93 @@
+import Defaults
+
+public enum MusicControlButton: String, CaseIterable, Identifiable, Codable, Defaults.Serializable {
+    case shuffle
+    case previous
+    case playPause
+    case next
+    case repeatMode
+    case volume
+    case favorite
+    case goBackward
+    case goForward
+    case none
+
+    public var id: String { rawValue }
+
+    public static let defaultLayout: [MusicControlButton] = [
+        .none,
+        .previous,
+        .playPause,
+        .next,
+        .none,
+    ]
+
+    public static let minSlotCount: Int = 3
+    public static let maxSlotCount: Int = 5
+
+    public static let pickerOptions: [MusicControlButton] = [
+        .shuffle,
+        .previous,
+        .playPause,
+        .next,
+        .repeatMode,
+        .favorite,
+        .volume,
+        .goBackward,
+        .goForward,
+    ]
+
+    public var label: String {
+        switch self {
+        case .shuffle:
+            return "Shuffle"
+        case .previous:
+            return "Previous"
+        case .playPause:
+            return "Play/Pause"
+        case .next:
+            return "Next"
+        case .repeatMode:
+            return "Repeat"
+        case .volume:
+            return "Volume"
+        case .favorite:
+            return "Favorite"
+        case .goBackward:
+            return "Backward 15s"
+        case .goForward:
+            return "Forward 15s"
+        case .none:
+            return "Empty slot"
+        }
+    }
+
+    public var iconName: String {
+        switch self {
+        case .shuffle:
+            return "shuffle"
+        case .previous:
+            return "backward.fill"
+        case .playPause:
+            return "playpause"
+        case .next:
+            return "forward.fill"
+        case .repeatMode:
+            return "repeat"
+        case .volume:
+            return "speaker.wave.2.fill"
+        case .favorite:
+            return "heart"
+        case .goBackward:
+            return "gobackward.15"
+        case .goForward:
+            return "goforward.15"
+        case .none:
+            return ""
+        }
+    }
+
+    public var prefersLargeScale: Bool {
+        self == .playPause
+    }
+}

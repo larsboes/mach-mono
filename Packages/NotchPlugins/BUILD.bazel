@@ -1,0 +1,178 @@
+load("@rules_swift//swift:swift.bzl", "swift_library")
+load("@rules_apple//apple:macos.bzl", "macos_unit_test")
+load("//tools:defs.bzl", "MINIMUM_MACOS_VERSION")
+load(":notch_plugin_defs.bzl", "notch_plugin_library")
+
+swift_library(
+    name = "NotchPluginCore",
+    srcs = glob(
+        [
+            "Sources/NotchPlugins/Core/**/*.swift",
+            "Sources/NotchPlugins/UI/**/*.swift",
+        ],
+        exclude = ["Sources/NotchPlugins/Core/PluginRegistry.swift"],
+    ),
+    module_name = "NotchPluginCore",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//Packages/NotchCore:NotchCore",
+        "//Packages/NotchServices:NotchServices",
+        "//Packages/NotchUI:NotchUI",
+        "@swiftpkg_defaults//:Defaults",
+    ],
+    defines = ["SWIFT_PACKAGE"],
+)
+
+notch_plugin_library(
+    name = "NotchBatteryPlugin",
+    module_name = "NotchBatteryPlugin",
+    path = "BatteryPlugin",
+)
+
+notch_plugin_library(
+    name = "NotchBriefPlugin",
+    module_name = "NotchBriefPlugin",
+    path = "BriefPlugin",
+    deps = ["//Packages/MachBriefKit:MachBriefKit"],
+)
+
+notch_plugin_library(
+    name = "NotchCalendarPlugin",
+    module_name = "NotchCalendarPlugin",
+    path = "CalendarPlugin",
+)
+
+notch_plugin_library(
+    name = "NotchClipboardPlugin",
+    module_name = "NotchClipboardPlugin",
+    path = "ClipboardPlugin",
+)
+
+notch_plugin_library(
+    name = "NotchDisplaySurfacePlugin",
+    module_name = "NotchDisplaySurfacePlugin",
+    path = "DisplaySurfacePlugin",
+)
+
+notch_plugin_library(
+    name = "NotchHabitTrackerPlugin",
+    module_name = "NotchHabitTrackerPlugin",
+    path = "HabitTrackerPlugin",
+)
+
+notch_plugin_library(
+    name = "NotchMusicPlugin",
+    module_name = "NotchMusicPlugin",
+    path = "MusicPlugin",
+)
+
+notch_plugin_library(
+    name = "NotchNotificationsPlugin",
+    module_name = "NotchNotificationsPlugin",
+    path = "NotificationsPlugin",
+)
+
+notch_plugin_library(
+    name = "NotchPomodoroPlugin",
+    module_name = "NotchPomodoroPlugin",
+    path = "PomodoroPlugin",
+)
+
+notch_plugin_library(
+    name = "NotchShelfPlugin",
+    module_name = "NotchShelfPlugin",
+    path = "ShelfPlugin",
+)
+
+notch_plugin_library(
+    name = "NotchSoundscapePlugin",
+    module_name = "NotchSoundscapePlugin",
+    path = "SoundscapePlugin",
+    deps = ["//Packages/MachSoundKit:MachSoundKit"],
+)
+
+notch_plugin_library(
+    name = "NotchSystemStatsPlugin",
+    module_name = "NotchSystemStatsPlugin",
+    path = "SystemStatsPlugin",
+)
+
+notch_plugin_library(
+    name = "NotchTeleprompterPlugin",
+    module_name = "NotchTeleprompterPlugin",
+    path = "TeleprompterPlugin",
+)
+
+notch_plugin_library(
+    name = "NotchWeatherPlugin",
+    module_name = "NotchWeatherPlugin",
+    path = "WeatherPlugin",
+)
+
+notch_plugin_library(
+    name = "NotchWebcamPlugin",
+    module_name = "NotchWebcamPlugin",
+    path = "WebcamPlugin",
+)
+
+swift_library(
+    name = "NotchPlugins",
+    srcs = [
+        "Sources/NotchPlugins/BuiltInPluginViewBridge.swift",
+        "Sources/NotchPlugins/Core/PluginRegistry.swift",
+        "Sources/NotchPlugins/Imports.swift",
+        "Sources/NotchPlugins/NotchPlugins.swift",
+    ],
+    module_name = "NotchPlugins",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":NotchBatteryPlugin",
+        ":NotchBriefPlugin",
+        ":NotchCalendarPlugin",
+        ":NotchClipboardPlugin",
+        ":NotchDisplaySurfacePlugin",
+        ":NotchHabitTrackerPlugin",
+        ":NotchMusicPlugin",
+        ":NotchNotificationsPlugin",
+        ":NotchPluginCore",
+        ":NotchPomodoroPlugin",
+        ":NotchShelfPlugin",
+        ":NotchSystemStatsPlugin",
+        ":NotchTeleprompterPlugin",
+        ":NotchWeatherPlugin",
+        ":NotchWebcamPlugin",
+        "//Packages/NotchCore:NotchCore",
+        "//Packages/NotchServices:NotchServices",
+        "//Packages/NotchUI:NotchUI",
+    ],
+    defines = ["SWIFT_PACKAGE"],
+)
+
+swift_library(
+    name = "NotchPluginsWithSoundscape",
+    srcs = ["Sources/NotchPlugins/SoundscapePluginRegistry.swift"],
+    module_name = "NotchPluginsWithSoundscape",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":NotchPlugins",
+        ":NotchSoundscapePlugin",
+    ],
+    defines = ["SWIFT_PACKAGE"],
+)
+
+swift_library(
+    name = "NotchPluginsTests_Lib",
+    srcs = glob(["Tests/**/*.swift"]),
+    deps = [
+        ":NotchPlugins",
+        ":NotchSoundscapePlugin",
+    ],
+    testonly = True,
+)
+
+macos_unit_test(
+    name = "NotchPluginsTests",
+    bundle_id = "com.larsboes.NotchPluginsTests",
+    minimum_os_version = MINIMUM_MACOS_VERSION,
+    deps = [":NotchPluginsTests_Lib"],
+)

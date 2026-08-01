@@ -45,3 +45,8 @@ MEMORY/
 website/node_modules/
 website/dist/
 website/.astro/
+
+# Python & Web Testing
+__pycache__/
+*.pyc
+.playwright-cli/

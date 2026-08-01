@@ -1,6 +1,6 @@
 ---
-name: save-context
-description: Save session context before ending a conversation. Updates CLAUDE.md with learnings and creates a session summary for resuming work later.
+name: "save-context"
+description: "Save session context before ending a conversation. Updates CLAUDE.md with learnings and creates a session summary for resuming work later."
 disable-model-invocation: true
 argument-hint: [optional-notes]
 ---
@@ -38,4 +38,6 @@ Resuming work on machNotch. Read these for context:
 Then tell me where we left off and what's next.
 ```
 
-$ARGUMENTS
+## Codex Invocation
+
+Use this skill when the user asks for `/save-context` or asks to preserve session context. Codex does not support Claude `argument-hint` or `disable-model-invocation` metadata, so treat any text after the skill name as plain user context.

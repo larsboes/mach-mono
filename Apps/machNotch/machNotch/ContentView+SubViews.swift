@@ -25,23 +25,15 @@ extension ContentView {
             Color.black
                 .frame(width: computedChinWidth, height: totalHeight)
                 .overlay(alignment: .bottom) {
-                    if settings.ambientVisualizerMode == .realAudio,
-                        let plugin = pluginManager?.plugin(id: PluginID.music, as: MusicPlugin.self)
-                    {
-                        // Dedicated subview so SwiftUI properly tracks plugin.frequencyBands
-                        AudioReactiveVisualizerView(
-                            plugin: plugin,
-                            albumColor: albumColor,
-                            height: settings.ambientVisualizerHeight
-                        )
-                    } else {
-                        AmbientGlowVisualizer(
+                    if let pluginManager {
+                        pluginManager.ambientVisualizerView(
                             albumColor: albumColor,
                             isPlaying: true,
                             height: settings.ambientVisualizerHeight,
-                            frequencyBands: []
+                            useRealAudio: settings.ambientVisualizerMode == .realAudio
                         )
-                        .frame(height: settings.ambientVisualizerHeight)
+                    } else {
+                        Color.clear.frame(height: settings.ambientVisualizerHeight)
                     }
                 }
                 .clipShape(
@@ -103,24 +95,6 @@ extension ContentView {
                     ),
                     lineWidth: settings.liquidGlassStyle.configuration.borderWidth
                 )
-        }
-    }
-
-    /// Dedicated subview so SwiftUI `@Observable` tracking registers `plugin.frequencyBands`
-    /// as a dependency — accessing it inside a closure in `ambientVisualizerOverlay` bypasses tracking.
-    struct AudioReactiveVisualizerView: View {
-        let plugin: MusicPlugin
-        let albumColor: Color
-        let height: CGFloat
-
-        var body: some View {
-            AmbientGlowVisualizer(
-                albumColor: albumColor,
-                isPlaying: true,
-                height: height,
-                frequencyBands: plugin.frequencyBands
-            )
-            .frame(height: height)
         }
     }
 

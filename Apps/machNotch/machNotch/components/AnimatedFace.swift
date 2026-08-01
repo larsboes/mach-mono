@@ -7,12 +7,16 @@
 import SwiftUI
 
 struct MinimalFaceFeatures: View {
+    @Environment(\.pluginManager) private var pluginManager
+
     var height: CGFloat = 20
     var width: CGFloat = 30
 
     var body: some View {
-        NotchMoodView()
-            .frame(width: width, height: height)
+        if let pluginManager {
+            pluginManager.faceView()
+                .frame(width: width, height: height)
+        }
     }
 }
 

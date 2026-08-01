@@ -439,9 +439,25 @@ final class StubAIService: AITextGenerationService {
         get async { available }
     }
     func rewrite(_ text: String, style: AIRewriteStyle) async throws -> String { text }
+    func rewriteStream(_ text: String, style: AIRewriteStyle) -> AsyncThrowingStream<String, Error> {
+        stream(text)
+    }
     func summarize(_ text: String) async throws -> String { text }
+    func summarizeStream(_ text: String) -> AsyncThrowingStream<String, Error> {
+        stream(text)
+    }
     func section(_ text: String) async throws -> [String] { [text] }
     func draftIntro(topic: String, durationSeconds: Int) async throws -> String { "" }
+    func draftIntroStream(topic: String, durationSeconds: Int) -> AsyncThrowingStream<String, Error> {
+        stream("")
+    }
+
+    private func stream(_ text: String) -> AsyncThrowingStream<String, Error> {
+        AsyncThrowingStream { continuation in
+            continuation.yield(text)
+            continuation.finish()
+        }
+    }
 }
 
 @MainActor @Observable final class StubBluetoothStateService: BluetoothStateServiceProtocol {

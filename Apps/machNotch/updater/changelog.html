@@ -127,12 +127,82 @@
   <h1>Changelog</h1>
   <p>What&#39;s new in mach.notch — every release, in order. For upcoming features see the <a href="roadmap.html">Roadmap</a>.</p>
 </div>
-<div class="release" id="vpre-release">
+<div class="release" id="vv1-3-2">
   <div class="release-header">
-    <span class="release-version"><a href="#vpre-release">Pre-release</a></span>
-    <span class="release-badge badge-unreleased">Unreleased</span>
+    <span class="release-version"><a href="#vv1-3-2">v1.3.2</a></span>
+    <span class="release-badge badge-released">Released</span>
+    <span class="release-badge badge-latest">Latest</span>
+    <span class="release-date">2026-05-16</span>
   </div>
-  <p class="release-intro">Accumulated work prior to the first tagged release (v0.1.0).</p>
+  <p class="release-intro">&gt; <strong>Note:</strong> v1.3.1 was tagged on 2026-05-15 but its release build failed at codesign and produced no artifact. v1.3.2 supersedes it.</p>
+  <div class="change-section">
+    <p class="change-section-title"><span class="dot" style="background:#e05f6b"></span>🐛 Bug Fixes</p>
+    <ul class="change-list">
+      <li class="change-item"><strong>Teleprompter UI cleanup (closes #11)</strong>: Final polish — extracted <code>5.5</code> reading-area magic number to <code>readingAreaHeightMultiplier</code> static; moved <code>ActionBarSecondaryStyle</code> from <code>TeleprompterExpandedView.swift</code> to <code>TeleprompterControlPanel.swift</code>. Wraps up the broader cleanup tracked across prior polish sessions.</li>
+    </ul>
+  </div>
+  <div class="change-section">
+    <p class="change-section-title"><span class="dot" style="background:#6b6b8a"></span>⚙️ CI &amp; Compatibility</p>
+    <ul class="change-list">
+      <li class="change-item"><strong>Codesign path fixed</strong>: Release workflow now points at <code>bazel-bin/Apps/machNotch/machNotch_archive-root/machNotch.app</code> (the actual <code>rules_apple</code> bundle output). Root cause of the v1.2.0, v1.3.0, and v1.3.1 release-build failures.</li>
+      <li class="change-item"><strong>Release dry-run on every <code>main</code> push</strong>: Catches packaging/codesign regressions before tag time instead of at release.</li>
+      <li class="change-item"><strong>Release SHA == build SHA</strong>: Release job now uses the same commit SHA the build was produced from; eliminates split-state releases.</li>
+      <li class="change-item"><strong>Concurrency hardening</strong>: <code>cancel-in-progress: false</code> on release workflows prevents partial/superseded runs from publishing.</li>
+      <li class="change-item"><strong>Tag pattern restricted to semver</strong>: Only <code>vX.Y.Z</code> triggers the release pipeline.</li>
+      <li class="change-item"><strong>Arch-check script SRC path corrected</strong>: Previously pointed at a non-existent path and silently always passed; now actually validates the source tree.</li>
+      <li class="change-item"><strong>Bazel cache consolidation</strong>: Unified Bazel cache keys across CI jobs; added Bazelisk binary cache to cut cold-start time.</li>
+      <li class="change-item"><strong>swift-format strict mode</strong>: Baseline cleared and strict mode enforced in CI.</li>
+      <li class="change-item"><strong>CodeQL Swift muted</strong>: Moved to manual <code>workflow_dispatch</code> — incompatible with Bazel + <code>rules_swift</code> on macOS. Shared Xcode scheme restored for the manual path.</li>
+      <li class="change-item"><strong><code>build_reusable.yml</code> permissions tightened</strong>: Dropped write permission; reusable build job is read-only.</li>
+      <li class="change-item"><strong>Line-count allowlist</strong>: Three files that tipped over the 300-line threshold from the swift-format pass added to the allowlist (tracked for follow-up extraction).</li>
+    </ul>
+  </div>
+</div>
+<div class="release" id="vv1-3-0">
+  <div class="release-header">
+    <span class="release-version"><a href="#vv1-3-0">v1.3.0</a></span>
+    <span class="release-badge badge-released">Released</span>
+    <span class="release-date">2026-05-10</span>
+  </div>
+  <div class="change-section">
+    <p class="change-section-title"><span class="dot" style="background:#e0874a"></span>🏗 Architecture</p>
+    <ul class="change-list">
+      <li class="change-item"><strong>PluginUIContext</strong>: New environment type introduced to resolve DIP violations — plugin views no longer import or depend on <code>NotchViewModel</code> directly. All built-in plugin views migrated to <code>PluginUIContext</code>.</li>
+    </ul>
+  </div>
+  <div class="change-section">
+    <p class="change-section-title"><span class="dot" style="background:#7c6ff7"></span>✨ New Features</p>
+    <ul class="change-list">
+      <li class="change-item"><strong>mach.brief Phase 1</strong>: App Group infrastructure for cross-app settings sync between machNotch and mach.brief.</li>
+      <li class="change-item"><strong>mach.brief Phase 2</strong>: Vocabulary level system with in-app onboarding picker; 4-panel hover expanded view with vocab as default tab.</li>
+      <li class="change-item"><strong>mach.brief offline</strong>: Word cache, offline fallback, and expanded word lists so the app works without a network connection.</li>
+      <li class="change-item"><strong>Bazel native build</strong>: Full migration to native Bazel rules for machNotch and the XPC service bundle. <code>Taskfile.yml</code> replaces the Makefile.</li>
+    </ul>
+  </div>
+  <div class="change-section">
+    <p class="change-section-title"><span class="dot" style="background:#e05f6b"></span>🐛 Bug Fixes</p>
+    <ul class="change-list">
+      <li class="change-item"><strong>Permissions</strong>: Bluetooth permission prompt suppressed on launch; persistent TCC/accessibility sentinel prevents repeat prompts across installs.</li>
+      <li class="change-item"><strong>Calendar</strong>: Compact access prompt fits within the widget height; grant button always visible regardless of auth state.</li>
+      <li class="change-item"><strong>Stats</strong>: Guarded <code>UInt64</code> underflow in <code>readNetworkRates</code> that caused a crash on rapid interface changes.</li>
+      <li class="change-item"><strong>mach.brief</strong>: Prevented notch stuck-state from slow API calls and rapid reloads; fixed word language setting not applying to quote source.</li>
+    </ul>
+  </div>
+  <div class="change-section">
+    <p class="change-section-title"><span class="dot" style="background:#6b6b8a"></span>⚙️ CI &amp; Compatibility</p>
+    <ul class="change-list">
+      <li class="change-item"><strong>macOS 26</strong>: Switched CI to <code>macos-26</code> runner; fixed XCTest async teardown crashes across <code>MusicPluginTests</code>, <code>QuickShareService</code>, and <code>BriefPlugin</code> test suites.</li>
+      <li class="change-item"><strong>Bazel CI</strong>: Repaired pipeline; split Bazel cache by target; <code>--jobs=HOST_CPUS</code>; <code>actions/checkout@v5</code>.</li>
+    </ul>
+  </div>
+</div>
+<div class="release" id="vv1-2-0">
+  <div class="release-header">
+    <span class="release-version"><a href="#vv1-2-0">v1.2.0</a></span>
+    <span class="release-badge badge-released">Released</span>
+    <span class="release-date">2026-05-03</span>
+  </div>
+  <p class="release-intro">First public release.</p>
   <div class="change-section">
     <p class="change-section-title"><span class="dot" style="background:#e0874a"></span>🧹 Repo Hygiene</p>
     <ul class="change-list">
@@ -175,7 +245,7 @@
   </div>
   <div class="change-section">
     <p class="change-section-title"><span class="dot" style="background:#e0874a"></span>🏗 Architecture Overhaul (Plugin System)</p>
-    <p class="change-section-intro">Completion of massive architectural refactoring ("Phase 5"). Monolithic singleton-based design → modular, plugin-first architecture.</p>
+    <p class="change-section-intro">Completion of massive architectural refactoring. Monolithic singleton-based design → modular, plugin-first architecture.</p>
     <ul class="change-list">
       <li class="change-item"><strong>Plugin Engine</strong>: <code>PluginManager</code> + <code>NotchPlugin</code> protocol.</li>
       <li class="change-item"><strong>Everything is a Plugin</strong>: All core features (Music, Battery, Calendar, Shelf, Weather, Webcam) migrated to standalone plugins in <code>Plugins/BuiltIn/</code>.</li>
@@ -186,14 +256,14 @@
   <div class="change-section">
     <p class="change-section-title"><span class="dot" style="background:#7c6ff7"></span>✨ New Features</p>
     <ul class="change-list">
-      <li class="change-item"><strong>Teleprompter Pro</strong>: Full-featured teleprompter with countdown timer, mic monitoring, hover-to-pause, keyboard shortcuts, AI text assist (refine/summarize/draft via Ollama), control panel with speed/font/color.</li>
+      <li class="change-item"><strong>Teleprompter Pro</strong>: Full-featured teleprompter with countdown timer, mic monitoring, hover-to-pause, keyboard shortcuts, AI text assist, control panel with speed/font/color.</li>
       <li class="change-item"><strong>Browser Extension</strong>: Safari web extension for media control from the notch.</li>
       <li class="change-item"><strong>Habit Tracker Plugin</strong>: Daily habit tracking with streaks, progress rings, persistent storage.</li>
       <li class="change-item"><strong>Pomodoro Plugin</strong>: Focus timer with work/break intervals, session history, notch-integrated controls.</li>
       <li class="change-item"><strong>Display Surface Plugin</strong>: Generic display arbitration for surfacing prioritized content.</li>
       <li class="change-item"><strong>Notifications Plugin</strong>: Dedicated system notification handling.</li>
       <li class="change-item"><strong>Clipboard Plugin</strong>: Clipboard history management from the notch.</li>
-      <li class="change-item"><strong>AI Subsystem</strong>: <code>AIManager</code> + <code>AIProvider</code> protocol with Ollama backend for text generation.</li>
+      <li class="change-item"><strong>AI Subsystem</strong>: <code>AIManager</code> + <code>AIProvider</code> protocol for text generation.</li>
       <li class="change-item"><strong>Local API Server</strong>: HTTP + WebSocket server for external integrations (<code>notchctl</code> CLI, browser extension). Auth middleware, rate limiting, plugin API routes.</li>
       <li class="change-item"><strong>App Intents &amp; URL Scheme</strong>: Siri Shortcuts integration + <code>machnotch://</code> URL scheme handler.</li>
       <li class="change-item"><strong>Protocol-Based Services</strong>: Clean APIs enabling easy provider swaps.</li>

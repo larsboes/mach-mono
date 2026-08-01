@@ -143,7 +143,6 @@
 		16899C2EB3CEFEB5E78D7734 /* DefaultsKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BACB7C3AE6E2F7B8AF7AF34 /* DefaultsKeys.swift */; };
 		1749C5E3960D4850B8D90EAC /* AITextGenerationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7E4799D65C4C46916CDECE /* AITextGenerationService.swift */; };
 		188251B684624A7B3F1B1908 /* DesktopCaptureActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27B398BECCBF1BC69FE20C6E /* DesktopCaptureActor.swift */; };
-		1A76B1BAC4F14EFCADE7AE3C /* OllamaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8C6831482194E108D82BA4A /* OllamaProvider.swift */; };
 		1D8F9B3FE403A62DB74576D2 /* MusicService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E760B7C08145028E6BBD646 /* MusicService.swift */; };
 		20AD9CCE8934B96D524C73FD /* NotchHoverController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D01104225AEAADF0C129C4A /* NotchHoverController.swift */; };
 		221E2BF61BFFA731348AA879 /* ShelfImageConversionDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CB4B38961CF880DB0D77E75 /* ShelfImageConversionDialog.swift */; };
@@ -749,7 +748,6 @@
 		D43E0BB0FE85A58B2C6DAFA9 /* ExportCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExportCoordinator.swift; path = machNotch/Plugins/Services/ExportCoordinator.swift; sourceTree = "<group>"; };
 		D5A5D664328B186D8E7A4EDD /* NotchHoverControllerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NotchHoverControllerTests.swift; path = machNotchTests/NotchHoverControllerTests.swift; sourceTree = "<group>"; };
 		D673572B654148068BF6CFA8 /* AIManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AIManager.swift; path = machNotch/Plugins/AI/AIManager.swift; sourceTree = SOURCE_ROOT; };
-		D8C6831482194E108D82BA4A /* OllamaProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OllamaProvider.swift; path = machNotch/Plugins/AI/OllamaProvider.swift; sourceTree = SOURCE_ROOT; };
 		DD0011223344556677AA0001 /* BriefPlugin.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BriefPlugin.swift; path = machNotch/Plugins/BuiltIn/BriefPlugin/BriefPlugin.swift; sourceTree = SOURCE_ROOT; };
 		DDD73EC52CD9961C676F2C7D /* MusicPlaybackController+Actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "MusicPlaybackController+Actions.swift"; path = "machNotch/Plugins/Services/MusicPlaybackController+Actions.swift"; sourceTree = "<group>"; };
 		DF41C8F8C9011789D192F4C7 /* NotchServiceProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = machNotch/Plugins/Core/NotchServiceProvider.swift; sourceTree = SOURCE_ROOT; };
@@ -1790,7 +1788,6 @@
 				2869E20A105C48A687A79531 /* AIProvider.swift */,
 				0D7E4799D65C4C46916CDECE /* AITextGenerationService.swift */,
 				897029767DD9495291263208 /* NoAITextGenerationService.swift */,
-				D8C6831482194E108D82BA4A /* OllamaProvider.swift */,
 				A33014323C244FA1BC29AFF9 /* ProviderBackedAIService.swift */,
 				08F55499D3A444E4BA3E5138 /* DisplayContent.swift */,
 				AAE4831C9F404BB096A5B19F /* DisplaySurfacePlugin.swift */,
@@ -2066,7 +2063,6 @@
 				7B75FA5F1F124C669BC6ED11 /* AIProvider.swift in Sources */,
 				1749C5E3960D4850B8D90EAC /* AITextGenerationService.swift in Sources */,
 				6AF9C4776E5C48FD89671817 /* NoAITextGenerationService.swift in Sources */,
-				1A76B1BAC4F14EFCADE7AE3C /* OllamaProvider.swift in Sources */,
 				29BF83E61E28405682127614 /* ProviderBackedAIService.swift in Sources */,
 				8086691BF2EB4528A014821E /* DisplayContent.swift in Sources */,
 				8670254E12D847A8910640C3 /* DisplaySurfacePlugin.swift in Sources */,

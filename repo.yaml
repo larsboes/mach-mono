@@ -36,10 +36,17 @@ workspace:
       - Apps/machBrief/machBrief.xcodeproj
       - Packages/MacroVisionKit
       - Packages/MachBriefKit
+      - Packages/MachIntelligenceKit
+      - Packages/MachSoundKit
+      - Packages/NotchCore
+      - Packages/NotchServices
+      - Packages/NotchUI
+      - Packages/NotchPlugins
+      - Packages/NotchSettingsMacro
   bazel:
     status: active
     module: MODULE.bazel
-    roadmap: docs/roadmaps/bazel.md
+    roadmap: docs/Roadmap.md
     decision: docs/decisions/0007-native-bazel-builds.md
 
 products:
@@ -51,13 +58,13 @@ products:
     xcode_project: Apps/machNotch/machNotch.xcodeproj
     scheme: machNotch
     agent_instructions: Apps/machNotch/CLAUDE.md
-    prd: docs/prds/machNotch.md
-    architecture: docs/architecture/overview.md
-    plugin_development: docs/guides/plugin-development.md
+    prd: Plans/PRDs/machNotch.md
+    architecture: docs/Architecture.md
+    plugin_development: docs/Guide.md
     license:
       current: GPL-3.0
       target: MIT
-      migration_doc: docs/prds/machNotch.md#license-migration--gpl-v3--mit
+      migration_doc: Plans/PRDs/machNotch.md#license-migration--gpl-v3--mit
 
   machBrief:
     display_name: mach.brief
@@ -70,8 +77,8 @@ products:
       build: bazel build //Apps/machBrief:machBrief
       test: bazel test //Packages/MachBriefKit:MachBriefKitTests
     prd:
-      macos: docs/prds/machBrief-macOS.md
-      ios: docs/prds/machBrief-iOS.md
+      macos: Plans/PRDs/machBrief-macOS.md
+      ios: Plans/PRDs/machBrief-iOS.md
     license:
       target: MIT
 
@@ -84,16 +91,31 @@ packages:
     MachIntelligenceKit:
       path: Packages/MachIntelligenceKit
       license: MIT
+    MachSoundKit:
+      path: Packages/MachSoundKit
+      license: MIT
+    HealthExportKit:
+      path: Packages/HealthExportKit
+      license: MIT
     MacroVisionKit:
       path: Packages/MacroVisionKit
       license: MIT
-  planned:
-    MachCore:
-      path: Packages/MachCore
+    NotchCore:
+      path: Packages/NotchCore
       license: MIT
-    MachUI:
-      path: Packages/MachUI
+    NotchServices:
+      path: Packages/NotchServices
       license: MIT
+    NotchUI:
+      path: Packages/NotchUI
+      license: MIT
+    NotchPlugins:
+      path: Packages/NotchPlugins
+      license: MIT
+    NotchSettingsMacro:
+      path: Packages/NotchSettingsMacro
+      license: MIT
+  planned: []
 
 policies:
   naming:
@@ -136,14 +158,14 @@ services:
 docs:
   index: docs/README.md
   overall_model_description: docs/README.md  # "Where the overall model is defined" — layered facts, agents, PRDs, ADRs, adapters
-  prds: docs/prds
-  architecture: docs/architecture/overview.md
-  plugin_system: docs/architecture/plugin-system.md
-  guides: docs/guides
-  bazel_task_map: docs/guides/bazel-task-map.md
-  roadmaps: docs/roadmaps
+  prds: Plans/PRDs
+  architecture: docs/Architecture.md
+  plugin_system: docs/Architecture.md
+  guides: docs/Guide.md
+  bazel_task_map: docs/Guide.md
+  roadmaps: docs/Roadmap.md
   decisions: docs/decisions
-  sideloading: docs/guides/sideloading.md
+  sideloading: docs/Guide.md
 
 agent_files:
   canonical_guidelines: docs/AGENT-GUIDELINES.md

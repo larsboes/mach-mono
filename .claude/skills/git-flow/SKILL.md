@@ -1,6 +1,6 @@
 ---
-name: git-flow
-description: mach-mono git branching, integration, and release workflow — main as canonical branch, topic branches, commit shape, deploy via tags.
+name: "git-flow"
+description: "mach-mono git branching, integration, and release workflow \u2014 main as canonical branch, topic branches, commit shape, deploy via tags."
 disable-model-invocation: true
 argument-hint: [start|finish|release]
 ---
@@ -31,7 +31,7 @@ git checkout -b feature/my-feature   # or fix/, perf/, refactor/
 1. Implement changes following `.claude/skills/swift-code-quality` rules
 2. `bazelisk build //Apps/machNotch:machNotch //Apps/machBrief:machBrief`
 3. `bazelisk test //Apps/machNotch:machNotchTests //Packages/MachBriefKit:MachBriefKitTests`
-4. Update relevant PRD under `docs/prds/` and any affected ADRs
+4. Update relevant PRD under `Plans/PRDs/` and any affected ADRs
 
 ## Integrate into Main
 
@@ -68,3 +68,7 @@ Types: `feat`, `fix`, `chore`, `refactor`, `perf`, `test`, `docs`, `ci`
 - No merge commits on main (repo rule enforced)
 - Every feature/fix updates the relevant PRD + ADR if architecture changed
 - Large cohesive solo-maintainer commits are acceptable when fully verified
+
+## Codex Invocation
+
+Use this skill when the user asks for `/git-flow` or explicitly requests the repository git workflow. Codex does not support Claude `argument-hint` or `disable-model-invocation` metadata, so treat any text after the skill name as plain user context.

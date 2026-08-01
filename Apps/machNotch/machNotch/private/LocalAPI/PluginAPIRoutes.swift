@@ -6,12 +6,12 @@ enum PluginAPIRoutes {
         // GET /api/v1/plugins
         registrar.register(method: .get, path: "/api/v1/plugins") { _ in
             let plugins = await MainActor.run {
-                pluginManager.allPlugins.map { plugin in
+                pluginManager.allPluginSummaries.map { plugin in
                     APIPluginInfo(
                         id: plugin.id,
                         name: plugin.metadata.name,
                         isEnabled: plugin.isEnabled,
-                        isActive: plugin.state.isActive,
+                        isActive: plugin.isActive,
                         category: plugin.metadata.category.rawValue
                     )
                 }
@@ -26,12 +26,12 @@ enum PluginAPIRoutes {
             }
 
             let info = await MainActor.run { () -> APIPluginInfo? in
-                guard let plugin = pluginManager.plugin(id: id) else { return nil }
+                guard let plugin = pluginManager.summary(id: id) else { return nil }
                 return APIPluginInfo(
                     id: plugin.id,
                     name: plugin.metadata.name,
                     isEnabled: plugin.isEnabled,
-                    isActive: plugin.state.isActive,
+                    isActive: plugin.isActive,
                     category: plugin.metadata.category.rawValue
                 )
             }

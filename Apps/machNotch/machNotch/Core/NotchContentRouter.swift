@@ -84,8 +84,10 @@ struct NotchContentRouter: View {
             }
 
         case .face:
-            NotchMoodView(spacing: vm.closedNotchSize.width + 10)
-                .frame(height: closedNotchHeight)
+            if let pluginManager {
+                pluginManager.faceView(spacing: vm.closedNotchSize.width + 10)
+                    .frame(height: closedNotchHeight)
+            }
 
         case .inlineHUD(let type, let value, let icon):
             inlineHUDContent(type: type, value: value, icon: icon)
@@ -125,14 +127,13 @@ struct NotchContentRouter: View {
             HStack(alignment: .center) {
                 Image(systemName: "music.note")
                 GeometryReader { geo in
-                    if let musicPlugin = pluginManager?.plugin(id: PluginID.music, as: MusicPlugin.self),
-                        let track = musicPlugin.musicService?.currentTrack
+                    if let musicService = pluginManager?.services.music,
+                        let track = musicService.currentTrack
                     {
                         MarqueeText(
                             track.title + " - " + track.artist,
                             color: settings.playerColorTinting
-                                ? Color(nsColor: musicPlugin.musicService?.avgColor ?? .gray).ensureMinimumBrightness(
-                                    factor: 0.6)
+                                ? Color(nsColor: musicService.avgColor).ensureMinimumBrightness(factor: 0.6)
                                 : .gray,
                             delayDuration: 1.0,
                             frameWidth: geo.size.width
@@ -191,7 +192,7 @@ struct NotchContentRouter: View {
                         .frame(maxWidth: CGFloat.infinity, maxHeight: CGFloat.infinity, alignment: .top)
                 case .notes:
                     if let pluginManager {
-                        NotesView(manager: pluginManager.services.notesManager)
+                        pluginManager.notesView()
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                 default:

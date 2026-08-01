@@ -1,0 +1,19 @@
+// Global imports for the NotchPlugins target.
+@_exported import NotchPluginCore
+@_exported import NotchBatteryPlugin
+@_exported import NotchBriefPlugin
+@_exported import NotchCalendarPlugin
+@_exported import NotchClipboardPlugin
+@_exported import NotchDisplaySurfacePlugin
+@_exported import NotchHabitTrackerPlugin
+@_exported import NotchMusicPlugin
+@_exported import NotchNotificationsPlugin
+@_exported import NotchPomodoroPlugin
+@_exported import NotchShelfPlugin
+@_exported import NotchSystemStatsPlugin
+@_exported import NotchTeleprompterPlugin
+@_exported import NotchWeatherPlugin
+@_exported import NotchWebcamPlugin
+@_exported import NotchCore
+@_exported import NotchServices
+@_exported import NotchUI

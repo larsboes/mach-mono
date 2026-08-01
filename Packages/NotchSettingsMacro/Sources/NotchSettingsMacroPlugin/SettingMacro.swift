@@ -21,7 +21,8 @@ public struct SettingMacro: PeerMacro {
 
         let defaultKeyName = keyArg ?? "\"\(identifier)\""
 
-        let keyDecl: DeclSyntax = "static let \(raw: identifier)Key = Defaults.Key<\(raw: type)>(\(raw: defaultKeyName), default: \(raw: defaultArg))"
+        let access = varDecl.modifiers.contains(where: { $0.name.text == "public" }) ? "public " : ""
+        let keyDecl: DeclSyntax = "\(raw: access)static let \(raw: identifier)Key = Defaults.Key<\(raw: type)>(\(raw: defaultKeyName), default: \(raw: defaultArg))"
         return [keyDecl]
     }
 }

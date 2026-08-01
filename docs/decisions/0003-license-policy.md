@@ -16,8 +16,8 @@ Do not add GPL or MPL dependencies to new clean-slate apps or packages. For mach
 ## Consequences
 
 - `repo.yaml` tracks current and target license state.
-- `docs/prds/machNotch.md` remains the source of truth for the machNotch GPL-to-MIT migration plan.
-- `docs/licensing/machnotch-provenance.md` tracks file/bucket-level provenance evidence for closeout.
+- `Plans/PRDs/machNotch.md` remains the source of truth for the machNotch GPL-to-MIT migration plan.
+- `docs/Licensing.md` tracks file/bucket-level provenance evidence for closeout.
 - Root `/LICENSE` should be updated only after machNotch is clean for relicensing.
 
 ## Migration Checklist (GPL → MIT)
@@ -37,7 +37,7 @@ Track remaining BoringNotch-origin code. Check off as each area is reengineered 
 
 ### Provenance ledger started
 
-- [x] `docs/licensing/machnotch-provenance.md` — working evidence ledger created
+- [x] `docs/Licensing.md` — working evidence ledger created
 - [x] `private/MachWindowSpace.swift` — private API wrapper verified clean of remaining Parrot/MPL references
 - [x] `mediaremote-adapter/` — BSD notice retained; artifact hashes recorded, upstream URL still required before final closeout
 - [x] `observers/FullscreenMediaDetection.swift` — reauthored policy

@@ -21,23 +21,6 @@ let temporaryDirectory =
     ?? FileManager.default.temporaryDirectory
 let spacing: CGFloat = 16
 
-struct BluetoothDeviceIconMapping: Codable, Defaults.Serializable {
-    let UUID: UUID
-    let deviceName: String
-    var sfSymbolName: String
+// Removed duplicate BluetoothDeviceIconMapping (now defined in NotchCore)
 
-    init(UUID: Foundation.UUID = Foundation.UUID(), deviceName: String, sfSymbolName: String) {
-        self.UUID = UUID
-        self.deviceName = deviceName
-        self.sfSymbolName = sfSymbolName
-    }
-}
 
-// MARK: - Notification Names
-
-extension Notification.Name {
-    static let mediaControllerChanged = Notification.Name("mediaControllerChanged")
-    static let accessibilityAuthorizationChanged = Notification.Name("accessibilityAuthorizationChanged")
-    static let sharingDidFinish = Notification.Name("com.machNotch.sharingDidFinish")
-    static let accentColorChanged = Notification.Name("AccentColorChanged")
-}

@@ -1,6 +1,6 @@
 ---
-name: design-system
-description: mach-mono visual design rules — minimalistic aesthetic, clarity, cohesion, tech-forward style, iconography. Auto-loaded when working on UI/view files.
+name: "design-system"
+description: "mach-mono visual design rules \u2014 minimalistic aesthetic, clarity, cohesion, tech-forward style, iconography. Auto-loaded when working on UI/view files."
 user-invocable: false
 paths: "**/Views/**/*.swift, **/components/**/*.swift, **/*.xcassets/**"
 ---
@@ -50,3 +50,7 @@ All apps in this monorepo follow a strict **Minimalistic Aesthetic**.
 - Secondary actions are discoverable, not prominent
 - Animations serve information (state changes), not decoration
 - No loading spinners for operations < 200ms
+
+## Codex Invocation
+
+Use this skill for UI and view work. Codex does not enforce Claude `paths` or `user-invocable` metadata, so the file-scope trigger is preserved in the description.

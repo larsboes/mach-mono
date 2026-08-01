@@ -1,0 +1,10 @@
+{
+  "design-system": "d16ec7e2e31f431eddd709f7babd636a5d046bde93f897cadd34d5c225caab1a",
+  "git-flow": "e194f7d6fe3db973c1887b45f25657ef6268d36a9607ec76984acf8e9efc2acf",
+  "plugin-architecture": "90c7bb64c9e96e181d20086252166ef378f3e558abcec1d1fce22ddc662ba91c",
+  "refactoring": "c1684adf5736a742ec10eac8c36f6ba41bc07b8a5b8e02962ff78e81fb1a6d7c",
+  "save-context": "f3aee6f38ba4f2decb1cdef8c0580f4caeb51d96f7f3d545784aed68fdaa862a",
+  "swift": "0d3239d93d2a46cac2dcf787249c59bea0e618054a20fedc815eb2e783e0608e",
+  "swift-code-quality": "03837010fb45ebea36c2bf4f04a6a3c597f4400cd62ad2fa3da53d8abfd33944",
+  "swift-concurrency": "e2cd3b2ac58312e5d32deff6692d3f4fe006391c62f509fc1608ec80549b9557"
+}

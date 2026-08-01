@@ -11,6 +11,27 @@
       location = "group:Packages/MachBriefKit">
    </FileRef>
    <FileRef
+      location = "group:Packages/MachIntelligenceKit">
+   </FileRef>
+   <FileRef
+      location = "group:Packages/MachSoundKit">
+   </FileRef>
+   <FileRef
+      location = "group:Packages/NotchCore">
+   </FileRef>
+   <FileRef
+      location = "group:Packages/NotchServices">
+   </FileRef>
+   <FileRef
+      location = "group:Packages/NotchUI">
+   </FileRef>
+   <FileRef
+      location = "group:Packages/NotchPlugins">
+   </FileRef>
+   <FileRef
+      location = "group:Packages/NotchSettingsMacro">
+   </FileRef>
+   <FileRef
       location = "group:Apps/machBrief/machBrief.xcodeproj">
    </FileRef>
 </Workspace>

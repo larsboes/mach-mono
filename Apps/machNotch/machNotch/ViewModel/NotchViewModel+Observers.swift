@@ -25,12 +25,8 @@ extension NotchViewModel {
             guard let self else { return }
             hideOnClosedDebounceTask?.cancel()
             hideOnClosedDebounceTask = Task { @MainActor [weak self] in
-                do {
-                    try await Task.sleep(for: NotchObserverDebouncing.fullscreenHide)
-                } catch {
-                    return
-                }
-                guard let self else { return }
+                try? await Task.sleep(for: NotchObserverDebouncing.fullscreenHide)
+                guard let self, !Task.isCancelled else { return }
                 guard hideOnClosed != shouldHide else { return }
 
                 if notchState == .closed {
@@ -69,11 +65,6 @@ extension NotchViewModel {
             while !Task.isCancelled {
                 guard let self else { break }
 
-                let _ = withObservationTracking {
-                    self.earsShouldShowForCurrentMediaState()
-                } onChange: {
-                }
-
                 debounceClosedEarsUpdate()
 
                 await withCheckedContinuation { continuation in
@@ -107,11 +98,7 @@ extension NotchViewModel {
 
         earsDebounceTask?.cancel()
         earsDebounceTask = Task { @MainActor [weak self] in
-            do {
-                try await Task.sleep(for: NotchObserverDebouncing.earsWidthSettle)
-            } catch {
-                return
-            }
+            try? await Task.sleep(for: NotchObserverDebouncing.earsWidthSettle)
             guard let self, !Task.isCancelled else { return }
             let confirmed = earsShouldShowForCurrentMediaState()
             if closedEarsActive != confirmed {

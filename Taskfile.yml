@@ -7,6 +7,8 @@ vars:
   NOTCH_DEST: "{{.HOME}}/Applications/machNotch.app"
   NOTCH_ZIP: "bazel-bin/Apps/machNotch/machNotch.zip"
   NOTCH_BIN: "{{.HOME}}/Applications/machNotch.app/Contents/MacOS/machNotch"
+  NOTCH_SOUNDSCAPE_DEST: "{{.HOME}}/Applications/machNotchWithSoundscape.app"
+  NOTCH_SOUNDSCAPE_ZIP: "bazel-bin/Apps/machNotch/machNotchWithSoundscape.zip"
 
   BRIEF_DEST: "{{.HOME}}/Applications/machBrief.app"
   BRIEF_ZIP: "bazel-bin/Apps/machBrief/machBrief.zip"
@@ -15,31 +17,85 @@ tasks:
   # ── mach.notch ────────────────────────────────────────────────────────────
 
   run:
-    desc: "notch: build, install (only if changed), launch"
-    deps: [install]
+    desc: "notch: build, install, launch full dev app with Soundscape"
+    deps: [install:soundscape]
     cmds:
       - task: kill
+      - task: kill:soundscape
       - sleep 1
-      - open "{{.NOTCH_DEST}}"
-      - echo "✓ machNotch launched from {{.NOTCH_DEST}}"
+      - open "{{.NOTCH_SOUNDSCAPE_DEST}}"
+      - echo "✓ machNotch with Soundscape launched from {{.NOTCH_SOUNDSCAPE_DEST}}"
 
   build:
-    desc: "notch: build with Bazel (dev signing via --config=local)"
+    desc: "notch: build full dev app with Soundscape"
+    cmds:
+      - bazelisk build //Apps/machNotch:machNotchWithSoundscape
+
+  run:lite:
+    desc: "notch: build, install, launch AudioKit-free app"
+    deps: [install:lite]
+    cmds:
+      - task: kill
+      - task: kill:soundscape
+      - sleep 1
+      - open "{{.NOTCH_DEST}}"
+      - echo "✓ machNotch lite launched from {{.NOTCH_DEST}}"
+
+  build:lite:
+    desc: "notch: build AudioKit-free app with Bazel"
     cmds:
       - bazelisk build //Apps/machNotch:machNotch
 
-  install:
-    desc: "notch: build and install to ~/Applications (skips if zip unchanged)"
+  run:soundscape:
+    desc: "notch: alias for task run"
+    cmds:
+      - task: run
+
+  build:soundscape:
+    desc: "notch: alias for task build"
+    cmds:
+      - task: build
+
+  install:soundscape:
+    desc: "notch: build and install Soundscape-enabled app to ~/Applications"
     deps: [build]
     vars:
-      SENTINEL: "{{.HOME}}/Library/Caches/com.larsboes.mach/notch_zip_hash"
-      NEW_HASH:
-        sh: md5 "{{.NOTCH_ZIP}}" | awk '{print $NF}'
-      OLD_HASH:
-        sh: cat "{{.HOME}}/Library/Caches/com.larsboes.mach/notch_zip_hash" 2>/dev/null || echo "none"
+      SENTINEL: "{{.HOME}}/Library/Caches/com.larsboes.mach/notch_soundscape_zip_hash"
     cmds:
       - |
-        if [ "{{.NEW_HASH}}" = "{{.OLD_HASH}}" ]; then
+        NEW_HASH="$(md5 "{{.NOTCH_SOUNDSCAPE_ZIP}}" | awk '{print $NF}')"
+        OLD_HASH="$(cat "{{.SENTINEL}}" 2>/dev/null || echo "none")"
+        if [ "$NEW_HASH" = "$OLD_HASH" ]; then
+          echo "✓ Soundscape zip unchanged — skipping install (TCC permissions intact)"
+        else
+          echo "New Soundscape build detected — installing..."
+          mkdir -p "{{.HOME}}/Applications"
+          rm -rf "{{.NOTCH_SOUNDSCAPE_DEST}}" "{{.UNZIP_TMP}}"
+          mkdir -p "{{.UNZIP_TMP}}"
+          unzip -q "{{.NOTCH_SOUNDSCAPE_ZIP}}" -d "{{.UNZIP_TMP}}"
+          mv "{{.UNZIP_TMP}}/machNotchWithSoundscape.app" "{{.NOTCH_SOUNDSCAPE_DEST}}"
+          rm -rf "{{.UNZIP_TMP}}"
+          codesign --force --deep --sign "{{.CERT}}" "{{.NOTCH_SOUNDSCAPE_DEST}}"
+          mkdir -p "{{.HOME}}/Library/Caches/com.larsboes.mach"
+          echo "$NEW_HASH" > "{{.SENTINEL}}"
+          echo "✓ Installed and signed at {{.NOTCH_SOUNDSCAPE_DEST}}"
+        fi
+
+  install:
+    desc: "notch: alias for full dev install with Soundscape"
+    cmds:
+      - task: install:soundscape
+
+  install:lite:
+    desc: "notch: build and install AudioKit-free app to ~/Applications"
+    deps: [build:lite]
+    vars:
+      SENTINEL: "{{.HOME}}/Library/Caches/com.larsboes.mach/notch_zip_hash"
+    cmds:
+      - |
+        NEW_HASH="$(md5 "{{.NOTCH_ZIP}}" | awk '{print $NF}')"
+        OLD_HASH="$(cat "{{.SENTINEL}}" 2>/dev/null || echo "none")"
+        if [ "$NEW_HASH" = "$OLD_HASH" ]; then
           echo "✓ Zip unchanged — skipping install (TCC permissions intact)"
         else
           echo "New build detected — installing..."
@@ -51,7 +107,7 @@ tasks:
           rm -rf "{{.UNZIP_TMP}}"
           codesign --force --deep --sign "{{.CERT}}" "{{.NOTCH_DEST}}"
           mkdir -p "{{.HOME}}/Library/Caches/com.larsboes.mach"
-          echo "{{.NEW_HASH}}" > "{{.HOME}}/Library/Caches/com.larsboes.mach/notch_zip_hash"
+          echo "$NEW_HASH" > "{{.SENTINEL}}"
           echo "✓ Installed and signed at {{.NOTCH_DEST}}"
         fi
 
@@ -59,6 +115,16 @@ tasks:
     desc: "notch: kill the running instance"
     cmds:
       - cmd: killall -9 machNotch
+        ignore_error: true
+      - cmd: pkill -f "{{.NOTCH_DEST}}/Contents/Resources/mediaremote-adapter.pl"
+        ignore_error: true
+
+  kill:soundscape:
+    desc: "notch: kill the running Soundscape-enabled instance"
+    cmds:
+      - cmd: killall -9 machNotchWithSoundscape
+        ignore_error: true
+      - cmd: pkill -f "{{.NOTCH_SOUNDSCAPE_DEST}}/Contents/Resources/mediaremote-adapter.pl"
         ignore_error: true
 
   # ── mach.brief ────────────────────────────────────────────────────────────
@@ -110,7 +176,17 @@ tasks:
   test:
     desc: "Run all tests"
     cmds:
-      - bazelisk test //Apps/machNotch:machNotchTests //Packages/MachBriefKit:MachBriefKitTests
+      - bazelisk test //Apps/... //Packages/...
+
+  sound:test:
+    desc: "sound: run MachSoundKit tests"
+    cmds:
+      - bazelisk test //Packages/MachSoundKit:MachSoundKitTests
+
+  health:test:
+    desc: "health: run HealthExportKit tests"
+    cmds:
+      - bazelisk test //Packages/HealthExportKit:HealthExportKitTests
 
   lint:md:
     desc: "lint: check markdown files for style issues"

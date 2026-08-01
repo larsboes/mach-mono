@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluid Symphony II</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:100%; height:100%; overflow:hidden; background:#05030a;
+    font-family:-apple-system,'Helvetica Neue',Helvetica,Arial,sans-serif; color:#e8e4f0; }
+  canvas { position:fixed; inset:0; width:100%; height:100%; display:block; cursor:crosshair; }
+
+  #titlebar { position:fixed; top:26px; left:0; right:0; text-align:center; pointer-events:none;
+    transition:opacity 1s; z-index:5; }
+  #titlebar h1 { font-size:26px; font-weight:300; letter-spacing:0.55em; text-indent:0.55em;
+    color:#f2eefb; text-shadow:0 0 24px rgba(160,90,255,0.35); }
+  #titlebar p { margin-top:8px; font-size:10.5px; letter-spacing:0.28em; text-indent:0.28em;
+    color:rgba(232,228,240,0.55); }
+  #nowplaying { margin-top:6px; font-size:10px; letter-spacing:0.22em; text-indent:0.22em;
+    color:rgba(190,150,255,0.75); }
+
+  #controls { position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    display:flex; align-items:center; gap:14px; padding:12px 20px; border-radius:16px;
+    background:rgba(12,8,22,0.55); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(160,120,255,0.16); transition:opacity 0.8s; z-index:5; }
+  .hidden-ui { opacity:0 !important; pointer-events:none !important; }
+  .vdiv { width:1px; height:26px; background:rgba(160,120,255,0.25); flex:none; }
+
+  .pill { padding:7px 13px; border-radius:999px; font-size:11px; letter-spacing:0.12em;
+    border:1px solid rgba(160,120,255,0.25); background:transparent; color:rgba(232,228,240,0.7);
+    cursor:pointer; transition:all 0.25s; white-space:nowrap; }
+  .pill:hover { border-color:rgba(190,150,255,0.6); color:#fff; }
+  .pill.active { background:rgba(130,70,255,0.28); border-color:rgba(190,150,255,0.85);
+    color:#fff; box-shadow:0 0 16px rgba(140,80,255,0.35); }
+  .pill.scene.active { background:rgba(40,140,200,0.3); border-color:rgba(110,200,255,0.85);
+    box-shadow:0 0 16px rgba(80,170,255,0.35); }
+
+  #playbtn { width:42px; height:42px; border-radius:50%; border:1px solid rgba(190,150,255,0.5);
+    background:rgba(130,70,255,0.25); color:#fff; font-size:15px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:all 0.25s; flex:none; }
+  #playbtn:hover { background:rgba(150,90,255,0.45); box-shadow:0 0 18px rgba(150,90,255,0.5); }
+
+  .sliderbox { display:flex; flex-direction:column; gap:4px; }
+  .sliderbox label { font-size:9px; letter-spacing:0.18em; color:rgba(232,228,240,0.5);
+    text-transform:uppercase; }
+  input[type=range] { -webkit-appearance:none; appearance:none; width:100px; height:3px; border-radius:2px;
+    background:rgba(160,120,255,0.25); outline:none; cursor:pointer; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:13px; height:13px;
+    border-radius:50%; background:#b893ff; box-shadow:0 0 10px rgba(160,100,255,0.8); }
+  input[type=range]::-moz-range-thumb { width:13px; height:13px; border:none; border-radius:50%;
+    background:#b893ff; box-shadow:0 0 10px rgba(160,100,255,0.8); }
+
+  #adv { position:fixed; bottom:104px; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; gap:12px; padding:16px 22px; border-radius:16px;
+    background:rgba(12,8,22,0.6); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(160,120,255,0.16); transition:opacity 0.8s; z-index:6; }
+  #adv.closed { display:none; }
+  .advrow { display:flex; align-items:center; gap:14px; flex-wrap:wrap; justify-content:center; }
+  .advlabel { font-size:9px; letter-spacing:0.2em; color:rgba(232,228,240,0.45); }
+  .chip { padding:5px 11px; border-radius:999px; font-size:9.5px; letter-spacing:0.14em;
+    border:1px solid rgba(160,120,255,0.22); background:transparent; color:rgba(232,228,240,0.45);
+    cursor:pointer; transition:all 0.2s; }
+  .chip:hover { border-color:rgba(190,150,255,0.55); color:#fff; }
+  .chip.active { background:rgba(130,70,255,0.22); border-color:rgba(190,150,255,0.7); color:#fff; }
+  #timer { background:rgba(20,12,38,0.8); color:rgba(232,228,240,0.75); border:1px solid rgba(160,120,255,0.25);
+    border-radius:999px; padding:5px 10px; font-size:9.5px; letter-spacing:0.12em; outline:none; cursor:pointer; }
+  .advhint { font-size:8.5px; letter-spacing:0.16em; color:rgba(232,228,240,0.3); text-align:center; }
+
+  #overlay { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; gap:22px; background:radial-gradient(ellipse at center,#0d0718 0%,#05030a 70%);
+    z-index:20; transition:opacity 1.2s; }
+  #overlay.gone { opacity:0; pointer-events:none; }
+  #overlay h1 { font-size:30px; font-weight:200; letter-spacing:0.6em; text-indent:0.6em; }
+  #overlay p { font-size:12px; letter-spacing:0.25em; text-indent:0.25em; color:rgba(232,228,240,0.5);
+    max-width:600px; text-align:center; line-height:2; }
+  #startbtn { margin-top:10px; padding:14px 44px; border-radius:999px; font-size:13px; letter-spacing:0.3em;
+    text-indent:0.3em; border:1px solid rgba(190,150,255,0.5); background:rgba(130,70,255,0.18);
+    color:#fff; cursor:pointer; transition:all 0.3s; }
+  #startbtn:hover { background:rgba(150,90,255,0.4); box-shadow:0 0 30px rgba(150,90,255,0.5); transform:scale(1.04); }
+  #err { color:#ff7a7a; font-size:13px; letter-spacing:0.1em; display:none; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="titlebar">
+  <h1>FLUID SYMPHONY</h1>
+  <p>the fluid dances to the music — drag to join in</p>
+  <div id="nowplaying"></div>
+</div>
+
+<div id="adv" class="closed">
+  <div class="advrow">
+    <div class="sliderbox"><label>pace</label>
+      <input type="range" class="param" data-k="pace" min="0" max="100" value="50"></div>
+    <div class="sliderbox"><label>density</label>
+      <input type="range" class="param" data-k="density" min="0" max="100" value="50"></div>
+    <div class="sliderbox"><label>brightness</label>
+      <input type="range" class="param" data-k="brightness" min="0" max="100" value="50"></div>
+    <div class="sliderbox"><label>space</label>
+      <input type="range" class="param" data-k="space" min="0" max="100" value="50"></div>
+    <div class="sliderbox"><label>pulse</label>
+      <input type="range" class="param" data-k="pulse" min="0" max="100" value="40"></div>
+    <div class="sliderbox"><label>texture</label>
+      <input type="range" class="param" data-k="texture" min="0" max="100" value="40"></div>
+  </div>
+  <div class="advrow">
+    <span class="advlabel">LAYERS</span>
+    <button class="chip layer active" data-l="drums">DRUMS</button>
+    <button class="chip layer active" data-l="bass">BASS</button>
+    <button class="chip layer active" data-l="pads">PADS</button>
+    <button class="chip layer active" data-l="melody">MELODY</button>
+    <button class="chip layer active" data-l="texture">TEXTURE</button>
+    <span class="advlabel">·</span>
+    <button class="chip" id="adaptbtn" title="adapts to time of day + your activity">ADAPTIVE</button>
+    <select id="timer">
+      <option value="">TIMER OFF</option>
+      <option value="15">15 MIN</option>
+      <option value="25">25 MIN</option>
+      <option value="45">45 MIN</option>
+    </select>
+  </div>
+  <div class="advhint">SCENE SLIDERS SHAPE FOCUS · RELAX · SLEEP — LAYERS APPLY EVERYWHERE — SETTINGS LIVE IN THE URL</div>
+</div>
+
+<div id="controls">
+  <button id="playbtn" title="play / pause (space)">▶</button>
+  <button class="pill preset" data-p="edm">CLASSICAL × EDM</button>
+  <button class="pill preset" data-p="ambient">EPIC AMBIENT</button>
+  <button class="pill preset" data-p="lofi">LO-FI</button>
+  <div class="vdiv"></div>
+  <button class="pill preset scene" data-p="focus">FOCUS</button>
+  <button class="pill preset scene" data-p="relax">RELAX</button>
+  <button class="pill preset scene" data-p="sleep">SLEEP</button>
+  <div class="sliderbox"><label>volume</label>
+    <input type="range" id="vol" min="0" max="100" value="65"></div>
+  <div class="sliderbox"><label>intensity</label>
+    <input type="range" id="nrg" min="0" max="100" value="70"></div>
+  <button class="pill" id="gear" title="advanced controls">⚙</button>
+</div>
+
+<div id="overlay">
+  <h1>FLUID SYMPHONY</h1>
+  <p>generative music composed in real time by code, never sampled —
+     with a fluid simulation that moves to every beat.<br>
+     3 performances · 3 adaptive scenes (focus / relax / sleep)<br>
+     1–6 switch styles · space play/pause · M mute · H hide UI · F fullscreen</p>
+  <button id="startbtn">BEGIN</button>
+  <div id="err">WebGL2 with float textures is required — try Chrome or Edge.</div>
+</div>
+
+<script>
+'use strict';
+/* ============================================================
+   FLUID SYMPHONY II — generative audio + GPU fluid simulation
+   v2: Endel-style adaptive scenes, parameter engine, mixer.
+   Single file, zero dependencies, offline-safe.
+   ============================================================ */
+
+/* ----------------------- WebGL fluid ----------------------- */
+const canvas = document.getElementById('c');
+const gl = canvas.getContext('webgl2', { alpha:false, depth:false, stencil:false, antialias:false });
+let glOK = !!gl && !!(gl && gl.getExtension('EXT_color_buffer_float'));
+if (gl) gl.getExtension('OES_texture_float_linear');
+
+const CFG = {
+  SIM_RES: 160, DYE_RES: 800, PRESSURE_ITERS: 20,
+  CURL: 26, VEL_DISS: 0.22, DYE_DISS: 0.9, SPLAT_FORCE: 5200
+};
+
+function compileShader(type, src) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src); gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS))
+    console.error(gl.getShaderInfoLog(s));
+  return s;
+}
+function makeProgram(vs, fsSrc) {
+  const p = gl.createProgram();
+  gl.attachShader(p, vs);
+  gl.attachShader(p, compileShader(gl.FRAGMENT_SHADER, fsSrc));
+  gl.bindAttribLocation(p, 0, 'aPosition');
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) console.error(gl.getProgramInfoLog(p));
+  const u = {};
+  const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+  for (let i = 0; i < n; i++) {
+    const info = gl.getActiveUniform(p, i);
+    u[info.name] = gl.getUniformLocation(p, info.name);
+  }
+  return { p, u, bind() { gl.useProgram(p); } };
+}
+
+const VERT = `
+precision highp float;
+attribute vec2 aPosition;
+varying vec2 vUv, vL, vR, vT, vB;
+uniform vec2 texelSize;
+void main () {
+  vUv = aPosition * 0.5 + 0.5;
+  vL = vUv - vec2(texelSize.x, 0.0);
+  vR = vUv + vec2(texelSize.x, 0.0);
+  vT = vUv + vec2(0.0, texelSize.y);
+  vB = vUv - vec2(0.0, texelSize.y);
+  gl_Position = vec4(aPosition, 0.0, 1.0);
+}`;
+
+const FRAG = {
+clear: `
+precision mediump float; precision mediump sampler2D;
+varying vec2 vUv; uniform sampler2D uTexture; uniform float value;
+void main () { gl_FragColor = value * texture2D(uTexture, vUv); }`,
+
+splat: `
+precision highp float; precision highp sampler2D;
+varying vec2 vUv; uniform sampler2D uTarget;
+uniform float aspectRatio; uniform vec3 color; uniform vec2 point; uniform float radius;
+void main () {
+  vec2 p = vUv - point.xy; p.x *= aspectRatio;
+  vec3 splat = exp(-dot(p, p) / radius) * color;
+  vec3 base = texture2D(uTarget, vUv).xyz;
+  gl_FragColor = vec4(base + splat, 1.0);
+}`,
+
+advection: `
+precision highp float; precision highp sampler2D;
+varying vec2 vUv;
+uniform sampler2D uVelocity; uniform sampler2D uSource;
+uniform vec2 texelSize; uniform float dt; uniform float dissipation;
+void main () {
+  vec2 coord = vUv - dt * texture2D(uVelocity, vUv).xy * texelSize;
+  vec4 result = texture2D(uSource, coord);
+  gl_FragColor = result / (1.0 + dissipation * dt);
+}`,
+
+divergence: `
+precision mediump float; precision mediump sampler2D;
+varying vec2 vUv, vL, vR, vT, vB; uniform sampler2D uVelocity;
+void main () {
+  float L = texture2D(uVelocity, vL).x;
+  float R = texture2D(uVelocity, vR).x;
+  float T = texture2D(uVelocity, vT).y;
+  float B = texture2D(uVelocity, vB).y;
+  vec2 C = texture2D(uVelocity, vUv).xy;
+  if (vL.x < 0.0) { L = -C.x; }
+  if (vR.x > 1.0) { R = -C.x; }
+  if (vT.y > 1.0) { T = -C.y; }
+  if (vB.y < 0.0) { B = -C.y; }
+  gl_FragColor = vec4(0.5 * (R - L + T - B), 0.0, 0.0, 1.0);
+}`,
+
+curl: `
+precision mediump float; precision mediump sampler2D;
+varying vec2 vUv, vL, vR, vT, vB; uniform sampler2D uVelocity;
+void main () {
+  float L = texture2D(uVelocity, vL).y;
+  float R = texture2D(uVelocity, vR).y;
+  float T = texture2D(uVelocity, vT).x;
+  float B = texture2D(uVelocity, vB).x;
+  gl_FragColor = vec4(0.5 * (R - L - T + B), 0.0, 0.0, 1.0);
+}`,
+
+vorticity: `
+precision highp float; precision highp sampler2D;
+varying vec2 vUv, vL, vR, vT, vB;
+uniform sampler2D uVelocity; uniform sampler2D uCurl;
+uniform float curl; uniform float dt;
+void main () {
+  float L = texture2D(uCurl, vL).x;
+  float R = texture2D(uCurl, vR).x;
+  float T = texture2D(uCurl, vT).x;
+  float B = texture2D(uCurl, vB).x;
+  float C = texture2D(uCurl, vUv).x;
+  vec2 force = 0.5 * vec2(abs(T) - abs(B), abs(R) - abs(L));
+  force /= length(force) + 0.0001;
+  force *= curl * C; force.y *= -1.0;
+  vec2 velocity = texture2D(uVelocity, vUv).xy + force * dt;
+  velocity = clamp(velocity, -1000.0, 1000.0);
+  gl_FragColor = vec4(velocity, 0.0, 1.0);
+}`,
+
+pressure: `
+precision mediump float; precision mediump sampler2D;
+varying vec2 vUv, vL, vR, vT, vB;
+uniform sampler2D uPressure; uniform sampler2D uDivergence;
+void main () {
+  float L = texture2D(uPressure, vL).x;
+  float R = texture2D(uPressure, vR).x;
+  float T = texture2D(uPressure, vT).x;
+  float B = texture2D(uPressure, vB).x;
+  float divergence = texture2D(uDivergence, vUv).x;
+  gl_FragColor = vec4((L + R + B + T - divergence) * 0.25, 0.0, 0.0, 1.0);
+}`,
+
+gradient: `
+precision mediump float; precision mediump sampler2D;
+varying vec2 vUv, vL, vR, vT, vB;
+uniform sampler2D uPressure; uniform sampler2D uVelocity;
+void main () {
+  float L = texture2D(uPressure, vL).x;
+  float R = texture2D(uPressure, vR).x;
+  float T = texture2D(uPressure, vT).x;
+  float B = texture2D(uPressure, vB).x;
+  vec2 velocity = texture2D(uVelocity, vUv).xy;
+  velocity -= vec2(R - L, T - B);
+  gl_FragColor = vec4(velocity, 0.0, 1.0);
+}`,
+
+display: `
+precision highp float; precision highp sampler2D;
+varying vec2 vUv; uniform sampler2D uTexture; uniform float uBoost;
+void main () {
+  vec3 c = texture2D(uTexture, vUv).rgb * uBoost;
+  float d = distance(vUv, vec2(0.5));
+  c *= smoothstep(0.95, 0.45, d) * 0.35 + 0.65;
+  gl_FragColor = vec4(c, 1.0);
+}`
+};
+
+let programs = {}, blit, velocity, dye, divergenceFBO, curlFBO, pressureFBO;
+
+function initGL() {
+  const vs = compileShader(gl.VERTEX_SHADER, VERT);
+  for (const k in FRAG) programs[k] = makeProgram(vs, FRAG[k]);
+
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, -1,1, 1,1, 1,-1]), gl.STATIC_DRAW);
+  const idx = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, idx);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([0,1,2, 0,2,3]), gl.STATIC_DRAW);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(0);
+  blit = (target) => {
+    if (target == null) {
+      gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    } else {
+      gl.viewport(0, 0, target.width, target.height);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, target.fbo);
+    }
+    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+  };
+  initFramebuffers();
+}
+
+function createFBO(w, h, internalFormat, format, type, filter) {
+  gl.activeTexture(gl.TEXTURE0);
+  const texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, w, h, 0, format, type, null);
+  const fbo = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+  gl.viewport(0, 0, w, h);
+  gl.clearColor(0, 0, 0, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  return {
+    texture, fbo, width: w, height: h,
+    texelSizeX: 1 / w, texelSizeY: 1 / h,
+    attach(id) { gl.activeTexture(gl.TEXTURE0 + id); gl.bindTexture(gl.TEXTURE_2D, texture); return id; }
+  };
+}
+function createDoubleFBO(w, h, intF, f, t, filter) {
+  let fbo1 = createFBO(w, h, intF, f, t, filter);
+  let fbo2 = createFBO(w, h, intF, f, t, filter);
+  return {
+    width: w, height: h, texelSizeX: 1 / w, texelSizeY: 1 / h,
+    get read() { return fbo1; }, get write() { return fbo2; },
+    swap() { const tmp = fbo1; fbo1 = fbo2; fbo2 = tmp; }
+  };
+}
+function getResolution(resolution) {
+  let ar = gl.drawingBufferWidth / gl.drawingBufferHeight;
+  if (ar < 1) ar = 1 / ar;
+  const min = Math.round(resolution), max = Math.round(resolution * ar);
+  return gl.drawingBufferWidth > gl.drawingBufferHeight
+    ? { width: max, height: min } : { width: min, height: max };
+}
+function initFramebuffers() {
+  const sim = getResolution(CFG.SIM_RES), dyeR = getResolution(CFG.DYE_RES);
+  const HF = gl.HALF_FLOAT;
+  velocity      = createDoubleFBO(sim.width, sim.height, gl.RG16F, gl.RG, HF, gl.LINEAR);
+  dye           = createDoubleFBO(dyeR.width, dyeR.height, gl.RGBA16F, gl.RGBA, HF, gl.LINEAR);
+  divergenceFBO = createFBO(sim.width, sim.height, gl.R16F, gl.RED, HF, gl.NEAREST);
+  curlFBO       = createFBO(sim.width, sim.height, gl.R16F, gl.RED, HF, gl.NEAREST);
+  pressureFBO   = createDoubleFBO(sim.width, sim.height, gl.R16F, gl.RED, HF, gl.NEAREST);
+}
+
+function stepSim(dt) {
+  gl.disable(gl.BLEND);
+  const tw = velocity.texelSizeX, th = velocity.texelSizeY;
+
+  programs.curl.bind();
+  gl.uniform2f(programs.curl.u.texelSize, tw, th);
+  gl.uniform1i(programs.curl.u.uVelocity, velocity.read.attach(0));
+  blit(curlFBO);
+
+  programs.vorticity.bind();
+  gl.uniform2f(programs.vorticity.u.texelSize, tw, th);
+  gl.uniform1i(programs.vorticity.u.uVelocity, velocity.read.attach(0));
+  gl.uniform1i(programs.vorticity.u.uCurl, curlFBO.attach(1));
+  gl.uniform1f(programs.vorticity.u.curl, CFG.CURL);
+  gl.uniform1f(programs.vorticity.u.dt, dt);
+  blit(velocity.write); velocity.swap();
+
+  programs.divergence.bind();
+  gl.uniform2f(programs.divergence.u.texelSize, tw, th);
+  gl.uniform1i(programs.divergence.u.uVelocity, velocity.read.attach(0));
+  blit(divergenceFBO);
+
+  programs.clear.bind();
+  gl.uniform1i(programs.clear.u.uTexture, pressureFBO.read.attach(0));
+  gl.uniform1f(programs.clear.u.value, 0.8);
+  blit(pressureFBO.write); pressureFBO.swap();
+
+  programs.pressure.bind();
+  gl.uniform2f(programs.pressure.u.texelSize, tw, th);
+  gl.uniform1i(programs.pressure.u.uDivergence, divergenceFBO.attach(0));
+  for (let i = 0; i < CFG.PRESSURE_ITERS; i++) {
+    gl.uniform1i(programs.pressure.u.uPressure, pressureFBO.read.attach(1));
+    blit(pressureFBO.write); pressureFBO.swap();
+  }
+
+  programs.gradient.bind();
+  gl.uniform2f(programs.gradient.u.texelSize, tw, th);
+  gl.uniform1i(programs.gradient.u.uPressure, pressureFBO.read.attach(0));
+  gl.uniform1i(programs.gradient.u.uVelocity, velocity.read.attach(1));
+  blit(velocity.write); velocity.swap();
+
+  programs.advection.bind();
+  gl.uniform2f(programs.advection.u.texelSize, tw, th);
+  gl.uniform1i(programs.advection.u.uVelocity, velocity.read.attach(0));
+  gl.uniform1i(programs.advection.u.uSource, velocity.read.attach(0));
+  gl.uniform1f(programs.advection.u.dt, dt);
+  gl.uniform1f(programs.advection.u.dissipation, CFG.VEL_DISS);
+  blit(velocity.write); velocity.swap();
+
+  gl.uniform1i(programs.advection.u.uVelocity, velocity.read.attach(0));
+  gl.uniform1i(programs.advection.u.uSource, dye.read.attach(1));
+  gl.uniform1f(programs.advection.u.dissipation, CFG.DYE_DISS);
+  blit(dye.write); dye.swap();
+}
+
+function splat(x, y, dx, dy, color, radius) {
+  programs.splat.bind();
+  gl.uniform1i(programs.splat.u.uTarget, velocity.read.attach(0));
+  gl.uniform1f(programs.splat.u.aspectRatio, canvas.width / canvas.height);
+  gl.uniform2f(programs.splat.u.point, x, y);
+  gl.uniform3f(programs.splat.u.color, dx, dy, 0.0);
+  gl.uniform1f(programs.splat.u.radius, correctRadius(radius));
+  blit(velocity.write); velocity.swap();
+
+  gl.uniform1i(programs.splat.u.uTarget, dye.read.attach(0));
+  gl.uniform3f(programs.splat.u.color, color[0], color[1], color[2]);
+  blit(dye.write); dye.swap();
+}
+function correctRadius(r) {
+  const ar = canvas.width / canvas.height;
+  return ar > 1 ? r * ar : r;
+}
+
+let kickPulse = 0;
+function render() {
+  programs.display.bind();
+  gl.uniform1i(programs.display.u.uTexture, dye.read.attach(0));
+  gl.uniform1f(programs.display.u.uBoost, 1.0 + kickPulse);
+  blit(null);
+}
+function resizeCanvas() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  const w = Math.floor(canvas.clientWidth * dpr), h = Math.floor(canvas.clientHeight * dpr);
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width = w; canvas.height = h;
+    initFramebuffers();
+  }
+}
+
+/* ----------------------- music engine ----------------------- */
+const N = (m) => 440 * Math.pow(2, (m - 69) / 12); // midi -> Hz
+
+const PALETTES = {
+  edm:     [[0.55,0.18,1.0],[0.95,0.2,0.85],[0.3,0.08,0.95],[1.0,0.25,0.55]],
+  ambient: [[0.08,0.55,0.95],[0.15,0.9,0.75],[0.95,0.65,0.25],[0.35,0.45,1.0]],
+  lofi:    [[1.0,0.55,0.25],[0.95,0.35,0.4],[0.75,0.45,0.85],[1.0,0.78,0.35]],
+  focus:   [[0.1,0.5,0.95],[0.2,0.85,0.9],[0.35,0.4,1.0],[0.15,0.9,0.65]],
+  relax:   [[1.0,0.6,0.3],[0.9,0.42,0.5],[0.3,0.7,0.7],[1.0,0.8,0.45]],
+  sleep:   [[0.28,0.22,0.75],[0.42,0.26,0.85],[0.16,0.16,0.55],[0.5,0.32,0.95]]
+};
+
+/* Endel-style scenes: parameter snapshots over a shared engine */
+const SCAPES = {
+  focus: { bpmBase: 96, root: 48, scale: [0,2,4,7,9], fluid: 1.0,
+           defaults: { pace:.55, density:.5, brightness:.6, space:.35, pulse:.55, texture:.35 } },
+  relax: { bpmBase: 66, root: 45, scale: [0,3,5,7,10], fluid: 0.7,
+           defaults: { pace:.4, density:.35, brightness:.42, space:.6, pulse:.3, texture:.45 } },
+  sleep: { bpmBase: 52, root: 38, scale: [0,3,7,10], fluid: 0.45,
+           defaults: { pace:.22, density:.15, brightness:.2, space:.85, pulse:.15, texture:.55 } }
+};
+/* minute-scale parameter drift so scenes never loop (freq Hz, phase) */
+const DRIFT = { pace:[0.0035,0], density:[0.0061,2.1], brightness:[0.0047,4.2],
+                space:[0.0028,1.3], pulse:[0.0072,3.4], texture:[0.0041,5.5] };
+
+let activityLevel = 0;   // 0..1, smoothed user activity (adaptive input)
+
+const Music = {
+  ctx: null, master: null, duck: null, analyser: null, comp: null,
+  reverbSend: null, delaySend: null, noiseBuf: null,
+  playing: false, preset: 'edm', energy: 0.7, volume: 0.65,
+  step: 0, nextTime: 0, timer: null,
+  events: [],          // visual events: {t, type, midi}
+  freqData: null,
+  layers: { drums: true, bass: true, pads: true, melody: true, texture: true },
+  params: { pace:.5, density:.5, brightness:.5, space:.5, pulse:.4, texture:.4 },
+  adapt: false,
+  scapeDeg: 0, scapeChord: null,
+
+  presets: {
+    edm:     { bpm: 126, label: 'CLASSICAL × EDM · 126 BPM' },
+    ambient: { bpm: 72,  label: 'EPIC AMBIENT · 72 BPM' },
+    lofi:    { bpm: 78,  label: 'LO-FI · 78 BPM' },
+    focus:   { label: 'FOCUS' },
+    relax:   { label: 'RELAX' },
+    sleep:   { label: 'SLEEP' }
+  },
+  isScape() { return !!SCAPES[this.preset]; },
+
+  /* effective parameter = slider + slow drift + optional activity adaptation */
+  eff(name) {
+    const d = DRIFT[name], t = this.ctx ? this.ctx.currentTime : 0;
+    let v = this.params[name] + 0.08 * Math.sin(2 * Math.PI * d[0] * t + d[1]);
+    if (this.adapt && (name === 'density' || name === 'pace' || name === 'pulse'))
+      v += (activityLevel - 0.3) * 0.18;
+    return Math.min(1, Math.max(0, v));
+  },
+
+  init() {
+    const ctx = this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    this.master = ctx.createGain();
+    this.master.gain.value = this.volume * this.volume;
+    this.comp = ctx.createDynamicsCompressor();
+    this.comp.threshold.value = -14; this.comp.ratio.value = 4;
+    this.analyser = ctx.createAnalyser();
+    this.analyser.fftSize = 256;
+    this.freqData = new Uint8Array(this.analyser.frequencyBinCount);
+    this.master.connect(this.comp);
+    this.comp.connect(this.analyser);
+    this.analyser.connect(ctx.destination);
+
+    this.duck = ctx.createGain();           // sidechain bus
+    this.duck.connect(this.master);
+
+    // generated reverb impulse
+    const dur = 3, rate = ctx.sampleRate, len = dur * rate;
+    const imp = ctx.createBuffer(2, len, rate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = imp.getChannelData(ch);
+      for (let i = 0; i < len; i++)
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6);
+    }
+    const conv = ctx.createConvolver(); conv.buffer = imp;
+    this.reverbSend = ctx.createGain(); this.reverbSend.gain.value = 0.25;
+    this.reverbSend.connect(conv); conv.connect(this.master);
+
+    // dotted-eighth feedback delay for leads
+    const delay = ctx.createDelay(2.0);
+    this.delayNode = delay;
+    const fb = ctx.createGain(); fb.gain.value = 0.32;
+    const dwet = ctx.createGain(); dwet.gain.value = 0.5;
+    this.delaySend = ctx.createGain(); this.delaySend.gain.value = 1;
+    this.delaySend.connect(delay); delay.connect(fb); fb.connect(delay);
+    delay.connect(dwet); dwet.connect(this.master);
+
+    // white-noise buffer
+    const nb = ctx.createBuffer(1, rate, rate);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < rate; i++) nd[i] = Math.random() * 2 - 1;
+    this.noiseBuf = nb;
+
+    // lofi vinyl bed (always built, gated by gain)
+    const vin = ctx.createBufferSource(); vin.buffer = nb; vin.loop = true;
+    const vlp = ctx.createBiquadFilter(); vlp.type = 'lowpass'; vlp.frequency.value = 4200;
+    const vhp = ctx.createBiquadFilter(); vhp.type = 'highpass'; vhp.frequency.value = 600;
+    this.vinylGain = ctx.createGain(); this.vinylGain.gain.value = 0;
+    vin.connect(vlp); vlp.connect(vhp); vhp.connect(this.vinylGain);
+    this.vinylGain.connect(this.master); vin.start();
+
+    // scene texture bed (wind-like filtered noise, gated by gain)
+    const tex = ctx.createBufferSource(); tex.buffer = nb; tex.loop = true;
+    this.texLP = ctx.createBiquadFilter(); this.texLP.type = 'lowpass'; this.texLP.frequency.value = 900;
+    this.texGain = ctx.createGain(); this.texGain.gain.value = 0;
+    tex.connect(this.texLP); this.texLP.connect(this.texGain);
+    this.texGain.connect(this.master); this.texGain.connect(this.reverbSend);
+    tex.start();
+  },
+
+  get bpm() {
+    const p = this.presets[this.preset];
+    if (p.bpm) return p.bpm;
+    return SCAPES[this.preset].bpmBase * (0.75 + 0.5 * this.eff('pace'));
+  },
+  get spb() { return 60 / this.bpm; },
+
+  start() {
+    if (!this.ctx) this.init();
+    this.ctx.resume();
+    this.setVolume(this.volume);   // restore after timer fade
+    if (this.playing) return;
+    this.playing = true;
+    this.step = 0;
+    this.nextTime = this.ctx.currentTime + 0.1;
+    this.applyPresetFx();
+    this.timer = setInterval(() => this.schedule(), 25);
+  },
+  stop() {
+    this.playing = false;
+    clearInterval(this.timer);
+    if (this.ctx) this.ctx.suspend();
+  },
+  setPreset(p, keepParams = false) {
+    this.preset = p;
+    this.step = 0;
+    this.events.length = 0;
+    this.scapeChord = null;
+    if (SCAPES[p] && !keepParams) Object.assign(this.params, SCAPES[p].defaults);
+    if (this.ctx && this.playing) {
+      this.nextTime = this.ctx.currentTime + 0.1;
+      this.applyPresetFx();
+    }
+  },
+  applyPresetFx() {
+    const t = this.ctx.currentTime;
+    this.delayNode.delayTime.setTargetAtTime(this.spb * 0.75, t, 0.05);
+    const rev = this.isScape()
+      ? 0.1 + 0.6 * this.eff('space')
+      : { edm: 0.16, ambient: 0.55, lofi: 0.22 }[this.preset];
+    this.reverbSend.gain.setTargetAtTime(rev, t, 0.2);
+    this.vinylGain.gain.setTargetAtTime(
+      this.preset === 'lofi' && this.layers.texture ? 0.012 : 0, t, 0.3);
+    this.updateTexture(t);
+  },
+  updateTexture(t) {
+    if (!this.ctx) return;
+    const on = this.isScape() && this.layers.texture;
+    this.texGain.gain.setTargetAtTime(on ? 0.012 + 0.022 * this.eff('texture') : 0, t, 0.8);
+    this.texLP.frequency.setTargetAtTime(250 + 2800 * this.eff('brightness'), t, 0.8);
+  },
+  setVolume(v) {
+    this.volume = v;
+    if (this.master) this.master.gain.setTargetAtTime(v * v, this.ctx.currentTime, 0.05);
+  },
+
+  schedule() {
+    const ahead = this.ctx.currentTime + 0.18;
+    while (this.nextTime < ahead) {
+      this.playStep(this.step, this.nextTime);
+      this.nextTime += this.spb / 4;   // 16th grid
+      this.step++;
+    }
+  },
+
+  playStep(s, t) {
+    if (SCAPES[this.preset]) this.stepScape(s, t);
+    else if (this.preset === 'edm') this.stepEDM(s, t);
+    else if (this.preset === 'ambient') this.stepAmbient(s, t);
+    else this.stepLofi(s, t);
+  },
+
+  /* ---------- voices ---------- */
+  kick(t, fHi, fLo, dur, vol, visual = true) {
+    const c = this.ctx, o = c.createOscillator(), g = c.createGain();
+    o.frequency.setValueAtTime(fHi, t);
+    o.frequency.exponentialRampToValueAtTime(fLo, t + dur * 0.5);
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); g.connect(this.master);
+    o.start(t); o.stop(t + dur + 0.1);
+    if (visual) this.events.push({ t, type: 'kick' });
+  },
+  duckIt(t) {
+    const g = this.duck.gain;
+    g.cancelScheduledValues(t);
+    g.setValueAtTime(0.22, t);
+    g.linearRampToValueAtTime(1.0, t + 0.30);
+  },
+  noiseHit(t, filterType, freq, q, vol, dur) {
+    const c = this.ctx, src = c.createBufferSource(); src.buffer = this.noiseBuf;
+    src.loop = true; src.loopStart = Math.random() * 0.5;
+    const f = c.createBiquadFilter(); f.type = filterType; f.frequency.value = freq; f.Q.value = q;
+    const g = c.createGain();
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    src.connect(f); f.connect(g); g.connect(this.master);
+    src.start(t); src.stop(t + dur + 0.05);
+  },
+  bass(t, midi, dur, vol) {
+    const c = this.ctx, o = c.createOscillator(), f = c.createBiquadFilter(), g = c.createGain();
+    o.type = 'sawtooth'; o.frequency.value = N(midi);
+    f.type = 'lowpass'; f.frequency.setValueAtTime(650, t);
+    f.frequency.exponentialRampToValueAtTime(220, t + dur);
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(f); f.connect(g); g.connect(this.duck);
+    o.start(t); o.stop(t + dur + 0.1);
+    this.events.push({ t, type: 'bass', midi });
+  },
+  pad(t, chord, dur, vol, cutoff, attack, release) {
+    const c = this.ctx;
+    for (const midi of chord) {
+      for (const det of [-7, 7]) {
+        const o = c.createOscillator(), g = c.createGain(), f = c.createBiquadFilter();
+        o.type = 'sawtooth'; o.frequency.value = N(midi); o.detune.value = det;
+        f.type = 'lowpass'; f.frequency.value = cutoff;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(vol, t + attack);
+        g.gain.setValueAtTime(vol, t + Math.max(attack, dur - release));
+        g.gain.linearRampToValueAtTime(0.0001, t + dur + 0.05);
+        o.connect(f); f.connect(g);
+        g.connect(this.duck); g.connect(this.reverbSend);
+        o.start(t); o.stop(t + dur + 0.2);
+      }
+    }
+    this.events.push({ t, type: 'chord', midi: chord[0] });
+  },
+  lead(t, midi, dur, vol) {
+    const c = this.ctx;
+    for (const det of [-9, 9]) {
+      const o = c.createOscillator(), g = c.createGain(), f = c.createBiquadFilter();
+      o.type = 'sawtooth'; o.frequency.value = N(midi); o.detune.value = det;
+      f.type = 'lowpass'; f.frequency.value = 2800;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(vol, t + 0.012);
+      g.gain.setValueAtTime(vol * 0.8, t + dur * 0.7);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      o.connect(f); f.connect(g);
+      g.connect(this.master); g.connect(this.delaySend);
+      o.start(t); o.stop(t + dur + 0.1);
+    }
+    this.events.push({ t, type: 'note', midi });
+  },
+  pluck(t, midi, vol, dur, type = 'sine', sendRev = true) {
+    const c = this.ctx, o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.value = N(midi);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); g.connect(this.master);
+    if (sendRev) g.connect(this.reverbSend);
+    o.start(t); o.stop(t + dur + 0.1);
+    this.events.push({ t, type: 'note', midi });
+  },
+  rhodes(t, midi, vol, dur) {
+    const c = this.ctx, g = c.createGain(), f = c.createBiquadFilter();
+    f.type = 'lowpass'; f.frequency.value = 2000;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    const o1 = c.createOscillator(); o1.type = 'sine'; o1.frequency.value = N(midi);
+    o1.detune.value = (Math.random() - 0.5) * 8;
+    const o2 = c.createOscillator(); o2.type = 'sine'; o2.frequency.value = N(midi) * 2;
+    const g2 = c.createGain(); g2.gain.value = 0.28;
+    o1.connect(f); o2.connect(g2); g2.connect(f);
+    f.connect(g); g.connect(this.master); g.connect(this.reverbSend);
+    o1.start(t); o1.stop(t + dur + 0.1);
+    o2.start(t); o2.stop(t + dur + 0.1);
+    this.events.push({ t, type: 'note', midi });
+  },
+
+  /* ---------- Endel-style scene engine (Focus / Relax / Sleep) ---------- */
+  stepScape(s, t) {
+    const sc = SCAPES[this.preset], L = this.layers;
+    const dens = Math.min(1, this.eff('density') * (0.5 + this.energy));
+    const bright = this.eff('brightness'), pulse = this.eff('pulse'), pace = this.eff('pace');
+    const spb = this.spb;
+
+    // random chord walk through the scene's scale — never loops
+    if (s % 32 === 0 || !this.scapeChord) {
+      const sl = sc.scale;
+      const walk = [-2, -1, 1, 2][Math.floor(Math.random() * 4)];
+      this.scapeDeg = ((this.scapeDeg || 0) + walk + sl.length * 8) % sl.length;
+      const tone = (i) => sc.root + 12 * Math.floor((this.scapeDeg + i) / sl.length)
+                        + sl[(this.scapeDeg + i) % sl.length];
+      this.scapeChord = [tone(0), tone(2), tone(4)];
+
+      if (L.pads)
+        this.pad(t, this.scapeChord.map(m => m + 12), spb * 8 + 2, 0.05,
+                 350 + 2200 * bright, 1.0 + 2.5 * (1 - pace), 3.0);
+      if (L.bass) {                       // sub drone swell under the chord
+        const c = this.ctx, o = c.createOscillator(), g = c.createGain();
+        o.type = 'sine'; o.frequency.value = N(this.scapeChord[0] - 12);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(0.10 + 0.10 * (1 - bright), t + 2.5);
+        g.gain.linearRampToValueAtTime(0.0001, t + spb * 8 + 1.5);
+        o.connect(g); g.connect(this.master);
+        o.start(t); o.stop(t + spb * 8 + 2);
+        this.events.push({ t, type: 'bass', midi: this.scapeChord[0] });
+      }
+    }
+
+    if (L.drums && pulse > 0.1 && s % 8 === 0)
+      this.kick(t, 65 + 50 * pulse, 36, 0.45 + 0.5 * (1 - pace), 0.14 + 0.34 * pulse);
+
+    if (L.melody && s % 2 === 0 && Math.random() < dens * 0.5) {
+      const oct = Math.random() < 0.45 ? 24 : 12;
+      const midi = this.scapeChord[Math.floor(Math.random() * 3)] + oct;
+      this.pluck(t, midi, 0.028 + 0.05 * dens, 0.7 + 1.6 * (1 - pace),
+                 Math.random() < 0.5 ? 'sine' : 'triangle');
+    }
+    if (L.melody && s % 16 === 8 && Math.random() < 0.18 * bright)
+      this.pluck(t, this.scapeChord[0] + 36, 0.018, 2.2, 'sine');
+
+    if (s % 16 === 0) {                  // live-follow space + texture sliders
+      this.reverbSend.gain.setTargetAtTime(0.1 + 0.6 * this.eff('space'), t, 1.0);
+      this.updateTexture(t);
+    }
+  },
+
+  /* ---------- preset: Classical × EDM (C minor, Beethoven 5th motif) ---------- */
+  EDM_CHORDS: [[48,51,55],[44,48,51],[46,50,53],[43,47,50]],   // Cm Ab Bb G
+  EDM_ROOTS:  [36, 32, 34, 31],
+  EDM_MOTIF:  { 2:[67,6], 4:[67,2], 6:[67,2], 8:[63,8],        // G G G Eb
+               18:[65,6], 20:[65,2], 22:[65,2], 24:[62,8] },   // F F F D
+
+  stepEDM(s, t) {
+    const bar = Math.floor(s / 16), sb = s % 16, L = this.layers;
+    const sec = Math.floor(bar / 8) % 4;
+    const secMult = [0.6, 0.85, 1.0, 0.55][sec];
+    const e = this.energy * secMult;
+    const ch = this.EDM_CHORDS[bar % 4];
+    const spb = this.spb, st = spb / 4;
+
+    if (sb === 0 && L.pads) this.pad(t, ch, spb * 4, 0.05, 1100 + 600 * e, 0.08, 0.6);
+
+    if (L.drums) {
+      if (s % 4 === 0 && e >= 0.28) { this.kick(t, 150, 44, 0.30, 0.95); this.duckIt(t); }
+      if (s % 4 === 2 && e >= 0.48) this.noiseHit(t, 'highpass', 7500, 1, 0.16, 0.05);
+      if ((sb === 4 || sb === 12) && e >= 0.62) this.noiseHit(t, 'bandpass', 1800, 1.2, 0.4, 0.13);
+      // build-up snare roll in the last bar of the quiet section
+      if (sec === 3 && bar % 8 === 7) this.noiseHit(t, 'bandpass', 1900, 1.5, 0.12 + 0.02 * sb, 0.08);
+    }
+
+    if (L.bass && s % 2 === 0 && e >= 0.42)
+      this.bass(t, this.EDM_ROOTS[bar % 4], st * 2 * 0.9, s % 4 === 0 ? 0.30 : 0.22);
+
+    if (L.melody && e >= 0.38) {
+      const ph = s % 32, hit = this.EDM_MOTIF[ph];
+      if (hit) {
+        this.lead(t, hit[0], st * hit[1] * 0.95, 0.16);
+        if (e >= 0.85) this.lead(t, hit[0] + 12, st * hit[1] * 0.95, 0.07);
+      }
+    }
+    if (L.melody && e >= 0.78) {
+      const tones = [ch[0] + 12, ch[1] + 12, ch[2] + 12, ch[1] + 24];
+      this.pluck(t, tones[s % 4], 0.07, 0.14, 'square', false);
+    }
+  },
+
+  /* ---------- preset: Epic Ambient (A minor) ---------- */
+  AMB_CHORDS: [[57,60,64],[53,57,60],[48,52,55],[55,59,62]],   // Am F C G
+  AMB_ROOTS:  [45, 41, 36, 43],
+
+  stepAmbient(s, t) {
+    const chordIdx = Math.floor(s / 32) % 4, L = this.layers;
+    const ch = this.AMB_CHORDS[chordIdx];
+    const e = this.energy, spb = this.spb;
+
+    if (s % 32 === 0) {
+      if (L.pads) this.pad(t, ch, spb * 8 + 1, 0.055, 750 + 500 * e, 2.0, 3.0);
+      if (L.bass) {   // sub swell
+        const c = this.ctx, o = c.createOscillator(), g = c.createGain();
+        o.type = 'sine'; o.frequency.value = N(this.AMB_ROOTS[chordIdx] - 12);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(0.16 * e + 0.04, t + 2.5);
+        g.gain.linearRampToValueAtTime(0.0001, t + spb * 8);
+        o.connect(g); g.connect(this.master);
+        o.start(t); o.stop(t + spb * 8 + 0.5);
+      }
+    }
+    if (L.drums && s % 64 === 16 && e >= 0.35) this.kick(t, 90, 32, 1.1, 0.5);
+
+    if (L.melody && s % 2 === 0 && Math.random() < 0.30 + 0.45 * e) {
+      const oct = Math.random() < 0.4 ? 24 : 12;
+      const midi = ch[Math.floor(Math.random() * 3)] + oct;
+      this.pluck(t, midi, 0.05 + 0.05 * e, 0.9, Math.random() < 0.5 ? 'sine' : 'triangle');
+    }
+    if (L.melody && s % 16 === 8 && Math.random() < 0.3 * e)
+      this.pluck(t, ch[0] + 36, 0.025, 1.6, 'sine');
+  },
+
+  /* ---------- preset: Lo-fi (jazzy 7ths in C) ---------- */
+  LOFI_CHORDS: [[53,57,60,64],[52,55,59,62],[50,53,57,60],[48,52,55,59]],
+  LOFI_ROOTS:  [41, 40, 38, 36],
+  LOFI_PENTA:  [72, 74, 76, 79, 81],
+
+  stepLofi(s, t) {
+    const bar = Math.floor(s / 16), sb = s % 16, L = this.layers;
+    const ch = this.LOFI_CHORDS[bar % 4];
+    const e = this.energy, spb = this.spb;
+    const swing = (s % 4 === 2) ? spb * 0.14 : 0;     // swung offbeat 8ths
+    t += swing;
+
+    if ((sb === 0 || sb === 10) && L.pads)
+      for (let i = 0; i < ch.length; i++)
+        this.rhodes(t + i * 0.012, ch[i], 0.055, 1.6);
+
+    if (L.drums) {
+      if ((sb === 0 || sb === 7) && e >= 0.3) this.kick(t, 95, 42, 0.22, 0.5);
+      if ((sb === 4 || sb === 12) && e >= 0.3) {
+        this.noiseHit(t, 'lowpass', 3800, 0.8, 0.18, 0.16);
+        this.events.push({ t, type: 'bass', midi: 50 });
+      }
+      if (s % 4 === 2 && e >= 0.55) this.noiseHit(t, 'highpass', 8200, 1, 0.05, 0.04);
+    }
+
+    if (L.bass && (sb === 0 || sb === 8) && e >= 0.35)
+      this.bass(t, this.LOFI_ROOTS[bar % 4] - 12, 0.5, 0.20);
+
+    if (L.melody && s % 4 === 0 && Math.random() < 0.22 + 0.3 * e) {
+      const midi = this.LOFI_PENTA[Math.floor(Math.random() * 5)];
+      this.rhodes(t + 0.02, midi, 0.05, 1.1);
+    }
+    if (L.texture && Math.random() < 0.045) this.noiseHit(t, 'bandpass', 3000, 8, 0.04, 0.015);
+  }
+};
+
+/* ----------------- adaptive context (time of day) ----------------- */
+function daySegment() {
+  const h = new Date().getHours();
+  return h < 5 ? 'night' : h < 9 ? 'dawn' : h < 17 ? 'day' : h < 22 ? 'dusk' : 'night';
+}
+const TINTS = { dawn:[1.12,0.95,0.85], day:[1.0,1.0,1.06], dusk:[1.08,0.9,1.12], night:[0.8,0.85,1.18] };
+
+/* ----------------- audio → visual coupling ----------------- */
+function scaleColor(c, k) {
+  if (SCAPES[Music.preset]) {
+    const tn = TINTS[daySegment()];
+    return [c[0] * tn[0] * k, c[1] * tn[1] * k, c[2] * tn[2] * k];
+  }
+  return [c[0] * k, c[1] * k, c[2] * k];
+}
+function visualIntensity() { return Music.energy; }
+function fluidSpeed() { return SCAPES[Music.preset] ? SCAPES[Music.preset].fluid : 1; }
+
+function consumeMusicEvents() {
+  if (!Music.ctx) return;
+  const now = Music.ctx.currentTime + 0.03;
+  const pal = PALETTES[Music.preset];
+  const force = (0.5 + visualIntensity()) * fluidSpeed();
+  while (Music.events.length && Music.events[0].t <= now) {
+    const ev = Music.events.shift();
+    if (ev.t < now - 0.5) continue;                  // stale
+    if (ev.type === 'kick') {
+      kickPulse = Math.min(kickPulse + 0.28 * force, 0.9);
+      const cx = 0.5 + (Math.random() - 0.5) * 0.25;
+      const cy = 0.42 + (Math.random() - 0.5) * 0.2;
+      const col = pal[Math.floor(Math.random() * pal.length)];
+      for (let i = 0; i < 5; i++) {
+        const a = (i / 5) * Math.PI * 2 + Math.random();
+        splat(cx, cy, Math.cos(a) * 260 * force, Math.sin(a) * 260 * force,
+              scaleColor(col, 0.16), 0.0035);
+      }
+    } else if (ev.type === 'note') {
+      const x = 0.18 + ((ev.midi % 12) / 11) * 0.64 + (Math.random() - 0.5) * 0.06;
+      const y = 0.5 + Math.random() * 0.3;
+      const col = pal[ev.midi % pal.length];
+      splat(x, y, (Math.random() - 0.5) * 420 * force, (Math.random() - 0.3) * 380 * force,
+            scaleColor(col, 0.30), 0.0011);
+    } else if (ev.type === 'bass') {
+      const x = 0.3 + Math.random() * 0.4;
+      const col = pal[(ev.midi + 1) % pal.length];
+      splat(x, 0.16, (Math.random() - 0.5) * 220 * force, 240 * force,
+            scaleColor(col, 0.18), 0.0022);
+    } else if (ev.type === 'chord') {
+      const col = pal[ev.midi % pal.length];
+      for (let i = 0; i < 3; i++)
+        splat(0.25 + Math.random() * 0.5, 0.3 + Math.random() * 0.4,
+              (Math.random() - 0.5) * 140, (Math.random() - 0.5) * 140,
+              scaleColor(col, 0.10), 0.005);
+    }
+  }
+}
+
+let audioLevel = 0;
+function sampleAudioLevel() {
+  if (!Music.ctx || !Music.playing) { audioLevel *= 0.95; return; }
+  Music.analyser.getByteFrequencyData(Music.freqData);
+  let sum = 0;
+  for (let i = 0; i < 24; i++) sum += Music.freqData[i];
+  audioLevel = audioLevel * 0.8 + (sum / (24 * 255)) * 0.2;
+}
+
+/* ambient wanderers keep the fluid alive */
+const wanderers = [
+  { fx: 0.11, fy: 0.17, px: 1.3, py: 0.4, ci: 0 },
+  { fx: 0.07, fy: 0.13, px: 4.1, py: 2.2, ci: 1 },
+  { fx: 0.15, fy: 0.09, px: 2.6, py: 5.0, ci: 2 }
+];
+function ambientMotion(time) {
+  const pal = PALETTES[Music.preset];
+  const fs = fluidSpeed();
+  const amp = (0.18 + audioLevel * 1.4) * fs;
+  for (const w of wanderers) {
+    const x = 0.5 + 0.33 * Math.sin(time * w.fx * Math.PI * 2 + w.px);
+    const y = 0.5 + 0.30 * Math.sin(time * w.fy * Math.PI * 2 + w.py);
+    const dx = Math.cos(time * w.fx * Math.PI * 2 + w.px) * w.fx * 40;
+    const dy = Math.cos(time * w.fy * Math.PI * 2 + w.py) * w.fy * 40;
+    const col = scaleColor(pal[w.ci % pal.length], 0.005 + audioLevel * 0.02);
+    splat(x, y, dx * amp * 60, dy * amp * 60, col, 0.0025);
+  }
+}
+
+/* ----------------------- activity sensing ----------------------- */
+let _actCount = 0;
+['pointermove', 'pointerdown', 'keydown', 'wheel'].forEach(ev =>
+  window.addEventListener(ev, () => _actCount++));
+setInterval(() => {
+  activityLevel = activityLevel * 0.7 + Math.min(1, _actCount / 60) * 0.3;
+  _actCount = 0;
+}, 2000);
+
+/* ----------------------- interaction ----------------------- */
+const pointer = { down: false, x: 0, y: 0, px: 0, py: 0 };
+function pointerPos(e) {
+  const r = canvas.getBoundingClientRect();
+  return [(e.clientX - r.left) / r.width, 1 - (e.clientY - r.top) / r.height];
+}
+canvas.addEventListener('pointerdown', (e) => {
+  pointer.down = true;
+  [pointer.x, pointer.y] = pointerPos(e);
+  pointer.px = pointer.x; pointer.py = pointer.y;
+});
+window.addEventListener('pointerup', () => pointer.down = false);
+canvas.addEventListener('pointermove', (e) => {
+  if (!pointer.down) return;
+  [pointer.x, pointer.y] = pointerPos(e);
+  const dx = (pointer.x - pointer.px) * CFG.SPLAT_FORCE;
+  const dy = (pointer.y - pointer.py) * CFG.SPLAT_FORCE;
+  const pal = PALETTES[Music.preset];
+  const col = scaleColor(pal[Math.floor(Math.random() * pal.length)], 0.25);
+  splat(pointer.x, pointer.y, dx, dy, col, 0.0028);
+  pointer.px = pointer.x; pointer.py = pointer.y;
+});
+
+/* ----------------------- settings persistence (URL hash) ----------------------- */
+let hashT = null;
+function saveHashSoon() { clearTimeout(hashT); hashT = setTimeout(saveHash, 400); }
+function saveHash() {
+  const o = { m: Music.preset, p: Music.params, l: Music.layers,
+              v: Music.volume, e: Music.energy, a: Music.adapt };
+  try { history.replaceState(null, '', '#' + encodeURIComponent(JSON.stringify(o))); }
+  catch (err) {}
+}
+function loadHash() {
+  if (location.hash.length < 2) return;
+  try {
+    const o = JSON.parse(decodeURIComponent(location.hash.slice(1)));
+    if (o.m && Music.presets[o.m]) Music.preset = o.m;
+    if (o.p) Object.assign(Music.params, o.p);
+    if (o.l) Object.assign(Music.layers, o.l);
+    if (typeof o.v === 'number') Music.volume = o.v;
+    if (typeof o.e === 'number') Music.energy = o.e;
+    Music.adapt = !!o.a;
+  } catch (err) {}
+}
+
+/* ----------------------- UI wiring ----------------------- */
+const overlay = document.getElementById('overlay');
+const playbtn = document.getElementById('playbtn');
+const npEl = document.getElementById('nowplaying');
+const titlebar = document.getElementById('titlebar');
+const controls = document.getElementById('controls');
+const advPanel = document.getElementById('adv');
+const timerSel = document.getElementById('timer');
+const adaptBtn = document.getElementById('adaptbtn');
+let uiHidden = false, idleTimer = null, timerEnd = null;
+
+function updateNP() {
+  const pr = Music.presets[Music.preset];
+  let txt = '♪ ' + pr.label;
+  if (SCAPES[Music.preset]) {
+    txt += ' · ' + Math.round(Music.bpm) + ' BPM · ' +
+      (Music.adapt ? 'adaptive ' : '') + daySegment();
+  }
+  if (timerEnd) {
+    const rem = Math.max(0, timerEnd - Date.now());
+    const mm = Math.floor(rem / 60000), ss = Math.floor(rem / 1000) % 60;
+    txt += ' · ⏱ ' + mm + ':' + String(ss).padStart(2, '0');
+  }
+  npEl.textContent = txt;
+}
+function syncParamSliders() {
+  document.querySelectorAll('.param').forEach(sl =>
+    sl.value = Music.params[sl.dataset.k] * 100);
+}
+function setPresetUI(p) {
+  document.querySelectorAll('.preset').forEach(b =>
+    b.classList.toggle('active', b.dataset.p === p));
+  syncParamSliders();
+  updateNP();
+}
+document.querySelectorAll('.preset').forEach(b =>
+  b.addEventListener('click', () => {
+    Music.setPreset(b.dataset.p); setPresetUI(b.dataset.p); saveHashSoon();
+  }));
+
+document.querySelectorAll('.param').forEach(sl =>
+  sl.addEventListener('input', () => {
+    Music.params[sl.dataset.k] = sl.value / 100;
+    saveHashSoon();
+  }));
+
+document.querySelectorAll('.layer').forEach(b =>
+  b.addEventListener('click', () => {
+    Music.layers[b.dataset.l] = !Music.layers[b.dataset.l];
+    b.classList.toggle('active', Music.layers[b.dataset.l]);
+    if (Music.ctx) Music.applyPresetFx();
+    saveHashSoon();
+  }));
+
+adaptBtn.addEventListener('click', () => {
+  Music.adapt = !Music.adapt;
+  adaptBtn.classList.toggle('active', Music.adapt);
+  updateNP(); saveHashSoon();
+});
+
+timerSel.addEventListener('change', () => {
+  const m = parseInt(timerSel.value, 10);
+  timerEnd = m ? Date.now() + m * 60000 : null;
+  if (!timerEnd && Music.ctx) Music.setVolume(Music.volume);
+  updateNP();
+});
+
+document.getElementById('gear').addEventListener('click', () =>
+  advPanel.classList.toggle('closed'));
+
+function togglePlay() {
+  if (Music.playing) { Music.stop(); playbtn.textContent = '▶'; }
+  else { Music.start(); playbtn.textContent = '❚❚'; }
+}
+playbtn.addEventListener('click', togglePlay);
+
+document.getElementById('vol').addEventListener('input', (e) => {
+  Music.setVolume(e.target.value / 100); saveHashSoon();
+});
+document.getElementById('nrg').addEventListener('input', (e) => {
+  Music.energy = e.target.value / 100; saveHashSoon();
+});
+
+document.getElementById('startbtn').addEventListener('click', () => {
+  overlay.classList.add('gone');
+  Music.start();
+  playbtn.textContent = '❚❚';
+  setPresetUI(Music.preset);
+  resetIdle();
+});
+
+function hideUI(h) {
+  uiHidden = h;
+  titlebar.classList.toggle('hidden-ui', h);
+  controls.classList.toggle('hidden-ui', h);
+  advPanel.classList.toggle('hidden-ui', h);
+}
+function resetIdle() {
+  if (uiHidden) return;
+  controls.classList.remove('hidden-ui');
+  advPanel.classList.remove('hidden-ui');
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => {
+    controls.classList.add('hidden-ui');
+    advPanel.classList.add('hidden-ui');
+  }, 5000);
+}
+window.addEventListener('pointermove', resetIdle);
+
+window.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+  else if (e.key === '1') { Music.setPreset('edm'); setPresetUI('edm'); saveHashSoon(); }
+  else if (e.key === '2') { Music.setPreset('ambient'); setPresetUI('ambient'); saveHashSoon(); }
+  else if (e.key === '3') { Music.setPreset('lofi'); setPresetUI('lofi'); saveHashSoon(); }
+  else if (e.key === '4') { Music.setPreset('focus'); setPresetUI('focus'); saveHashSoon(); }
+  else if (e.key === '5') { Music.setPreset('relax'); setPresetUI('relax'); saveHashSoon(); }
+  else if (e.key === '6') { Music.setPreset('sleep'); setPresetUI('sleep'); saveHashSoon(); }
+  else if (e.key === 'm' || e.key === 'M') {
+    if (Music.master) {
+      const muted = Music.master.gain.value < 0.001;
+      Music.master.gain.setTargetAtTime(muted ? Music.volume * Music.volume : 0,
+        Music.ctx.currentTime, 0.03);
+    }
+  }
+  else if (e.key === 'h' || e.key === 'H') hideUI(!uiHidden);
+  else if (e.key === 'f' || e.key === 'F') {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen();
+  }
+});
+
+/* ----------------------- main loop ----------------------- */
+if (!glOK) {
+  document.getElementById('err').style.display = 'block';
+  document.getElementById('startbtn').style.display = 'none';
+} else {
+  initGL();
+  loadHash();
+  // restore UI state from hash
+  document.getElementById('vol').value = Music.volume * 100;
+  document.getElementById('nrg').value = Music.energy * 100;
+  adaptBtn.classList.toggle('active', Music.adapt);
+  document.querySelectorAll('.layer').forEach(b =>
+    b.classList.toggle('active', Music.layers[b.dataset.l]));
+  setPresetUI(Music.preset);
+
+  let lastT = performance.now(), npAcc = 0;
+  function frame(now) {
+    const dt = Math.min((now - lastT) / 1000, 1 / 30);
+    lastT = now;
+    resizeCanvas();
+    sampleAudioLevel();
+    consumeMusicEvents();
+    ambientMotion(now / 1000);
+    stepSim(dt * fluidSpeed());
+    kickPulse *= Math.exp(-5.5 * dt);
+    render();
+
+    npAcc += dt;
+    if (npAcc > 1) {
+      npAcc = 0;
+      updateNP();
+      if (timerEnd && Music.ctx) {
+        const rem = (timerEnd - Date.now()) / 1000;
+        if (rem <= 0) {
+          timerEnd = null; timerSel.value = '';
+          if (Music.playing) togglePlay();
+          Music.setVolume(Music.volume);
+        } else if (rem < 60) {
+          Music.master.gain.setTargetAtTime(
+            Music.volume * Music.volume * (rem / 60), Music.ctx.currentTime, 0.4);
+        }
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+</script>
+</body>
+</html>

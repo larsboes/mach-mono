@@ -25,7 +25,7 @@ Python 3 stdlib only. No pip, no external tools.
 Usage (from any directory):
     python3 Apps/machNotch/updater/build.py
 
-For full format documentation see docs/pipeline.md.
+For full format documentation see docs/Guide.md.
 """
 
 from __future__ import annotations
@@ -45,10 +45,10 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent.parent.parent
 TEMPLATE_PATH = SCRIPT_DIR / "_template.html"
 CHANGELOG_MD = REPO_ROOT / "CHANGELOG.md"
-ROADMAP_MD = REPO_ROOT / "ROADMAP.md"
-GUIDE_MD = REPO_ROOT / "GUIDE.md"
-DIAGRAM_MD = REPO_ROOT / "docs" / "architecture" / "technical-overview.mermaid"
-OVERVIEW_MD = REPO_ROOT / "docs" / "architecture" / "overview.md"
+ROADMAP_MD = REPO_ROOT / "docs" / "Roadmap.md"
+GUIDE_MD = REPO_ROOT / "docs" / "Guide.md"
+DIAGRAM_MD = REPO_ROOT / "docs" / "Architecture.md"
+OVERVIEW_MD = REPO_ROOT / "docs" / "Architecture.md"
 DECISIONS_DIR = REPO_ROOT / "docs" / "decisions"
 CHANGELOG_OUT = SCRIPT_DIR / "changelog.html"
 ROADMAP_OUT = SCRIPT_DIR / "roadmap.html"
@@ -1854,7 +1854,19 @@ def build_guide(*, guide_path: Path, template_path: Path, out_path: Path) -> Non
 
 def build_diagram(*, diagram_path: Path, overview_path: Path | None, template_path: Path, out_path: Path) -> None:
     raw = diagram_path.read_text(encoding="utf-8")
-    mermaid_source = strip_mermaid_fence(raw)
+    if diagram_path.suffix.lower() == ".md":
+        match = re.search(r"###\s+Container Diagram.*?\n```mermaid\n(.*?)\n```", raw, re.DOTALL | re.IGNORECASE)
+        if match:
+            mermaid_source = match.group(1).strip()
+        else:
+            match_first = re.search(r"```mermaid\n(.*?)\n```", raw, re.DOTALL | re.IGNORECASE)
+            if match_first:
+                mermaid_source = match_first.group(1).strip()
+            else:
+                print(f"error: no mermaid block found in {diagram_path}", file=sys.stderr)
+                mermaid_source = ""
+    else:
+        mermaid_source = strip_mermaid_fence(raw)
     overview_text = overview_path.read_text(encoding="utf-8") if overview_path and overview_path.is_file() else ""
     content = render_diagram_content(mermaid_source, overview_text)
     rendered = _render_template(

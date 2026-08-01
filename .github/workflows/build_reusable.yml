@@ -41,18 +41,18 @@ jobs:
       BUILD_NUMBER_INPUT: ${{ inputs.build_number }}
       CODE_SIGN_IDENTITY: ${{ inputs.code_sign_identity || '-' }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.head_ref }}
 
       - name: Cache Bazelisk binary
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/Library/Caches/bazelisk
           key: bazelisk-${{ runner.os }}-${{ hashFiles('.bazelversion') }}
 
       - name: Cache Bazel repositories
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/bazel-repos
           key: bazel-repos-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved') }}
@@ -60,7 +60,7 @@ jobs:
             bazel-repos-${{ runner.os }}-
 
       - name: Cache Bazel outputs
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/bazel
           # Keep this key identical to cicd.yml so the cache is shared across

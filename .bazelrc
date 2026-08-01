@@ -1,4 +1,8 @@
 build --verbose_failures
+# Local Disk Cache — speeds up builds by caching action outputs locally.
+# Safe to delete anytime to free up disk space.
+build --disk_cache=~/.cache/bazel-disk-cache
+
 build --apple_generate_dsym
 # Only show build output (warnings/errors) from first-party targets.
 # External Swift packages (SkyLightWindow, Defaults, AsyncXPCConnection, etc.)

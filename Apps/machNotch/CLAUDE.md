@@ -10,72 +10,45 @@ macOS SwiftUI app that replaces the MacBook notch with an interactive widget sys
 
 - **Build:** `bazelisk build //Apps/machNotch:machNotch` from repo root
 - **Test:** `bazelisk test //Apps/machNotch:machNotchTests //Packages/MachBriefKit:MachBriefKitTests` from repo root
-- Always build after changes. Don't commit without a green build.
+- Always build after changes. Don't commit without a green build
 
 ## Directory Structure
 
 ```
 machNotch/
-├── Core/                    # Domain + Application layer
-│   ├── Domain files         # NotchStateMachine, NotchPhase, SneakPeekTypes,
-│   │                        # NotchSettingsSubProtocols, MockNotchSettings
-│   │                        # → Must compile WITHOUT SwiftUI/AppKit
-│   ├── Controllers          # NotchHoverController, NotchSizeCalculator,
-│   │                        # NotchCameraController, NotchObserverManager
-│   ├── Coordinators         # WindowCoordinator, NotchContentRouter,
-│   │                        # KeyboardShortcutCoordinator
-│   └── Settings             # DefaultsNotchSettings (+extensions), NotchSettings,
-│                            # NotchViewModelSettings, Constants, DefaultsKeys, SettingsTypes
-├── ViewModel/               # NotchViewModel + extensions (Camera, Hover, Observers, OpenClose)
-├── models/                  # Pure data models only (CalendarModel, EventModel, PlaybackState, etc.)
-├── Plugins/
-│   ├── Core/                # PluginManager, NotchPlugin, PluginEventBus, PluginSettings
-│   ├── Services/            # Service protocols + implementations (64 files in 5 subfolders)
-│   │   ├── Audio/           # Audio capture, volume, sound
-│   │   ├── Media/           # Music, lyrics, face, webcam, capture
-│   │   ├── Shelf/           # Shelf service + export
-│   │   ├── System/          # ServiceContainer (DI), battery, bluetooth, calendar, notifications
-│   │   └── Storage/         # Image processing, quicklook, sharing, thumbnails, temp storage
-│   └── BuiltIn/             # Each plugin = bounded context
-│       ├── MusicPlugin/     # Plugin + Views/
-│       ├── ShelfPlugin/     # Plugin + Models/ + Services/ + ViewModels/ + Views/
-│       ├── CalendarPlugin/  # Plugin + Views/
-│       ├── WeatherPlugin/   # Plugin + Views/
-│       ├── BatteryPlugin/   # Plugin
-│       └── ...              # Webcam, Notifications, Pomodoro, Teleprompter, etc.
-├── components/              # Shared UI only — not feature-specific
-│   ├── Notch/               # Notch chrome (shape, window, header)
-│   ├── Settings/            # Settings views
-│   ├── Onboarding/          # First-run flow
-│   ├── Effects/             # LiquidGlass, MetalBlurView
-│   ├── Live activities/     # HUD views (shared across plugins)
-│   └── Tabs/                # Tab navigation
-├── NotchViewCoordinator    # Shared cross-screen state (sneakPeek, expandingView)
-├── AppObjectGraph           # DI root — constructs all services and coordinators
-├── ContentView              # + Appearance, SubViews extensions
-├── sizing/                  # matters.swift — pure sizing functions
-├── MediaControllers/        # NowPlaying, Spotify, AppleMusic, YouTube, Browser
-├── extensions/              # Swift extensions
-├── helpers/                 # Utility helpers
-└── observers/               # System observers (fullscreen, drag, media keys)
+├── Core/                    # Application layer / coordinators / app bootstrapping
+├── AppObjectGraph.swift     # DI root — constructs all services and coordinators
+├── ContentView.swift        # Main SwiftUI content view with layout logic
+└── machNotchApp.swift       # App entry point
+
+Packages/
+├── NotchCore/               # Pure domain models, state machine, and basic settings definitions
+├── NotchUI/                 # Reusable components, settings views, visual effects, and design system
+├── NotchServices/           # Infrastructure services (API, system status, battery, notifications, sharing, etc.)
+├── NotchPlugins/            # Bounded contexts for built-in plugins (Music, Calendar, Weather, HabitTracker, Pomodoro, etc.)
+├── NotchSettingsMacro/      # Helper macros for settings generation
+├── MachBriefKit/            # Core library for the mach.brief widget system
+├── MachSoundKit/            # Audio synthesis engine (Rhodes, step sequencer, beds)
+├── MachIntelligenceKit/     # AI / local ML processing helpers
+└── MacroVisionKit/          # Private system display/window capture API wrapper
 ```
 
 ## DDD Layer Boundaries
 
 | Layer | Where | Imports | Forbidden |
 |-------|-------|---------|-----------|
-| **Domain** | `Core/` domain files (5 files) | Foundation, Observation, Combine, Defaults | SwiftUI, AppKit |
-| **Application** | `Core/` coordinators + `Plugins/Core/` + `Plugins/BuiltIn/` | Domain + SwiftUI/AppKit | Concrete infra types |
-| **Infrastructure** | `Plugins/Services/`, `DefaultsNotchSettings` | Anything | — |
-| **Presentation** | `components/`, plugin `Views/`, `ContentView` | Application + SwiftUI/AppKit | Direct Defaults, concrete services |
+| **Domain** | `Packages/NotchCore/` | Foundation, Observation, Combine, Defaults | SwiftUI, AppKit |
+| **Application** | `machNotch/Core/` coordinators + `Packages/NotchPlugins/Core/` | Domain + SwiftUI/AppKit | Concrete infra types |
+| **Infrastructure** | `Packages/NotchServices/` | Anything | — |
+| **Presentation** | `Packages/NotchUI/` + Views in `NotchPlugins/` | Application + SwiftUI/AppKit | Direct Defaults, concrete services |
 
 ## Plugin System
 
-- Each plugin conforms to `NotchPlugin`, receives deps via `PluginContext.activate()`
+- Each plugin conforms to `NotchPlugin` (in `NotchPlugins`), receives deps via `PluginContext.activate()`
 - Plugins communicate via `PluginEventBus` only — never import each other
-- Plugin views live inside `Plugins/BuiltIn/*/Views/`
+- Plugin views live inside `Packages/NotchPlugins/Sources/NotchPlugins/BuiltIn/*/Views/`
 - HUD requests: publish `SneakPeekRequestedEvent` — never call coordinator directly
-- New features → new `NotchPlugin`. Never modify `PluginManager` for feature logic.
+- New features → new `NotchPlugin`.
 
 ## Code Standards
 
@@ -84,7 +57,9 @@ machNotch/
 - **Protocol-based services** via `ServiceContainer`. No `.shared` singletons in views/services.
 - **No direct `Defaults[.]`** outside `DefaultsNotchSettings.swift`. Use `@Environment(\.bindableSettings)`.
 - **No service construction in views.** Views receive dependencies; never create them.
-- Allowed `.shared` exceptions: `NSWorkspace`, `NSApplication`, `URLSession`, `URLCache`, `XPCHelperClient`, `FullScreenMonitor`, `QLThumbnailGenerator`, `QLPreviewPanel`, `NSScreenUUIDCache`, `SkyLightOperator`, `DefaultsNotchSettings` (injection root only), `ScreenDisplayRegistry` (system-level screen cache).
+- Allowed `.shared` exceptions: `NSWorkspace`, `NSApplication`, `URLSession`, `URLCache`, `XPCHelperClient`, `FullScreenMonitor`, `QLThumbnailGenerator`, `QLPreviewPanel`, `NSScreenUUIDCache`, `SkyLightOperator`, `DefaultsNotchSettings` (injection root only), `ScreenDisplayRegistry` (system-level screen cache), `BrowserExtensionServer`, `DictionaryEntryCache`.
+- **File splits & visibility:** when splitting large files into extensions across separate files, change `private` properties to `internal` (omit `private` keyword) so they can be accessed from the extension files.
+
 
 ## Key Responsibilities
 
@@ -99,13 +74,13 @@ machNotch/
 
 ## Sizing Subsystem
 
-`NotchSizeCalculator` is the single source of truth for closed notch geometry. It receives a `ClosedNotchInput` value type (no service deps) and computes `effectiveClosedNotchSize`, `effectiveClosedNotchHeight`, `chinHeight`. NotchViewModel constructs the input and delegates.
+`NotchSizeCalculator` (in `NotchCore`) is the single source of truth for closed notch geometry. It receives a `ClosedNotchInput` value type (no service deps) and computes `effectiveClosedNotchSize`, `effectiveClosedNotchHeight`, `chinHeight`. NotchViewModel constructs the input and delegates.
 **Note:** When calculating closed sizes, rely on target properties without strictly requiring `phase == .closed`. Restricting size calculations to the terminal closed phase causes sudden width bounces at the end of animations.
 
 ## Files to Not Touch
 
-- `Plugins/Core/NotchPlugin.swift` — stable protocol
-- `Plugins/Core/PluginEventBus.swift` — stable; add new event types as new structs
-- `Core/NotchStateMachine.swift` — pure domain; only modify if state logic changes
+- `Packages/NotchPlugins/Sources/NotchPlugins/Core/NotchPlugin.swift` — stable protocol
+- `Packages/NotchPlugins/Sources/NotchPlugins/Core/PluginEventBus.swift` — stable; add new event types as new structs
+- `Packages/NotchCore/Sources/NotchCore/Core/NotchStateMachine.swift` — pure domain; only modify if state logic changes
 - `Packages/MacroVisionKit/` — MIT private API wrapper (do not modify)
 - `mediaremote-adapter/` — pre-built framework, read-only

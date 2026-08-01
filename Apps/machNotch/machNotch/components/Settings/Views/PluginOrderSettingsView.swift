@@ -40,7 +40,7 @@ struct PluginOrderSettingsView: View {
         .formStyle(.grouped)
         .navigationTitle("Plugins")
         .onAppear { syncOrder() }
-        .onChange(of: pluginManager?.allPlugins.count) { syncOrder() }
+        .onChange(of: pluginManager?.allPluginSummaries.count) { syncOrder() }
     }
 
     // MARK: - Helpers
@@ -55,7 +55,7 @@ struct PluginOrderSettingsView: View {
     private var rowItems: [PluginRow] {
         guard let pm = pluginManager else { return [] }
         return orderedIDs.compactMap { id in
-            guard let plugin = pm.allPlugins.first(where: { $0.id == id }) else { return nil }
+            guard let plugin = pm.summary(id: id) else { return nil }
             return PluginRow(
                 id: id, name: plugin.metadata.name, icon: plugin.metadata.icon, isEnabled: plugin.isEnabled)
         }
@@ -97,7 +97,7 @@ struct PluginOrderSettingsView: View {
     private func syncOrder() {
         guard let pm = pluginManager else { return }
         let current = Set(orderedIDs)
-        let fresh = pm.allPlugins.map(\.id)
+        let fresh = pm.allPluginSummaries.map(\.id)
         // Only resync if the set changed (preserves drag order)
         if Set(fresh) != current {
             orderedIDs = fresh

@@ -42,7 +42,7 @@ struct SettingsView: View {
 
     var pluginCategories: [SettingsCategory] {
         guard let pm = pluginManager else { return [] }
-        return pm.allPlugins
+        return pm.allPluginSummaries
             .filter { $0.hasSettingsContent }
             .map { plugin in
                 SettingsCategory(

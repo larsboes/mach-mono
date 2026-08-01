@@ -1,0 +1,14 @@
+#!/bin/sh
+# Auto-sync agent skills between Claude Code (.claude/skills) and
+# Antigravity (.agents/skills) on every commit, then re-stage the result.
+# Installed via: git config core.hooksPath .githooks  (see scripts/install-hooks.sh)
+set -e
+
+ROOT="$(git rev-parse --show-toplevel)"
+
+if command -v bun >/dev/null 2>&1; then
+  bun "$ROOT/scripts/sync-skills.ts" --quiet
+  git add "$ROOT/.claude/skills" "$ROOT/.agents/skills" "$ROOT/scripts/skill-sync-state.json" >/dev/null 2>&1 || true
+else
+  echo "skill-sync: bun not found on PATH — skipping skill sync" >&2
+fi

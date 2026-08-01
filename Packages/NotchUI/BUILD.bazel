@@ -1,0 +1,31 @@
+load("@rules_swift//swift:swift.bzl", "swift_library")
+load("@rules_apple//apple:macos.bzl", "macos_unit_test")
+load("//tools:defs.bzl", "MINIMUM_MACOS_VERSION")
+
+swift_library(
+    name = "NotchUI",
+    srcs = glob(["Sources/**/*.swift"]),
+    module_name = "NotchUI",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//Packages/NotchCore:NotchCore",
+        "//Packages/MacroVisionKit",
+        "@swiftpkg_lottie_spm//:Lottie",
+        "@swiftpkg_swiftglass//:SwiftGlass",
+    ],
+    defines = ["SWIFT_PACKAGE"],
+)
+
+swift_library(
+    name = "NotchUITests_Lib",
+    srcs = glob(["Tests/**/*.swift"]),
+    deps = [":NotchUI"],
+    testonly = True,
+)
+
+macos_unit_test(
+    name = "NotchUITests",
+    bundle_id = "com.larsboes.NotchUITests",
+    minimum_os_version = MINIMUM_MACOS_VERSION,
+    deps = [":NotchUITests_Lib"],
+)

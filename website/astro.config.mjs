@@ -18,15 +18,7 @@ export default defineConfig({
         {
           label: 'Get Started',
           items: [
-            { label: 'Guide', link: '/guide' },
-            { label: 'Sideloading (iOS)', link: '/guides/sideloading' },
-          ],
-        },
-        {
-          label: 'Plugin SDK',
-          items: [
-            { label: 'Overview', link: '/plugins/overview' },
-            { label: 'Development Guide', link: '/guides/plugin-development' },
+            { label: 'Guide & Runbooks', link: '/guide' },
           ],
         },
         {

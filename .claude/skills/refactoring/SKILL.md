@@ -1,6 +1,6 @@
 ---
-name: refactoring
-description: mach-mono refactoring rules — file-by-file approach, dependency tier order, extract-don't-delete, build after each file, commit granularity.
+name: "refactoring"
+description: "mach-mono refactoring rules \u2014 file-by-file approach, dependency tier order, extract-don't-delete, build after each file, commit granularity."
 user-invocable: false
 ---
 
@@ -60,3 +60,7 @@ refactor: fix everything                         ❌
 - [ ] Extracted code in new file before removing from original
 - [ ] Build passes after each file
 - [ ] Commit is scoped to one logical unit
+
+## Codex Invocation
+
+Use this skill for refactoring requests. Codex does not enforce Claude `user-invocable` metadata, so invocation intent is preserved in the description.

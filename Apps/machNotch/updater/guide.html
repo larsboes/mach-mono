@@ -91,44 +91,35 @@
   <div class="page-content">
 <div class="page-header">
   <h1>Getting started</h1>
-  <p>From build to first hover in under 2 minutes.</p>
 </div>
 <div class="steps">
   <p class="steps-title">Installation</p>
   <div class="step">
     <div class="step-num">1</div>
     <div class="step-body">
-      <p class="step-title">Install Bazelisk</p>
-      <p class="step-desc">Run <code>brew install bazelisk</code>. You also need Xcode 16 or later installed (free from the App Store) — Bazel uses it as the Swift toolchain.</p>
+      <p class="step-title">DMG</p>
+      <p class="step-desc">Download the latest <code>.dmg</code> from the <a href="https://github.com/larsboes/mach-mono/releases">GitHub Releases page</a>. Open the DMG, drag <strong>mach.notch</strong> to <code>/Applications</code>, then launch it. The DMG build is unsigned/not notarized. macOS will warn that it cannot verify the developer on first launch. &lt;details&gt; &lt;summary&gt;&lt;strong&gt;Open the DMG build on macOS&lt;/strong&gt;&lt;/summary&gt; 1. Open the downloaded <code>.dmg</code>. 2. Drag <strong>mach.notch</strong> into <code>/Applications</code>. 3. In Finder, open <code>/Applications</code>. 4. Right-click <strong>mach.notch</strong> and choose <strong>Open</strong>. 5. Click <strong>Open</strong> again in the macOS warning dialog. If macOS still blocks the app, remove the quarantine flag once: ``<code>sh xattr -dr com.apple.quarantine /Applications/machNotch.app </code>`` This is the expected tradeoff for the no-paid-Apple-account distribution path. &lt;/details&gt;</p>
     </div>
   </div>
   <div class="connector"></div>
   <div class="step">
     <div class="step-num">2</div>
     <div class="step-body">
-      <p class="step-title">Clone the repo</p>
-      <p class="step-desc"><code>git clone https://github.com/larsboes/mach-mono.git</code> then <code>cd mach-mono</code>.</p>
+      <p class="step-title">Build locally</p>
+      <p class="step-desc">Build locally when you want to run straight from the source tree instead of downloading the DMG. Both paths use the same build command after the source is on disk. If Homebrew is not installed yet, install it from &lt;https://brew.sh/&gt;. &lt;details&gt; &lt;summary&gt;&lt;strong&gt;Git&lt;/strong&gt;&lt;/summary&gt; Install the required command-line tools: ``<code>sh brew install git brew install bazelisk go-task </code>`<code> You also need Xcode installed from the Mac App Store. Open Xcode once so it can finish installing its command-line components. Clone the repository and run the app: </code>`<code>sh git clone https://github.com/larsboes/mach-mono.git cd mach-mono task run </code>`<code> </code>task run<code> builds mach.notch with Bazel, installs it to </code>~/Applications/machNotch.app<code>, signs it with your local Apple Development identity, and launches it. If signing fails, list your local signing identities: </code>`<code>sh security find-identity -v -p codesigning </code>`<code> If no Apple Development identity appears, add your Apple ID in **Xcode → Settings → Accounts** and let Xcode create a Personal Team certificate. Then update the </code>CERT<code> value in </code>Taskfile.yml<code> to match your local Apple Development identity and run </code>task run<code> again. &lt;/details&gt; &lt;details&gt; &lt;summary&gt;&lt;strong&gt;ZIP&lt;/strong&gt;&lt;/summary&gt; Install the required command-line tools: </code>`<code>sh brew install bazelisk go-task </code>`<code> You also need Xcode installed from the Mac App Store. Open Xcode once so it can finish installing its command-line components. Download the repository ZIP from GitHub: 1. Open &lt;https://github.com/larsboes/mach-mono&gt;. 2. Click **Code**. 3. Click **Download ZIP**. 4. Unzip the download. Run the app from the unzipped folder: </code>`<code>sh cd ~/Downloads/mach-mono-main task run </code>`<code> If your browser or unzip tool creates a different folder name, </code>cd<code> into that folder instead. </code>task run<code> builds mach.notch with Bazel, installs it to </code>~/Applications/machNotch.app<code>, signs it with your local Apple Development identity, and launches it. If signing fails, list your local signing identities: </code>`<code>sh security find-identity -v -p codesigning </code>`<code> If no Apple Development identity appears, add your Apple ID in **Xcode → Settings → Accounts** and let Xcode create a Personal Team certificate. Then update the </code>CERT<code> value in </code>Taskfile.yml<code> to match your local Apple Development identity and run </code>task run` again. &lt;/details&gt;</p>
     </div>
   </div>
   <div class="connector"></div>
   <div class="step">
     <div class="step-num">3</div>
     <div class="step-body">
-      <p class="step-title">Build and launch</p>
-      <p class="step-desc"><code>bazelisk build //Apps/machNotch:machNotch</code> — the compiled app lands in <code>bazel-bin/Apps/machNotch/machNotch.app</code>. Open it directly or copy to <code>/Applications</code>.</p>
+      <p class="step-title">Grant Accessibility access</p>
+      <p class="step-desc">On first launch, macOS will ask for Accessibility permission — this is the only required permission. Click <strong>Open System Settings</strong>, find <strong>mach.notch</strong> in the list, and toggle it on. The app needs this to detect your cursor hovering over the notch and to intercept media keys. If macOS or mach.notch offers <strong>Don't Ask Again</strong> for a prompt you have already handled, you can click it to make setup faster. You can still change permissions later in <strong>System Settings → Privacy &amp; Security</strong>.</p>
     </div>
   </div>
   <div class="connector"></div>
   <div class="step">
     <div class="step-num">4</div>
-    <div class="step-body">
-      <p class="step-title">Grant Accessibility access</p>
-      <p class="step-desc">On first launch, macOS will ask for Accessibility permission — this is the only required permission. Click <strong>Open System Settings</strong>, find <strong>mach.notch</strong> in the list, and toggle it on. The app needs this to detect your cursor hovering over the notch and to intercept media keys.</p>
-    </div>
-  </div>
-  <div class="connector"></div>
-  <div class="step">
-    <div class="step-num">5</div>
     <div class="step-body">
       <p class="step-title">Hover to open</p>
       <p class="step-desc">Move your cursor over the notch at the top of your screen — it expands. Move away and it closes. Open <strong>Settings</strong> (gear icon in the notch header, or from the menu bar icon) to enable plugins and customise behaviour.</p>
@@ -195,9 +186,9 @@
 <div class="cta-strip">
   <div class="cta-text">
     <h3>Build a plugin</h3>
-    <p>Every feature in mach.notch is a plugin. The same API is open to you.</p>
+    <p>Every feature in mach.notch is a plugin. The same API is open to you. ---</p>
   </div>
-  <a class="btn-sm" href="https://github.com/larsboes/mach-mono/blob/main/docs/guides/plugin-development.md">
+  <a class="btn-sm" href="https://github.com/larsboes/mach-mono/blob/main/docs/Guide.md#3-developer-guide-plugin-development">
     <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M5.854 4.854a.5.5 0 10-.708-.708l-3.5 3.5a.5.5 0 000 .708l3.5 3.5a.5.5 0 00.708-.708L2.707 8l3.147-3.146zm4.292 0a.5.5 0 01.708-.708l3.5 3.5a.5.5 0 010 .708l-3.5 3.5a.5.5 0 01-.708-.708L13.293 8l-3.147-3.146z"/></svg>
     Plugin guide
   </a>

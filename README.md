@@ -47,7 +47,7 @@ This monorepo adheres to a strict **Minimalistic Aesthetic**.
 
 **Build system:** **[Bazel](https://bazel.build/)** ([Bzlmod](https://bazel.build/external/module)) is the primary build system — all targets, tests, and CI run through Bazel. [`mach-mono.xcworkspace`](mach-mono.xcworkspace) is available for IDE navigation only.
 
-See [`docs/roadmaps/bazel.md`](docs/roadmaps/bazel.md) and [`docs/decisions/0007-native-bazel-builds.md`](docs/decisions/0007-native-bazel-builds.md).
+See [`docs/Roadmap.md`](docs/Roadmap.md) and [`docs/decisions/0007-native-bazel-builds.md`](docs/decisions/0007-native-bazel-builds.md).
 
 ## Background
 
@@ -84,7 +84,7 @@ machNotch is focused on architectural quality: DDD layer boundaries, a SOLID plu
 
 ### `mach.brief` — Daily brief
 
-Configurable daily content (words, facts, quotes, mantras, mood prompts) with optional sinks such as Obsidian. Shares [`Packages/MachBriefKit`](Packages/MachBriefKit). **In active development** — see [`docs/prds/machBrief-macOS.md`](docs/prds/machBrief-macOS.md).
+Configurable daily content (words, facts, quotes, mantras, mood prompts) with optional sinks such as Obsidian. Shares [`Packages/MachBriefKit`](Packages/MachBriefKit). **In active development** — see [`Plans/PRDs/machBrief-macOS.md`](Plans/PRDs/machBrief-macOS.md).
 
 * **Location:** `Apps/machBrief/`
 
@@ -106,7 +106,7 @@ mach-mono/
 ├── .github/                 # CI/CD workflows, issue templates
 ├── Apps/
 │   ├── machNotch/           # mach.notch — notch utility (primary scheme)
-│   └── machBrief/           # mach.brief — in development (see docs/prds)
+│   └── machBrief/           # mach.brief — in development (see Plans/PRDs)
 ├── docs/
 │   ├── README.md            # Documentation index
 │   ├── AGENT-GUIDELINES.md  # Canonical agent behavioral/arch rules
@@ -176,7 +176,7 @@ graph TD
 | **Xcode 26+** | Bundled SDKs and toolchain | Mac App Store |
 | [**Bazelisk**](https://github.com/bazelbuild/bazelisk) | Wraps Bazel, auto-pins to `.bazelversion` (currently `7.6.1`) — no separate Bazel install | `brew install bazelisk` |
 | [**Task**](https://taskfile.dev) | Thin wrapper over the canonical Bazel commands (`task run`, `task test`, …) | `brew install go-task` |
-| **Apple ID** | Code signing — the free tier works (see [sideloading guide](docs/guides/sideloading.md)) | — |
+| **Apple ID** | Code signing — the free tier works (see [sideloading guide](docs/Guide.md)) | — |
 
 ### mach.notch
 
@@ -239,7 +239,7 @@ security find-identity -v -p codesigning
   <img src="docs/images/mach-signing-setup.png" alt="Signing Setup" width="500"/>
 </p>
 
-If you have more than one, update `CERT` in [`Taskfile.yml`](Taskfile.yml) to match the one you want to use. **No paid Apple Developer account?** The free Apple ID flow works — see the [sideloading guide](docs/guides/sideloading.md).
+If you have more than one, update `CERT` in [`Taskfile.yml`](Taskfile.yml) to match the one you want to use. **No paid Apple Developer account?** The free Apple ID flow works — see the [sideloading guide](docs/Guide.md).
 
 #### First-run permissions
 
@@ -259,7 +259,7 @@ The install sentinel at `~/Library/Caches/com.larsboes.mach/notch_zip_hash` skip
 
 | Symptom | Fix |
 |---------|-----|
-| `codesign: no identity found` | Pick another cert from `security find-identity` and update `CERT` in `Taskfile.yml`, or follow the [sideloading guide](docs/guides/sideloading.md) for the free-tier flow. |
+| `codesign: no identity found` | Pick another cert from `security find-identity` and update `CERT` in `Taskfile.yml`, or follow the [sideloading guide](docs/Guide.md) for the free-tier flow. |
 | Permissions reset after every rebuild | The binary changed, so the sentinel triggered a re-install. Expect *one* prompt cycle per real change. |
 | Xcode shows red errors but Bazel builds fine | Trust Bazel — Xcode is for navigation only. |
 | First build is very slow | Bazel is fetching `rules_apple` / `rules_swift` toolchains. Subsequent builds reuse the disk cache. |
@@ -280,7 +280,7 @@ No CocoaPods, no Carthage, no SPM at the repo root for development. All targets,
 * [~] `SystemStats` plugin — CPU/GPU/RAM/disk/network rings (in progress)
 * [ ] `mach.window`, `mach.bar`, plus more notch plugins (PreventSleep, ExternalBrightness, ColorPicker, FocusMode, MenuBar) and shared `MachUI` package
 
-The full, prioritised plan with phases and debt triage lives in [`docs/prds/machNotch.md`](docs/prds/machNotch.md). The doc index is at [`docs/README.md`](docs/README.md).
+The full, prioritised plan with phases and debt triage lives in [`Plans/PRDs/machNotch.md`](Plans/PRDs/machNotch.md). The doc index is at [`docs/README.md`](docs/README.md).
 
 ---
 
@@ -335,5 +335,5 @@ Full GPL-3.0 text: [LICENSE](LICENSE). Per-package licenses live next to each pa
 `machNotch` inherited GPL-3.0 from [boring.notch](https://github.com/TheBoredTeam/boring.notch). The long-term plan is to relicense the root and machNotch as **MIT** once the boring.notch-derived code has been cleanly reimplemented. New apps and packages already start MIT; new clean-slate code in machNotch should be written without copying from upstream so it can be relicensed without further rework.
 
 Decision record: [ADR 0003 — License policy](docs/decisions/0003-license-policy.md).
-Migration plan: [machNotch PRD § License Migration](docs/prds/machNotch.md#license-migration--gpl-v3--mit).
+Migration plan: [machNotch PRD § License Migration](Plans/PRDs/machNotch.md#license-migration--gpl-v3--mit).
 Current and target license state per component is also tracked machine-readably in [`repo.yaml`](repo.yaml).
