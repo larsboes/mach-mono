@@ -26,8 +26,8 @@ final class StoredBriefEntry {
         self.revealedAt = entry.revealedAt
     }
 
-    func briefEntry() -> BriefEntry? {
-        guard let slot = DailySlot(rawValue: slotRawValue) else { return nil }
+    func briefEntry(calendar: Calendar = .current) -> BriefEntry? {
+        let slot = DailySlot(rawValue: slotRawValue) ?? Self.slot(for: revealedAt, calendar: calendar)
         return BriefEntry(
             id: id,
             sourceID: sourceID,
@@ -39,6 +39,10 @@ final class StoredBriefEntry {
             isFavorited: isFavorited,
             revealedAt: revealedAt
         )
+    }
+
+    var hasValidSlotValue: Bool {
+        DailySlot(rawValue: slotRawValue) != nil
     }
 
     func update(from entry: BriefEntry) {
@@ -55,6 +59,10 @@ final class StoredBriefEntry {
     private static func encodeMetadata(_ metadata: [String: String]) -> String {
         guard let data = try? JSONEncoder().encode(metadata) else { return "{}" }
         return String(data: data, encoding: .utf8) ?? "{}"
+    }
+
+    private static func slot(for date: Date, calendar: Calendar) -> DailySlot {
+        DailyScheduler(calendar: calendar).slot(for: date)
     }
 
     private static func decodeMetadata(_ string: String) -> [String: String] {

@@ -6,10 +6,28 @@ import MachBriefKit
 final class SwiftDataBriefStore: BriefStore {
     private let context: ModelContext
     private let calendar: Calendar
+    private let slotMigrator: DailyScheduler
 
     init(context: ModelContext, calendar: Calendar = .current) {
         self.context = context
         self.calendar = calendar
+        self.slotMigrator = DailyScheduler(calendar: calendar)
+        migrateLegacyEntries()
+    }
+
+    private func migrateLegacyEntries() {
+        let descriptor = FetchDescriptor<StoredBriefEntry>()
+        guard let stored = try? context.fetch(descriptor) else { return }
+
+        var updated = false
+        for entry in stored where !entry.hasValidSlotValue {
+            entry.slotRawValue = slotMigrator.slot(for: entry.revealedAt).rawValue
+            updated = true
+        }
+
+        if updated {
+            try? context.save()
+        }
     }
 
     func save(_ entry: BriefEntry) async {
@@ -25,7 +43,7 @@ final class SwiftDataBriefStore: BriefStore {
     func entry(for date: Date, slot: DailySlot) async -> BriefEntry? {
         let descriptor = FetchDescriptor<StoredBriefEntry>(sortBy: [SortDescriptor(\.revealedAt, order: .reverse)])
         let stored = (try? context.fetch(descriptor)) ?? []
-        return stored.compactMap { $0.briefEntry() }.first { entry in
+        return stored.compactMap { $0.briefEntry(calendar: calendar) }.first { entry in
             entry.slot == slot && calendar.isDate(entry.revealedAt, inSameDayAs: date)
         }
     }
@@ -33,7 +51,7 @@ final class SwiftDataBriefStore: BriefStore {
     func entries() async -> [BriefEntry] {
         let descriptor = FetchDescriptor<StoredBriefEntry>(sortBy: [SortDescriptor(\.revealedAt, order: .reverse)])
         let stored = (try? context.fetch(descriptor)) ?? []
-        return stored.compactMap { $0.briefEntry() }
+        return stored.compactMap { $0.briefEntry(calendar: calendar) }
     }
 
     func entries(matching query: BriefArchiveQuery) async -> [BriefEntry] {
