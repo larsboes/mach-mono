@@ -131,7 +131,7 @@ private func validate(response: URLResponse, providerName: String) throws {
     }
 }
 
-private extension URL {
+public extension URL {
     var normalizedOMLXBaseURL: URL {
         guard path.trimmingCharacters(in: CharacterSet(charactersIn: "/")) != "v1" else {
             return self

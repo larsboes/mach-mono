@@ -1,4 +1,5 @@
 import Foundation
+import MachIntelligenceKit
 
 public struct OMLXProviderSettings: Codable, Equatable, Sendable {
     public var isEnabled: Bool
@@ -215,22 +216,6 @@ private struct OpenAIChatCompletionChunk: Decodable {
     }
 
     let choices: [Choice]
-}
-
-private extension URL {
-    var normalizedOMLXBaseURL: URL {
-        guard path.trimmingCharacters(in: CharacterSet(charactersIn: "/")) != "v1" else {
-            return self
-        }
-        return appendingPathComponent("v1")
-    }
-
-    func isAllowedOMLXHost(_ allowNonLocalhostHost: Bool) -> Bool {
-        guard !allowNonLocalhostHost else { return true }
-
-        let normalizedHost = host?.lowercased()
-        return normalizedHost == "localhost" || normalizedHost == "127.0.0.1" || normalizedHost == "::1"
-    }
 }
 
 private extension String {

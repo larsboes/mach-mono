@@ -38,14 +38,6 @@ enum AIEmbeddingServiceFactory {
     }
 }
 
-private extension URL {
-    func isAllowedOMLXHost(_ allowNonLocalhostHost: Bool) -> Bool {
-        guard !allowNonLocalhostHost else { return true }
-        let normalizedHost = host?.lowercased()
-        return normalizedHost == "localhost" || normalizedHost == "127.0.0.1" || normalizedHost == "::1"
-    }
-}
-
 @MainActor
 private final class AvailabilityGatedAIEmbeddingService: AIEmbeddingService {
     private let isEnabled: @MainActor () -> Bool
