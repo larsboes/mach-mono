@@ -12,7 +12,7 @@ build --output_filter=^//
 # Workspace status command — outputs are available to stamped actions.
 # Versioning flows through `apple_bundle_version` reading BUILD_EMBED_LABEL
 # (set by `--embed_label` in CI), not the STABLE_* keys directly.
-build --workspace_status_command=tools/workspace_status.sh
+build --workspace_status_command=resources/tools/workspace_status.sh
 
 # CI profile — activate with --config=ci
 build:ci --noshow_progress

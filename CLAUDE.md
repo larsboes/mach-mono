@@ -10,5 +10,5 @@ Agent skills live in **`.claude/skills/`** (source of truth) and define all oper
 - `git-flow` — branching + integration workflow (`/git-flow`)
 - `save-context` — session preservation (`/save-context`)
 
-Full architecture reference: [`docs/AGENT-GUIDELINES.md`](docs/AGENT-GUIDELINES.md)
+Full architecture reference: [`Architecture.md`](Architecture.md), [`repo.yaml`](repo.yaml), [`AGENTS.md`](AGENTS.md), and [`CONTRIBUTING.md`](CONTRIBUTING.md)
 App-local rules: [`Apps/machNotch/CLAUDE.md`](Apps/machNotch/CLAUDE.md)

@@ -1,4 +1,4 @@
-# scripts/
+# resources/tools
 
 ## Skill sync — Claude Code ⇄ Antigravity
 
@@ -29,17 +29,17 @@ Skill *deletion* is intentionally not propagated.
 ### Usage
 
 ```sh
-bun scripts/sync-skills.ts            # sync now
-bun scripts/sync-skills.ts --dry-run  # preview, write nothing
-sh scripts/install-hooks.sh           # wire the pre-commit hook (core.hooksPath -> .githooks)
+bun resources/tools/sync-skills.ts            # sync now
+bun resources/tools/sync-skills.ts --dry-run  # preview, write nothing
+sh resources/tools/install-hooks.sh           # wire the pre-commit hook (core.hooksPath -> .githooks)
 ```
 
 The pre-commit hook (`.githooks/pre-commit`) runs the sync and re-stages the result automatically.
-New clones run `sh scripts/install-hooks.sh` once to activate it.
+New clones run `sh resources/tools/install-hooks.sh` once to activate it.
 
 ## Agent hooks — Antigravity ⇄ Claude Code
 
-Both agents run the same `scripts/hooks/*.ts` (dual-protocol: each detects the
+Both agents run the same `resources/tools/hooks/*.ts` (dual-protocol: each detects the
 platform from the stdin payload). Config lives in two files: `.agents/hooks.json`
 (Antigravity) and the `hooks` block of `.claude/settings.json` (Claude Code).
 

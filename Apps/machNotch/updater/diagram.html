@@ -163,9 +163,7 @@
       <li><a href="index.html">Home</a></li>
       <li><a href="changelog.html">Changelog</a></li>
       <li><a href="roadmap.html">Roadmap</a></li>
-      <li><a href="guide.html">Guide</a></li>
       <li><a href="diagram.html" class="active">Architecture</a></li>
-      <li><a href="decisions.html">Decisions</a></li>
     </ul>
     <button class="nav-hamburger" aria-label="Toggle navigation"
             onclick="document.getElementById('nav-links').classList.toggle('open')">
@@ -195,13 +193,17 @@
     end
 
     subgraph Packages [Shared Libraries]
+        NC[NotchCore]
+        NUI[NotchUI]
+        NP[NotchPlugins]
         MVK[MacroVisionKit]
         MBK[MachBriefKit]
+        MSK[MachSoundKit]
     end
 
     subgraph Core [Project Core]
         RY[repo.yaml - Facts]
-        AG[AGENT-GUIDELINES - Rules]
+        AG[AGENTS.md + CONTRIBUTING - Rules]
     end
 
     BZ --&gt; MN
@@ -209,8 +211,12 @@
     XC --&gt; MN
     XC --&gt; MB
 
+    MN --&gt; NC
+    MN --&gt; NUI
+    MN --&gt; NP
     MN --&gt; MVK
     MB --&gt; MBK
+    NP -. &quot;explicit opt-in&quot; .-&gt; MSK
 
     MN -.-&gt; RY
     MB -.-&gt; RY
@@ -262,13 +268,17 @@
     end
 
     subgraph Packages [Shared Libraries]
+        NC[NotchCore]
+        NUI[NotchUI]
+        NP[NotchPlugins]
         MVK[MacroVisionKit]
         MBK[MachBriefKit]
+        MSK[MachSoundKit]
     end
 
     subgraph Core [Project Core]
         RY[repo.yaml - Facts]
-        AG[AGENT-GUIDELINES - Rules]
+        AG[AGENTS.md + CONTRIBUTING - Rules]
     end
 
     BZ --&gt; MN
@@ -276,8 +286,12 @@
     XC --&gt; MN
     XC --&gt; MB
 
+    MN --&gt; NC
+    MN --&gt; NUI
+    MN --&gt; NP
     MN --&gt; MVK
     MB --&gt; MBK
+    NP -. &quot;explicit opt-in&quot; .-&gt; MSK
 
     MN -.-&gt; RY
     MB -.-&gt; RY
@@ -287,6 +301,22 @@
 <hr class="arch-hr">
 <h2 class="arch-h2">2. Plugin Architecture</h2>
 <p class="arch-p">A plugin-first architecture where every feature — including built-ins — is a conforming plugin.</p>
+<h3 class="arch-h3">Build Boundary Update (2026-06-13)</h3>
+<p class="arch-p">The plugin boundary is now represented in Bazel:</p>
+<ul class="arch-list"><li><code>//Packages/NotchPlugins:NotchPluginCore</code> contains plugin protocols,</li></ul>
+<p class="arch-p"><code>PluginManager</code>, <code>PluginContext</code>, settings wrappers, and plugin-facing UI environment helpers.</p>
+<ul class="arch-list"><li>Each built-in plugin has its own <code>swift_library</code> target</li></ul>
+<p class="arch-p">(<code>NotchMusicPlugin</code>, <code>NotchBatteryPlugin</code>, <code>NotchShelfPlugin</code>, etc.).</p>
+<ul class="arch-list"><li><code>//Packages/NotchPlugins:NotchPlugins</code> is the default facade used by machNotch.</li></ul>
+<p class="arch-p">It re-exports default built-ins and contains app-facing view bridge helpers, but excludes Soundscape.</p>
+<ul class="arch-list"><li><code>//Packages/NotchPlugins:NotchPluginsWithSoundscape</code> is the explicit opt-in</li></ul>
+<p class="arch-p">target for builds that include <code>NotchSoundscapePlugin</code> and therefore <code>Packages/MachSoundKit</code> / AudioKit.</p>
+<p class="arch-p">Validation commands:</p>
+<pre class="arch-pre"><code class="language-bash">bazelisk query &#x27;deps(//Apps/machNotch:machNotch) intersect //Packages/MachSoundKit:MachSoundKit&#x27;
+bazelisk query &#x27;deps(//Packages/NotchPlugins:NotchPlugins) intersect //Packages/MachSoundKit:MachSoundKit&#x27;</code></pre>
+<p class="arch-p">Both default queries should return empty results.</p>
+<p class="arch-p">Note: <code>Packages/NotchPlugins/Package.swift</code> is a SwiftPM shim and may lag this Bazel target shape. Bazel is the canonical build graph for machNotch release and CI builds.</p>
+<p class="arch-p">Runtime note: plugin registration is descriptor-based and strict on-demand. Built-ins and discovered external plugins can be listed, ordered, and shown in settings/API surfaces from metadata without constructing plugin instances. Factories run only when a plugin is enabled, displayed, configured, exported, or otherwise explicitly requested.</p>
 <h3 class="arch-h3">Layer Diagram</h3>
 <pre class="arch-pre"><code>┌─────────────────────────────────────────────────────────────────────────────┐
 │                              SwiftUI Views                                   │
@@ -297,7 +327,7 @@
                                   │ renders
 ┌─────────────────────────────────▼───────────────────────────────────────────┐
 │                            PluginManager                                     │
-│  - Owns all active plugins                                                  │
+│  - Owns descriptor registrations and cached active plugins                  │
 │  - Routes view requests to appropriate plugin                               │
 │  - Manages plugin lifecycle (activate/deactivate)                           │
 │  - Handles inter-plugin messaging                                           │
@@ -351,6 +381,10 @@ protocol NotchPlugin: Identifiable, Observable {
 <ul class="arch-list"><li><strong>Check Cache Size</strong>: <code>du -sh ~/.cache/bazel-disk-cache</code></li><li><strong>Clear Disk Cache</strong>: <code>rm -rf ~/.cache/bazel-disk-cache</code></li></ul>
 <h3 class="arch-h3">Strict Modularization</h3>
 <p class="arch-p">Because any change inside a Bazel target invalidates the entire target's cache key, we keep app modules small.</p>
+<p class="arch-p">The machNotch app target is split into:</p>
+<ul class="arch-list"><li><code>machNotch_Lib</code>: all reusable app code except the <code>@main</code> launcher.</li><li><code>machNotch_App</code>: one-file <code>@main</code> launcher module that depends on</li></ul>
+<p class="arch-p"><code>machNotch_Lib</code> and embeds <code>MediaRemoteAdapter</code>.</p>
+<p class="arch-p">This avoids compiling the app source set twice in clean builds.</p>
 <h4 class="arch-h4">Scenario A: Monolithic Target (Recompiles All Files on Single Change)</h4>
 <div class="diagram-wrap">
   <div class="mermaid">graph TD

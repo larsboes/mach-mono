@@ -63,7 +63,7 @@ graph TD
 
     subgraph Core [Project Core]
         RY[repo.yaml - Facts]
-        AG[AGENT-GUIDELINES - Rules]
+        AG[AGENTS.md + CONTRIBUTING - Rules]
     end
 
     BZ --> MN

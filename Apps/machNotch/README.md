@@ -134,7 +134,7 @@ The extension connects directly to machNotch via a local WebSocket to transmit m
 SwiftUI Views -> PluginManager -> NotchPlugin instances -> Service Protocols -> System APIs
 ```
 
-Every feature is a plugin. Plugins communicate via `PluginEventBus`, never by importing each other. See [docs/Architecture.md](../../docs/Architecture.md) for the full reference and [docs/Guide.md](../../docs/Guide.md) for the plugin development guide.
+Every feature is a plugin. Plugins communicate via `PluginEventBus`, never by importing each other. See [Architecture.md](../../Architecture.md) for the full reference and [../../CONTRIBUTING.md#creating-a-new-plugin](../../CONTRIBUTING.md#creating-a-new-plugin) for the plugin development guide.
 
 ---
 

@@ -1,0 +1,21 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+const target = `${basePath}/architecture`;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta http-equiv="refresh" content={`0; url=${target}`} />
+		<title>Redirecting</title>
+	</head>
+	<body>
+		<Layout title="Redirecting">
+			<p>Redirecting to <a href={target}>Architecture</a>.</p>
+		</Layout>
+	</body>
+</html>

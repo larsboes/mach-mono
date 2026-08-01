@@ -9,6 +9,6 @@
 
 exports_files([
     "CHANGELOG.md",
-    "docs/Roadmap.md",
-    "docs/Guide.md",
+    "Roadmap.md",
+    "Architecture.md",
 ])

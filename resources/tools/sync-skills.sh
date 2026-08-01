@@ -3,7 +3,7 @@ set -euo pipefail
 
 usage() {
     cat <<'EOF'
-Usage: tools/sync-skills.sh [--check|--dry-run]
+Usage: resources/tools/sync-skills.sh [--check|--dry-run]
 
 Ensures .cursor/skills and .gemini/skills point at the canonical
 .claude/skills tree.

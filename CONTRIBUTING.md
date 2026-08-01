@@ -108,7 +108,7 @@ machNotch uses a plugin-first architecture. Adding a new feature usually means c
 
 3. **Register the Plugin**: Add a `PluginDescriptor` entry to `PluginRegistry.makeBuiltInDescriptors()` in `Packages/NotchPlugins/Sources/NotchPlugins/Core/PluginRegistry.swift`. The descriptor should include metadata, capability flags, and a factory closure so the plugin is constructed only on demand.
 
-For more details, see the [Architecture Guide](docs/Architecture.md) and [Plugin Development Guide](docs/Guide.md).
+For more details, see the [Architecture Guide](Architecture.md) and [Plugin Development](#creating-a-new-plugin).
 
 ### Pull Requests
 

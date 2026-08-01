@@ -1,6 +1,6 @@
 load("@rules_swift//swift:swift.bzl", "swift_library")
 load("@rules_apple//apple:macos.bzl", "macos_application", "macos_extension")
-load("//tools:defs.bzl", "MINIMUM_MACOS_VERSION")
+load("//resources/tools:defs.bzl", "MINIMUM_MACOS_VERSION")
 
 swift_library(
     name = "machBriefWidget_Lib",

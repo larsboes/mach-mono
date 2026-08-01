@@ -10,17 +10,12 @@ export default defineConfig({
     starlight({
       title: 'mach',
       description: 'Focused macOS utilities — built on a plugin-first architecture.',
+      disable404Route: true,
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/larsboes/mach-mono' },
       ],
       customCss: ['./src/styles/starlight.css'],
       sidebar: [
-        {
-          label: 'Get Started',
-          items: [
-            { label: 'Guide & Runbooks', link: '/guide' },
-          ],
-        },
         {
           label: 'Architecture',
           collapsed: true,
@@ -44,6 +39,9 @@ export default defineConfig({
         // Allow serving files from the monorepo root (CHANGELOG.md, ROADMAP.md, docs/*)
         allow: ['..'],
       },
+    },
+    build: {
+      chunkSizeWarningLimit: 700,
     },
   },
 });

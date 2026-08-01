@@ -137,9 +137,7 @@
       <li><a href="index.html">Home</a></li>
       <li><a href="changelog.html">Changelog</a></li>
       <li><a href="roadmap.html" class="active">Roadmap</a></li>
-      <li><a href="guide.html">Guide</a></li>
       <li><a href="diagram.html">Architecture</a></li>
-      <li><a href="decisions.html">Decisions</a></li>
     </ul>
     <button class="nav-hamburger" aria-label="Toggle navigation"
             onclick="document.getElementById('nav-links').classList.toggle('open')">
@@ -158,9 +156,9 @@
 </div>
 <div class="rm-progress">
   <div class="rm-progress-track">
-    <div class="rm-progress-fill" style="width:30%"></div>
+    <div class="rm-progress-fill" style="width:33%"></div>
   </div>
-  <span class="rm-progress-label"><strong>3</strong> of 10 shipped</span>
+  <span class="rm-progress-label"><strong>4</strong> of 12 shipped</span>
 </div>
 <div class="rm-section">
   <div class="rm-label active">
@@ -197,6 +195,13 @@
       </div>
       <div class="rm-card-meta"><span class="rm-tag">Platform</span></div>
     </div>
+    <div class="rm-card">
+      <div class="rm-card-body">
+        <div class="rm-card-title">machHealth Exporter</div>
+        <div class="rm-card-desc">Small iOS exporter for HealthKit-derived signals that machSound can consume on macOS through a versioned LAN JSON contract.</div>
+      </div>
+      <div class="rm-card-meta"><span class="rm-tag">New App</span></div>
+    </div>
   </div>
 </div>
 <div class="rm-section">
@@ -205,6 +210,12 @@
     <span class="rm-title">Launched</span>
   </div>
   <div class="rm-cards">
+    <div class="rm-card">
+      <div class="rm-card-body">
+        <div class="rm-card-title">machNotch Architecture Hardening — 2026-06-13</div>
+        <div class="rm-card-desc">The June 2026 hardening pass shipped: app <code>@main</code> shim split, per-plugin Bazel targets, app-facing plugin facade bridges, strict descriptor-based on-demand plugin loading, external descriptor discovery prep, and default AudioKit-free builds with Soundscape behind <code>//Apps/machNotch:machNotchWithSoundscape</code>.</div>
+      </div>
+    </div>
     <div class="rm-card">
       <div class="rm-card-body">
         <div class="rm-card-title">v1.3.2 — 2026-05-16</div>

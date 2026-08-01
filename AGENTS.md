@@ -2,7 +2,7 @@
 
 ## Skills (source of truth)
 
-Agent skills live in **`.claude/skills/`** and are automatically synced to `.gemini/skills/` and `.cursor/skills/` via `tools/sync-skills.sh`.
+Agent skills live in **`.claude/skills/`** and are mirrored to `.agents/skills/`; adapter links for `.cursor/skills/` and `.gemini/skills/` are managed by `resources/tools/sync-skills.sh`.
 
 | Skill | Invocation | Scope |
 |---|---|---|
@@ -19,17 +19,20 @@ To update a skill: edit the file in `.claude/skills/<name>/SKILL.md`, then run `
 
 ## Full Reference
 
-Deep architecture docs, protocol hierarchies, and feature specs live in:
+Deep repository references live in:
 
-- [`docs/AGENT-GUIDELINES.md`](docs/AGENT-GUIDELINES.md) — full human-readable reference
-- [`repo.yaml`](repo.yaml) — structured repo facts, product paths, policies
-- [`docs/README.md`](docs/README.md) — documentation index
+- [repo.yaml](repo.yaml) — canonical structured facts, product paths, and policy
+- [Architecture.md](Architecture.md) — architecture and plugin model
+- [Roadmap.md](Roadmap.md) — roadmap and milestone direction
+- [CONTRIBUTING.md](CONTRIBUTING.md) — contribution and decision process
 - [`Apps/machNotch/CLAUDE.md`](Apps/machNotch/CLAUDE.md) — app-local rules
+
+Active planning, decisions, and ADRs are tracked in GitHub issues.
 
 ## Learned User Preferences
 
 - Prefer larger, fewer commits during solo refactoring; splitting every file edit into separate commits is unnecessary.
-- When implementing attached plans, do not edit the plan file itself; use existing todos and mark them in progress/completed.
+- When implementing roadmap items or planning decisions, track scope and progress in focused GitHub issues (one issue per scope) instead of attached in-repo planning docs.
 - Push through to green builds and tests rather than stopping at pre-existing Xcode project blockers.
 - Weather: OpenWeatherMap is the primary provider; WeatherKit is fallback only when available.
 - UI motion (e.g. weather condition animations) should stay minimal, aesthetic, and light on system resources.

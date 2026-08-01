@@ -203,9 +203,9 @@ tasks:
   skills:sync:
     desc: "skills: mirror .claude/skills/ → .gemini/skills/ and .cursor/skills/"
     cmds:
-      - bash tools/sync-skills.sh
+      - bash resources/tools/sync-skills.sh
 
   skills:check:
     desc: "skills: verify .gemini/skills/ and .cursor/skills/ match .claude/skills/"
     cmds:
-      - bash tools/sync-skills.sh --check
+      - bash resources/tools/sync-skills.sh --check

@@ -3,7 +3,7 @@ load("@rules_apple//apple:macos.bzl", "macos_application", "macos_unit_test", "m
 load("@rules_apple//apple:resources.bzl", "apple_resource_group")
 load("@rules_apple//apple:apple.bzl", "apple_dynamic_framework_import")
 load("@rules_apple//apple:versioning.bzl", "apple_bundle_version")
-load("//tools:defs.bzl", "MINIMUM_MACOS_VERSION")
+load("//resources/tools:defs.bzl", "MINIMUM_MACOS_VERSION")
 
 # Versioning. Reads `BUILD_EMBED_LABEL` injected via `--embed_label="machNotch_<ver>_build_<n>"`
 # (CI passes it from the release tag). Local builds without `--embed_label` use the fallback.

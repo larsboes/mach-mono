@@ -1,7 +1,7 @@
 import Foundation
 
 /// Versioned LAN export contract consumed by machSound and future apps.
-/// See `Plans/PLAN-machHealth.md` and `docs/contracts/health-export-schema-v1.md`.
+/// Current schema shape is tracked in-code and via GitHub issue discussions.
 public enum HealthExportSchema {
     public static let current = 1
 }

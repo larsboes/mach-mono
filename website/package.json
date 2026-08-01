@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "node -e \"const fs = require('node:fs'); const path = 'public/resources/images'; try { const stat = fs.statSync(path); if (!stat.isDirectory()) { throw new Error('not a directory'); } } catch (error) { console.error('Missing or invalid website resources path: ' + path); process.exit(1); }\"",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"

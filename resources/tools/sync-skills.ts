@@ -12,7 +12,7 @@
  *   - Antigravity → Claude: MERGE — keep all existing Claude-only fields, update
  *     only name/description/body.
  *
- * Change detection: a committed state file (scripts/skill-sync-state.json) stores,
+ * Change detection: a committed state file (resources/tools/skill-sync-state.json) stores,
  * per skill, the hash of the shared projection (name+description+body, comments and
  * extra frontmatter excluded). On each run, per skill:
  *   - only one side differs from state → that side is the source
@@ -22,7 +22,7 @@
  *
  * Deletion is intentionally NOT propagated (ambiguous to infer).
  *
- * Usage: bun scripts/sync-skills.ts [--dry-run] [--quiet]
+ * Usage: bun resources/tools/sync-skills.ts [--dry-run] [--quiet]
  */
 
 import { createHash } from "node:crypto";
@@ -33,7 +33,7 @@ import { dirname, join } from "node:path";
 const REPO_ROOT = resolveRepoRoot();
 const CLAUDE_DIR = join(REPO_ROOT, ".claude", "skills");
 const AG_DIR = join(REPO_ROOT, ".agents", "skills");
-const STATE_PATH = join(REPO_ROOT, "scripts", "skill-sync-state.json");
+const STATE_PATH = join(REPO_ROOT, "resources", "tools", "skill-sync-state.json");
 
 const DRY_RUN = process.argv.includes("--dry-run");
 const QUIET = process.argv.includes("--quiet");
@@ -214,7 +214,7 @@ function sortKeys(o: Record<string, string>): Record<string, string> {
 }
 
 function resolveRepoRoot(): string {
-  // scripts/sync-skills.ts → repo root is one level up.
+  // resources/tools/sync-skills.ts → repo root is one level up.
   return dirname(import.meta.dir);
 }
 

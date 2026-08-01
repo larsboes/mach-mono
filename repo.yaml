@@ -6,18 +6,6 @@ repo:
     suite_name: mach-mono
     naming_note: Prefer mach-mono and machNotch naming; keep boring.notch/BoringNotch only for attribution, license, and dependency history.
 
-# ADR index — use for "why"; full context lives in each file.
-decisions:
-  branching: docs/decisions/0001-main-only-branching.md
-  workspace: docs/decisions/0002-root-xcode-workspace.md
-  licensing: docs/decisions/0003-license-policy.md
-  bazel: docs/decisions/0004-bazel-orchestration.md
-  weather: docs/decisions/0005-weather-provider-strategy.md
-  bazel_detour: docs/decisions/0006-deferred-native-bazel-builds.md
-  bazel_native: docs/decisions/0007-native-bazel-builds.md
-  test_isolation: docs/decisions/0008-test-isolation-under-xctest-async.md
-  bazel_ci: docs/decisions/0009-bazel-ci-migration.md
-
 workspace:
   tech_stack:
     minimum_os: macOS 26
@@ -46,8 +34,7 @@ workspace:
   bazel:
     status: active
     module: MODULE.bazel
-    roadmap: docs/Roadmap.md
-    decision: docs/decisions/0007-native-bazel-builds.md
+    roadmap: Roadmap.md
 
 products:
   machNotch:
@@ -58,13 +45,10 @@ products:
     xcode_project: Apps/machNotch/machNotch.xcodeproj
     scheme: machNotch
     agent_instructions: Apps/machNotch/CLAUDE.md
-    prd: Plans/PRDs/machNotch.md
-    architecture: docs/Architecture.md
-    plugin_development: docs/Guide.md
+    architecture: Architecture.md
     license:
       current: GPL-3.0
       target: MIT
-      migration_doc: Plans/PRDs/machNotch.md#license-migration--gpl-v3--mit
 
   machBrief:
     display_name: mach.brief
@@ -76,9 +60,6 @@ products:
     bazel:
       build: bazel build //Apps/machBrief:machBrief
       test: bazel test //Packages/MachBriefKit:MachBriefKitTests
-    prd:
-      macos: Plans/PRDs/machBrief-macOS.md
-      ios: Plans/PRDs/machBrief-iOS.md
     license:
       target: MIT
 
@@ -129,19 +110,16 @@ policies:
       - dependency history
   branching:
     model: main-only
-    decision: docs/decisions/0001-main-only-branching.md
   build_verification:
     preferred_entrypoint: bazel
     command: bazel build //Apps/machBrief:machBrief
     test_command: bazel test //Packages/MachBriefKit:MachBriefKitTests
-    decision: docs/decisions/0007-native-bazel-builds.md
   licensing:
     new_apps: MIT
     new_packages: MIT
     forbidden_dependency_licenses:
       - GPL
       - MPL
-    decision: docs/decisions/0003-license-policy.md
   architecture:
     plugin_first: true
     dependency_injection_root: AppObjectGraph
@@ -153,23 +131,18 @@ services:
     primary: OpenWeatherMap
     fallback: WeatherKit
     cache_duration_minutes: 30
-    decision: docs/decisions/0005-weather-provider-strategy.md
 
 docs:
-  index: docs/README.md
-  overall_model_description: docs/README.md  # "Where the overall model is defined" — layered facts, agents, PRDs, ADRs, adapters
-  prds: Plans/PRDs
-  architecture: docs/Architecture.md
-  plugin_system: docs/Architecture.md
-  guides: docs/Guide.md
-  bazel_task_map: docs/Guide.md
-  roadmaps: docs/Roadmap.md
-  decisions: docs/decisions
-  sideloading: docs/Guide.md
+  index: Architecture.md
+  overall_model_description: Architecture.md
+  architecture: Architecture.md
+  plugin_system: Architecture.md
+  roadmaps: Roadmap.md
+  planning: https://github.com/larsboes/mach-mono/issues
+  contributing: CONTRIBUTING.md
+  security: SECURITY.md
 
 agent_files:
-  canonical_guidelines: docs/AGENT-GUIDELINES.md
+  canonical_guidelines: AGENTS.md
   claude_code_config: .claude
-  cursor_adapter: .cursor
-  reusable_workflows: .agent/workflows
-  reusable_skills: .agent/skills
+  reusable_skills: .agents/skills
