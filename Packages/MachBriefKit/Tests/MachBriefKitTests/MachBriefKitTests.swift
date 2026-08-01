@@ -13,12 +13,46 @@ final class MachBriefKitTests: XCTestCase {
         XCTAssertEqual(scheduler.slot(for: date(hour: 18, calendar: calendar)), .afternoon)
     }
 
+    func testSlotBoundariesAreConsistentAcrossMinutesAndSeconds() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let scheduler = DailyScheduler(calendar: calendar)
+
+        XCTAssertEqual(scheduler.slot(for: date(hour: 5, minute: 59, second: 59, calendar: calendar)), .evening)
+        XCTAssertEqual(scheduler.slot(for: date(hour: 6, minute: 0, second: 0, calendar: calendar)), .morning)
+        XCTAssertEqual(scheduler.slot(for: date(hour: 11, minute: 59, second: 59, calendar: calendar)), .morning)
+        XCTAssertEqual(scheduler.slot(for: date(hour: 12, minute: 0, second: 0, calendar: calendar)), .midday)
+        XCTAssertEqual(scheduler.slot(for: date(hour: 17, minute: 59, second: 59, calendar: calendar)), .midday)
+        XCTAssertEqual(scheduler.slot(for: date(hour: 18, minute: 0, second: 0, calendar: calendar)), .afternoon)
+        XCTAssertEqual(scheduler.slot(for: date(hour: 23, minute: 59, second: 59, calendar: calendar)), .afternoon)
+    }
+
     func testDefaultSourceAssignmentsPutMoodAtEighteenHundred() {
         let settings = BriefSettings()
         XCTAssertEqual(settings.sourceID(for: .morning), "word")
         XCTAssertEqual(settings.sourceID(for: .midday), "fact")
         XCTAssertEqual(settings.sourceID(for: .afternoon), "mood")
         XCTAssertEqual(settings.sourceID(for: .evening), "quote")
+    }
+
+    func testSourceSelectionFallsBackToDeterministicEnabledSourceWhenAssignedSourceDisabled() {
+        let settings = BriefSettings(
+            enabledSourceIDs: ["word", "fact", "quote"],
+            slotAssignments: [.morning: "mood"]
+        )
+
+        XCTAssertEqual(settings.sourceID(for: .morning), "fact")
+    }
+
+    func testEngineFallsBackToKnownSourceWhenAssignedSourceIsMissing() async {
+        let engine = BriefEngine(sources: ["word": WordSource(), "fact": FactSource()])
+        let settings = BriefSettings(
+            enabledSourceIDs: ["zzz"],
+            slotAssignments: [.morning: "mood"]
+        )
+        let entry = await engine.entry(for: .morning, date: Date(timeIntervalSince1970: 1_700_000_000), settings: settings)
+
+        XCTAssertEqual(entry.sourceID, "quote")
     }
 
     func testQuoteSourceIsDeterministicForSlotAndDate() async {
@@ -139,6 +173,51 @@ final class MachBriefKitTests: XCTestCase {
         XCTAssertTrue(markdown.contains("> Expressed clearly."))
     }
 
+    func testObsidianSinkWritesNewFileAndAppendsWhenExists() async throws {
+        let temporaryFolder = FileManager.default.temporaryDirectory.appendingPathComponent("mach-brief-tests")
+        let folder = temporaryFolder.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let noteURL = folder.appendingPathComponent("daily.md")
+        let first = BriefEntry(
+            sourceID: "word",
+            slot: .morning,
+            title: "serendipity",
+            subtitle: "noun",
+            body: "A fortunate discovery.",
+            revealedAt: Date(timeIntervalSince1970: 1_700_000_000)
+        )
+        let second = BriefEntry(
+            sourceID: "quote",
+            slot: .midday,
+            title: "Test quote",
+            body: "Keep going.",
+            revealedAt: Date(timeIntervalSince1970: 1_700_000_111)
+        )
+
+        await ObsidianSink(noteURL: noteURL).receive(first)
+        await ObsidianSink(noteURL: noteURL).receive(second)
+
+        let output = try String(contentsOf: noteURL, encoding: .utf8)
+        XCTAssertTrue(output.contains("serendipity"))
+        XCTAssertTrue(output.contains("Test quote"))
+    }
+
+    func testObsidianSinkIgnoresWriteFailures() async {
+        let invalidURL = FileManager.default.temporaryDirectory.appendingPathComponent("does-not-exist")
+            .appendingPathComponent("nope")
+            .appendingPathComponent("brief.md")
+        let entry = BriefEntry(
+            sourceID: "quote",
+            slot: .evening,
+            title: "Failure test",
+            revealedAt: Date(timeIntervalSince1970: 1_700_000_000)
+        )
+
+        await ObsidianSink(noteURL: invalidURL).receive(entry)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: invalidURL.path))
+    }
+
     func testWidgetTimelineDatesAndNotificationPlan() async {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(secondsFromGMT: 0)!
@@ -153,8 +232,22 @@ final class MachBriefKitTests: XCTestCase {
         XCTAssertEqual(plan.map(\.identifier), ["machbrief-3", "machbrief-0", "machbrief-1", "machbrief-2"])
     }
 
-    private func date(hour: Int, calendar: Calendar) -> Date {
-        DateComponents(calendar: calendar, timeZone: calendar.timeZone, year: 2026, month: 5, day: 5, hour: hour).date!
+    private func date(
+        hour: Int,
+        minute: Int = 0,
+        second: Int = 0,
+        calendar: Calendar
+    ) -> Date {
+        DateComponents(
+            calendar: calendar,
+            timeZone: calendar.timeZone,
+            year: 2026,
+            month: 5,
+            day: 5,
+            hour: hour,
+            minute: minute,
+            second: second
+        ).date!
     }
 }
 
