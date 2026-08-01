@@ -34,9 +34,9 @@ final class BriefTodayViewModel {
 
     func saveMood(rating: MoodRating, note: String?) async {
         guard var entry = currentEntry else { return }
-        entry.metadata["moodRating"] = rating.rawValue
+        entry.metadata[MoodMetadataKey.moodRating.rawValue] = rating.rawValue
         if let note, !note.isEmpty {
-            entry.metadata["moodNote"] = note
+            entry.metadata[MoodMetadataKey.moodNote.rawValue] = note
         }
         await store.saveMoodResponse(entryID: entry.id, rating: rating, note: note)
         currentEntry = entry

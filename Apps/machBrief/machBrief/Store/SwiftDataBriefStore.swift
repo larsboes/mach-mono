@@ -48,11 +48,11 @@ final class SwiftDataBriefStore: BriefStore {
 
     func saveMoodResponse(entryID: UUID, rating: MoodRating, note: String?) async {
         guard var entry = fetchStored(id: entryID)?.briefEntry() else { return }
-        entry.metadata["moodRating"] = rating.rawValue
+        entry.metadata[MoodMetadataKey.moodRating.rawValue] = rating.rawValue
         if let note, !note.isEmpty {
-            entry.metadata["moodNote"] = note
+            entry.metadata[MoodMetadataKey.moodNote.rawValue] = note
         } else {
-            entry.metadata.removeValue(forKey: "moodNote")
+            entry.metadata.removeValue(forKey: MoodMetadataKey.moodNote.rawValue)
         }
         await save(entry)
     }
