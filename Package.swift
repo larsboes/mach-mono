@@ -17,7 +17,7 @@ let package = Package(
         .package(url: "https://github.com/airbnb/lottie-spm.git", exact: "4.6.1"),
         .package(url: "https://github.com/EmergeTools/Pow", exact: "1.0.6"),
         .package(url: "https://github.com/Lakr233/SkyLightWindow", exact: "1.0.0"),
-        .package(url: "https://github.com/sparkle-project/Sparkle", exact: "2.9.3"),
+        .package(url: "https://github.com/sparkle-project/Sparkle", exact: "2.9.5"),
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", exact: "0.16.0"),
         .package(url: "https://github.com/apple/swift-collections.git", exact: "1.6.0"),
         .package(url: "https://github.com/apple/swift-syntax.git", exact: "602.0.0"),
