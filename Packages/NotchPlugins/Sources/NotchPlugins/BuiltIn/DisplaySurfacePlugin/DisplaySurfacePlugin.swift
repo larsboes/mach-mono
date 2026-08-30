@@ -97,6 +97,6 @@ public final class DisplaySurfacePlugin: NotchPlugin {
 
     public var displayRequest: DisplayRequest? {
         guard !displayState.content.isEmpty else { return nil }
-        return DisplayRequest(priority: .normal, category: DisplayRequest.utility)
+        return DisplayRequest(priority: .normal, category: .utility)
     }
 }

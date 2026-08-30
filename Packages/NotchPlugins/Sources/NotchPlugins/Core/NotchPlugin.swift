@@ -79,19 +79,19 @@ public struct DisplayRequest: Equatable, Sendable {
         self.category = category
         self.preferredHeight = preferredHeight
     }
+}
+
+public struct DisplayCategory: RawRepresentable, Equatable, Sendable {
+    public let rawValue: String
+
+    public init(rawValue: String) {
+        self.rawValue = rawValue
+    }
 
     public static let music = DisplayCategory(rawValue: "music")
     public static let notification = DisplayCategory(rawValue: "notification")
     public static let utility = DisplayCategory(rawValue: "utility")
     public static let system = DisplayCategory(rawValue: "system")
-}
-
-public struct DisplayCategory: RawRepresentable, Equatable, Sendable {
-    public let rawValue: String
-    
-    public init(rawValue: String) {
-        self.rawValue = rawValue
-    }
 }
 
 public enum DisplayPriority: Int, Comparable, Sendable {

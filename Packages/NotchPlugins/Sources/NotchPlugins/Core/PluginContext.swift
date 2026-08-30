@@ -17,8 +17,12 @@ public final class PluginContext {
     /// Plugin-specific settings (namespaced in Defaults)
     public let settings: PluginSettings
 
-    /// Access to shared services
-    public let services: any NotchServiceProvider
+    /// The full container. Deliberately private: a plugin reaches services only
+    /// through the narrowed accessors below, and only for groups it declared.
+    private let provider: any NotchServiceProvider
+
+    /// Service groups this plugin was granted. Built-in plugins get `.allServices`.
+    public let grantedCapabilities: PluginCapabilities
 
     /// For inter-plugin communication
     public let eventBus: PluginEventBus
@@ -34,36 +38,63 @@ public final class PluginContext {
         services: any NotchServiceProvider,
         eventBus: PluginEventBus,
         appState: AppStateProviding,
-        mediaSettings: any MediaSettings
+        mediaSettings: any MediaSettings,
+        grantedCapabilities: PluginCapabilities = .allServices
     ) {
         self.settings = settings
-        self.services = services
+        self.provider = services
         self.eventBus = eventBus
         self.appState = appState
         self.mediaSettings = mediaSettings
+        self.grantedCapabilities = grantedCapabilities
     }
 
-    // MARK: - ISP-Compliant Narrowed Service Accessors
+    // MARK: - Narrowed Service Accessors
     //
-    // Prefer these over `services` when your plugin only needs a focused capability group.
-    // Built-in plugins use the narrowest accessor that covers their actual needs.
-    // In Phase 9, third-party plugins will receive a PluginContext whose `services`
-    // is constrained to only the sub-protocol they declared at registration time.
+    // Each accessor returns a facade that conforms to one sub-protocol only, so a
+    // plugin cannot cast it back up to NotchServiceProvider. Returning the container
+    // directly would make the narrowing advisory, because ServiceContainer conforms
+    // to every sub-protocol.
+    //
+    // Reaching for a group the plugin did not declare is a programming error and
+    // traps on first access, which happens at activation.
 
     /// Music, lyrics, sound — for media-centric plugins.
-    public var mediaServices: any MediaServiceProvider { services }
+    public var mediaServices: any MediaServiceProvider {
+        MediaServiceFacade(granted(.mediaServices, "mediaServices"))
+    }
 
     /// Volume, brightness, battery, keyboard backlight, system stats.
-    public var systemServices: any SystemServiceProvider { services }
+    public var systemServices: any SystemServiceProvider {
+        SystemServiceFacade(granted(.systemServices, "systemServices"))
+    }
 
     /// Shelf, temporary files, image processing, thumbnails, QuickLook.
-    public var storageServices: any StorageServiceProvider { services }
+    public var storageServices: any StorageServiceProvider {
+        StorageServiceFacade(granted(.storageServices, "storageServices"))
+    }
 
     /// Notifications, system notification observer, sharing, drag-drop, webcam, face.
-    public var uiServices: any UIServiceProvider { services }
+    public var uiServices: any UIServiceProvider {
+        UIServiceFacade(granted(.uiServices, "uiServices"))
+    }
 
     /// AI, bluetooth, clipboard, calendar, weather, API route registrar.
-    public var pluginExtensionServices: any PluginExtensionServiceProvider { services }
+    public var pluginExtensionServices: any PluginExtensionServiceProvider {
+        PluginExtensionServiceFacade(granted(.extensionServices, "extensionServices"))
+    }
+
+    private func granted(
+        _ capability: PluginCapabilities,
+        _ name: String
+    ) -> any NotchServiceProvider {
+        precondition(
+            grantedCapabilities.contains(capability),
+            "Plugin used \(name) without declaring it. Add .\(name) to the "
+                + "capabilities of its PluginDescriptor."
+        )
+        return provider
+    }
 }
 
 // MARK: - App State Protocol

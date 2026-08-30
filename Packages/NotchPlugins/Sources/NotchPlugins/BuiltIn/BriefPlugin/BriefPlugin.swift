@@ -106,7 +106,7 @@ public final class BriefPlugin: NotchPlugin, PositionedPlugin {
 
     public var displayRequest: DisplayRequest? {
         guard isEnabled, state.isActive else { return nil }
-        return DisplayRequest(priority: .background, category: DisplayRequest.utility)
+        return DisplayRequest(priority: .background, category: .utility)
     }
 
     // MARK: - UI Slots

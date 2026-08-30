@@ -42,7 +42,7 @@ final class MusicPluginTests: XCTestCase {
 
         XCTAssertNotNil(request)
         XCTAssertEqual(request?.priority, .high)
-        XCTAssertEqual(request?.category, DisplayRequest.music)
+        XCTAssertEqual(request?.category, .music)
     }
 
     func testNoDisplayRequestWhenIdleAndPaused() async throws {

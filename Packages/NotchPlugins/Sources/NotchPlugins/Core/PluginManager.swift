@@ -120,6 +120,21 @@ public final class PluginManager {
         }
     }
 
+    // MARK: - Service Capability Grants
+
+    /// Service groups a plugin may reach through its `PluginContext`.
+    ///
+    /// Built-in plugins ship with the app, so they get every group. An external
+    /// plugin gets only what its descriptor declares. A plugin registered as a
+    /// bare instance has no descriptor and is treated as built-in, which is what
+    /// tests and first-party callers of `registerPlugin` rely on.
+    public func grantedServiceCapabilities(for id: String) -> PluginCapabilities {
+        guard let descriptor = descriptors[id], case .external = descriptor.origin else {
+            return .allServices
+        }
+        return descriptor.capabilities.intersection(.allServices)
+    }
+
     // MARK: - Plugin Lifecycle
 
     /// Enable and activate a plugin
@@ -133,7 +148,8 @@ public final class PluginManager {
             services: services,
             eventBus: eventBus,
             appState: appState,
-            mediaSettings: mediaSettings
+            mediaSettings: mediaSettings,
+            grantedCapabilities: grantedServiceCapabilities(for: id)
         )
 
         let wasEnabled = plugin.isEnabled

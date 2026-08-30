@@ -222,7 +222,7 @@ public final class SoundscapePlugin: NotchPlugin, PositionedPlugin {
 
     public var displayRequest: DisplayRequest? {
         guard isEnabled, state.isActive, isPlaying else { return nil }
-        return DisplayRequest(priority: .high, category: DisplayRequest.music)
+        return DisplayRequest(priority: .high, category: .music)
     }
 
     @ViewBuilder

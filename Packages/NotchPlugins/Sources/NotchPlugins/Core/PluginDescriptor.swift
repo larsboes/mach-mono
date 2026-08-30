@@ -63,4 +63,21 @@ public struct PluginCapabilities: OptionSet, Sendable {
     public static let menuBarContent = PluginCapabilities(rawValue: 1 << 3)
     public static let exportable = PluginCapabilities(rawValue: 1 << 4)
     public static let positioned = PluginCapabilities(rawValue: 1 << 5)
+
+    // MARK: - Service capabilities
+
+    // An external plugin receives only the service groups it declares here.
+    // Built-in plugins receive every group; they ship with the app and are not
+    // the threat this guards against.
+
+    public static let mediaServices = PluginCapabilities(rawValue: 1 << 6)
+    public static let systemServices = PluginCapabilities(rawValue: 1 << 7)
+    public static let storageServices = PluginCapabilities(rawValue: 1 << 8)
+    public static let uiServices = PluginCapabilities(rawValue: 1 << 9)
+    public static let extensionServices = PluginCapabilities(rawValue: 1 << 10)
+
+    /// Every service group. The grant a built-in plugin receives.
+    public static let allServices: PluginCapabilities = [
+        .mediaServices, .systemServices, .storageServices, .uiServices, .extensionServices,
+    ]
 }

@@ -67,7 +67,7 @@ public final class WeatherPlugin: NotchPlugin, PositionedPlugin {
 
     public var displayRequest: DisplayRequest? {
         guard isEnabled, state.isActive, weatherService?.currentWeather != nil else { return nil }
-        return DisplayRequest(priority: .background, category: DisplayRequest.utility)
+        return DisplayRequest(priority: .background, category: .utility)
     }
 
     @ViewBuilder

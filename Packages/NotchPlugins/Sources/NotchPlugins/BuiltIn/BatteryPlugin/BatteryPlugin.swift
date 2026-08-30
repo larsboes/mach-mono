@@ -64,9 +64,9 @@ public final class BatteryPlugin: NotchPlugin, PositionedPlugin {
 
         switch service.alertKind(initial: true) {
         case .lowBattery:
-            return DisplayRequest(priority: .critical, category: DisplayRequest.system)
+            return DisplayRequest(priority: .critical, category: .system)
         case .highBattery:
-            return DisplayRequest(priority: .normal, category: DisplayRequest.system)
+            return DisplayRequest(priority: .normal, category: .system)
         case nil:
             return nil
         }

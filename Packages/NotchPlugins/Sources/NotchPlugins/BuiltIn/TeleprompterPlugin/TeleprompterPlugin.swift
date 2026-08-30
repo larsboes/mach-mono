@@ -172,7 +172,7 @@ public final class TeleprompterPlugin: NotchPlugin {
         let physicalHeight = getRealNotchHeight()
         return DisplayRequest(
             priority: .critical,
-            category: DisplayRequest.utility,
+            category: .utility,
             preferredHeight: physicalHeight * Self.readingAreaHeightMultiplier
         )
     }

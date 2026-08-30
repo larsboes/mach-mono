@@ -178,7 +178,7 @@ public final class MusicPlugin: NotchPlugin, PlayablePlugin, PositionedPlugin, E
         else {
             return nil
         }
-        return DisplayRequest(priority: .high, category: DisplayRequest.music)
+        return DisplayRequest(priority: .high, category: .music)
     }
 
     // MARK: - Private Methods

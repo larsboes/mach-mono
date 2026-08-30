@@ -24,6 +24,22 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Plugin SDK',
+          collapsed: true,
+          items: [
+            { label: 'Overview', link: '/plugins/overview' },
+            { label: 'PluginContext', link: '/plugins/plugin-context' },
+            { label: 'Distribution', link: '/plugins/distribution' },
+          ],
+        },
+        {
+          label: 'machHealth',
+          collapsed: true,
+          items: [
+            { label: 'Export Schema v1', link: '/health/schema-v1' },
+          ],
+        },
+        {
           label: 'Project',
           items: [
             { label: 'Roadmap', link: '/roadmap' },
