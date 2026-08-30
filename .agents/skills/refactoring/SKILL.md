@@ -31,7 +31,7 @@ Work tier-by-tier to avoid cascading breaks:
 When splitting large files:
 1. Create new file with extracted code
 2. Update imports in all consumers
-3. Verify `bazelisk build //Apps/machNotch:machNotch` passes
+3. Verify `task build` passes
 4. **Then** remove from original
 
 Never delete code without first verifying the replacement is working.
@@ -39,7 +39,7 @@ Never delete code without first verifying the replacement is working.
 ## Build After Every File
 
 ```bash
-bazelisk build //Apps/machNotch:machNotch
+task build
 ```
 
 Don't batch multiple files without verifying between them.

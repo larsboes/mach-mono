@@ -146,8 +146,6 @@ public protocol WidgetSettings {
     var showHabitTracker: Bool { get set }
     var showPomodoro: Bool { get set }
     var showTeleprompter: Bool { get set }
-    var obsidianSyncEnabled: Bool { get set }
-    var obsidianVaultPath: String? { get set }
 }
 
 // MARK: - Calendar Settings

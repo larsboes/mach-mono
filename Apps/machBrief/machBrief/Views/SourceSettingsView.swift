@@ -75,45 +75,12 @@ struct SourceSettingsView: View {
                     }
                 }
 
-                GroupBox("Obsidian") {
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text(viewModel.settings.obsidianNotePath ?? "No note selected")
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Button("Choose") {
-                                chooseObsidianNote()
-                            }
-                            Button("Test Write") {
-                                Task { await viewModel.testObsidianWrite() }
-                            }
-                        }
-                    }
-                }
-
                 GroupBox("Widget") {
                     Label("Add mach.brief from Notification Center widgets.", systemImage: "rectangle.grid.1x2")
                         .foregroundStyle(.secondary)
                 }
             }
             .padding()
-        }
-    }
-
-    private func chooseObsidianNote() {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = true
-        panel.canChooseDirectories = false
-        panel.allowsMultipleSelection = false
-        panel.allowedContentTypes = [
-            UTType(filenameExtension: "md"),
-            UTType(filenameExtension: "markdown"),
-            .plainText,
-        ].compactMap { $0 }
-        if panel.runModal() == .OK {
-            viewModel.setObsidianNotePath(panel.url?.path)
         }
     }
 

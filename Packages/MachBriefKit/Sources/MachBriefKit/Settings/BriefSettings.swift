@@ -6,7 +6,6 @@ public struct BriefSettings: Codable, Equatable, Sendable {
     public var wordLanguageID: String
     public var customWordListPath: String?
     public var notificationsEnabled: Bool
-    public var obsidianNotePath: String?
     public var vocabularyLevel: VocabularyLevel?
 
     public init(
@@ -15,7 +14,6 @@ public struct BriefSettings: Codable, Equatable, Sendable {
         wordLanguageID: String = BriefLanguage.defaultLanguage.id,
         customWordListPath: String? = nil,
         notificationsEnabled: Bool = false,
-        obsidianNotePath: String? = nil,
         vocabularyLevel: VocabularyLevel? = nil
     ) {
         self.enabledSourceIDs = enabledSourceIDs
@@ -23,7 +21,6 @@ public struct BriefSettings: Codable, Equatable, Sendable {
         self.wordLanguageID = wordLanguageID
         self.customWordListPath = customWordListPath
         self.notificationsEnabled = notificationsEnabled
-        self.obsidianNotePath = obsidianNotePath
         self.vocabularyLevel = vocabularyLevel
     }
 

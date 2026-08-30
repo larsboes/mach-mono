@@ -29,9 +29,9 @@ git checkout -b feature/my-feature   # or fix/, perf/, refactor/
 ## Implement & Verify
 
 1. Implement changes following `.claude/skills/swift-code-quality` rules
-2. `bazelisk build //Apps/machNotch:machNotch //Apps/machBrief:machBrief`
-3. `bazelisk test //Apps/machNotch:machNotchTests //Packages/MachBriefKit:MachBriefKitTests`
-4. Update relevant PRD under `Plans/PRDs/` and any affected ADRs
+2. `task build` and `task brief:build`
+3. `task test`
+4. Update the tracking GitHub issue. Planning and ADR history live in the issue stream, not in in-repo plan files.
 
 ## Integrate into Main
 

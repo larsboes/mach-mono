@@ -24,7 +24,7 @@ final class BriefTodayViewModel {
 
     func refresh(date: Date = Date()) async {
         currentSlot = engine.currentSlot(for: date)
-        currentEntry = await engine.ensureEntry(for: date, settings: settings, store: store, sinks: obsidianSinks())
+        currentEntry = await engine.ensureEntry(for: date, settings: settings, store: store)
         await syncNotificationSchedule()
     }
 
@@ -94,26 +94,6 @@ final class BriefTodayViewModel {
         statusMessage = "Notifications enabled"
     }
 
-    func setObsidianNotePath(_ path: String?) {
-        settings.obsidianNotePath = path
-        persistSettings()
-    }
-
-    func testObsidianWrite() async {
-        guard let path = settings.obsidianNotePath, !path.isEmpty else {
-            statusMessage = "Choose an Obsidian note first"
-            return
-        }
-        let entry: BriefEntry
-        if let currentEntry {
-            entry = currentEntry
-        } else {
-            entry = await engine.entry(for: Date(), settings: settings)
-        }
-        await ObsidianSink(noteURL: URL(fileURLWithPath: path)).receive(entry)
-        statusMessage = "Test write sent"
-    }
-
     private func syncNotificationSchedule() async {
         guard settings.notificationsEnabled else { return }
         let authorized = await notificationAuthorizationStatus() == .authorized
@@ -181,10 +161,5 @@ final class BriefTodayViewModel {
 
     private func persistSettings() {
         BriefSettingsCoding.save(settings)
-    }
-
-    private func obsidianSinks() -> [any BriefSink] {
-        guard let path = settings.obsidianNotePath, !path.isEmpty else { return [] }
-        return [ObsidianSink(noteURL: URL(fileURLWithPath: path))]
     }
 }

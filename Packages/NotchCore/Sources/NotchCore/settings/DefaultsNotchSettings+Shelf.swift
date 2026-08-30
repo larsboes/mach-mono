@@ -106,18 +106,4 @@ public extension DefaultsNotchSettings {
         get { Defaults[Self.openWeatherMapApiKeyKey] }
         set { Defaults[Self.openWeatherMapApiKeyKey] = newValue }
     }
-
-    // MARK: - Integrations
-
-    @Setting<Bool>(key: "obsidianSyncEnabled", default: false)
-    var obsidianSyncEnabled: Bool {
-        get { Defaults[Self.obsidianSyncEnabledKey] }
-        set { Defaults[Self.obsidianSyncEnabledKey] = newValue }
-    }
-
-    @Setting<String?>(key: "obsidianVaultPath", default: nil)
-    var obsidianVaultPath: String? {
-        get { Defaults[Self.obsidianVaultPathKey] }
-        set { Defaults[Self.obsidianVaultPathKey] = newValue }
-    }
 }

@@ -123,10 +123,6 @@ public final class MockNotchSettings: NotchSettings {
     public var inactiveNotchHeight: Double = 23.0
     public var useInactiveNotchHeight: Bool = false
 
-    // MARK: - Notes Settings
-    public var obsidianSyncEnabled: Bool = false
-    public var obsidianVaultPath: String? = nil
-
     // MARK: - Widget Settings
     public var showMirror: Bool = false
     public var showCalendar: Bool = true

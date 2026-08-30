@@ -157,67 +157,6 @@ final class MachBriefKitTests: XCTestCase {
         XCTAssertEqual(updated?.metadata["moodNote"], "clear afternoon")
     }
 
-    func testObsidianMarkdownOutput() {
-        let entry = BriefEntry(
-            sourceID: "word",
-            slot: .morning,
-            title: "lucid",
-            subtitle: "adjective",
-            body: "Expressed clearly.",
-            revealedAt: date(hour: 6, calendar: Calendar(identifier: .gregorian))
-        )
-
-        let markdown = ObsidianSink.markdown(for: entry, calendar: Calendar(identifier: .gregorian))
-        XCTAssertTrue(markdown.contains("## Daily Brief - 06:00"))
-        XCTAssertTrue(markdown.contains("**Word:** lucid"))
-        XCTAssertTrue(markdown.contains("> Expressed clearly."))
-    }
-
-    func testObsidianSinkWritesNewFileAndAppendsWhenExists() async throws {
-        let temporaryFolder = FileManager.default.temporaryDirectory.appendingPathComponent("mach-brief-tests")
-        let folder = temporaryFolder.appendingPathComponent(UUID().uuidString)
-        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: folder) }
-        let noteURL = folder.appendingPathComponent("daily.md")
-        let first = BriefEntry(
-            sourceID: "word",
-            slot: .morning,
-            title: "serendipity",
-            subtitle: "noun",
-            body: "A fortunate discovery.",
-            revealedAt: Date(timeIntervalSince1970: 1_700_000_000)
-        )
-        let second = BriefEntry(
-            sourceID: "quote",
-            slot: .midday,
-            title: "Test quote",
-            body: "Keep going.",
-            revealedAt: Date(timeIntervalSince1970: 1_700_000_111)
-        )
-
-        await ObsidianSink(noteURL: noteURL).receive(first)
-        await ObsidianSink(noteURL: noteURL).receive(second)
-
-        let output = try String(contentsOf: noteURL, encoding: .utf8)
-        XCTAssertTrue(output.contains("serendipity"))
-        XCTAssertTrue(output.contains("Test quote"))
-    }
-
-    func testObsidianSinkIgnoresWriteFailures() async {
-        let invalidURL = FileManager.default.temporaryDirectory.appendingPathComponent("does-not-exist")
-            .appendingPathComponent("nope")
-            .appendingPathComponent("brief.md")
-        let entry = BriefEntry(
-            sourceID: "quote",
-            slot: .evening,
-            title: "Failure test",
-            revealedAt: Date(timeIntervalSince1970: 1_700_000_000)
-        )
-
-        await ObsidianSink(noteURL: invalidURL).receive(entry)
-        XCTAssertFalse(FileManager.default.fileExists(atPath: invalidURL.path))
-    }
-
     func testWidgetTimelineDatesAndNotificationPlan() async {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(secondsFromGMT: 0)!

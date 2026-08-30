@@ -95,7 +95,7 @@ Never depend on concrete service types — always use the protocol.
 - [ ] No new direct `Defaults[.]` outside NotchSettings.swift
 - [ ] New state classes use `@Observable @MainActor final class`
 - [ ] New services have a protocol
-- [ ] `bazelisk build //Apps/machNotch:machNotch` passes
+- [ ] `task build` passes
 
 ## Codex Invocation
 
