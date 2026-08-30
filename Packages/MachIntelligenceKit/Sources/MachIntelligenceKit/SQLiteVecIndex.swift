@@ -1,6 +1,11 @@
 import Foundation
 import SQLite
 
+/// SQLite-backed vector index.
+///
+/// SQLite owns durability; `VectorMirror` owns the query path. The mirror is
+/// maintained incrementally by `upsert` and `remove`, and is built once on the
+/// first query after opening an existing file.
 public final class SQLiteVecIndex: VectorIndex, @unchecked Sendable {
     private let connection: Connection
     private let table: Table
@@ -11,6 +16,9 @@ public final class SQLiteVecIndex: VectorIndex, @unchecked Sendable {
     private let updatedAtColumn = Expression<Double>("updated_at")
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
+
+    private var mirror = VectorMirror()
+    private var mirrorLoaded = false
 
     public private(set) var dimension: Int
 
@@ -39,6 +47,8 @@ public final class SQLiteVecIndex: VectorIndex, @unchecked Sendable {
         }
     }
 
+    // MARK: - Writes
+
     public func upsert(_ record: VectorRecord) throws {
         if record.vector.isEmpty {
             throw VectorIndexError.invalidDimension(expected: max(1, dimension), actual: 0)
@@ -63,7 +73,9 @@ public final class SQLiteVecIndex: VectorIndex, @unchecked Sendable {
 
             let entry = table.filter(idColumn == record.id)
             if try connection.scalar(entry.count) == 0 {
-                try connection.run(entry.insert(
+                // Insert against the table: a filtered query is not a valid
+                // INSERT target, and using one here threw on every insert.
+                try connection.run(table.insert(
                     idColumn <- record.id,
                     vectorColumn <- vectorString,
                     metadataColumn <- metadataString,
@@ -78,8 +90,15 @@ public final class SQLiteVecIndex: VectorIndex, @unchecked Sendable {
                     updatedAtColumn <- Date().timeIntervalSince1970
                 ))
             }
+        } catch let error as VectorIndexError {
+            throw error
         } catch {
             throw VectorIndexError.sqliteError(error.localizedDescription)
+        }
+
+        if mirrorLoaded {
+            mirror.dimension = dimension
+            mirror.store(id: record.id, vector: record.vector, metadata: record.metadata)
         }
     }
 
@@ -94,6 +113,10 @@ public final class SQLiteVecIndex: VectorIndex, @unchecked Sendable {
         } catch {
             throw VectorIndexError.sqliteError(error.localizedDescription)
         }
+
+        if mirrorLoaded {
+            mirror.discard(id: id)
+        }
     }
 
     public func clear() throws {
@@ -103,7 +126,13 @@ public final class SQLiteVecIndex: VectorIndex, @unchecked Sendable {
         } catch {
             throw VectorIndexError.sqliteError(error.localizedDescription)
         }
+
+        mirror.removeAll()
+        mirror.dimension = 0
+        mirrorLoaded = true
     }
+
+    // MARK: - Reads
 
     public func entries() throws -> [VectorRecord] {
         do {
@@ -135,16 +164,18 @@ public final class SQLiteVecIndex: VectorIndex, @unchecked Sendable {
             throw VectorIndexError.invalidDimension(expected: dimension, actual: queryVector.count)
         }
 
-        let all = try entries()
-        guard !all.isEmpty else { return [] }
+        try loadMirrorIfNeeded()
+        return mirror.topMatches(for: queryVector, limit: topK)
+    }
 
-        let ranked = try all
-            .map { item -> VectorMatch in
-                VectorMatch(id: item.id, score: try cosineSimilarity(item.vector, queryVector), metadata: item.metadata)
-            }
-            .sorted { $0.score > $1.score }
+    // MARK: - Mirror maintenance
 
-        return Array(ranked.prefix(topK))
+    private func loadMirrorIfNeeded() throws {
+        guard !mirrorLoaded else { return }
+
+        mirror.dimension = dimension
+        mirror.load(try entries())
+        mirrorLoaded = true
     }
 
     private func decodeVector(_ raw: String) throws -> [Float] {

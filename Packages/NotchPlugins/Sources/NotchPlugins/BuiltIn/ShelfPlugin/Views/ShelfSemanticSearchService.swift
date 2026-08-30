@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 
 import MachIntelligenceKit
@@ -14,12 +15,19 @@ final class ShelfSemanticSearchService {
 
     private(set) var supportsSemanticSearch = true
 
-    init?(shelfService: any ShelfServiceProtocol, embeddingService: any AIEmbeddingService) {
+    init?(
+        shelfService: any ShelfServiceProtocol,
+        embeddingService: any AIEmbeddingService,
+        databaseURL: URL? = nil
+    ) {
         self.shelfService = shelfService
         self.embeddingService = embeddingService
 
         do {
-            index = try SQLiteVecIndex(databaseURL: Self.defaultDatabaseURL(), tableName: "shelf_semantic_vectors")
+            index = try SQLiteVecIndex(
+                databaseURL: databaseURL ?? Self.defaultDatabaseURL(),
+                tableName: "shelf_semantic_vectors"
+            )
         } catch {
             NSLog("Failed to initialize shelf semantic search index: \(error)")
             index = nil
@@ -58,31 +66,66 @@ final class ShelfSemanticSearchService {
         }
     }
 
+    /// Re-embeds only what changed.
+    ///
+    /// Every item carries the hash of the text it was indexed from, stored in
+    /// the record so it survives a restart. An item whose text still hashes the
+    /// same is skipped, which matters because each miss is one embedding call
+    /// against the local model. Items that left the shelf are dropped.
+    private(set) var lastRebuildEmbeddingCount = 0
+
     private func rebuildIndex() async throws {
         guard let index else { return }
 
-        try index.clear()
-        itemByID.removeAll()
+        var indexedHashes: [String: String] = [:]
+        for record in try index.entries() {
+            indexedHashes[record.id] = record.metadata[Self.textHashKey]
+        }
+
+        var present: Set<String> = []
+        var embedded = 0
 
         for item in shelfService.items {
             let indexText = Self.searchText(for: item)
             guard !indexText.isEmpty else { continue }
 
+            let id = item.id.uuidString
+            present.insert(id)
+            itemByID[id] = item
+
+            let hash = Self.contentHash(indexText)
+            if indexedHashes[id] == hash { continue }
+
             let vector = try await embeddingService.embedding(for: indexText)
-            let metadata = [
-                "displayName": item.displayName
-            ]
+            embedded += 1
             try index.upsert(
                 VectorRecord(
-                    id: item.id.uuidString,
+                    id: id,
                     vector: vector,
-                    metadata: metadata
+                    metadata: [
+                        "displayName": item.displayName,
+                        Self.textHashKey: hash,
+                    ]
                 )
             )
-            itemByID[item.id.uuidString] = item
         }
 
+        for staleID in indexedHashes.keys where !present.contains(staleID) {
+            try index.remove(staleID)
+            itemByID.removeValue(forKey: staleID)
+        }
+
+        lastRebuildEmbeddingCount = embedded
         needsRebuild = false
+    }
+
+    private static let textHashKey = "textHash"
+
+    private static func contentHash(_ text: String) -> String {
+        SHA256.hash(data: Data(text.utf8))
+            .prefix(16)
+            .map { String(format: "%02x", $0) }
+            .joined()
     }
 
     private func localSearch(_ query: String, topK: Int) -> [ShelfItem] {
