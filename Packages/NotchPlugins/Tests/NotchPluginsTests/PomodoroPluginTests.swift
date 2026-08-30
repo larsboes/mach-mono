@@ -5,8 +5,15 @@ import NotchCore
 @MainActor
 final class PomodoroTimerTests: XCTestCase {
 
+    /// A fresh store per timer. Bazel's test sandbox hid the fact that these
+    /// tests otherwise read and write the user's real pomodoro history.
+    private func makeStoreURL() -> URL {
+        FileManager.default.temporaryDirectory
+            .appendingPathComponent("pomodoro-tests-\(UUID().uuidString).json")
+    }
+
     private func makeTimer(workSecs: TimeInterval = 10, shortBreakSecs: TimeInterval = 5, longBreakSecs: TimeInterval = 15, sessionsUntilLong: Int = 4) -> PomodoroTimer {
-        let timer = PomodoroTimer()
+        let timer = PomodoroTimer(fileURL: makeStoreURL())
         timer.updateSettings(PomodoroSettings(
             workDuration: workSecs,
             shortBreakDuration: shortBreakSecs,

@@ -9,11 +9,13 @@ public final class MicrophoneMonitor {
     private var audioRecorder: AVAudioRecorder?
     private var timer: Timer?
 
-    public init() {
-        setupRecorder()
-    }
+    /// Builds nothing. `AVAudioRecorder` is created on the first
+    /// `startMonitoring()` instead, so simply owning a `MicrophoneMonitor`
+    /// never touches audio hardware and never raises the microphone prompt.
+    public init() {}
 
     public func startMonitoring() {
+        setupRecorderIfNeeded()
         guard let recorder = audioRecorder else {
             // Need permission or setup failed
             return
@@ -37,7 +39,9 @@ public final class MicrophoneMonitor {
         normalizedLevel = 0.0
     }
 
-    private func setupRecorder() {
+    private func setupRecorderIfNeeded() {
+        guard audioRecorder == nil else { return }
+
         // Just point to a throwaway temporary file
         let url = URL(fileURLWithPath: "/dev/null")
         let settings: [String: Any] = [

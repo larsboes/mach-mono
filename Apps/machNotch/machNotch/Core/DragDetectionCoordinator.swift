@@ -14,8 +14,8 @@ import AppKit
 final class DragDetectionCoordinator {
     // MARK: - Properties
 
-    /// UUID -> DragDropService mapping for each screen
-    private var dragDetectors: [String: DragDropService] = [:]
+    /// UUID -> (service, observer) mapping for each screen
+    private var dragDetectors: [String: (service: DragDropService, token: DragDropObserverToken)] = [:]
 
     /// Reference to window coordinator for accessing view models and windows
     private weak var windowCoordinator: WindowCoordinator?
@@ -49,7 +49,9 @@ final class DragDetectionCoordinator {
     func setupDragDetectors() {
         cleanupDragDetectors()
 
-        guard settings.expandedDragDetection else { return }
+        // Drag-to-shelf is pointless without a shelf, and these are system-wide
+        // mouse monitors, so both switches have to be on before they go in.
+        guard settings.shelfEnabled, settings.expandedDragDetection else { return }
 
         if settings.showOnAllDisplays {
             for screen in NSScreen.screens {
@@ -85,16 +87,13 @@ final class DragDetectionCoordinator {
         )
 
         let service = makeDragDropService()
-        service.updateNotchRegion(notchRegion)
-
-        service.onDragEntersNotchRegion = { [weak self] in
+        let token = service.addObserver(region: notchRegion) { [weak self] in
             Task { @MainActor in
                 self?.handleDragEntersNotchRegion(onScreen: screen)
             }
         }
 
-        dragDetectors[uuid] = service
-        service.startMonitoring()
+        dragDetectors[uuid] = (service, token)
     }
 
     // MARK: - Drag Handling
@@ -120,8 +119,9 @@ final class DragDetectionCoordinator {
     // MARK: - Cleanup
 
     func cleanupDragDetectors() {
-        dragDetectors.values.forEach { service in
-            service.stopMonitoring()
+        // Removing the last observer takes the monitors down with it.
+        for (service, token) in dragDetectors.values {
+            service.removeObserver(token)
         }
         dragDetectors.removeAll()
     }

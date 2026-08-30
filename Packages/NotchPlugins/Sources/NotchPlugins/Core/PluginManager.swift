@@ -40,6 +40,12 @@ public final class PluginManager {
     /// Event bus for inter-plugin communication
     public let eventBus: PluginEventBus
 
+    /// Finds third-party apps that overlap built-in plugins.
+    /// Injected rather than reached through `services`: resolving a descriptor's
+    /// coexistence must not require the full service container, because
+    /// `summary(id:)` runs on metadata-only paths.
+    public let externalApps: any ExternalAppDetecting
+
     /// App state provider
     private let appState: AppStateProviding
 
@@ -89,12 +95,16 @@ public final class PluginManager {
         mediaSettings: any MediaSettings,
         coordinator: any NotchAnimationStateProviding,
         builtInDescriptors: [PluginDescriptor] = [],
-        builtInPlugins: [any NotchPlugin] = []
+        builtInPlugins: [any NotchPlugin] = [],
+        externalApps: (any ExternalAppDetecting)? = nil
     ) {
         self.services = services
         self.eventBus = eventBus
         self.appState = appState
         self.mediaSettings = mediaSettings
+        // Built here rather than as a default argument: default arguments are
+        // nonisolated, and the detector is @MainActor.
+        self.externalApps = externalApps ?? WorkspaceExternalAppDetector()
 
         // Inject shelf service into coordinator
         coordinator.shelfService = services.shelf
@@ -221,4 +231,16 @@ public final class PluginManager {
         DisplayPrioritizer.highestPriority(among: activePlugins)
     }
 
+    // MARK: - Coexistence
+
+    /// Enabled plugins whose job an installed third-party app already does.
+    /// Built from descriptors, so no plugin is constructed to answer this.
+    public var redundantPluginSummaries: [PluginSummary] {
+        allPluginSummaries.filter { $0.isEnabled && $0.isRedundant }
+    }
+
+    /// Re-read which overlapping apps are present. Call when a settings surface appears.
+    public func refreshExternalApps() {
+        externalApps.refresh()
+    }
 }

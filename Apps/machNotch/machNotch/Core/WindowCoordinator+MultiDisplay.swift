@@ -18,7 +18,7 @@ extension WindowCoordinator {
                 window.close()
                 spaceManager.notchSpace.unregister(window)
                 windows.removeValue(forKey: uuid)
-                viewModels.removeValue(forKey: uuid)
+                viewModels.removeValue(forKey: uuid)?.teardownShelfDrag()
             }
         }
 

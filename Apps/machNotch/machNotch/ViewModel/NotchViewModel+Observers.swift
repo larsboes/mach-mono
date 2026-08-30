@@ -153,16 +153,8 @@ extension NotchViewModel {
                 notchSize = delta.closedSize
             }
 
-            if let screenFrame = getScreenFrame(screenUUID) {
-                let w = openNotchSize.width
-                let h = openNotchSize.height
-                let rect = CGRect(
-                    x: screenFrame.midX - w / 2,
-                    y: screenFrame.maxY - h,
-                    width: w,
-                    height: h
-                )
-                services.dragDrop.updateNotchRegion(rect)
+            if let token = shelfDragToken {
+                services.dragDrop.updateRegion(shelfDragRegion(), for: token)
             }
         }
     }

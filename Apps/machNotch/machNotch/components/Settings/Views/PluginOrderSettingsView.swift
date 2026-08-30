@@ -5,6 +5,7 @@
 //  Settings view for reordering and enabling/disabling plugins.
 //
 
+import NotchCore
 import SwiftUI
 
 struct PluginOrderSettingsView: View {
@@ -39,7 +40,11 @@ struct PluginOrderSettingsView: View {
         }
         .formStyle(.grouped)
         .navigationTitle("Plugins")
-        .onAppear { syncOrder() }
+        .onAppear {
+            // Re-read which overlapping apps are installed before drawing the rows.
+            pluginManager?.refreshExternalApps()
+            syncOrder()
+        }
         .onChange(of: pluginManager?.allPluginSummaries.count) { syncOrder() }
     }
 
@@ -50,6 +55,8 @@ struct PluginOrderSettingsView: View {
         let name: String
         let icon: String
         var isEnabled: Bool
+        /// Set when an installed third-party app already covers this plugin.
+        var coexistence: ResolvedCoexistence?
     }
 
     private var rowItems: [PluginRow] {
@@ -57,26 +64,64 @@ struct PluginOrderSettingsView: View {
         return orderedIDs.compactMap { id in
             guard let plugin = pm.summary(id: id) else { return nil }
             return PluginRow(
-                id: id, name: plugin.metadata.name, icon: plugin.metadata.icon, isEnabled: plugin.isEnabled)
+                id: id,
+                name: plugin.metadata.name,
+                icon: plugin.metadata.icon,
+                isEnabled: plugin.isEnabled,
+                // Only surfaced once the other app is actually installed, so the
+                // list never advertises software the user does not have.
+                coexistence: plugin.coexistence.flatMap { $0.isRedundant ? $0 : nil })
         }
     }
 
     @ViewBuilder
     private func pluginRow(_ item: PluginRow) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: item.icon)
-                .frame(width: 22, alignment: .center)
-                .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 12) {
+                Image(systemName: item.icon)
+                    .frame(width: 22, alignment: .center)
+                    .foregroundStyle(.secondary)
 
-            Text(item.name)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                Text(item.name)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-            Toggle("", isOn: enabledBinding(for: item.id))
-                .labelsHidden()
-                .toggleStyle(.switch)
-                .controlSize(.small)
+                Toggle("", isOn: enabledBinding(for: item.id))
+                    .labelsHidden()
+                    .toggleStyle(.switch)
+                    .controlSize(.small)
+            }
+
+            if let coexistence = item.coexistence, item.isEnabled {
+                coexistenceNote(coexistence, pluginID: item.id)
+            }
         }
         .contentShape(Rectangle())
+    }
+
+    /// Names the app that already does this job, and offers to step aside.
+    @ViewBuilder
+    private func coexistenceNote(_ coexistence: ResolvedCoexistence, pluginID: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
+            Image(systemName: "arrow.triangle.branch")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(width: 22, alignment: .center)
+
+            Text(coexistence.summaryText ?? "")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if coexistence.offersDisable {
+                Button("Turn off") {
+                    Task { await pluginManager?.disablePlugin(pluginID) }
+                }
+                .buttonStyle(.link)
+                .font(.caption)
+            }
+
+            Spacer(minLength: 0)
+        }
     }
 
     private func enabledBinding(for id: String) -> Binding<Bool> {

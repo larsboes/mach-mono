@@ -18,6 +18,7 @@ protocol NotchViewModelSettings {
     var hideTitleBar: Bool { get }
     var openNotchOnHover: Bool { get }
     var openShelfByDefault: Bool { get }
+    var shelfEnabled: Bool { get }
     var musicLiveActivityEnabled: Bool { get }
     var showPowerStatusNotifications: Bool { get }
     var enableBluetoothSneakPeek: Bool { get }
@@ -39,6 +40,7 @@ struct DefaultNotchViewModelSettings: NotchViewModelSettings {
     var hideTitleBar: Bool { source.hideTitleBar }
     var openNotchOnHover: Bool { source.openNotchOnHover }
     var openShelfByDefault: Bool { source.openShelfByDefault }
+    var shelfEnabled: Bool { source.shelfEnabled }
     var musicLiveActivityEnabled: Bool { source.musicLiveActivityEnabled }
     var showPowerStatusNotifications: Bool { source.showPowerStatusNotifications }
     var enableBluetoothSneakPeek: Bool { source.enableBluetoothSneakPeek }

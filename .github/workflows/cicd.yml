@@ -23,37 +23,44 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Cache Bazelisk binary
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/Library/Caches/bazelisk
-          key: bazelisk-${{ runner.os }}-${{ hashFiles('.bazelversion') }}
+      - name: Install Tuist
+        run: brew install tuist
 
-      - name: Cache Bazel repositories
+      # One cache, keyed on the manifest that pins the external packages.
+      # Bazel needed three (bazelisk binary, repositories, outputs) plus a
+      # lockfile-regeneration step, duplicated across every job.
+      - name: Cache resolved packages
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: ~/.cache/bazel-repos
-          key: bazel-repos-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved') }}
+          path: |
+            Tuist/.build
+            ~/.cache/swifterpm
+          key: tuist-spm-${{ runner.os }}-${{ hashFiles('Tuist/Package.swift') }}
           restore-keys: |
-            bazel-repos-${{ runner.os }}-
+            tuist-spm-${{ runner.os }}-
 
-      - name: Cache Bazel outputs
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/bazel
-          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved', '.bazelrc', 'Apps/machNotch/BUILD.bazel', 'Apps/machBrief/BUILD.bazel', 'Packages/MachBriefKit/BUILD.bazel') }}
-          restore-keys: |
-            bazel-${{ runner.os }}-
-
-      - name: Regenerate Bazel lockfile
-        if: github.actor == 'dependabot[bot]'
-        run: bazelisk mod deps --lockfile_mode=update
+      - name: Generate project
+        run: |
+          tuist install
+          tuist generate --no-open
 
       - name: Build all apps
         run: |
-          bazelisk build --config=ci \
-            //Apps/machNotch:machNotch \
-            //Apps/machBrief:machBrief
+          for scheme in machNotch machNotchWithSoundscape machBrief; do
+            xcodebuild -workspace mach-mono.xcworkspace -scheme "$scheme" \
+              -configuration Debug -destination 'platform=macOS' \
+              -derivedDataPath .build/xcode build
+          done
+
+      - name: Assert the default app is Soundscape-free
+        run: |
+          # Replaces `bazelisk query 'deps(...) intersect //Packages/MachSoundKit'`.
+          # Inspecting the built binary proves the artifact, not the build graph.
+          APP=.build/xcode/Build/Products/Debug/machNotch.app
+          if otool -L "$APP/Contents/MacOS/machNotch" | grep -qi AudioKit; then
+            echo "::error::default app links AudioKit"; exit 1
+          fi
+          echo "✓ default app links no AudioKit"
 
   test:
     name: Test
@@ -61,47 +68,43 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Cache Bazelisk binary
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/Library/Caches/bazelisk
-          key: bazelisk-${{ runner.os }}-${{ hashFiles('.bazelversion') }}
+      - name: Install Tuist
+        run: brew install tuist
 
-      - name: Cache Bazel repositories
+      # One cache, keyed on the manifest that pins the external packages.
+      # Bazel needed three (bazelisk binary, repositories, outputs) plus a
+      # lockfile-regeneration step, duplicated across every job.
+      - name: Cache resolved packages
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: ~/.cache/bazel-repos
-          key: bazel-repos-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved') }}
+          path: |
+            Tuist/.build
+            ~/.cache/swifterpm
+          key: tuist-spm-${{ runner.os }}-${{ hashFiles('Tuist/Package.swift') }}
           restore-keys: |
-            bazel-repos-${{ runner.os }}-
+            tuist-spm-${{ runner.os }}-
 
-      - name: Cache Bazel outputs
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/bazel
-          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved', '.bazelrc', 'Apps/machNotch/BUILD.bazel', 'Apps/machBrief/BUILD.bazel', 'Packages/MachBriefKit/BUILD.bazel') }}
-          restore-keys: |
-            bazel-${{ runner.os }}-
-
-      - name: Regenerate Bazel lockfile
-        if: github.actor == 'dependabot[bot]'
-        run: bazelisk mod deps --lockfile_mode=update
+      - name: Generate project
+        run: |
+          tuist install
+          tuist generate --no-open
 
       - name: Run tests
         run: |
-          bazelisk test --config=ci \
-            //Packages/MachBriefKit:MachBriefKitTests \
-            //Apps/machNotch:machNotchTests
+          xcodebuild -workspace mach-mono.xcworkspace \
+            -scheme mach-mono-Workspace \
+            -configuration Debug -destination 'platform=macOS' \
+            -derivedDataPath .build/xcode \
+            -resultBundlePath TestResults.xcresult \
+            test
 
       - name: Upload test results
-        if: ${{ always() }}
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bazel-test-results
-          path: |
-            bazel-testlogs/**/test.xml
-            bazel-testlogs/**/test.log
-          if-no-files-found: error
+          name: xcresult
+          path: TestResults.xcresult
+          if-no-files-found: warn
 
   coverage:
     name: Coverage
@@ -109,45 +112,42 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Cache Bazelisk binary
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/Library/Caches/bazelisk
-          key: bazelisk-${{ runner.os }}-${{ hashFiles('.bazelversion') }}
+      - name: Install Tuist
+        run: brew install tuist
 
-      - name: Cache Bazel repositories
+      # One cache, keyed on the manifest that pins the external packages.
+      # Bazel needed three (bazelisk binary, repositories, outputs) plus a
+      # lockfile-regeneration step, duplicated across every job.
+      - name: Cache resolved packages
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: ~/.cache/bazel-repos
-          key: bazel-repos-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved') }}
+          path: |
+            Tuist/.build
+            ~/.cache/swifterpm
+          key: tuist-spm-${{ runner.os }}-${{ hashFiles('Tuist/Package.swift') }}
           restore-keys: |
-            bazel-repos-${{ runner.os }}-
+            tuist-spm-${{ runner.os }}-
 
-      - name: Cache Bazel outputs
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/bazel
-          key: bazel-${{ runner.os }}-${{ hashFiles('MODULE.bazel', 'Package.resolved', '.bazelrc', 'Apps/machNotch/BUILD.bazel', 'Apps/machBrief/BUILD.bazel', 'Packages/MachBriefKit/BUILD.bazel') }}
-          restore-keys: |
-            bazel-${{ runner.os }}-
-
-      - name: Regenerate Bazel lockfile
-        if: github.actor == 'dependabot[bot]'
-        run: bazelisk mod deps --lockfile_mode=update
+      - name: Generate project
+        run: |
+          tuist install
+          tuist generate --no-open
 
       - name: Generate coverage
         run: |
-          bazelisk coverage --config=ci \
-            --combined_report=lcov \
-            --linkopt=-fprofile-instr-generate \
-            //Packages/MachBriefKit:MachBriefKitTests \
-            //Apps/machNotch:machNotchTests
+          xcodebuild -workspace mach-mono.xcworkspace \
+            -scheme mach-mono-Workspace \
+            -configuration Debug -destination 'platform=macOS' \
+            -derivedDataPath .build/xcode \
+            -resultBundlePath Coverage.xcresult \
+            -enableCodeCoverage YES \
+            test
 
-      - name: Upload LCOV coverage
+      - name: Upload coverage bundle
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bazel-lcov-coverage
-          path: bazel-out/_coverage/_coverage_report.dat
+          name: xcresult-coverage
+          path: Coverage.xcresult
           if-no-files-found: error
 
   swift-format:

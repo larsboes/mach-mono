@@ -386,12 +386,36 @@ final class StubSystemNotificationObserver: SystemNotificationObserverProtocol {
 
 @MainActor
 final class StubDragDropService: DragDropServiceProtocol {
-    var onDragEntersNotchRegion: (() -> Void)?
-    var onDragExitsNotchRegion: (() -> Void)?
-    var onDragMove: ((CGPoint) -> Void)?
-    func startMonitoring() {}
-    func stopMonitoring() {}
-    func updateNotchRegion(_ region: CGRect) {}
+    private(set) var regions: [DragDropObserverToken: CGRect] = [:]
+    private(set) var onEnterByToken: [DragDropObserverToken: () -> Void] = [:]
+    private(set) var onExitByToken: [DragDropObserverToken: () -> Void] = [:]
+
+    var observerCount: Int { regions.count }
+
+    @discardableResult
+    func addObserver(
+        region: CGRect,
+        onEnter: (() -> Void)?,
+        onExit: (() -> Void)?,
+        onMove: ((CGPoint) -> Void)?
+    ) -> DragDropObserverToken {
+        let token = DragDropObserverToken.make()
+        regions[token] = region
+        onEnterByToken[token] = onEnter
+        onExitByToken[token] = onExit
+        return token
+    }
+
+    func updateRegion(_ region: CGRect, for token: DragDropObserverToken) {
+        guard regions[token] != nil else { return }
+        regions[token] = region
+    }
+
+    func removeObserver(_ token: DragDropObserverToken) {
+        regions.removeValue(forKey: token)
+        onEnterByToken.removeValue(forKey: token)
+        onExitByToken.removeValue(forKey: token)
+    }
 }
 
 @MainActor @Observable final class StubWebcamService: WebcamServiceProtocol {

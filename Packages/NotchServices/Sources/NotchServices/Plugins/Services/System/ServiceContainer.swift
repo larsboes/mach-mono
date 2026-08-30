@@ -11,150 +11,135 @@ public final class ServiceContainer: NotchServiceProvider {
     // MARK: - Core Services
 
     /// Music playback service (wraps MusicManager)
-    public let music: any MusicServiceProtocol
+    public lazy var music: any MusicServiceProtocol = MusicService(manager: MusicManager(settings: settings))
 
     /// Calendar service (wraps CalendarService)
-    public let calendar: any CalendarServiceProtocol
+    public lazy var calendar: any CalendarServiceProtocol = CalendarService(settings: settings)
 
     /// Sound service
-    public let sound: any SoundServiceProtocol
+    public lazy var sound: any SoundServiceProtocol = SoundService()
 
     /// Shelf storage service (wraps ShelfService)
-    public let shelf: any ShelfServiceProtocol
+    public lazy var shelf: any ShelfServiceProtocol = ShelfService(
+        imageProcessor: self.shelfImageProcessor, fileHandler: self.shelfFileHandler)
 
     /// Weather service (wraps WeatherManager)
-    public let weather: any WeatherServiceProtocol
+    public lazy var weather: any WeatherServiceProtocol = WeatherService(settings: settings)
 
     // MARK: - System Services
 
     /// Volume control service (wraps VolumeManager)
-    public let volume: any VolumeServiceProtocol
+    public lazy var volume: any VolumeServiceProtocol = VolumeManager(eventBus: eventBus)
 
     /// Brightness control service (wraps BrightnessManager)
-    public let brightness: any BrightnessServiceProtocol
+    public lazy var brightness: any BrightnessServiceProtocol = BrightnessManager(
+        eventBus: eventBus, xpcHelper: xpcHelper)
 
     /// Keyboard backlight control service (wraps KeyboardBacklightManager)
-    public let keyboardBacklight: any KeyboardBacklightServiceProtocol
+    public lazy var keyboardBacklight: any KeyboardBacklightServiceProtocol = KeyboardBacklightManager(
+        eventBus: eventBus, xpcHelper: xpcHelper)
 
     /// Battery status service (wraps BatteryService)
-    public let battery: any BatteryServiceProtocol
+    public lazy var battery: any BatteryServiceProtocol = BatteryService(eventBus: eventBus, settings: settings)
 
     /// System stats service (CPU, memory, disk, network)
-    public let systemStats: any SystemStatsServiceProtocol
+    public lazy var systemStats: any SystemStatsServiceProtocol = SystemStatsService()
 
     /// Full Screen monitoring service
-    public let fullScreen: any FullScreenServiceProtocol
+    public lazy var fullScreen: any FullScreenServiceProtocol = FullScreenService()
 
     /// Thumbnail generation service
-    public let thumbnails: any ThumbnailServiceProtocol
+    public lazy var thumbnails: any ThumbnailServiceProtocol = ThumbnailService()
 
     /// Lyrics fetching service
-    public let lyrics: any LyricsServiceProtocol
+    public lazy var lyrics: any LyricsServiceProtocol = LyricsService()
 
     /// Sharing state service
-    public let sharing: any SharingServiceProtocol
+    public lazy var sharing: any SharingServiceProtocol = SharingStateManager()
 
     /// Image processing service
-    public let imageProcessing: any ImageProcessingServiceProtocol
+    public lazy var imageProcessing: any ImageProcessingServiceProtocol = ImageProcessingService(
+        temporaryFileStorage: self.temporaryFileStorage)
 
     /// Temporary file storage service
-    public let temporaryFileStorage: any TemporaryFileStorageServiceProtocol
+    public lazy var temporaryFileStorage: any TemporaryFileStorageServiceProtocol = TemporaryFileStorageService()
 
     /// Webcam service (wraps WebcamManager)
-    public let webcam: any WebcamServiceProtocol
+    public lazy var webcam: any WebcamServiceProtocol = WebcamManager(settings: settings)
 
     /// Notifications service (wraps NotificationCenterManager)
-    public let notifications: any NotificationServiceProtocol
+    public lazy var notifications: any NotificationServiceProtocol = NotificationCenterManager(settings: settings)
 
     /// API Route Registrar
     public var apiRouteRegistrar: (any APIRouteRegistrar)?
 
     /// AI Service (domain-level text generation)
-    public let ai: any AITextGenerationService
+    public lazy var ai: any AITextGenerationService = AITextGenerationServiceFactory.make(settings: settings)
 
     /// AI Embedding service (domain-level text embeddings)
-    public let aiEmbedding: any AIEmbeddingService
+    public lazy var aiEmbedding: any AIEmbeddingService = AIEmbeddingServiceFactory.make(settings: settings)
 
     /// Bluetooth service (wraps BluetoothManager) - optional until implemented
     public var bluetooth: (any BluetoothServiceProtocol)?
 
     /// Concrete BluetoothManager for views that need @Observable access
-    public let bluetoothManager: any BluetoothStateServiceProtocol
+    public lazy var bluetoothManager: any BluetoothStateServiceProtocol = BluetoothManager(settings: settings)
 
     /// Notes manager for shelf notes
-    public let notesManager: any NotesServiceProtocol
+    public lazy var notesManager: any NotesServiceProtocol = NotesManager()
 
     /// Clipboard manager for clipboard history
-    public let clipboardManager: any ClipboardServiceProtocol
+    public lazy var clipboardManager: any ClipboardServiceProtocol = ClipboardManager()
 
     /// System notification observer for capturing macOS notification banners
-    public let systemNotificationObserver: any SystemNotificationObserverProtocol
+    public lazy var systemNotificationObserver: any SystemNotificationObserverProtocol = SystemNotificationObserver(
+        notificationManager: self.notifications)
 
     /// XPC Helper for privileged operations
     public let xpcHelper: any XPCHelperServiceProtocol
 
     /// Face tracking service
-    public let face: any FaceServiceProtocol
+    public lazy var face: any FaceServiceProtocol = FaceService(settings: settings)
 
     /// Drag and drop detection service
-    public let dragDrop: any DragDropServiceProtocol
+    public lazy var dragDrop: any DragDropServiceProtocol = DragDropService()
 
     // MARK: - Shelf Helpers
 
     /// Shelf image processor
-    public let shelfImageProcessor: any ShelfImageProcessorProtocol
+    public lazy var shelfImageProcessor: any ShelfImageProcessorProtocol = ShelfImageProcessor(
+        imageProcessingService: self.imageProcessing, thumbnailService: self.thumbnails)
 
     /// Shelf file handler
-    public let shelfFileHandler: any ShelfFileHandlerProtocol
+    public lazy var shelfFileHandler: any ShelfFileHandlerProtocol = ShelfFileHandler(
+        temporaryFileStorage: self.temporaryFileStorage)
 
     /// Quick Look preview service
-    public let quickLook: any QuickLookServiceProtocol
+    public lazy var quickLook: any QuickLookServiceProtocol = QuickLookService()
 
     /// Quick Share service
-    public let quickShare: QuickShareService
+    public lazy var quickShare: QuickShareService = QuickShareService(
+        temporaryFileStorage: self.temporaryFileStorage, sharingStateManager: self.sharing)
 
     // MARK: - Initialization
 
-    /// Default initializer - creates services that are ready
-    public init(eventBus: PluginEventBus, settings: any NotchSettings, xpcHelper: (any XPCHelperServiceProtocol)? = nil) {
-        let xpcHelper = xpcHelper ?? XPCHelperClient.shared
-        self.music = MusicService(manager: MusicManager(settings: settings))
-        self.sound = SoundService()
-        self.battery = BatteryService(eventBus: eventBus, settings: settings)
-        self.calendar = CalendarService(settings: settings)
-        self.weather = WeatherService(settings: settings)
-        self.face = FaceService(settings: settings)
-        self.dragDrop = DragDropService()
-        self.fullScreen = FullScreenService()
+    // MARK: - Dependencies
 
-        self.temporaryFileStorage = TemporaryFileStorageService()
-        self.imageProcessing = ImageProcessingService(temporaryFileStorage: self.temporaryFileStorage)
-        self.thumbnails = ThumbnailService()
+    private let eventBus: PluginEventBus
+    private let settings: any NotchSettings
 
-        // Initialize Shelf helpers first
-        self.shelfImageProcessor = ShelfImageProcessor(
-            imageProcessingService: self.imageProcessing, thumbnailService: self.thumbnails)
-        self.shelfFileHandler = ShelfFileHandler(temporaryFileStorage: self.temporaryFileStorage)
-        self.shelf = ShelfService(imageProcessor: self.shelfImageProcessor, fileHandler: self.shelfFileHandler)
+    // MARK: - Initialization
 
-        self.lyrics = LyricsService()
-        self.webcam = WebcamManager(settings: settings)
-        self.notifications = NotificationCenterManager(settings: settings)
-        self.systemNotificationObserver = SystemNotificationObserver(notificationManager: self.notifications)
-        self.volume = VolumeManager(eventBus: eventBus)
-        self.brightness = BrightnessManager(eventBus: eventBus, xpcHelper: xpcHelper)
-        self.keyboardBacklight = KeyboardBacklightManager(eventBus: eventBus, xpcHelper: xpcHelper)
-        self.systemStats = SystemStatsService()
-        self.sharing = SharingStateManager()
-        self.quickLook = QuickLookService()
-        self.quickShare = QuickShareService(
-            temporaryFileStorage: self.temporaryFileStorage, sharingStateManager: self.sharing)
-        self.bluetoothManager = BluetoothManager(settings: settings)
-        self.notesManager = NotesManager()
-        self.clipboardManager = ClipboardManager()
-        self.xpcHelper = xpcHelper
-
-        self.ai = AITextGenerationServiceFactory.make(settings: settings)
-        self.aiEmbedding = AIEmbeddingServiceFactory.make(settings: settings)
+    /// Stores dependencies and builds nothing.
+    ///
+    /// Every service above is a `lazy var`, so it is constructed on first use.
+    /// Plugin descriptors are registered without constructing plugins, and a
+    /// disabled plugin never asks for its services, so an eager container was
+    /// undoing that laziness one layer down.
+    public init(eventBus: PluginEventBus, settings: any NotchSettings, xpcHelper: (any XPCHelperServiceProtocol)? = nil)
+    {
+        self.eventBus = eventBus
+        self.settings = settings
+        self.xpcHelper = xpcHelper ?? XPCHelperClient.shared
     }
 }

@@ -22,6 +22,7 @@ public final class ClipboardManager: ClipboardServiceProtocol {
     public var items: [ClipboardItem] = []
 
     private var db: Connection?
+    private var didOpenDatabase = false
     private let clipboardTable = Table("clipboard")
     private let id = Expression<Int64>("id")
     private let content = Expression<String>("content")
@@ -32,12 +33,15 @@ public final class ClipboardManager: ClipboardServiceProtocol {
     private var timer: Timer?
     public private(set) var isMonitoring = false
 
-    public init() {
-        setupDatabase()
-        fetchItems()
-    }
+    /// Opens nothing. The SQLite file, its directory and the first query are
+    /// all deferred to `openDatabaseIfNeeded()`, so an app that never shows
+    /// clipboard history pays no disk cost at launch.
+    public init() {}
 
-    private func setupDatabase() {
+    /// Idempotent. Runs on first monitoring start or first read.
+    private func openDatabaseIfNeeded() {
+        guard !didOpenDatabase else { return }
+        didOpenDatabase = true
         do {
             let path = NSSearchPathForDirectoriesInDomains(.applicationSupportDirectory, .userDomainMask, true).first!
             let appSupport = URL(fileURLWithPath: path).appendingPathComponent("machNotch", isDirectory: true)
@@ -59,7 +63,11 @@ public final class ClipboardManager: ClipboardServiceProtocol {
 
     public func startMonitoring() {
         guard !isMonitoring else { return }
+        // Loads history here instead of in `init`, which is what made every
+        // launch pay for the database whether or not the plugin was enabled.
+        fetchItems()
         isMonitoring = true
+        lastChangeCount = NSPasteboard.general.changeCount
         timer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.checkPasteboard() }
         }
@@ -95,6 +103,7 @@ public final class ClipboardManager: ClipboardServiceProtocol {
     }
 
     public func fetchItems() {
+        openDatabaseIfNeeded()
         do {
             let query = clipboardTable.order(timestamp.desc).limit(50)
             let rows = try db?.prepare(query)

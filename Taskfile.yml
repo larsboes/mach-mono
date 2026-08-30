@@ -1,118 +1,111 @@
 version: "3"
 
+# Build system: Tuist. `Project.swift` manifests are the source of truth; the
+# .xcodeproj and .xcworkspace are generated and gitignored. Run `task gen` after
+# adding or removing a file, then build.
+
 vars:
   CERT: "Apple Development: ilars.boes@gmail.com (SVHPB8QYPH)"
-  UNZIP_TMP: "/tmp/mach-install"
+
+  # One predictable output root instead of hunting through ~/Library/DerivedData.
+  DD: ".build/xcode"
+  PRODUCTS: ".build/xcode/Build/Products"
+  WORKSPACE: "mach-mono.xcworkspace"
+  DEST: "platform=macOS"
+
+  # Override on the command line, e.g. `task build CONFIG=Release`.
+  CONFIG: Debug
+  VERSION: "0.0.0"
+  BUILD: "0"
 
   NOTCH_DEST: "{{.HOME}}/Applications/machNotch.app"
-  NOTCH_ZIP: "bazel-bin/Apps/machNotch/machNotch.zip"
-  NOTCH_BIN: "{{.HOME}}/Applications/machNotch.app/Contents/MacOS/machNotch"
   NOTCH_SOUNDSCAPE_DEST: "{{.HOME}}/Applications/machNotchWithSoundscape.app"
-  NOTCH_SOUNDSCAPE_ZIP: "bazel-bin/Apps/machNotch/machNotchWithSoundscape.zip"
-
   BRIEF_DEST: "{{.HOME}}/Applications/machBrief.app"
-  BRIEF_ZIP: "bazel-bin/Apps/machBrief/machBrief.zip"
 
 tasks:
+  default:
+    cmds: [task --list]
+
+  # ── project generation ────────────────────────────────────────────────────
+
+  gen:
+    desc: "Generate the Xcode workspace from the Project.swift manifests"
+    cmds:
+      - tuist install
+      - tuist generate --no-open
+
+  edit:
+    desc: "Open the workspace in Xcode"
+    deps: [gen]
+    cmds:
+      - open "{{.WORKSPACE}}"
+
+  clean:
+    desc: "Delete generated projects and build output"
+    cmds:
+      - tuist clean
+      - rm -rf "{{.DD}}"
+      - find . -name "*.xcodeproj" -not -path "./.build/*" -prune -exec rm -rf {} +
+      - rm -rf "{{.WORKSPACE}}" Apps/*/Derived Packages/*/Derived
+
   # ── mach.notch ────────────────────────────────────────────────────────────
 
-  run:
-    desc: "notch: build, install, launch full dev app with Soundscape"
-    deps: [install:soundscape]
-    cmds:
-      - task: kill
-      - task: kill:soundscape
-      - sleep 1
-      - open "{{.NOTCH_SOUNDSCAPE_DEST}}"
-      - echo "✓ machNotch with Soundscape launched from {{.NOTCH_SOUNDSCAPE_DEST}}"
-
   build:
-    desc: "notch: build full dev app with Soundscape"
+    desc: "notch: build the default (Soundscape-free) app"
     cmds:
-      - bazelisk build //Apps/machNotch:machNotchWithSoundscape
-
-  run:lite:
-    desc: "notch: build, install, launch AudioKit-free app"
-    deps: [install:lite]
-    cmds:
-      - task: kill
-      - task: kill:soundscape
-      - sleep 1
-      - open "{{.NOTCH_DEST}}"
-      - echo "✓ machNotch lite launched from {{.NOTCH_DEST}}"
-
-  build:lite:
-    desc: "notch: build AudioKit-free app with Bazel"
-    cmds:
-      - bazelisk build //Apps/machNotch:machNotch
-
-  run:soundscape:
-    desc: "notch: alias for task run"
-    cmds:
-      - task: run
+      - >-
+        xcodebuild -workspace "{{.WORKSPACE}}" -scheme machNotch
+        -configuration {{.CONFIG}}
+        -destination '{{.DEST}}' -derivedDataPath "{{.DD}}" build
 
   build:soundscape:
-    desc: "notch: alias for task build"
+    desc: "notch: build the Soundscape-enabled app"
     cmds:
-      - task: build
-
-  install:soundscape:
-    desc: "notch: build and install Soundscape-enabled app to ~/Applications"
-    deps: [build]
-    vars:
-      SENTINEL: "{{.HOME}}/Library/Caches/com.larsboes.mach/notch_soundscape_zip_hash"
-    cmds:
-      - |
-        NEW_HASH="$(md5 "{{.NOTCH_SOUNDSCAPE_ZIP}}" | awk '{print $NF}')"
-        OLD_HASH="$(cat "{{.SENTINEL}}" 2>/dev/null || echo "none")"
-        if [ "$NEW_HASH" = "$OLD_HASH" ]; then
-          echo "✓ Soundscape zip unchanged — skipping install (TCC permissions intact)"
-        else
-          echo "New Soundscape build detected — installing..."
-          mkdir -p "{{.HOME}}/Applications"
-          rm -rf "{{.NOTCH_SOUNDSCAPE_DEST}}" "{{.UNZIP_TMP}}"
-          mkdir -p "{{.UNZIP_TMP}}"
-          unzip -q "{{.NOTCH_SOUNDSCAPE_ZIP}}" -d "{{.UNZIP_TMP}}"
-          mv "{{.UNZIP_TMP}}/machNotchWithSoundscape.app" "{{.NOTCH_SOUNDSCAPE_DEST}}"
-          rm -rf "{{.UNZIP_TMP}}"
-          codesign --force --deep --sign "{{.CERT}}" "{{.NOTCH_SOUNDSCAPE_DEST}}"
-          mkdir -p "{{.HOME}}/Library/Caches/com.larsboes.mach"
-          echo "$NEW_HASH" > "{{.SENTINEL}}"
-          echo "✓ Installed and signed at {{.NOTCH_SOUNDSCAPE_DEST}}"
-        fi
+      - >-
+        xcodebuild -workspace "{{.WORKSPACE}}" -scheme machNotchWithSoundscape
+        -configuration {{.CONFIG}}
+        -destination '{{.DEST}}' -derivedDataPath "{{.DD}}" build
 
   install:
-    desc: "notch: alias for full dev install with Soundscape"
+    desc: "notch: build, sign and install the default app to ~/Applications"
+    deps: [build]
     cmds:
-      - task: install:soundscape
+      - task: kill
+      - mkdir -p "{{.HOME}}/Applications"
+      - rm -rf "{{.NOTCH_DEST}}"
+      - cp -R "{{.PRODUCTS}}/{{.CONFIG}}/machNotch.app" "{{.NOTCH_DEST}}"
+      # Built unsigned on purpose (see Tuist/ProjectDescriptionHelpers/Mach.swift);
+      # sign here so TCC grants stick to a stable identity.
+      - codesign --force --deep --sign "{{.CERT}}" "{{.NOTCH_DEST}}"
+      - echo "✓ Installed and signed at {{.NOTCH_DEST}}"
 
-  install:lite:
-    desc: "notch: build and install AudioKit-free app to ~/Applications"
-    deps: [build:lite]
-    vars:
-      SENTINEL: "{{.HOME}}/Library/Caches/com.larsboes.mach/notch_zip_hash"
+  install:soundscape:
+    desc: "notch: build, sign and install the Soundscape app to ~/Applications"
+    deps: [build:soundscape]
     cmds:
-      - |
-        NEW_HASH="$(md5 "{{.NOTCH_ZIP}}" | awk '{print $NF}')"
-        OLD_HASH="$(cat "{{.SENTINEL}}" 2>/dev/null || echo "none")"
-        if [ "$NEW_HASH" = "$OLD_HASH" ]; then
-          echo "✓ Zip unchanged — skipping install (TCC permissions intact)"
-        else
-          echo "New build detected — installing..."
-          mkdir -p "{{.HOME}}/Applications"
-          rm -rf "{{.NOTCH_DEST}}" "{{.UNZIP_TMP}}"
-          mkdir -p "{{.UNZIP_TMP}}"
-          unzip -q "{{.NOTCH_ZIP}}" -d "{{.UNZIP_TMP}}"
-          mv "{{.UNZIP_TMP}}/machNotch.app" "{{.NOTCH_DEST}}"
-          rm -rf "{{.UNZIP_TMP}}"
-          codesign --force --deep --sign "{{.CERT}}" "{{.NOTCH_DEST}}"
-          mkdir -p "{{.HOME}}/Library/Caches/com.larsboes.mach"
-          echo "$NEW_HASH" > "{{.SENTINEL}}"
-          echo "✓ Installed and signed at {{.NOTCH_DEST}}"
-        fi
+      - task: kill:soundscape
+      - mkdir -p "{{.HOME}}/Applications"
+      - rm -rf "{{.NOTCH_SOUNDSCAPE_DEST}}"
+      - cp -R "{{.PRODUCTS}}/{{.CONFIG}}/machNotchWithSoundscape.app" "{{.NOTCH_SOUNDSCAPE_DEST}}"
+      - codesign --force --deep --sign "{{.CERT}}" "{{.NOTCH_SOUNDSCAPE_DEST}}"
+      - echo "✓ Installed and signed at {{.NOTCH_SOUNDSCAPE_DEST}}"
+
+  run:
+    desc: "notch: build, install and launch the default app"
+    deps: [install]
+    cmds:
+      - open "{{.NOTCH_DEST}}"
+      - echo "✓ machNotch launched"
+
+  run:soundscape:
+    desc: "notch: build, install and launch the Soundscape app"
+    deps: [install:soundscape]
+    cmds:
+      - open "{{.NOTCH_SOUNDSCAPE_DEST}}"
+      - echo "✓ machNotch with Soundscape launched"
 
   kill:
-    desc: "notch: kill the running instance"
+    desc: "notch: stop the running default instance"
     cmds:
       - cmd: killall -9 machNotch
         ignore_error: true
@@ -120,83 +113,175 @@ tasks:
         ignore_error: true
 
   kill:soundscape:
-    desc: "notch: kill the running Soundscape-enabled instance"
+    desc: "notch: stop the running Soundscape instance"
     cmds:
       - cmd: killall -9 machNotchWithSoundscape
         ignore_error: true
       - cmd: pkill -f "{{.NOTCH_SOUNDSCAPE_DEST}}/Contents/Resources/mediaremote-adapter.pl"
         ignore_error: true
 
+  stop:
+    desc: "Stop every mach app"
+    cmds:
+      - task: kill
+      - task: kill:soundscape
+      - task: brief:kill
+
   # ── mach.brief ────────────────────────────────────────────────────────────
 
-  brief:run:
-    desc: "brief: build, install (only if changed), launch"
-    deps: [brief:install]
-    cmds:
-      - task: brief:kill
-      - sleep 1
-      - open "{{.BRIEF_DEST}}"
-      - echo "✓ machBrief launched from {{.BRIEF_DEST}}"
-
   brief:build:
-    desc: "brief: build with Bazel (dev signing via --config=local)"
+    desc: "brief: build the app and its widget"
     cmds:
-      - bazelisk build //Apps/machBrief:machBrief
+      - >-
+        xcodebuild -workspace "{{.WORKSPACE}}" -scheme machBrief
+        -configuration {{.CONFIG}}
+        -destination '{{.DEST}}' -derivedDataPath "{{.DD}}" build
 
   brief:install:
-    desc: "brief: build and install to ~/Applications"
+    desc: "brief: build, sign and install to ~/Applications"
     deps: [brief:build]
     cmds:
+      - task: brief:kill
       - mkdir -p "{{.HOME}}/Applications"
-      - rm -rf "{{.BRIEF_DEST}}" "{{.UNZIP_TMP}}"
-      - mkdir -p "{{.UNZIP_TMP}}"
-      - unzip -q "{{.BRIEF_ZIP}}" -d "{{.UNZIP_TMP}}"
-      - mv "{{.UNZIP_TMP}}/machBrief.app" "{{.BRIEF_DEST}}"
-      - rm -rf "{{.UNZIP_TMP}}"
-      - echo "✓ Installed at {{.BRIEF_DEST}}"
+      - rm -rf "{{.BRIEF_DEST}}"
+      - cp -R "{{.PRODUCTS}}/{{.CONFIG}}/machBrief.app" "{{.BRIEF_DEST}}"
+      - codesign --force --deep --sign "{{.CERT}}" "{{.BRIEF_DEST}}"
+      - echo "✓ Installed and signed at {{.BRIEF_DEST}}"
+
+  brief:run:
+    desc: "brief: build, install and launch"
+    deps: [brief:install]
+    cmds:
+      - open "{{.BRIEF_DEST}}"
+      - echo "✓ machBrief launched"
 
   brief:kill:
-    desc: "brief: kill the running instance"
+    desc: "brief: stop the running instance"
     cmds:
       - cmd: killall -9 machBrief
         ignore_error: true
 
-  brief:test:
-    desc: "brief: run MachBriefKit tests"
-    cmds:
-      - bazelisk test //Packages/MachBriefKit:MachBriefKitTests
+  # ── tests ─────────────────────────────────────────────────────────────────
 
-  # ── shared ────────────────────────────────────────────────────────────────
+  test:
+    desc: "Run every test target"
+    cmds:
+      - >-
+        xcodebuild -workspace "{{.WORKSPACE}}" -scheme mach-mono-Workspace
+        -configuration Debug -destination '{{.DEST}}'
+        -derivedDataPath "{{.DD}}" test
+
+  test:one:
+    desc: "Run one scheme's tests, e.g. task test:one SCHEME=NotchServices"
+    cmds:
+      - >-
+        xcodebuild -workspace "{{.WORKSPACE}}" -scheme "{{.SCHEME}}"
+        -configuration Debug -destination '{{.DEST}}'
+        -derivedDataPath "{{.DD}}" test
 
   notch:test:
     desc: "notch: run machNotch tests"
-    cmds:
-      - bazelisk test //Apps/machNotch:machNotchTests
+    cmds: [task test:one SCHEME=machNotch]
 
-  test:
-    desc: "Run all tests"
-    cmds:
-      - bazelisk test //Apps/... //Packages/...
+  brief:test:
+    desc: "brief: run MachBriefKit tests"
+    cmds: [task test:one SCHEME=MachBriefKit]
 
   sound:test:
     desc: "sound: run MachSoundKit tests"
-    cmds:
-      - bazelisk test //Packages/MachSoundKit:MachSoundKitTests
+    cmds: [task test:one SCHEME=MachSoundKit]
 
   health:test:
     desc: "health: run HealthExportKit tests"
+    cmds: [task test:one SCHEME=HealthExportKit]
+
+  # ── release ───────────────────────────────────────────────────────────────
+
+  archive:
+    desc: "notch: Release build of the default app (unsigned unless IDENTITY is set)"
     cmds:
-      - bazelisk test //Packages/HealthExportKit:HealthExportKitTests
+      - task: gen
+      - >-
+        xcodebuild -workspace "{{.WORKSPACE}}" -scheme machNotch
+        -configuration Release -destination '{{.DEST}}'
+        -derivedDataPath "{{.DD}}"
+        MARKETING_VERSION="{{.VERSION}}"
+        CURRENT_PROJECT_VERSION="{{.BUILD}}"
+        build
+
+  dmg:
+    desc: "notch: build a Release DMG, e.g. task dmg VERSION=1.4.0"
+    deps: [archive]
+    cmds:
+      - mkdir -p Release
+      - chmod +x Apps/machNotch/Configuration/dmg/create_dmg.sh
+      # dmgbuild goes in a throwaway environment. create_dmg.sh would otherwise
+      # pip install into the Homebrew Python, which PEP 668 refuses.
+      # uv resolves and installs this in about a second; falls back to venv+pip
+      # so a machine without uv still works.
+      - |
+        VENV="$(mktemp -d)/venv"
+        if command -v uv >/dev/null 2>&1; then
+          uv venv --quiet "$VENV"
+          uv pip install --quiet --python "$VENV/bin/python" "dmgbuild[badge_icons]"
+        else
+          python3 -m venv "$VENV"
+          "$VENV/bin/pip" install --quiet --upgrade pip setuptools wheel "dmgbuild[badge_icons]"
+        fi
+        PATH="$VENV/bin:$PATH" Apps/machNotch/Configuration/dmg/create_dmg.sh \
+          "{{.PRODUCTS}}/Release/machNotch.app" \
+          "Release/machNotch.dmg" \
+          "machNotch {{.VERSION}}"
+        rm -rf "$VENV"
+      - echo "✓ Release/machNotch.dmg"
+
+  # ── verification ──────────────────────────────────────────────────────────
+
+  verify:no-soundscape:
+    desc: "Assert the default app does not link MachSoundKit"
+    deps: [build]
+    cmds:
+      - |
+        APP="{{.PRODUCTS}}/{{.CONFIG}}/machNotch.app"
+        test -d "$APP" || { echo "::error::missing $APP"; exit 1; }
+        # Replaces the Bazel graph query. This inspects the shipped binary, so it
+        # proves the artifact rather than the build graph.
+        if nm -u "$APP/Contents/MacOS/machNotch" 2>/dev/null | grep -qi "MachSoundKit\|Soundscape"; then
+          echo "::error::default machNotch links Soundscape/MachSoundKit"
+          exit 1
+        fi
+        if otool -L "$APP/Contents/MacOS/machNotch" | grep -qi "AudioKit"; then
+          echo "::error::default machNotch links AudioKit"
+          exit 1
+        fi
+        echo "✓ default app is free of Soundscape, MachSoundKit and AudioKit"
+
+  # ── lint ──────────────────────────────────────────────────────────────────
+
+  lint:swift:
+    desc: "lint: swift-format, the same scope CI checks"
+    cmds:
+      # Prefer a brewed swift-format (what CI installs); fall back to the one
+      # bundled with the Xcode toolchain so a clean checkout still works.
+      - |
+        SF="$(command -v swift-format || xcrun --find swift-format)"
+        "$SF" lint --strict --recursive --parallel \
+          Apps/machNotch/machNotch/ Packages/MachBriefKit/Sources/ Packages/MacroVisionKit/Sources/
 
   lint:md:
     desc: "lint: check markdown files for style issues"
     cmds:
-      - npx markdownlint-cli "**/*.md" --ignore "node_modules" --ignore ".build" --ignore "bazel-*" --ignore "external" --ignore "website/node_modules"
+      - npx markdownlint-cli "**/*.md" --ignore "node_modules" --ignore ".build" --ignore "external" --ignore "website/node_modules"
 
   lint:md:fix:
     desc: "lint: fix markdown style issues automatically"
     cmds:
-      - npx markdownlint-cli "**/*.md" --fix --ignore "node_modules" --ignore ".build" --ignore "bazel-*" --ignore "external" --ignore "website/node_modules"
+      - npx markdownlint-cli "**/*.md" --fix --ignore "node_modules" --ignore ".build" --ignore "external" --ignore "website/node_modules"
+
+  arch:check:
+    desc: "Run the architecture checks CI runs"
+    cmds:
+      - bash .github/scripts/arch-check.sh
 
   # ── skills ────────────────────────────────────────────────────────────────
 

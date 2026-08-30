@@ -70,7 +70,7 @@ You can contribute in many ways: writing code, improving documentation, reportin
 
    ```bash
    git commit -m "feat(music): add lyrics scroll animation"
-   git commit -m "fix(ci): correct bazelrc cache key"
+   git commit -m "fix(ci): correct package cache key"
    git commit -m "chore(deps): update Sparkle to 2.9.0"
    ```
 

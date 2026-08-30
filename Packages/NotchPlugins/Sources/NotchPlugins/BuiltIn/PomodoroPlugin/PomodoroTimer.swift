@@ -49,16 +49,24 @@ public final class PomodoroTimer {
 
     // MARK: - Initialization
 
-    public init() {
+    /// - Parameter fileURL: Where sessions are stored. Defaults to the real
+    ///   Application Support location. Tests pass a temporary URL: without it
+    ///   `load()` reads the user's actual pomodoro history and `save()` writes
+    ///   test sessions into it.
+    public init(fileURL: URL? = nil) {
         self.settings = .default
 
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let appDir = appSupport.appendingPathComponent("machNotch")
+        if let fileURL {
+            self.fileURL = fileURL
+        } else {
+            let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            let appDir = appSupport.appendingPathComponent("machNotch")
 
-        if !FileManager.default.fileExists(atPath: appDir.path) {
-            try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true, attributes: nil)
+            if !FileManager.default.fileExists(atPath: appDir.path) {
+                try? FileManager.default.createDirectory(at: appDir, withIntermediateDirectories: true, attributes: nil)
+            }
+            self.fileURL = appDir.appendingPathComponent("pomodoro.json")
         }
-        self.fileURL = appDir.appendingPathComponent("pomodoro.json")
 
         load()
         resetTimer(for: .work)

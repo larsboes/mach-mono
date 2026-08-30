@@ -29,6 +29,7 @@ extension PluginManager {
             capabilities: capabilities(for: wrapped),
             closedNotchPosition: wrapped.closedNotchPosition,
             supportedExportFormats: exportFormats(for: wrapped),
+            coexistence: descriptors[plugin.id]?.coexistence,
             factory: { plugin }
         )
         if !pluginOrder.contains(plugin.id) {
@@ -84,7 +85,8 @@ extension PluginManager {
                 closedNotchPosition: plugin.closedNotchPosition,
                 supportedExportFormats: exportFormats(for: plugin),
                 isEnabled: plugin.isEnabled,
-                state: plugin.state
+                state: plugin.state,
+                coexistence: resolvedCoexistence(for: plugin.id)
             )
         }
 
@@ -97,7 +99,8 @@ extension PluginManager {
             closedNotchPosition: descriptor.closedNotchPosition,
             supportedExportFormats: descriptor.supportedExportFormats,
             isEnabled: pluginEnabledState[id] ?? true,
-            state: .inactive
+            state: .inactive,
+            coexistence: resolvedCoexistence(for: descriptor.id)
         )
     }
 
@@ -115,6 +118,13 @@ extension PluginManager {
         let wrapped = AnyNotchPlugin(plugin)
         plugins[id] = wrapped
         return wrapped
+    }
+
+    /// Pairs a descriptor's declaration with the current detection result.
+    /// Returns nil when the descriptor declares no overlap.
+    func resolvedCoexistence(for id: String) -> ResolvedCoexistence? {
+        guard let declaration = descriptors[id]?.coexistence else { return nil }
+        return externalApps.resolve(declaration)
     }
 
     private func capabilities(for plugin: AnyNotchPlugin) -> PluginCapabilities {

@@ -1,6 +1,0 @@
-.build
-tmp
-website/node_modules
-node_modules
-website/dist
-website/.astro

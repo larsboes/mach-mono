@@ -11,9 +11,12 @@ public struct NotchMoodView: View {
     @Environment(\.settings) var settings
     @Environment(\.pluginManager) var pluginManager
 
-    // Fallback if pluginManager is nil (shouldn't happen in production)
-    var faceService: any FaceServiceProtocol {
-        pluginManager?.services.face ?? FaceService(settings: settings)
+    /// Nil only when the view is hosted without a plugin manager, such as in a
+    /// preview. Never falls back to a fresh `FaceService`: constructing one
+    /// inside a computed property installs a pointer monitor per view
+    /// evaluation, and nothing ever removes it.
+    private var faceService: (any FaceServiceProtocol)? {
+        pluginManager?.services.face
     }
 
     @State private var blink = false
@@ -26,16 +29,18 @@ public struct NotchMoodView: View {
     }
 
     public var body: some View {
-        let currentMood = faceService.isSleepy ? .sleepy : settings.selectedMood
+        let face = faceService
+        let currentMood = (face?.isSleepy ?? false) ? .sleepy : settings.selectedMood
+        let eyeOffset = face?.eyeOffset ?? .zero
         let isSplit = spacing > 20
 
         ZStack {
             // Eyes
             HStack(spacing: spacing) {
                 EyeView(mood: currentMood, blink: blink)
-                    .offset(faceService.eyeOffset)
+                    .offset(eyeOffset)
                 EyeView(mood: currentMood, blink: blink)
-                    .offset(faceService.eyeOffset)
+                    .offset(eyeOffset)
             }
             .offset(y: breathe ? -1 : 0)
 
@@ -53,27 +58,31 @@ public struct NotchMoodView: View {
             .offset(y: -8 + (breathe ? -0.5 : 0))
         }
         .onAppear {
-            startAnimations()
+            // Pointer tracking runs only while a face is on screen.
+            faceService?.startMonitoring()
+            withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
+                breathe = true
+            }
+        }
+        .onDisappear {
+            faceService?.stopMonitoring()
+        }
+        .task {
+            // `.task` is cancelled when the view goes away. The previous version
+            // scheduled an unowned repeating Timer in `onAppear`, so every
+            // appearance left another one firing for the life of the app.
+            await blinkForever()
         }
     }
 
-    private func startAnimations() {
-        // Blinking
-        Timer.scheduledTimer(withTimeInterval: 4.0, repeats: true) { _ in
-            withAnimation(.easeInOut(duration: 0.1)) {
-                blink = true
-            }
-            Task { @MainActor in
-                try? await Task.sleep(nanoseconds: 100000000)
-                withAnimation(.easeInOut(duration: 0.1)) {
-                    blink = false
-                }
-            }
-        }
+    private func blinkForever() async {
+        while !Task.isCancelled {
+            try? await Task.sleep(for: .seconds(4))
+            guard !Task.isCancelled else { return }
 
-        // Breathing
-        withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
-            breathe = true
+            withAnimation(.easeInOut(duration: 0.1)) { blink = true }
+            try? await Task.sleep(for: .milliseconds(100))
+            withAnimation(.easeInOut(duration: 0.1)) { blink = false }
         }
     }
 }

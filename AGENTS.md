@@ -42,7 +42,7 @@ Active planning, decisions, and ADRs are tracked in GitHub issues.
 
 - Canonical structured repo facts live in `repo.yaml`; `AGENTS.md` and `CLAUDE.md` are thin adapters pointing to it.
 - Primary macOS product is machNotch (`Apps/machNotch`); machBrief (`Apps/machBrief` + `Packages/MachBriefKit`) is in active development.
-- Bazel is the active build orchestrator for packages and CI; the root Xcode workspace is for IDE navigation.
+- Tuist is the active build orchestrator for packages and CI; the root Xcode workspace is for IDE navigation.
 - machNotch is undergoing deliberate MIT relicensing via file-by-file reengineering of fork-derived code.
 - Built-in plugins register through `PluginRegistry.makeBuiltInPlugins()` in the machNotch app.
 - MachSound audio uses the `MachSoundDSP` package module (custom DSP rewrite); prototype parity remains an active goal.

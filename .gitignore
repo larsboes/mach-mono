@@ -16,6 +16,8 @@ DerivedData/
 
 # Build output
 build/
+Release/
+*.dmg
 *.app
 *.dSYM
 *.ipa
@@ -35,8 +37,14 @@ build/
 # Build logs
 build_log*.txt
 
-# Bazel output symlinks
-bazel-*
+# Tuist generates the Xcode projects, the workspace and Derived/.
+# Never commit them: they are build output, and a checked-in .pbxproj is the
+# merge-conflict generator Tuist exists to remove.
+*.xcodeproj/
+*.xcworkspace/
+Derived/
+Tuist/.build/
+.tuist/
 
 # Agent Memory
 MEMORY/

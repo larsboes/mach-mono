@@ -29,6 +29,10 @@ import SwiftUI
     let services: any NotchServiceProvider
     var shelfService: ShelfServiceProtocol?
 
+    /// Set while this window observes drags. Nil means no monitors on our behalf.
+    @ObservationIgnored var shelfDragToken: DragDropObserverToken?
+    @ObservationIgnored var shelfDragSettingTask: Task<Void, Never>?
+
     let uiContext = PluginUIContext()
 
     weak var window: NSWindow?
@@ -146,6 +150,10 @@ import SwiftUI
         didSet {
             updateNotchSize()
             hoverController.updateHoverZone(screenUUID: screenUUID)
+            // The window moved to another display, so its drag region moved too.
+            if let token = shelfDragToken {
+                services.dragDrop.updateRegion(shelfDragRegion(), for: token)
+            }
         }
     }
 
@@ -179,6 +187,7 @@ import SwiftUI
         earsDebounceTask?.cancel()
         earsTrackingTask?.cancel()
         sizeObserverTask?.cancel()
+        shelfDragSettingTask?.cancel()
     }
 
     // MARK: - Initialization
@@ -218,7 +227,6 @@ import SwiftUI
         hoverController.shouldPreventClose = sharingBlocksClose
 
         configureHoverCallbacks()
-        attachShelfDragBehavior()
 
         self.screenUUID = screenUUID
 
@@ -238,6 +246,9 @@ import SwiftUI
         uiContext.phase = phase
 
         hoverController.updateHoverZone(screenUUID: screenUUID)
+
+        syncShelfDragBehavior()
+        beginShelfDragSettingObservation()
 
         setupDetectorObserver()
         setupBackgroundImageObserver()
@@ -266,26 +277,6 @@ import SwiftUI
             services: mockServices,
             displaySettings: mockSettings
         )
-    }
-
-    private func attachShelfDragBehavior() {
-        services.dragDrop.onDragEntersNotchRegion = { [weak self] in
-            Task { @MainActor in
-                guard let self else { return }
-                self.dragDetectorTargeting = true
-                self.open()
-                self.currentView = .shelf
-            }
-        }
-
-        services.dragDrop.onDragExitsNotchRegion = { [weak self] in
-            Task { @MainActor in
-                guard let self else { return }
-                self.dragDetectorTargeting = false
-            }
-        }
-
-        services.dragDrop.startMonitoring()
     }
 
 }

@@ -74,9 +74,37 @@ First public release.
 
 ---
 
-## ↑ Bazel Monorepo Roadmap
+## 🚀 Build System
 
-Bazel (Bzlmod) is the primary build and orchestration layer for this monorepo. Xcode remains the IDE entrypoint; all builds go through `bazel build`.
+Tuist generates the Xcode projects from `Project.swift` manifests. Xcode is a
+first-class build and debug entrypoint again; `task` wraps the canonical
+commands. See [`Architecture.md`](Architecture.md) and [`repo.yaml`](repo.yaml).
+
+### Migrated off Bazel — 2026-08-30
+
+Bazel was replaced by Tuist. It was priced for a scale this repo does not have:
+one developer, two apps, ~100k lines. What it cost, all of it visible in the
+repo it left behind — an 83 KB lockfile, a pinned `rules_apple` patch for the
+xctestrun template, `rules_swift_package_manager` as a bridge to consume SwiftPM
+packages, three cache steps duplicated across every CI job, and an Xcode
+workspace demoted to "navigation only".
+
+Carried over: the plugin-per-module boundary, the Soundscape opt-in split, and
+the AudioKit-free guarantee — now checked with `task verify:no-soundscape`,
+which inspects the built binary instead of the build graph.
+
+Found during the migration, all pre-existing:
+
+- The XPC helper's bundle id never matched `XPCHelperClient.serviceName`, so the
+  privileged helper could not connect in a Bazel build. Restored to the value
+  the committed Xcode project used.
+- `AudioKit` and `SoundpipeAudioKit` were declared dependencies with no
+  first-party imports. Dropped.
+- `PomodoroTimerTests` read and wrote the user's real
+  `~/Library/Application Support/machNotch/pomodoro.json`. Bazel's sandbox hid
+  it; the store is now injectable and tests use a temp file.
+
+### Historical: Bazel adoption
 
 ### Phase 1: macOS Foundation
 

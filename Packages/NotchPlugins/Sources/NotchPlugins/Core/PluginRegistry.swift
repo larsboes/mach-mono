@@ -24,6 +24,18 @@ import NotchWebcamPlugin
 
 @MainActor
 public enum PluginRegistry {
+    /// Overlaps with Vorssaint, a menu bar toolkit that ships several of the same
+    /// utilities. Declared per plugin so settings can point the user at the app
+    /// that already does the job, instead of running both.
+    ///
+    /// Only plugins whose whole purpose Vorssaint covers are listed. Battery is
+    /// left out on purpose: Vorssaint reads battery health into the menu bar,
+    /// while `BatteryPlugin` is a closed-notch indicator, which is a different
+    /// surface rather than a duplicate.
+    private static func supersededByVorssaint(_ overlap: String) -> PluginCoexistence {
+        PluginCoexistence(app: KnownExternalApp.vorssaint, overlap: overlap, policy: .recommendDisable)
+    }
+
     public static func makeBuiltInDescriptors() -> [PluginDescriptor] {
         [
             musicDescriptor,
@@ -115,6 +127,7 @@ public enum PluginRegistry {
             ),
             capabilities: [.expandedPanelContent, .settingsContent, .exportable],
             supportedExportFormats: [.json, .csv],
+            coexistence: supersededByVorssaint("a shelf for files, text and links"),
             factory: { ShelfPlugin() }
         )
     }
@@ -129,6 +142,7 @@ public enum PluginRegistry {
                 category: .utilities
             ),
             capabilities: [.expandedPanelContent],
+            coexistence: supersededByVorssaint("a camera preview"),
             factory: { WebcamPlugin() }
         )
     }
@@ -157,6 +171,7 @@ public enum PluginRegistry {
                 category: .utilities
             ),
             capabilities: [.expandedPanelContent],
+            coexistence: supersededByVorssaint("clipboard history"),
             factory: { ClipboardPlugin() }
         )
     }
@@ -230,6 +245,7 @@ public enum PluginRegistry {
             ),
             capabilities: [.closedNotchContent, .expandedPanelContent, .settingsContent, .positioned],
             closedNotchPosition: .farRight,
+            coexistence: supersededByVorssaint("a system monitor"),
             factory: { SystemStatsPlugin() }
         )
     }

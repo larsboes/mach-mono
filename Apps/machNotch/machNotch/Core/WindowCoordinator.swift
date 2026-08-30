@@ -61,6 +61,7 @@ final class WindowCoordinator {
                 spaceManager.notchSpace.unregister(window)
             }
             windows.removeAll()
+            viewModels.values.forEach { $0.teardownShelfDrag() }
             viewModels.removeAll()
             stateMachines.removeAll()
         } else if let window = window {

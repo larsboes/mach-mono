@@ -15,6 +15,9 @@ public struct PluginDescriptor: Identifiable {
     public let capabilities: PluginCapabilities
     public let closedNotchPosition: ClosedNotchPosition?
     public let supportedExportFormats: [ExportFormat]
+    /// Set when a third-party app already covers this plugin's job.
+    /// Metadata only, so settings can show the overlap without building the plugin.
+    public let coexistence: PluginCoexistence?
     private let factory: @MainActor () -> any NotchPlugin
 
     public init(
@@ -24,6 +27,7 @@ public struct PluginDescriptor: Identifiable {
         capabilities: PluginCapabilities = [],
         closedNotchPosition: ClosedNotchPosition? = nil,
         supportedExportFormats: [ExportFormat] = [],
+        coexistence: PluginCoexistence? = nil,
         factory: @escaping @MainActor () -> any NotchPlugin
     ) {
         self.id = id
@@ -32,6 +36,7 @@ public struct PluginDescriptor: Identifiable {
         self.capabilities = capabilities
         self.closedNotchPosition = closedNotchPosition
         self.supportedExportFormats = supportedExportFormats
+        self.coexistence = coexistence
         self.factory = factory
     }
 
