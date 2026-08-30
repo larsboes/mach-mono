@@ -8,9 +8,10 @@ subtitle: What's being built, what's next, and what has shipped. For release not
 - **Current order:**
   1. machHealth: execute the phased build (#51)
   2. machSound: close M3.5 parity and the M4/M5/M6 integration plan (#48, #49)
-- **Note:** #48 and #49 scope themselves by section number in `Plans/PLAN-machSound.md`,
-  which was deleted on 2026-08-01. They need rewriting against the tree before they
-  are workable.
+- **Note:** #48 and #49 were rewritten against the tree on 2026-08-30. They used to
+  scope themselves by section number in `Plans/PLAN-machSound.md`, deleted on
+  2026-08-01 in `866615c`; the scope is now inlined in the issues. M4b (Soundscape
+  opt-in packaging) is already met by the Tuist split.
 
 ## ↑ In Development
 

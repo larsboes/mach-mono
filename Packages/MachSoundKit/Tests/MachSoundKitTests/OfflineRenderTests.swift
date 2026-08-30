@@ -43,6 +43,16 @@ final class OfflineRenderTests: XCTestCase {
     /// Count onset transients via a peak-follower envelope (fast attack, ~50 ms
     /// release so it rides over the waveform period of low notes) plus a
     /// refractory gap so a single decaying hit can only count once.
+    /// Counts isolated transients. **Not a mix diagnostic.**
+    ///
+    /// The peak-follower has an 80 ms refractory gap, so under a sustained pad or
+    /// bass bed the envelope never re-arms and a full bar reports one onset. It is
+    /// valid only for isolated hits, which is all the tests below use it for. Do
+    /// not read an EDM-bar onset count as evidence of doubling — for that, use
+    /// spectral-flux detection or render isolated stems.
+    ///
+    /// Recorded in PLAN-machSound-DSP-rewrite.md §7.1, which was deleted in
+    /// 866615c; kept here so the finding is not re-derived. See #49.
     private func countOnsets(_ samples: [Float], threshold: Float = 0.03) -> Int {
         let releaseCoef = Float(exp(-1.0 / (0.050 * sr)))   // 50 ms
         let refractory = Int(0.08 * sr)                     // 80 ms min between onsets
