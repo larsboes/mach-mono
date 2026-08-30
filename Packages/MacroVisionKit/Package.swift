@@ -16,10 +16,14 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "MacroVisionKit"),
+            name: "MacroVisionKit",
+            swiftSettings: [.swiftLanguageMode(.v5)]
+        ),
         .executableTarget(
             name: "FullScreenMonitorExample",
             dependencies: ["MacroVisionKit"],
-            path: "Examples"),
+            path: "Examples",
+            swiftSettings: [.swiftLanguageMode(.v5)]
+        ),
     ]
 ) 

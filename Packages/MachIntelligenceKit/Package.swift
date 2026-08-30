@@ -7,25 +7,27 @@ let package = Package(
         .iOS(.v17),
         .macOS(.v26)
     ],
-    dependencies: [
-        .package(url: "https://github.com/stephencelis/SQLite.swift.git", exact: "0.16.0")
-    ],
     products: [
         .library(
             name: "MachIntelligenceKit",
             targets: ["MachIntelligenceKit"]
         )
     ],
+    dependencies: [
+        .package(url: "https://github.com/stephencelis/SQLite.swift.git", exact: "0.16.0")
+    ],
     targets: [
         .target(
             name: "MachIntelligenceKit",
             dependencies: [
                 .product(name: "SQLite", package: "SQLite.swift")
-            ]
+            ],
+            swiftSettings: [.swiftLanguageMode(.v5)]
         ),
         .testTarget(
             name: "MachIntelligenceKitTests",
-            dependencies: ["MachIntelligenceKit"]
+            dependencies: ["MachIntelligenceKit"],
+            swiftSettings: [.swiftLanguageMode(.v5)]
         )
     ]
 )

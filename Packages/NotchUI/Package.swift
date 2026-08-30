@@ -1,10 +1,10 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.3
 import PackageDescription
 
 let package = Package(
     name: "NotchUI",
     platforms: [
-        .macOS(.v14)
+        .macOS(.v26)
     ],
     products: [
         .library(
@@ -24,11 +24,13 @@ let package = Package(
                 .product(name: "NotchCore", package: "NotchCore"),
                 .product(name: "Lottie", package: "lottie-spm"),
                 .product(name: "SwiftGlass", package: "SwiftGlass")
-            ]
+            ],
+            swiftSettings: [.swiftLanguageMode(.v5)]
         ),
         .testTarget(
             name: "NotchUITests",
-            dependencies: ["NotchUI"]
+            dependencies: ["NotchUI"],
+            swiftSettings: [.swiftLanguageMode(.v5)]
         )
     ]
 )

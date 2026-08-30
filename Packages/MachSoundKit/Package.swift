@@ -1,11 +1,11 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.3
 import PackageDescription
 
 let package = Package(
     name: "MachSoundKit",
     platforms: [
         .iOS(.v17),
-        .macOS(.v14)
+        .macOS(.v26)
     ],
     products: [
         .library(
@@ -21,17 +21,20 @@ let package = Package(
     targets: [
         // Pure DSP, no AudioKit — isolated to avoid type-name collisions.
         .target(
-            name: "MachSoundDSP"
+            name: "MachSoundDSP",
+            swiftSettings: [.swiftLanguageMode(.v5)]
         ),
         .target(
             name: "MachSoundKit",
             dependencies: [
                 "MachSoundDSP"
-            ]
+            ],
+            swiftSettings: [.swiftLanguageMode(.v5)]
         ),
         .testTarget(
             name: "MachSoundKitTests",
-            dependencies: ["MachSoundKit", "MachSoundDSP"]
+            dependencies: ["MachSoundKit", "MachSoundDSP"],
+            swiftSettings: [.swiftLanguageMode(.v5)]
         )
     ]
 )

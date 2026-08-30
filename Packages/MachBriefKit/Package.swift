@@ -18,11 +18,13 @@ let package = Package(
             name: "MachBriefKit",
             resources: [
                 .process("Resources")
-            ]
+            ],
+            swiftSettings: [.swiftLanguageMode(.v5)]
         ),
         .testTarget(
             name: "MachBriefKitTests",
-            dependencies: ["MachBriefKit"]
+            dependencies: ["MachBriefKit"],
+            swiftSettings: [.swiftLanguageMode(.v5)]
         )
     ]
 )

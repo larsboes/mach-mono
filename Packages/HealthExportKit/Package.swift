@@ -11,10 +11,13 @@ let package = Package(
         .library(name: "HealthExportKit", targets: ["HealthExportKit"]),
     ],
     targets: [
-        .target(name: "HealthExportKit"),
+        .target(name: "HealthExportKit",
+            swiftSettings: [.swiftLanguageMode(.v5)]
+        ),
         .testTarget(
             name: "HealthExportKitTests",
-            dependencies: ["HealthExportKit"]
+            dependencies: ["HealthExportKit"],
+            swiftSettings: [.swiftLanguageMode(.v5)]
         ),
     ]
 )

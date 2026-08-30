@@ -1,10 +1,10 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.3
 import PackageDescription
 
 let package = Package(
     name: "NotchServices",
     platforms: [
-        .macOS(.v14)
+        .macOS(.v26)
     ],
     products: [
         .library(
@@ -34,11 +34,13 @@ let package = Package(
                 .product(name: "KeyboardShortcuts", package: "KeyboardShortcuts"),
                 .product(name: "Sparkle", package: "Sparkle"),
                 .product(name: "SQLite", package: "SQLite.swift")
-            ]
+            ],
+            swiftSettings: [.swiftLanguageMode(.v5)]
         ),
         .testTarget(
             name: "NotchServicesTests",
-            dependencies: ["NotchServices"]
+            dependencies: ["NotchServices"],
+            swiftSettings: [.swiftLanguageMode(.v5)]
         )
     ]
 )
