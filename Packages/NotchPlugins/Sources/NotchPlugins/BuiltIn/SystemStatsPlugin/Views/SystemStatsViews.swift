@@ -7,12 +7,20 @@ import SwiftUI
 
 public struct SystemStatsConfiguration {
     public let showCPU: Bool
+    public let showGPU: Bool
     public let showRAM: Bool
     public let showDisk: Bool
     public let showNetwork: Bool
 
-    public init(showCPU: Bool, showRAM: Bool, showDisk: Bool, showNetwork: Bool) {
+    public init(
+        showCPU: Bool,
+        showGPU: Bool = true,
+        showRAM: Bool,
+        showDisk: Bool,
+        showNetwork: Bool
+    ) {
         self.showCPU = showCPU
+        self.showGPU = showGPU
         self.showRAM = showRAM
         self.showDisk = showDisk
         self.showNetwork = showNetwork
@@ -27,6 +35,9 @@ struct SystemStatsClosedView: View {
         HStack(spacing: 7) {
             if configuration.showCPU {
                 SystemMetricRing(label: "CPU", value: stats.cpuUsage, color: .cyan, size: 28)
+            }
+            if configuration.showGPU {
+                SystemMetricRing(label: "GPU", value: stats.gpuUsage, color: .green, size: 28)
             }
             if configuration.showRAM {
                 SystemMetricRing(label: "MEM", value: stats.ramUsage, color: .purple, size: 28)
@@ -74,6 +85,16 @@ struct SystemStatsExpandedView: View {
                         color: .cyan,
                         hoverDetail:
                             "User \(SystemStatsFormatter.percent(stats.cpuUserPercent))  ·  Sys \(SystemStatsFormatter.percent(stats.cpuSystemPercent))  ·  Idle \(SystemStatsFormatter.percent(max(0, 1 - stats.cpuUsage)))"
+                    )
+                }
+                if configuration.showGPU {
+                    metricCard(
+                        title: "GPU",
+                        value: stats.gpuUsage,
+                        history: history.map(\.gpuUsage),
+                        color: .green,
+                        hoverDetail:
+                            "Busiest accelerator at \(SystemStatsFormatter.percent(stats.gpuUsage))"
                     )
                 }
                 if configuration.showRAM {
@@ -233,6 +254,7 @@ struct SystemStatsSettingsView: View {
         Form {
             Section("Visible Metrics") {
                 Toggle("CPU", isOn: binding(\.showCPU))
+                Toggle("GPU", isOn: binding(\.showGPU))
                 Toggle("Memory", isOn: binding(\.showRAM))
                 Toggle("Disk", isOn: binding(\.showDisk))
                 Toggle("Network", isOn: binding(\.showNetwork))
@@ -244,7 +266,7 @@ struct SystemStatsSettingsView: View {
                         get: { plugin.refreshInterval },
                         set: { plugin.refreshInterval = $0 }
                     ),
-                    in: 1...5,
+                    in: SystemStatsPlugin.refreshIntervalRange,
                     step: 1
                 ) {
                     Text("Refresh Interval")

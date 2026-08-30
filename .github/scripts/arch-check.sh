@@ -40,7 +40,6 @@ FILE_LENGTH_EXCEPTIONS=(
     "MediaKeyInterceptor.swift"         # TODO: split CGEventTap setup from dispatch
     "NotchWeather.swift"                # TODO: extract row/icon subviews
     "PluginEventBus.swift"              # legacy: custom event bus implementation
-    "SystemStatsServiceProtocol.swift"  # legacy: system statistics definitions
     "FluidSimulationEngine.swift"       # intentional: GPU fluid simulation engine
     "SoundscapePlugin.swift"            # intentional: soundscape plugin core implementation
 )

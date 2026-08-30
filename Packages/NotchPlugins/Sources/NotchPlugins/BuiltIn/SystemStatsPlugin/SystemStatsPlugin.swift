@@ -49,7 +49,7 @@ public final class SystemStatsPlugin: NotchPlugin, PositionedPlugin {
 
     public var displayRequest: DisplayRequest? {
         guard isEnabled, state.isActive, settings?.showInClosedNotch ?? true else { return nil }
-        return DisplayRequest(priority: .background, category: DisplayRequest.system)
+        return DisplayRequest(priority: .background, category: .system)
     }
 
     @ViewBuilder
@@ -78,6 +78,7 @@ public final class SystemStatsPlugin: NotchPlugin, PositionedPlugin {
     public var configuration: SystemStatsConfiguration {
         SystemStatsConfiguration(
             showCPU: showCPU,
+            showGPU: showGPU,
             showRAM: showRAM,
             showDisk: showDisk,
             showNetwork: showNetwork
@@ -87,6 +88,11 @@ public final class SystemStatsPlugin: NotchPlugin, PositionedPlugin {
     public var showCPU: Bool {
         get { settings?.get("showCPU", default: true) ?? true }
         set { settings?.set("showCPU", value: newValue) }
+    }
+
+    public var showGPU: Bool {
+        get { settings?.get("showGPU", default: true) ?? true }
+        set { settings?.set("showGPU", value: newValue) }
     }
 
     public var showRAM: Bool {
@@ -104,12 +110,20 @@ public final class SystemStatsPlugin: NotchPlugin, PositionedPlugin {
         set { settings?.set("showNetwork", value: newValue) }
     }
 
+    public static let refreshIntervalRange: ClosedRange<Double> = 1...5
+
     public var refreshInterval: Double {
-        get { settings?.get("refreshInterval", default: 3.0) ?? 3.0 }
+        // Clamped on read too: a value stored by an older build, or edited by
+        // hand, must not reach the sampler out of range.
+        get { Self.clampInterval(settings?.get("refreshInterval", default: 3.0) ?? 3.0) }
         set {
-            let clamped = min(max(newValue, 1), 5)
+            let clamped = Self.clampInterval(newValue)
             settings?.set("refreshInterval", value: clamped)
             statsService?.refreshInterval = clamped
         }
+    }
+
+    private static func clampInterval(_ value: Double) -> Double {
+        min(max(value, refreshIntervalRange.lowerBound), refreshIntervalRange.upperBound)
     }
 }

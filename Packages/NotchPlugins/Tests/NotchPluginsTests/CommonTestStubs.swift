@@ -242,8 +242,11 @@ struct StubSoundService: SoundServiceProtocol, @unchecked Sendable {
     var stats: SystemStats = .zero
     var history: [SystemStats] = []
     var refreshInterval: TimeInterval = 3
-    func startMonitoring() {}
-    func stopMonitoring() {}
+    var startCount = 0
+    var stopCount = 0
+    var isMonitoring: Bool { startCount > stopCount }
+    func startMonitoring() { startCount += 1 }
+    func stopMonitoring() { stopCount += 1 }
     func refresh() {}
 }
 

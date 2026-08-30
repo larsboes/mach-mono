@@ -11,6 +11,8 @@ public struct SystemStats: Equatable, Sendable {
     public let cpuUsage: Double
     public let cpuUserPercent: Double
     public let cpuSystemPercent: Double
+    /// Busiest accelerator, 0...1. Stays 0 on hardware that publishes no reading.
+    public let gpuUsage: Double
     public let ramUsage: Double
     public let ramUsedBytes: Double
     public let ramTotalBytes: Double
@@ -21,7 +23,7 @@ public struct SystemStats: Equatable, Sendable {
     public let networkUpBytesPerSecond: Double
 
     public static let zero = SystemStats(
-        cpuUsage: 0, cpuUserPercent: 0, cpuSystemPercent: 0,
+        cpuUsage: 0, cpuUserPercent: 0, cpuSystemPercent: 0, gpuUsage: 0,
         ramUsage: 0, ramUsedBytes: 0, ramTotalBytes: 0,
         diskUsage: 0, diskUsedBytes: 0, diskTotalBytes: 0,
         networkDownBytesPerSecond: 0, networkUpBytesPerSecond: 0
@@ -31,6 +33,7 @@ public struct SystemStats: Equatable, Sendable {
         cpuUsage: Double,
         cpuUserPercent: Double,
         cpuSystemPercent: Double,
+        gpuUsage: Double = 0,
         ramUsage: Double,
         ramUsedBytes: Double,
         ramTotalBytes: Double,
@@ -43,6 +46,7 @@ public struct SystemStats: Equatable, Sendable {
         self.cpuUsage = cpuUsage
         self.cpuUserPercent = cpuUserPercent
         self.cpuSystemPercent = cpuSystemPercent
+        self.gpuUsage = gpuUsage
         self.ramUsage = ramUsage
         self.ramUsedBytes = ramUsedBytes
         self.ramTotalBytes = ramTotalBytes
@@ -86,8 +90,7 @@ public final class SystemStatsService: SystemStatsServiceProtocol {
     }
 
     private var pollingTask: Task<Void, Never>?
-    private var previousCPUTicks: CPUTicks?
-    private var previousNetworkSample: NetworkSample?
+    private var sampler = SystemStatsSampler()
     private var storedRefreshInterval: TimeInterval
 
     private var isMonitoring: Bool {
@@ -118,22 +121,27 @@ public final class SystemStatsService: SystemStatsServiceProtocol {
     }
 
     public func refresh() {
-        let cpu = readCPUStats()
-        let ram = readRAMStats()
-        let disk = readDiskStats()
-        let net = readNetworkRates()
+        // A nil read means the source had no answer this tick, so the previous
+        // value is kept rather than rendering a metric as zero.
+        let cpu = sampler.sampleCPU()
+        let gpu = sampler.sampleGPU()
+        let ram = sampler.sampleRAM()
+        let disk = sampler.sampleDisk()
+        let net = sampler.sampleNetwork()
+
         let latest = SystemStats(
-            cpuUsage: cpu.total,
-            cpuUserPercent: cpu.user,
-            cpuSystemPercent: cpu.system,
-            ramUsage: ram.usage,
-            ramUsedBytes: ram.usedBytes,
-            ramTotalBytes: ram.totalBytes,
-            diskUsage: disk.usage,
-            diskUsedBytes: disk.usedBytes,
-            diskTotalBytes: disk.totalBytes,
-            networkDownBytesPerSecond: net.down,
-            networkUpBytesPerSecond: net.up
+            cpuUsage: cpu?.total ?? stats.cpuUsage,
+            cpuUserPercent: cpu?.user ?? stats.cpuUserPercent,
+            cpuSystemPercent: cpu?.system ?? stats.cpuSystemPercent,
+            gpuUsage: gpu ?? stats.gpuUsage,
+            ramUsage: ram?.usage ?? stats.ramUsage,
+            ramUsedBytes: ram?.usedBytes ?? stats.ramUsedBytes,
+            ramTotalBytes: ram?.totalBytes ?? stats.ramTotalBytes,
+            diskUsage: disk?.usage ?? stats.diskUsage,
+            diskUsedBytes: disk?.usedBytes ?? stats.diskUsedBytes,
+            diskTotalBytes: disk?.totalBytes ?? stats.diskTotalBytes,
+            networkDownBytesPerSecond: net?.down ?? stats.networkDownBytesPerSecond,
+            networkUpBytesPerSecond: net?.up ?? stats.networkUpBytesPerSecond
         )
         stats = latest
         appendHistory(latest)
@@ -151,167 +159,4 @@ public final class SystemStatsService: SystemStatsServiceProtocol {
         }
     }
 
-    private func readCPUStats() -> (total: Double, user: Double, system: Double) {
-        var info = host_cpu_load_info()
-        var count = mach_msg_type_number_t(
-            MemoryLayout<host_cpu_load_info_data_t>.stride / MemoryLayout<integer_t>.stride
-        )
-
-        let result = withUnsafeMutablePointer(to: &info) {
-            $0.withMemoryRebound(to: integer_t.self, capacity: Int(count)) {
-                host_statistics(mach_host_self(), HOST_CPU_LOAD_INFO, $0, &count)
-            }
-        }
-
-        guard result == KERN_SUCCESS else {
-            return (stats.cpuUsage, stats.cpuUserPercent, stats.cpuSystemPercent)
-        }
-
-        let ticks = CPUTicks(
-            user: UInt64(info.cpu_ticks.0),
-            system: UInt64(info.cpu_ticks.1),
-            idle: UInt64(info.cpu_ticks.2),
-            nice: UInt64(info.cpu_ticks.3)
-        )
-
-        guard let previous = previousCPUTicks else {
-            previousCPUTicks = ticks
-            return (stats.cpuUsage, stats.cpuUserPercent, stats.cpuSystemPercent)
-        }
-
-        previousCPUTicks = ticks
-
-        let user = ticks.user - previous.user
-        let system = ticks.system - previous.system
-        let idle = ticks.idle - previous.idle
-        let nice = ticks.nice - previous.nice
-        let total = user + system + idle + nice
-
-        guard total > 0 else { return (stats.cpuUsage, stats.cpuUserPercent, stats.cpuSystemPercent) }
-        let dTotal = Double(total)
-        return (
-            clamp(Double(total - idle) / dTotal),
-            clamp(Double(user) / dTotal),
-            clamp(Double(system) / dTotal)
-        )
-    }
-
-    private func readRAMStats() -> (usage: Double, usedBytes: Double, totalBytes: Double) {
-        var info = vm_statistics64()
-        var count = mach_msg_type_number_t(
-            MemoryLayout<vm_statistics64_data_t>.stride / MemoryLayout<integer_t>.stride
-        )
-
-        let result = withUnsafeMutablePointer(to: &info) {
-            $0.withMemoryRebound(to: integer_t.self, capacity: Int(count)) {
-                host_statistics64(mach_host_self(), HOST_VM_INFO64, $0, &count)
-            }
-        }
-
-        guard result == KERN_SUCCESS else {
-            return (stats.ramUsage, stats.ramUsedBytes, stats.ramTotalBytes)
-        }
-
-        let pageSize = Double(getpagesize())
-        let usedPages = Double(info.active_count + info.wire_count + info.compressor_page_count)
-        let totalBytes = Double(ProcessInfo.processInfo.physicalMemory)
-
-        guard totalBytes > 0 else { return (stats.ramUsage, stats.ramUsedBytes, stats.ramTotalBytes) }
-        let usedBytes = usedPages * pageSize
-        return (clamp(usedBytes / totalBytes), usedBytes, totalBytes)
-    }
-
-    private func readDiskStats() -> (usage: Double, usedBytes: Double, totalBytes: Double) {
-        do {
-            let attributes = try FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory())
-            guard
-                let total = attributes[.systemSize] as? NSNumber,
-                let free = attributes[.systemFreeSize] as? NSNumber,
-                total.doubleValue > 0
-            else {
-                return (stats.diskUsage, stats.diskUsedBytes, stats.diskTotalBytes)
-            }
-
-            let totalBytes = total.doubleValue
-            let usedBytes = totalBytes - free.doubleValue
-            return (clamp(usedBytes / totalBytes), usedBytes, totalBytes)
-        } catch {
-            return (stats.diskUsage, stats.diskUsedBytes, stats.diskTotalBytes)
-        }
-    }
-
-    private func readNetworkRates() -> (down: Double, up: Double) {
-        let sample = readNetworkSample()
-
-        guard let previous = previousNetworkSample, sample.timestamp > previous.timestamp else {
-            previousNetworkSample = sample
-            return (stats.networkDownBytesPerSecond, stats.networkUpBytesPerSecond)
-        }
-
-        previousNetworkSample = sample
-
-        let elapsed = sample.timestamp.timeIntervalSince(previous.timestamp)
-        guard elapsed > 0 else { return (0, 0) }
-
-        // Guard against counter reset or interface change causing underflow
-        guard sample.receivedBytes >= previous.receivedBytes,
-            sample.sentBytes >= previous.sentBytes
-        else {
-            previousNetworkSample = sample
-            return (0, 0)
-        }
-        let down = Double(sample.receivedBytes - previous.receivedBytes) / elapsed
-        let up = Double(sample.sentBytes - previous.sentBytes) / elapsed
-        return (max(0, down), max(0, up))
-    }
-
-    private func readNetworkSample() -> NetworkSample {
-        var interfaces: UnsafeMutablePointer<ifaddrs>?
-        var receivedBytes: UInt64 = 0
-        var sentBytes: UInt64 = 0
-
-        guard getifaddrs(&interfaces) == 0, let first = interfaces else {
-            return NetworkSample(receivedBytes: 0, sentBytes: 0, timestamp: Date())
-        }
-
-        defer { freeifaddrs(interfaces) }
-
-        var pointer: UnsafeMutablePointer<ifaddrs>? = first
-        while let current = pointer {
-            defer { pointer = current.pointee.ifa_next }
-
-            let interface = current.pointee
-            guard
-                let address = interface.ifa_addr,
-                address.pointee.sa_family == UInt8(AF_LINK),
-                let name = interface.ifa_name.map({ String(cString: $0) }),
-                !name.hasPrefix("lo"),
-                let data = interface.ifa_data?.assumingMemoryBound(to: if_data.self).pointee
-            else {
-                continue
-            }
-
-            receivedBytes += UInt64(data.ifi_ibytes)
-            sentBytes += UInt64(data.ifi_obytes)
-        }
-
-        return NetworkSample(receivedBytes: receivedBytes, sentBytes: sentBytes, timestamp: Date())
-    }
-
-    private func clamp(_ value: Double) -> Double {
-        min(max(value, 0), 1)
-    }
-}
-
-private struct CPUTicks {
-    let user: UInt64
-    let system: UInt64
-    let idle: UInt64
-    let nice: UInt64
-}
-
-private struct NetworkSample {
-    let receivedBytes: UInt64
-    let sentBytes: UInt64
-    let timestamp: Date
 }
