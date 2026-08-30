@@ -10,5 +10,14 @@ Agent skills live in **`.claude/skills/`** (source of truth) and define all oper
 - `git-flow` — branching + integration workflow (`/git-flow`)
 - `save-context` — session preservation (`/save-context`)
 
+## Knowledge graph
+
+`graphify-out/` holds a committed code graph of this repo. Its node and community
+counts are in `graphify-out/GRAPH_REPORT.md`, which also records the commit it was
+built from — check that against `git rev-parse HEAD` before trusting it. Answer questions about architecture and file relationships from it before searching
+the tree. Refresh it with `task graph:update` after any change that adds or deletes
+files — a stale graph is worse than none. `graphify-out/GRAPH_REPORT.md` is the
+human-readable summary; it is generated, so the markdown linter skips it.
+
 Full architecture reference: [`Architecture.md`](Architecture.md), [`repo.yaml`](repo.yaml), [`AGENTS.md`](AGENTS.md), and [`CONTRIBUTING.md`](CONTRIBUTING.md)
 App-local rules: [`Apps/machNotch/CLAUDE.md`](Apps/machNotch/CLAUDE.md)

@@ -9,6 +9,64 @@ For upcoming features see the [Roadmap](https://larsboes.github.io/mach-mono/roa
 
 ---
 
+## Unreleased
+
+Work merged to `main` since v1.3.2. Not yet tagged or released.
+
+### 🏗 Architecture
+
+* **Migrated off Bazel to [Tuist](https://tuist.dev)** (2026-08-30): `Project.swift` manifests replace `BUILD.bazel`; the `.xcodeproj`/`.xcworkspace` are generated output and gitignored. Xcode is a first-class build and debug entrypoint again. The plugin-per-module boundary and the Soundscape opt-in split carry over. Rationale and what Bazel cost are in [`Roadmap.md`](Roadmap.md).
+* **Coexistence with third-party apps**: a `PluginDescriptor` can declare that an installed third-party app already covers its job. `shelf`, `clipboard`, `webcam` and `systemStats` declare an overlap with Vorssaint. Detection is metadata-only and never changes plugin state. See [`Architecture.md`](Architecture.md).
+* **Launch cost**: `ServiceContainer` dependencies are `lazy var`, so a disabled plugin no longer builds its services at launch. Covered by `LaunchCostTests`.
+* **Typed `PluginEventBus`**: dispatch map keyed by `ObjectIdentifier` replaces the previous subscription lookup.
+* **machNotch architecture hardening** (2026-06-13): app `@main` shim split, per-plugin build targets, app-facing plugin facade bridges, strict descriptor-based on-demand plugin loading, and default AudioKit-free builds with Soundscape behind an explicit opt-in target.
+
+### 🩺 Health & Intelligence
+
+* **Semantic shelf search actually works.** `SQLiteVecIndex.upsert` inserted against a filtered query — not a valid INSERT target — so every insert threw and `ShelfSemanticSearchService` silently fell back to substring matching. Fixed.
+* **Vector query is ~100x faster.** Top-5 over 10k vectors went from 1239 ms to 12 ms. Queries are answered from an in-memory mirror holding L2-normalized vectors in one flat buffer, so each comparison is a single `vDSP_dotpr`; the database is no longer read per query.
+* **Shelf re-indexing is incremental.** Items carry a hash of the text they were indexed from, stored on the record so it survives a restart. An unchanged shelf now costs zero embedding calls instead of one per item per search.
+* **SystemStats gained a GPU ring**, read from the busiest IOAccelerator's `PerformanceStatistics`. Sampling moved to `SystemStatsSampler`, which reports nil rather than zero when a source has no reading, so a failed syscall no longer draws as "idle". `refreshInterval` is now clamped on read as well as write.
+* **machHealth export is at-least-once.** `HealthExportQueue` keeps a payload until the send succeeds, backs off 2s/4s/8s capped at five minutes, and persists on every change. Exhausted entries are kept rather than deleted. `HealthAnchorStore` persists one HealthKit anchor per metric type. Schema v1 is now documented at [/health/schema-v1](https://larsboes.github.io/mach-mono/health/schema-v1).
+
+### 🔌 Plugin SDK
+
+* **Public API frozen and published.** `NotchPluginCore` is the SDK product — protocol, context, descriptor — and depends on no plugin. Docs at [/plugins/overview](https://larsboes.github.io/mach-mono/plugins/overview).
+* **Capability narrowing is enforced.** `PluginContext`'s service accessors return facades that conform to a single sub-protocol, so a plugin holding `mediaServices` can no longer cast back up to `NotchServiceProvider` and reach clipboard, calendar or webcam. An external plugin receives only the groups its `PluginDescriptor` declares; reaching for another traps at activation.
+* **`DisplayCategory` constants moved onto `DisplayCategory`.** Call sites read `category: .music` instead of `category: DisplayRequest.music`.
+* **`examples/HelloPlugin`** builds and tests with plain `swift build`. `task sdk:example` runs it.
+
+### 🐛 Build Fixes
+
+Found by building the example against the SDK. All pre-existing, and all invisible to the Xcode build:
+
+* `NotchCore`, `NotchPlugins`, `NotchServices`, `NotchUI` and `MachSoundKit` declared `.macOS(.v14)` while depending on macOS 26 packages, so their SwiftPM manifests could not resolve.
+* `NotchSettingsMacro` had no `Package.swift` at all, unlike every other package, so `NotchCore` could not build outside Tuist.
+* Every package target now pins `.swiftLanguageMode(.v5)`, matching the `SWIFT_VERSION = 5.0` that `Tuist/ProjectDescriptionHelpers/Mach.swift` already sets.
+* `MachBriefKit` shipped a hand-written `Bundle+Module.swift` that collided with the accessor SwiftPM generates for its declared resources.
+
+### ✨ New Features
+
+* **Semantic shelf search** backed by oMLX embeddings, through `MachIntelligenceKit`.
+* **machBrief menu bar v1** experience completed; iOS v2 intent contracts prepared in the app layer.
+
+### 🐛 Bug Fixes
+
+Found during the Bazel-to-Tuist migration, all pre-existing:
+
+* The XPC helper's bundle id never matched `XPCHelperClient.serviceName`, so the privileged helper could not connect in a Bazel build. Restored to the value the committed Xcode project used.
+* `AudioKit` and `SoundpipeAudioKit` were declared dependencies with no first-party imports. Dropped.
+* `PomodoroTimerTests` read and wrote the user's real `~/Library/Application Support/machNotch/pomodoro.json`. Bazel's sandbox hid it. The store is now injectable and the tests use a temp file.
+
+### ⚙️ CI & Tooling
+
+* `task` replaces the Bazel wrappers as the canonical command surface. `task --list` prints every command.
+* `task verify:no-soundscape` inspects the built binary with `nm` and `otool` instead of querying the build graph, so it tests the artifact that ships.
+* Test and coverage artifacts are uploaded from CI; the website build is a reusable composite action.
+* **License**: MIT-migration slice reauthored sizing, media keys, fullscreen and home/extras.
+
+---
+
 ## v1.3.2 — 2026-05-16
 
 > **Note:** v1.3.1 was tagged on 2026-05-15 but its release build failed at codesign and produced no artifact. v1.3.2 supersedes it.

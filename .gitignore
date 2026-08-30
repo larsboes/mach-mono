@@ -58,3 +58,6 @@ website/.astro/
 __pycache__/
 *.pyc
 .playwright-cli/
+
+# graphify: keep the graph itself (committed on purpose), drop its dated backups
+graphify-out/20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]/

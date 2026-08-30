@@ -156,9 +156,17 @@
 </div>
 <div class="rm-progress">
   <div class="rm-progress-track">
-    <div class="rm-progress-fill" style="width:33%"></div>
+    <div class="rm-progress-fill" style="width:73%"></div>
   </div>
-  <span class="rm-progress-label"><strong>4</strong> of 12 shipped</span>
+  <span class="rm-progress-label"><strong>8</strong> of 11 shipped</span>
+</div>
+<div class="rm-section">
+  <div class="rm-label other">
+    <span class="rm-icon">Execution</span>
+    <span class="rm-title">stack (issue-driven)</span>
+  </div>
+  <div class="rm-cards">
+  </div>
 </div>
 <div class="rm-section">
   <div class="rm-label active">
@@ -175,10 +183,10 @@
     </div>
     <div class="rm-card">
       <div class="rm-card-body">
-        <div class="rm-card-title">Obsidian Vault Sync</div>
-        <div class="rm-card-desc">Notes created in the Shelf plugin write to a configurable Obsidian vault folder as Markdown files, kept in sync on every save.</div>
+        <div class="rm-card-title">machSound DSP</div>
+        <div class="rm-card-desc">Close the remaining phase-4 parity gaps against the reference engine, then land the M4/M5/M6 integration plan.</div>
       </div>
-      <div class="rm-card-meta"><span class="rm-tag">Shelf</span></div>
+      <div class="rm-card-meta"><span class="rm-tag">Audio</span></div>
     </div>
   </div>
 </div>
@@ -188,13 +196,6 @@
     <span class="rm-title">Planned</span>
   </div>
   <div class="rm-cards">
-    <div class="rm-card">
-      <div class="rm-card-body">
-        <div class="rm-card-title">Plugin SDK</div>
-        <div class="rm-card-desc">Public API and documentation so third-party developers can build and distribute their own notch plugins.</div>
-      </div>
-      <div class="rm-card-meta"><span class="rm-tag">Platform</span></div>
-    </div>
     <div class="rm-card">
       <div class="rm-card-body">
         <div class="rm-card-title">machHealth Exporter</div>
@@ -212,8 +213,26 @@
   <div class="rm-cards">
     <div class="rm-card">
       <div class="rm-card-body">
+        <div class="rm-card-title">SystemStats GPU Ring — 2026-08-30</div>
+        <div class="rm-card-desc">GPU utilization joins CPU, memory, disk and network. It is read from the busiest IOAccelerator's <code>PerformanceStatistics</code>, tolerating the key rename across generations, and a machine that publishes neither spelling reports no GPU rather than a false zero. Sampling moved into <code>SystemStatsSampler</code>, which returns nil rather than zero when a source has no answer yet, so a failed syscall no longer renders as "idle".</div>
+      </div>
+    </div>
+    <div class="rm-card">
+      <div class="rm-card-body">
+        <div class="rm-card-title">Semantic Shelf Search, Working — 2026-08-30</div>
+        <div class="rm-card-desc"><code>SQLiteVecIndex.upsert</code> inserted against a filtered query, which is not a valid INSERT target, so every insert threw and the shelf fell back to substring matching without saying so. With that fixed, queries are answered from an in-memory mirror of L2-normalized vectors: top-5 over 10k items went from 1239 ms to 12 ms. Re-indexing is incremental — items carry a hash of the text they were indexed from, so an unchanged shelf costs no embedding calls.</div>
+      </div>
+    </div>
+    <div class="rm-card">
+      <div class="rm-card-body">
+        <div class="rm-card-title">Plugin SDK — 2026-08-30</div>
+        <div class="rm-card-desc">The public plugin API is frozen and published. <code>NotchPluginCore</code> is the SDK product: it holds the protocol, the context and the descriptor, and depends on no plugin. Capability narrowing is now enforced rather than advisory — each service accessor returns a facade conforming to one sub-protocol, so a plugin cannot cast back up to reach services it never declared, and an external plugin receives only the groups its descriptor lists. <a href="https://github.com/larsboes/mach-mono/tree/main/examples/HelloPlugin"><code>examples/HelloPlugin</code></a> builds and tests with plain <code>swift build</code>, which is the standing check that the SDK stays consumable without Tuist.</div>
+      </div>
+    </div>
+    <div class="rm-card">
+      <div class="rm-card-body">
         <div class="rm-card-title">machNotch Architecture Hardening — 2026-06-13</div>
-        <div class="rm-card-desc">The June 2026 hardening pass shipped: app <code>@main</code> shim split, per-plugin Bazel targets, app-facing plugin facade bridges, strict descriptor-based on-demand plugin loading, external descriptor discovery prep, and default AudioKit-free builds with Soundscape behind <code>//Apps/machNotch:machNotchWithSoundscape</code>.</div>
+        <div class="rm-card-desc">The June 2026 hardening pass shipped: app <code>@main</code> shim split, per-plugin build targets, app-facing plugin facade bridges, strict descriptor-based on-demand plugin loading, external descriptor discovery prep, and default AudioKit-free builds with Soundscape behind an explicit opt-in target — built then with a Bazel label, now with <code>task build:soundscape</code> against the <code>machNotchWithSoundscape</code> target in <a href="Apps/machNotch/Project.swift"><code>Apps/machNotch/Project.swift</code></a>.</div>
       </div>
     </div>
     <div class="rm-card">
@@ -237,33 +256,15 @@
   </div>
 </div>
 <div class="rm-section">
-  <div class="rm-label active">
-    <span class="rm-icon">↑</span>
-    <span class="rm-title">Bazel Monorepo Roadmap</span>
+  <div class="rm-label launched">
+    <span class="rm-icon">🚀</span>
+    <span class="rm-title">Build System</span>
   </div>
   <div class="rm-cards">
     <div class="rm-card">
       <div class="rm-card-body">
-        <div class="rm-card-title">Phase 1: macOS Foundation</div>
-        <div class="rm-card-desc">1. [x] <strong>Install Bazel:</strong> Used <code>bazelisk</code>. 2. [x] <strong>Initialize Monorepo:</strong> Setup <code>MODULE.bazel</code> with <code>rules_apple</code>, <code>rules_swift</code>. 3. [x] <strong>Create Shared Core:</strong> Migrated <code>Packages/</code> to Bazel <code>swift_library</code> targets. 4. [x] <strong>Create macOS App:</strong> Defined <code>macos_application</code> target in <code>Apps/machNotch/BUILD.bazel</code>. 5. [x] <strong>Native Builds:</strong> Resolved <code>apple_crosstool_top</code> toolchain issue — upgraded to <code>rules_apple 4.5.3</code>, <code>rules_swift 3.6.1</code>, <code>apple_support 2.5.4</code>.</div>
-      </div>
-    </div>
-    <div class="rm-card">
-      <div class="rm-card-body">
-        <div class="rm-card-title">Phase 2: machBrief Integration</div>
-        <div class="rm-card-desc">1. [x] <strong>machBrief BUILD.bazel:</strong> Defined <code>macos_application</code> + <code>macos_extension</code> targets. 2. [x] <strong>MachBriefKit Bazel Tests:</strong> Added <code>swift_test</code> coverage at <code>//Packages/MachBriefKit:MachBriefKitTests</code>. 3. [x] <strong>XPC Service Bundling:</strong> <code>MachNotchXPCHelper</code> is wired as an embedded <code>macos_xpc_service</code> via <code>xpc_services</code> in <code>Apps/machNotch/BUILD.bazel</code>. 4. [x] <strong>Code Signing:</strong> Local builds sign via <code>task run</code> (Apple Development cert); CI signs Bazel output via <code>codesign --deep</code> in <code>build_reusable.yml</code>.</div>
-      </div>
-    </div>
-    <div class="rm-card">
-      <div class="rm-card-body">
-        <div class="rm-card-title">Phase 3: CI/CD</div>
-        <div class="rm-card-desc">- [x] Replace Xcode-based CI with <code>bazel build</code> + <code>bazel test</code> in GitHub Actions (cicd.yml fully on <code>bazelisk --config=ci</code>). - [x] Cache remote build results — <code>~/.cache/bazel-repos</code> + <code>~/.cache/bazel</code> keyed on <code>MODULE.bazel</code> / <code>Package.resolved</code> / BUILD files. - [x] Add dependency security signal — PR dependency review enforces high+ vulnerability and GPL/MPL-family license policy, while main/manual runs export the GitHub dependency graph SBOM artifact.</div>
-      </div>
-    </div>
-    <div class="rm-card">
-      <div class="rm-card-body">
-        <div class="rm-card-title">Phase 4: iOS / Cross-Platform</div>
-        <div class="rm-card-desc">- [ ] Create <code>ios_application</code> targets reusing <code>Packages/</code> modules. - [ ] Future: Integrate <code>rules_android</code> and <code>rules_kotlin</code> for machBrief Android.</div>
+        <div class="rm-card-title">Migrated off Bazel — 2026-08-30</div>
+        <div class="rm-card-desc">Bazel was replaced by Tuist. It was priced for a scale this repo does not have: one developer, two apps, ~100k lines. What it cost, all of it visible in the repo it left behind — an 83 KB lockfile, a pinned <code>rules_apple</code> patch for the xctestrun template, <code>rules_swift_package_manager</code> as a bridge to consume SwiftPM packages, three cache steps duplicated across every CI job, and an Xcode workspace demoted to "navigation only". Carried over: the plugin-per-module boundary, the Soundscape opt-in split, and the AudioKit-free guarantee — now checked with <code>task verify:no-soundscape</code>, which inspects the built binary instead of the build graph. Found during the migration, all pre-existing: - The XPC helper's bundle id never matched <code>XPCHelperClient.serviceName</code>, so the privileged helper could not connect in a Bazel build. Restored to the value the committed Xcode project used. - <code>AudioKit</code> and <code>SoundpipeAudioKit</code> were declared dependencies with no first-party imports. Dropped. - <code>PomodoroTimerTests</code> read and wrote the user's real <code>~/Library/Application Support/machNotch/pomodoro.json</code>. Bazel's sandbox hid it; the store is now injectable and tests use a temp file.</div>
       </div>
     </div>
   </div>

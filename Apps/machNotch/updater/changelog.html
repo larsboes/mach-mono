@@ -125,6 +125,77 @@
   <h1>Changelog</h1>
   <p>What&#39;s new in mach.notch — every release, in order. For upcoming features see the <a href="roadmap.html">Roadmap</a>.</p>
 </div>
+<div class="release" id="vunreleased">
+  <div class="release-header">
+    <span class="release-version"><a href="#vunreleased">Unreleased</a></span>
+    <span class="release-badge badge-unreleased">Unreleased</span>
+  </div>
+  <p class="release-intro">Work merged to <code>main</code> since v1.3.2. Not yet tagged or released.</p>
+  <div class="change-section">
+    <p class="change-section-title"><span class="dot" style="background:#e0874a"></span>🏗 Architecture</p>
+    <ul class="change-list">
+      <li class="change-item"><strong>Migrated off Bazel to <a href="https://tuist.dev">Tuist</a></strong> (2026-08-30): <code>Project.swift</code> manifests replace <code>BUILD.bazel</code>; the <code>.xcodeproj</code>/<code>.xcworkspace</code> are generated output and gitignored. Xcode is a first-class build and debug entrypoint again. The plugin-per-module boundary and the Soundscape opt-in split carry over. Rationale and what Bazel cost are in <a href="Roadmap.md"><code>Roadmap.md</code></a>.</li>
+      <li class="change-item"><strong>Coexistence with third-party apps</strong>: a <code>PluginDescriptor</code> can declare that an installed third-party app already covers its job. <code>shelf</code>, <code>clipboard</code>, <code>webcam</code> and <code>systemStats</code> declare an overlap with Vorssaint. Detection is metadata-only and never changes plugin state. See <a href="Architecture.md"><code>Architecture.md</code></a>.</li>
+      <li class="change-item"><strong>Launch cost</strong>: <code>ServiceContainer</code> dependencies are <code>lazy var</code>, so a disabled plugin no longer builds its services at launch. Covered by <code>LaunchCostTests</code>.</li>
+      <li class="change-item"><strong>Typed <code>PluginEventBus</code></strong>: dispatch map keyed by <code>ObjectIdentifier</code> replaces the previous subscription lookup.</li>
+      <li class="change-item"><strong>machNotch architecture hardening</strong> (2026-06-13): app <code>@main</code> shim split, per-plugin build targets, app-facing plugin facade bridges, strict descriptor-based on-demand plugin loading, and default AudioKit-free builds with Soundscape behind an explicit opt-in target.</li>
+    </ul>
+  </div>
+  <div class="change-section">
+    <p class="change-section-title"><span class="dot" style="background:#6b6b8a"></span>🩺 Health &amp; Intelligence</p>
+    <ul class="change-list">
+      <li class="change-item"><strong>Semantic shelf search actually works.</strong> <code>SQLiteVecIndex.upsert</code> inserted against a filtered query — not a valid INSERT target — so every insert threw and <code>ShelfSemanticSearchService</code> silently fell back to substring matching. Fixed.</li>
+      <li class="change-item"><strong>Vector query is ~100x faster.</strong> Top-5 over 10k vectors went from 1239 ms to 12 ms. Queries are answered from an in-memory mirror holding L2-normalized vectors in one flat buffer, so each comparison is a single <code>vDSP_dotpr</code>; the database is no longer read per query.</li>
+      <li class="change-item"><strong>Shelf re-indexing is incremental.</strong> Items carry a hash of the text they were indexed from, stored on the record so it survives a restart. An unchanged shelf now costs zero embedding calls instead of one per item per search.</li>
+      <li class="change-item"><strong>SystemStats gained a GPU ring</strong>, read from the busiest IOAccelerator's <code>PerformanceStatistics</code>. Sampling moved to <code>SystemStatsSampler</code>, which reports nil rather than zero when a source has no reading, so a failed syscall no longer draws as "idle". <code>refreshInterval</code> is now clamped on read as well as write.</li>
+      <li class="change-item"><strong>machHealth export is at-least-once.</strong> <code>HealthExportQueue</code> keeps a payload until the send succeeds, backs off 2s/4s/8s capped at five minutes, and persists on every change. Exhausted entries are kept rather than deleted. <code>HealthAnchorStore</code> persists one HealthKit anchor per metric type. Schema v1 is now documented at <a href="https://larsboes.github.io/mach-mono/health/schema-v1">/health/schema-v1</a>.</li>
+    </ul>
+  </div>
+  <div class="change-section">
+    <p class="change-section-title"><span class="dot" style="background:#6b6b8a"></span>🔌 Plugin SDK</p>
+    <ul class="change-list">
+      <li class="change-item"><strong>Public API frozen and published.</strong> <code>NotchPluginCore</code> is the SDK product — protocol, context, descriptor — and depends on no plugin. Docs at <a href="https://larsboes.github.io/mach-mono/plugins/overview">/plugins/overview</a>.</li>
+      <li class="change-item"><strong>Capability narrowing is enforced.</strong> <code>PluginContext</code>'s service accessors return facades that conform to a single sub-protocol, so a plugin holding <code>mediaServices</code> can no longer cast back up to <code>NotchServiceProvider</code> and reach clipboard, calendar or webcam. An external plugin receives only the groups its <code>PluginDescriptor</code> declares; reaching for another traps at activation.</li>
+      <li class="change-item"><strong><code>DisplayCategory</code> constants moved onto <code>DisplayCategory</code>.</strong> Call sites read <code>category: .music</code> instead of <code>category: DisplayRequest.music</code>.</li>
+      <li class="change-item"><strong><code>examples/HelloPlugin</code></strong> builds and tests with plain <code>swift build</code>. <code>task sdk:example</code> runs it.</li>
+    </ul>
+  </div>
+  <div class="change-section">
+    <p class="change-section-title"><span class="dot" style="background:#e05f6b"></span>🐛 Build Fixes</p>
+    <p class="change-section-intro">Found by building the example against the SDK. All pre-existing, and all invisible to the Xcode build:</p>
+    <ul class="change-list">
+      <li class="change-item"><code>NotchCore</code>, <code>NotchPlugins</code>, <code>NotchServices</code>, <code>NotchUI</code> and <code>MachSoundKit</code> declared <code>.macOS(.v14)</code> while depending on macOS 26 packages, so their SwiftPM manifests could not resolve.</li>
+      <li class="change-item"><code>NotchSettingsMacro</code> had no <code>Package.swift</code> at all, unlike every other package, so <code>NotchCore</code> could not build outside Tuist.</li>
+      <li class="change-item">Every package target now pins <code>.swiftLanguageMode(.v5)</code>, matching the <code>SWIFT_VERSION = 5.0</code> that <code>Tuist/ProjectDescriptionHelpers/Mach.swift</code> already sets.</li>
+      <li class="change-item"><code>MachBriefKit</code> shipped a hand-written <code>Bundle+Module.swift</code> that collided with the accessor SwiftPM generates for its declared resources.</li>
+    </ul>
+  </div>
+  <div class="change-section">
+    <p class="change-section-title"><span class="dot" style="background:#7c6ff7"></span>✨ New Features</p>
+    <ul class="change-list">
+      <li class="change-item"><strong>Semantic shelf search</strong> backed by oMLX embeddings, through <code>MachIntelligenceKit</code>.</li>
+      <li class="change-item"><strong>machBrief menu bar v1</strong> experience completed; iOS v2 intent contracts prepared in the app layer.</li>
+    </ul>
+  </div>
+  <div class="change-section">
+    <p class="change-section-title"><span class="dot" style="background:#e05f6b"></span>🐛 Bug Fixes</p>
+    <p class="change-section-intro">Found during the Bazel-to-Tuist migration, all pre-existing:</p>
+    <ul class="change-list">
+      <li class="change-item">The XPC helper's bundle id never matched <code>XPCHelperClient.serviceName</code>, so the privileged helper could not connect in a Bazel build. Restored to the value the committed Xcode project used.</li>
+      <li class="change-item"><code>AudioKit</code> and <code>SoundpipeAudioKit</code> were declared dependencies with no first-party imports. Dropped.</li>
+      <li class="change-item"><code>PomodoroTimerTests</code> read and wrote the user's real <code>~/Library/Application Support/machNotch/pomodoro.json</code>. Bazel's sandbox hid it. The store is now injectable and the tests use a temp file.</li>
+    </ul>
+  </div>
+  <div class="change-section">
+    <p class="change-section-title"><span class="dot" style="background:#6b6b8a"></span>⚙️ CI &amp; Tooling</p>
+    <ul class="change-list">
+      <li class="change-item"><code>task</code> replaces the Bazel wrappers as the canonical command surface. <code>task --list</code> prints every command.</li>
+      <li class="change-item"><code>task verify:no-soundscape</code> inspects the built binary with <code>nm</code> and <code>otool</code> instead of querying the build graph, so it tests the artifact that ships.</li>
+      <li class="change-item">Test and coverage artifacts are uploaded from CI; the website build is a reusable composite action.</li>
+      <li class="change-item"><strong>License</strong>: MIT-migration slice reauthored sizing, media keys, fullscreen and home/extras.</li>
+    </ul>
+  </div>
+</div>
 <div class="release" id="vv1-3-2">
   <div class="release-header">
     <span class="release-version"><a href="#vv1-3-2">v1.3.2</a></span>

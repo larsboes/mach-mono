@@ -271,26 +271,68 @@ tasks:
   lint:md:
     desc: "lint: check markdown files for style issues"
     cmds:
-      - npx markdownlint-cli "**/*.md" --ignore "node_modules" --ignore ".build" --ignore "external" --ignore "website/node_modules"
+      - bunx markdownlint-cli "**/*.md" --ignore "node_modules" --ignore ".build" --ignore "external" --ignore "website/node_modules" --ignore "graphify-out"
 
   lint:md:fix:
     desc: "lint: fix markdown style issues automatically"
     cmds:
-      - npx markdownlint-cli "**/*.md" --fix --ignore "node_modules" --ignore ".build" --ignore "external" --ignore "website/node_modules"
+      - bunx markdownlint-cli "**/*.md" --fix --ignore "node_modules" --ignore ".build" --ignore "external" --ignore "website/node_modules" --ignore "graphify-out"
 
   arch:check:
     desc: "Run the architecture checks CI runs"
     cmds:
       - bash .github/scripts/arch-check.sh
 
+  # ── plugin sdk ────────────────────────────────────────────────────────────
+
+  sdk:example:
+    desc: "sdk: build and test the example plugin against the public SDK"
+    dir: examples/HelloPlugin
+    cmds:
+      # Plain SwiftPM on purpose. It is the only check that the SDK is usable
+      # without Tuist, which is how a third-party author consumes it.
+      - swift build
+      - swift test
+
+  # ── knowledge graph ───────────────────────────────────────────────────────
+
+  graph:update:
+    desc: "graph: re-extract the code graph into graphify-out/ (no LLM, no API cost)"
+    cmds:
+      - graphify update .
+
+  graph:label:
+    desc: "graph: re-name communities with an LLM (optional — hub names already exist)"
+    cmds:
+      # Communities are NOT unlabeled: graph:update gives each one the name of its
+      # hub node, and ~80% of those are already project-meaningful. This task only
+      # tries to improve the rest, and it relabels all of them, so it can make the
+      # good ones worse. Not part of the normal refresh.
+      #
+      # graphify exits 0 and silently changes nothing when its backend is unusable,
+      # so resolve a reachable backend here rather than report a no-op as success.
+      - |
+        if curl -sf --max-time 2 http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
+          graphify label . --backend=ollama --model="${OLLAMA_MODEL:-qwen3:4b}"
+        elif [ -n "$GOOGLE_API_KEY" ] || [ -n "$GEMINI_API_KEY" ]; then
+          graphify label . --backend=gemini
+        elif [ -n "$ANTHROPIC_API_KEY" ]; then
+          graphify label . --backend=claude
+        else
+          echo "No usable backend. Start ollama (free, local, no key) or set" >&2
+          echo "GOOGLE_API_KEY / GEMINI_API_KEY / ANTHROPIC_API_KEY." >&2
+          echo "The Claude Code CLI subscription does not satisfy the claude backend." >&2
+          exit 1
+        fi
+
   # ── skills ────────────────────────────────────────────────────────────────
 
   skills:sync:
-    desc: "skills: mirror .claude/skills/ → .gemini/skills/ and .cursor/skills/"
+    desc: "skills: mirror .claude/skills/ <-> .agents/skills/"
     cmds:
-      - bash resources/tools/sync-skills.sh
+      - bun resources/tools/sync-skills.ts
 
   skills:check:
-    desc: "skills: verify .gemini/skills/ and .cursor/skills/ match .claude/skills/"
+    desc: "skills: report drift between .claude/skills/ and .agents/skills/"
     cmds:
-      - bash resources/tools/sync-skills.sh --check
+      - bun resources/tools/sync-skills.ts --dry-run

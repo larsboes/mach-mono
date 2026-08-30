@@ -5,12 +5,12 @@ subtitle: What's being built, what's next, and what has shipped. For release not
 ## Execution stack (issue-driven)
 
 - **Tracking model:** Priority and milestone state are driven from GitHub issues + project board, not in-repo PLAN/PRD files.
-- **Current order:** 
-  1. machBrief: complete iOS v2 prep milestone (#56)
-  2. machBrief: complete M2 data and sync hardening milestone (#55)
-  3. machBrief: complete M1 macOS v1 experience milestone (#54)
-  4. machBrief: complete M0 repo alignment milestone (#53)
-  5. machIntelligence: implement M4 embeddings + shelf semantic search (#52)
+- **Current order:**
+  1. machHealth: execute the phased build (#51)
+  2. machSound: close M3.5 parity and the M4/M5/M6 integration plan (#48, #49)
+- **Note:** #48 and #49 scope themselves by section number in `Plans/PLAN-machSound.md`,
+  which was deleted on 2026-08-01. They need rewriting against the tree before they
+  are workable.
 
 ## ↑ In Development
 
@@ -18,15 +18,11 @@ subtitle: What's being built, what's next, and what has shipped. For release not
 
 A minimal daily briefing widget for macOS and iOS. Calendar, tasks, weather — without noise. Phase 1 (App Group infrastructure, cross-app settings sync) and Phase 2 (vocabulary level system, onboarding picker) shipped in v1.3.0. iOS and full feature set in progress.
 
-### Obsidian Vault Sync [Shelf]
+### machSound DSP [Audio]
 
-Notes created in the Shelf plugin write to a configurable Obsidian vault folder as Markdown files, kept in sync on every save.
+Close the remaining phase-4 parity gaps against the reference engine, then land the M4/M5/M6 integration plan.
 
 ## ⌛ Planned
-
-### Plugin SDK [Platform]
-
-Public API and documentation so third-party developers can build and distribute their own notch plugins.
 
 ### machHealth Exporter [New App]
 
@@ -35,12 +31,26 @@ macOS through a versioned LAN JSON contract.
 
 ## 🚀 Launched
 
+### SystemStats GPU Ring — 2026-08-30
+
+GPU utilization joins CPU, memory, disk and network. It is read from the busiest IOAccelerator's `PerformanceStatistics`, tolerating the key rename across generations, and a machine that publishes neither spelling reports no GPU rather than a false zero. Sampling moved into `SystemStatsSampler`, which returns nil rather than zero when a source has no answer yet, so a failed syscall no longer renders as "idle".
+
+### Semantic Shelf Search, Working — 2026-08-30
+
+`SQLiteVecIndex.upsert` inserted against a filtered query, which is not a valid INSERT target, so every insert threw and the shelf fell back to substring matching without saying so. With that fixed, queries are answered from an in-memory mirror of L2-normalized vectors: top-5 over 10k items went from 1239 ms to 12 ms. Re-indexing is incremental — items carry a hash of the text they were indexed from, so an unchanged shelf costs no embedding calls.
+
+### Plugin SDK — 2026-08-30
+
+The public plugin API is frozen and published. `NotchPluginCore` is the SDK product: it holds the protocol, the context and the descriptor, and depends on no plugin. Capability narrowing is now enforced rather than advisory — each service accessor returns a facade conforming to one sub-protocol, so a plugin cannot cast back up to reach services it never declared, and an external plugin receives only the groups its descriptor lists. [`examples/HelloPlugin`](https://github.com/larsboes/mach-mono/tree/main/examples/HelloPlugin) builds and tests with plain `swift build`, which is the standing check that the SDK stays consumable without Tuist.
+
 ### machNotch Architecture Hardening — 2026-06-13
 
-The June 2026 hardening pass shipped: app `@main` shim split, per-plugin Bazel
+The June 2026 hardening pass shipped: app `@main` shim split, per-plugin build
 targets, app-facing plugin facade bridges, strict descriptor-based on-demand
 plugin loading, external descriptor discovery prep, and default AudioKit-free
-builds with Soundscape behind `//Apps/machNotch:machNotchWithSoundscape`.
+builds with Soundscape behind an explicit opt-in target — built then with a
+Bazel label, now with `task build:soundscape` against the `machNotchWithSoundscape`
+target in [`Apps/machNotch/Project.swift`](Apps/machNotch/Project.swift).
 
 ### v1.3.2 — 2026-05-16
 
@@ -103,31 +113,3 @@ Found during the migration, all pre-existing:
 - `PomodoroTimerTests` read and wrote the user's real
   `~/Library/Application Support/machNotch/pomodoro.json`. Bazel's sandbox hid
   it; the store is now injectable and tests use a temp file.
-
-### Historical: Bazel adoption
-
-### Phase 1: macOS Foundation
-
-1. [x] **Install Bazel:** Used `bazelisk`.
-2. [x] **Initialize Monorepo:** Setup `MODULE.bazel` with `rules_apple`, `rules_swift`.
-3. [x] **Create Shared Core:** Migrated `Packages/` to Bazel `swift_library` targets.
-4. [x] **Create macOS App:** Defined `macos_application` target in `Apps/machNotch/BUILD.bazel`.
-5. [x] **Native Builds:** Resolved `apple_crosstool_top` toolchain issue — upgraded to `rules_apple 4.5.3`, `rules_swift 3.6.1`, `apple_support 2.5.4`.
-
-### Phase 2: machBrief Integration
-
-1. [x] **machBrief BUILD.bazel:** Defined `macos_application` + `macos_extension` targets.
-2. [x] **MachBriefKit Bazel Tests:** Added `swift_test` coverage at `//Packages/MachBriefKit:MachBriefKitTests`.
-3. [x] **XPC Service Bundling:** `MachNotchXPCHelper` is wired as an embedded `macos_xpc_service` via `xpc_services` in `Apps/machNotch/BUILD.bazel`.
-4. [x] **Code Signing:** Local builds sign via `task run` (Apple Development cert); CI signs Bazel output via `codesign --deep` in `build_reusable.yml`.
-
-### Phase 3: CI/CD
-
-- [x] Replace Xcode-based CI with `bazel build` + `bazel test` in GitHub Actions (cicd.yml fully on `bazelisk --config=ci`).
-- [x] Cache remote build results — `~/.cache/bazel-repos` + `~/.cache/bazel` keyed on `MODULE.bazel` / `Package.resolved` / BUILD files.
-- [x] Add dependency security signal — PR dependency review enforces high+ vulnerability and GPL/MPL-family license policy, while main/manual runs export the GitHub dependency graph SBOM artifact.
-
-### Phase 4: iOS / Cross-Platform
-
-- [ ] Create `ios_application` targets reusing `Packages/` modules.
-- [ ] Future: Integrate `rules_android` and `rules_kotlin` for machBrief Android.

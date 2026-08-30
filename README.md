@@ -47,6 +47,25 @@ This monorepo adheres to a strict **Minimalistic Aesthetic**.
 
 See [`Roadmap.md`](Roadmap.md) for current priorities and [`Architecture.md`](Architecture.md) for architectural rationale. Historical ADRs, PRDs, and licensing-contract decisions are tracked as GitHub issues, not as in-repo markdown plans.
 
+## Positioning
+
+**mach.notch does not replace [Vorssaint](https://vorssaint.com). It builds around it.**
+
+Four plugins cover jobs that Vorssaint also covers: shelf, clipboard, webcam and system stats.
+Each of those descriptors declares the overlap. machNotch detects the installed app and
+recommends in settings that you disable the plugin. Detection never changes plugin state by
+itself, so a user who deliberately runs both apps keeps both. `battery` is excluded on purpose —
+Vorssaint reports battery health in the menu bar, while `BatteryPlugin` is a closed-notch
+indicator, which is a different surface. The mechanism and its limits are documented in
+[Coexistence with third-party apps](Architecture.md#coexistence-with-third-party-apps-2026-08-30).
+
+**Plugins are expected to retire.**
+
+Many of these utilities exist because macOS does not ship the capability. When Apple ships an
+equivalent natively, the matching plugin may be dropped instead of maintained in parallel. The
+plugin architecture keeps that removal cheap: a plugin is one module behind one descriptor, so
+it can leave without a change to the rest of the app.
+
 ## Background
 
 This repo heavily relies on **Agentic Coding**. It grew organically out of curiosity for features and functionality, so code and architectural quality varies. Hardening reliability and improving code quality are the next big steps, but my priority remains on working features—after all, these are just quality-of-life additions.
@@ -60,10 +79,11 @@ If you plan to explore the codebase or contribute, you'll see the "clanker's" wo
 Documentation and agent configuration are layered so facts do not drift across tools:
 
 | Layer | Start here |
-|-------|------------|
+| ------- | ------------ |
 | **Structured facts** (workspace, schemes, products, policies) | [`repo.yaml`](repo.yaml) |
 | **Architecture** (design boundaries, plugin model, modularization) | [`Architecture.md`](Architecture.md) |
 | **Roadmap** (feature flow, milestones, priorities) | [`Roadmap.md`](Roadmap.md) |
+| **Release history** (shipped versions) | [`CHANGELOG.md`](CHANGELOG.md) · [docs site](https://larsboes.github.io/mach-mono) |
 | **Security + contribution workflow** | [`SECURITY.md`](SECURITY.md) · [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | **Per-app instructions** (DDD layout, plugins, code standards) | [`AGENTS.md`](AGENTS.md), [`Apps/machNotch/CLAUDE.md`](Apps/machNotch/CLAUDE.md) |
 
@@ -83,19 +103,29 @@ machNotch is focused on architectural quality: DDD layer boundaries, a SOLID plu
 
 ### `mach.brief` — Daily brief
 
-Configurable daily content (words, facts, quotes, mantras, mood prompts) with optional sinks such as Obsidian. Shares [`Packages/MachBriefKit`](Packages/MachBriefKit). Currently in active development.
+Configurable daily content (words, facts, quotes, mantras, mood prompts) with optional notification sinks. Shares [`Packages/MachBriefKit`](Packages/MachBriefKit). Currently in active development.
 
 * **Location:** `Apps/machBrief/`
+
+### `mach.health` — HealthKit exporter (stub)
+
+A three-file iOS stub that will export HealthKit-derived signals for machSound to consume over a
+versioned LAN JSON contract. It builds as a standalone SwiftPM package against
+[`Packages/HealthExportKit`](Packages/HealthExportKit) and is excluded from the Tuist workspace on
+purpose — see the comment in [`Workspace.swift`](Workspace.swift).
+
+* **Location:** `Apps/machHealth/`
 
 ---
 
 ## Repository Structure
 
-```
+```text
 mach-mono/
 ├── Workspace.swift          # Tuist workspace manifest
 ├── Tuist.swift              # Tuist configuration
-├── Tuist/Package.swift      # External SwiftPM dependencies
+├── Tuist/                   # External SwiftPM dependencies + ProjectDescription helpers
+├── Taskfile.yml             # Canonical commands (task run, task test, …)
 ├── AGENTS.md                # Canonical agent guidance and repo-specific adapters
 ├── CLAUDE.md                # Thin Claude Code adapter
 ├── GEMINI.md                # Thin Gemini CLI adapter
@@ -106,11 +136,16 @@ mach-mono/
 ├── .github/                 # CI/CD workflows, issue templates
 ├── Apps/
 │   ├── machNotch/           # mach.notch — notch utility (primary scheme)
-│   └── machBrief/           # mach.brief — in development
+│   ├── machBrief/           # mach.brief — in development
+│   └── machHealth/          # iOS HealthKit exporter stub, outside the Tuist workspace
 ├── Architecture.md          # Canonical architecture and plugin model
 ├── Roadmap.md               # Current roadmap and milestones
-├── Packages/                # Shared Swift packages (MacroVisionKit, MachBriefKit, …)
+├── CHANGELOG.md             # Released versions
+├── Packages/                # Shared Swift packages (NotchCore, NotchUI, NotchPlugins, …)
+├── docs/                    # README assets
+├── website/                 # Astro docs site published to GitHub Pages
 ├── resources/               # Demo assets and repo tooling
+├── Release/                 # DMG output from `task dmg` (gitignored)
 └── mach-mono.xcworkspace    # Generated by Tuist (gitignored)
 ```
 
@@ -131,8 +166,15 @@ graph TD
     end
 
     subgraph Packages [Shared Libraries]
+        NC[NotchCore]
+        NU[NotchUI]
+        NS[NotchServices]
+        NP[NotchPlugins]
+        NSM[NotchSettingsMacro]
         MVK[MacroVisionKit]
         MBK[MachBriefKit]
+        MIK[MachIntelligenceKit]
+        MSK[MachSoundKit]
     end
 
     subgraph Core [Project Core]
@@ -141,10 +183,13 @@ graph TD
     end
 
     %% Connections
-    BZ --> MN & MB
-    
-    MN --> MVK
+    TU --> MN & MB
+
+    MN --> NC & NU & NS & NP & NSM & MVK & MBK
     MB --> MBK
+    NS --> MIK
+    NP --> MIK
+    NP -. Soundscape opt-in .-> MSK
 
     %% Core references
     MN & MB -.-> RY
@@ -164,7 +209,7 @@ graph TD
 ### Prerequisites
 
 | Tool | Why | Install |
-|------|-----|---------|
+| ------ | ----- | --------- |
 | **macOS 26+** | Required system version | — |
 | **Xcode 26+** | Bundled SDKs and toolchain | Mac App Store |
 | [**Tuist**](https://tuist.dev) | Generates the Xcode projects from the `Project.swift` manifests | `brew install tuist` |
@@ -291,7 +336,7 @@ If you have more than one, update `CERT` in [`Taskfile.yml`](Taskfile.yml) to ma
 On first launch macOS will prompt for the permissions each plugin needs:
 
 | Permission | Used by |
-|------------|---------|
+| ------------ | --------- |
 | Accessibility | Gestures, hover detection, media-key interception |
 | Screen Recording | The notch overlay window itself |
 | Microphone | Teleprompter monitoring |
@@ -303,7 +348,7 @@ The install sentinel at `~/Library/Caches/com.larsboes.mach/notch_zip_hash` skip
 #### Troubleshooting
 
 | Symptom | Fix |
-|---------|-----|
+| --------- | ----- |
 | `codesign: no identity found` | Pick another cert from `security find-identity` and update `CERT` in `Taskfile.yml`, or run with a fresh Apple ID flow (see the detailed setup section). |
 | Permissions reset after every rebuild | The binary changed, so the sentinel triggered a re-install. Expect *one* prompt cycle per real change. |
 | Xcode shows red errors after adding a file | Run `task gen`. The project is generated; new files need a regenerate. |
@@ -323,6 +368,7 @@ No CocoaPods, no Carthage. External dependencies are SwiftPM packages pinned in 
 * [x] `mach.notch` — notch utility (shipped)
 * [~] `mach.brief` — standalone daily brief app + [`MachBriefKit`](Packages/MachBriefKit) (in development)
 * [~] `SystemStats` plugin — CPU/GPU/RAM/disk/network rings (in progress)
+* [ ] `mach.health` — iOS HealthKit exporter feeding machSound over a LAN JSON contract (stub)
 * [ ] `mach.window`, `mach.bar`, plus more notch plugins (PreventSleep, ExternalBrightness, ColorPicker, FocusMode, MenuBar) and shared `MachUI` package
 
 The full, prioritised plan with phases and debt triage lives in GitHub issues (labels: `planning`, `decisions`, `contract`).
@@ -360,7 +406,7 @@ All system requirements, including minimum OS versions (macOS/iOS) and Swift lan
 The repo currently mixes licenses — read carefully before forking or vendoring.
 
 | Component | License | Target |
-|---|---|---|
+| --- | --- | --- |
 | `mach-mono` (root) + [`Apps/machNotch`](Apps/machNotch) | **GPL-3.0** (inherited from boring.notch) | MIT (after the cleansing migration completes) |
 | [`Apps/machBrief`](Apps/machBrief) | MIT | — |
 | [`Packages/MachBriefKit`](Packages/MachBriefKit) | MIT | — |
