@@ -19,6 +19,7 @@ struct ContentView: View {
     @Environment(NotchViewCoordinator.self) var coordinator
     @Environment(PluginUIContext.self) var uiContext
     @Environment(NotchStateMachine.self) var stateMachine
+    @Environment(DisplayActivityMonitor.self) var displayActivity: DisplayActivityMonitor?
     @Environment(\.showSettingsWindow) var showSettingsWindow
 
     @State private var anyDropDebounceTask: Task<Void, Never>?
@@ -65,6 +66,7 @@ struct ContentView: View {
                 )
                 .environment(\.contentProgress, contentProgress)
                 .environment(\.isNotchClosing, vm.phase == .closing)
+                .environment(\.isDisplayActive, displayActivity?.isDisplayActive ?? true)
                 .onDrop(
                     of: [.fileURL, .url, .utf8PlainText, .plainText, .data],
                     delegate: GeneralDropTargetDelegate(isTargeted: $vm.generalDropTargeting)

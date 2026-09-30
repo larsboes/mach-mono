@@ -16,9 +16,13 @@
     "@astrojs/starlight": "^0.41.5",
     "astro": "^7.1.4",
     "astro-mermaid": "^2.0.1",
-    "mermaid": "^11.15.0"
+    "mermaid": "^11.16.1"
   },
   "overrides": {
-    "devalue": "5.8.1"
+    "devalue": "5.8.1",
+    "dompurify": "3.4.13",
+    "js-yaml": "4.3.1",
+    "sharp": "0.35.0",
+    "svgo": "4.0.2"
   }
 }

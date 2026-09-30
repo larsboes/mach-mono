@@ -1,19 +1,14 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
 
-/// Sources shared by both app variants. `StatusBarMenu.swift` is work in
-/// progress and was excluded from the Bazel target too.
+/// Sources shared by both app variants.
 let appSources: SourceFilesList = .init(
     globs: [
         .glob(
             "machNotch/**/*.swift",
             excluding: [
-                // Work in progress; excluded from the Bazel target too.
-                "machNotch/menu/StatusBarMenu.swift",
-                // Its own header says it is the "Bazel equivalent of Xcode's
-                // asset symbol generation". Xcode generates those symbols, so
-                // keeping it is a redeclaration. Delete once Bazel is gone.
-                "machNotch/Assets+Generated.swift",
+                // Work in progress.
+                "machNotch/menu/StatusBarMenu.swift"
             ]
         )
     ]

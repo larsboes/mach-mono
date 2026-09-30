@@ -2,7 +2,7 @@ import ProjectDescription
 
 let tuist = Tuist(
     project: .tuist(
-        compatibleXcodeVersions: .upToNextMajor("26.0"),
+        compatibleXcodeVersions: .all,
         swiftVersion: "5.0",
         generationOptions: .options(
             // Bazel enforced the AudioKit-free default with a graph query. The

@@ -266,10 +266,14 @@ generated `.pbxproj` — regenerating overwrites it.
 | **mach.notch** | |
 | `task run` | Build, sign, install to `~/Applications`, launch. |
 | `task run:soundscape` | Same, for the Soundscape-enabled variant. |
-| `task build` | Build only. Add `CONFIG=Release` for a release build. |
+| `task build` | Build only, `Debug` by default. Add `CONFIG=Release` for a release build. |
 | `task build:soundscape` | Build the Soundscape variant only. |
 | `task install` | Build, sign and install without launching. |
 | `task install:soundscape` | Same, for the Soundscape variant. |
+
+`install` and `run` build `Release`, because that is the build you then leave
+running all day; `build` stays `Debug` to keep the inner loop fast. Override with
+`task install INSTALL_CONFIG=Debug` when you need to attach a debugger.
 | `task kill` | Stop the running instance. |
 | `task kill:soundscape` | Stop the running Soundscape instance. |
 | `task stop` | Stop every mach app at once. |

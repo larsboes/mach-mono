@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun \"$(git rev-parse --show-toplevel)/scripts/sync-skills.ts\" --quiet",
+            "command": "bun \"$(git rev-parse --show-toplevel)/resources/tools/sync-skills.ts\" --quiet",
             "timeout": 20
           }
         ]
@@ -20,7 +20,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun \"$(git rev-parse --show-toplevel)/scripts/hooks/command-gate.ts\"",
+            "command": "bun \"$(git rev-parse --show-toplevel)/resources/tools/hooks/command-gate.ts\"",
             "timeout": 10
           }
         ]
@@ -31,7 +31,7 @@
     "Stop": [
       {
         "type": "command",
-        "command": "bun \"$(git rev-parse --show-toplevel)/scripts/hooks/stop-gate.ts\"",
+        "command": "bun \"$(git rev-parse --show-toplevel)/resources/tools/hooks/stop-gate.ts\"",
         "timeout": 60
       }
     ]

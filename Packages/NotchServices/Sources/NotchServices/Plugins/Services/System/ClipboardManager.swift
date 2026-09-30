@@ -68,9 +68,13 @@ public final class ClipboardManager: ClipboardServiceProtocol {
         fetchItems()
         isMonitoring = true
         lastChangeCount = NSPasteboard.general.changeCount
-        timer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
+        let timer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.checkPasteboard() }
         }
+        // A clipboard entry landing a moment late is unnoticeable; let the
+        // system coalesce this wake-up with others.
+        timer.tolerance = 1.0
+        self.timer = timer
     }
 
     public func stopMonitoring() {

@@ -2,6 +2,7 @@ import XCTest
 import NotchCore
 import NotchServices
 import NotchSoundscapePlugin
+import NotchAxonPlugin
 @testable import NotchPlugins
 
 @MainActor
@@ -148,5 +149,30 @@ final class PluginMetadataTests: XCTestCase {
         XCTAssertTrue(plugin.state.isActive)
         await plugin.deactivate()
         XCTAssertFalse(plugin.state.isActive)
+    }
+
+    // MARK: - AxonPlugin
+
+    func testAxonPluginID() {
+        XCTAssertEqual(AxonPlugin().id, PluginID.axon)
+    }
+
+    func testAxonPluginMetadataComplete() {
+        let plugin = AxonPlugin()
+        XCTAssertEqual(plugin.metadata.name, "Axon")
+        XCTAssertFalse(plugin.metadata.icon.isEmpty)
+        XCTAssertEqual(plugin.metadata.category, .productivity)
+    }
+
+    func testAxonPluginActivatesAndDeactivates() async throws {
+        let plugin = try await activatedPlugin(AxonPlugin())
+        XCTAssertTrue(plugin.state.isActive)
+        await plugin.deactivate()
+        XCTAssertFalse(plugin.state.isActive)
+    }
+
+    func testAxonPluginClosedNotchPosition() {
+        let plugin = AxonPlugin()
+        XCTAssertEqual(plugin.closedNotchPosition, .right)
     }
 }

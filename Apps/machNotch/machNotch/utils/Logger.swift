@@ -1,7 +1,6 @@
 import Foundation
-import SwiftUI
 import NotchCore
-
+import SwiftUI
 
 extension View {
     func trackLifecycle(_ identifier: String) -> some View {

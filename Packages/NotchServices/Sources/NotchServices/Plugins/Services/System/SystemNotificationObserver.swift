@@ -5,6 +5,12 @@
 //  Observes macOS system notifications from other apps via Accessibility API.
 //  Monitors UserNotificationCenter.app for notification banners and extracts content.
 //
+//  An AXObserver wakes us when a banner window appears, so an idle Mac costs
+//  nothing. It cannot be the only trigger: a banner arriving while another is
+//  still on screen reuses the same AX window and fires no notification at all
+//  (measured on macOS 26.6). So a wake starts a short scan burst that runs only
+//  while a banner is actually on screen, and stops as soon as one is not.
+//
 
 import AppKit
 import ApplicationServices
@@ -15,16 +21,30 @@ final class SystemNotificationObserver: SystemNotificationObserverProtocol {
     private(set) var isObserving = false
 
     private let notificationManager: any NotificationServiceProtocol
-    private var pollTask: Task<Void, Never>?
     private var knownHashes: Set<Int> = []
     private var hashCleanupTask: Task<Void, Never>?
 
-    private static let notificationCenterBundleIDs = [
+    private var axObservers: [pid_t: AXObserver] = [:]
+    private var scanTask: Task<Void, Never>?
+    private var workspaceTokens: [NSObjectProtocol] = []
+    /// Only ever compared against itself to detect "did this scan find anything".
+    private var reportCount = 0
+
+    nonisolated static let notificationCenterBundleIDs = [
         "com.apple.UserNotificationCenter",
         "com.apple.notificationcenterui",
     ]
-    private static let pollInterval: UInt64 = 2 * 1_000_000_000  // 2 seconds
-    private static let dedupeWindowSeconds: TimeInterval = 5
+
+    /// Cadence of the burst that follows a wake. Fast enough to catch a banner
+    /// swapped in place, which is the case the AXObserver cannot report.
+    private static let scanInterval: Duration = .milliseconds(500)
+    /// Stop the burst after this many consecutive scans find no banner window.
+    private static let emptyScansBeforeIdle = 3
+    /// Hard ceiling on one burst. `notificationCenterApps()` also matches any app
+    /// whose localized name contains "notification", so an unrelated app holding
+    /// a window open must not be able to pin the burst on forever — that would
+    /// be a permanent 2 Hz scan, worse than the poll this replaced.
+    private static let maxBurstDuration: Duration = .seconds(30)
 
     init(notificationManager: any NotificationServiceProtocol) {
         self.notificationManager = notificationManager
@@ -32,10 +52,14 @@ final class SystemNotificationObserver: SystemNotificationObserverProtocol {
 
     nonisolated deinit {
         MainActor.assumeIsolated {
-            pollTask?.cancel()
+            scanTask?.cancel()
             hashCleanupTask?.cancel()
+            teardownAXObservers()
+            workspaceTokens.forEach { NSWorkspace.shared.notificationCenter.removeObserver($0) }
         }
     }
+
+    // MARK: - Lifecycle
 
     func startObserving() {
         guard !isObserving else { return }
@@ -50,29 +74,103 @@ final class SystemNotificationObserver: SystemNotificationObserverProtocol {
         }
 
         isObserving = true
-        startPolling()
+        attachAXObservers()
+        observeWorkspaceLifecycle()
         startHashCleanup()
+        // A banner may already be up when the plugin activates.
+        wake()
     }
 
     func stopObserving() {
         isObserving = false
-        pollTask?.cancel()
-        pollTask = nil
+        scanTask?.cancel()
+        scanTask = nil
         hashCleanupTask?.cancel()
         hashCleanupTask = nil
+        teardownAXObservers()
+        workspaceTokens.forEach { NSWorkspace.shared.notificationCenter.removeObserver($0) }
+        workspaceTokens.removeAll()
         knownHashes.removeAll()
     }
 
-    // MARK: - Polling
+    // MARK: - AX Observers
 
-    private func startPolling() {
-        pollTask?.cancel()
-        pollTask = Task { [weak self] in
-            while !Task.isCancelled {
-                try? await Task.sleep(nanoseconds: Self.pollInterval)
-                if Task.isCancelled { break }
-                self?.pollNotificationBanners()
+    private func attachAXObservers() {
+        teardownAXObservers()
+
+        let callback: AXObserverCallback = { _, _, _, refcon in
+            guard let refcon else { return }
+            let observer = Unmanaged<SystemNotificationObserver>.fromOpaque(refcon).takeUnretainedValue()
+            MainActor.assumeIsolated { observer.wake() }
+        }
+
+        let refcon = Unmanaged.passUnretained(self).toOpaque()
+        for app in Self.notificationCenterApps() {
+            let pid = app.processIdentifier
+            var observer: AXObserver?
+            guard AXObserverCreate(pid, callback, &observer) == .success, let observer else { continue }
+
+            let axApp = AXUIElementCreateApplication(pid)
+            // Both fire for a newly created banner; the content dedupe below
+            // absorbs the duplicate.
+            for name in [kAXWindowCreatedNotification, kAXCreatedNotification] {
+                AXObserverAddNotification(observer, axApp, name as CFString, refcon)
             }
+            CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(observer), .defaultMode)
+            axObservers[pid] = observer
+        }
+    }
+
+    private func teardownAXObservers() {
+        for observer in axObservers.values {
+            CFRunLoopRemoveSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(observer), .defaultMode)
+        }
+        axObservers.removeAll()
+    }
+
+    /// Notification Center can restart; re-attach when the process set changes.
+    private func observeWorkspaceLifecycle() {
+        let center = NSWorkspace.shared.notificationCenter
+        for name in [NSWorkspace.didLaunchApplicationNotification, NSWorkspace.didTerminateApplicationNotification] {
+            let token = center.addObserver(forName: name, object: nil, queue: .main) { [weak self] note in
+                let bundleID = (note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication)?
+                    .bundleIdentifier
+                guard let bundleID, Self.notificationCenterBundleIDs.contains(bundleID) else { return }
+                MainActor.assumeIsolated {
+                    guard let self, self.isObserving else { return }
+                    self.attachAXObservers()
+                }
+            }
+            workspaceTokens.append(token)
+        }
+    }
+
+    // MARK: - Scan Burst
+
+    /// Called by the AXObserver, and once at start. Runs a scan burst until the
+    /// banner window goes away, then returns the app to zero background cost.
+    private func wake() {
+        guard isObserving, scanTask == nil else { return }
+        scanTask = Task { @MainActor [weak self] in
+            var deadline = ContinuousClock.now + Self.maxBurstDuration
+            var emptyScans = 0
+            while !Task.isCancelled, let self, self.isObserving {
+                let reportsBefore = self.reportCount
+                let sawBanner = self.scanNotificationBanners()
+
+                emptyScans = sawBanner ? 0 : emptyScans + 1
+                if emptyScans >= Self.emptyScansBeforeIdle { break }
+                // Real notification traffic earns more time; a window that just
+                // sits there does not, so the ceiling still bites.
+                if self.reportCount > reportsBefore {
+                    deadline = ContinuousClock.now + Self.maxBurstDuration
+                } else if ContinuousClock.now >= deadline {
+                    break
+                }
+
+                try? await Task.sleep(for: Self.scanInterval)
+            }
+            self?.scanTask = nil
         }
     }
 
@@ -80,7 +178,7 @@ final class SystemNotificationObserver: SystemNotificationObserverProtocol {
         hashCleanupTask?.cancel()
         hashCleanupTask = Task { [weak self] in
             while !Task.isCancelled {
-                try? await Task.sleep(nanoseconds: 30 * 1_000_000_000)  // 30s
+                try? await Task.sleep(for: .seconds(30))
                 if Task.isCancelled { break }
                 // Trim hash set to prevent unbounded growth
                 if let self = self, self.knownHashes.count > 500 {
@@ -90,128 +188,15 @@ final class SystemNotificationObserver: SystemNotificationObserverProtocol {
         }
     }
 
-    private func pollNotificationBanners() {
-        for app in runningNotificationCenterApps() {
-            let pid = app.processIdentifier
-            let axApp = AXUIElementCreateApplication(pid)
+    // MARK: - Dedupe
 
-            guard let windows = axAttribute(axApp, kAXWindowsAttribute) as? [AXUIElement] else {
-                continue
-            }
-
-            for window in windows {
-                extractNotificationsFromElement(window)
-            }
-        }
+    /// Returns false when the notification was already reported.
+    func recordIfNew(_ notification: NotchNotification) -> Bool {
+        knownHashes.insert(notification.hashValue).inserted
     }
 
-    private func runningNotificationCenterApps() -> [NSRunningApplication] {
-        let bundled = Self.notificationCenterBundleIDs.flatMap { bundleID in
-            NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
-        }
-
-        let named = NSWorkspace.shared.runningApplications.filter { app in
-            (app.localizedName ?? "").localizedCaseInsensitiveContains("notification")
-        }
-
-        var seenPIDs = Set<pid_t>()
-        return (bundled + named).filter { app in
-            seenPIDs.insert(app.processIdentifier).inserted
-        }
-    }
-
-    // MARK: - AX Tree Traversal
-
-    private func extractNotificationsFromElement(_ element: AXUIElement) {
-        let role = axAttribute(element, kAXRoleAttribute) as? String
-        let subrole = axAttribute(element, kAXSubroleAttribute) as? String
-
-        // Notification banners are typically AXGroup or AXNotificationCenter elements
-        if role == kAXGroupRole as String || subrole == "AXNotificationCenterAlert"
-            || subrole == "AXNotificationCenterBanner"
-        {
-            if let notification = extractNotificationContent(from: element) {
-                let hash = notification.hashValue
-                guard !knownHashes.contains(hash) else { return }
-                knownHashes.insert(hash)
-                notificationManager.addNotification(notification)
-                return
-            }
-        }
-
-        // Recursively traverse children
-        guard let children = axAttribute(element, kAXChildrenAttribute) as? [AXUIElement] else {
-            return
-        }
-
-        for child in children {
-            extractNotificationsFromElement(child)
-        }
-    }
-
-    private func extractNotificationContent(from element: AXUIElement) -> NotchNotification? {
-        // Try to extract title and body from the notification element's children
-        var title: String?
-        var body: String?
-        var appName: String?
-
-        // Try direct attributes first
-        title = axAttribute(element, kAXTitleAttribute) as? String
-        body = axAttribute(element, kAXDescriptionAttribute) as? String
-
-        // If no direct attributes, traverse children for static text elements
-        if title == nil || body == nil {
-            if let children = axAttribute(element, kAXChildrenAttribute) as? [AXUIElement] {
-                var staticTexts: [String] = []
-                collectStaticTexts(from: children, into: &staticTexts)
-
-                // Typically: [app name, title, body] or [title, body]
-                switch staticTexts.count {
-                case 1:
-                    title = title ?? staticTexts[0]
-                case 2:
-                    title = title ?? staticTexts[0]
-                    body = body ?? staticTexts[1]
-                case 3...:
-                    appName = staticTexts[0]
-                    title = title ?? staticTexts[1]
-                    body = body ?? staticTexts[2]
-                default:
-                    break
-                }
-            }
-        }
-
-        guard let notifTitle = title, !notifTitle.isEmpty else { return nil }
-
-        return NotchNotification(
-            title: notifTitle,
-            message: body ?? "",
-            category: .app,
-            sourceApp: appName
-        )
-    }
-
-    private func collectStaticTexts(from elements: [AXUIElement], into texts: inout [String]) {
-        for element in elements {
-            let role = axAttribute(element, kAXRoleAttribute) as? String
-            if role == kAXStaticTextRole as String {
-                if let value = axAttribute(element, kAXValueAttribute) as? String, !value.isEmpty {
-                    texts.append(value)
-                }
-            }
-            // Recurse into children (max 3 levels deep to avoid excessive traversal)
-            if texts.count < 5, let children = axAttribute(element, kAXChildrenAttribute) as? [AXUIElement] {
-                collectStaticTexts(from: children, into: &texts)
-            }
-        }
-    }
-
-    // MARK: - AX Helpers
-
-    private func axAttribute(_ element: AXUIElement, _ attribute: String) -> CFTypeRef? {
-        var value: CFTypeRef?
-        let result = AXUIElementCopyAttributeValue(element, attribute as CFString, &value)
-        return result == .success ? value : nil
+    func report(_ notification: NotchNotification) {
+        reportCount += 1
+        notificationManager.addNotification(notification)
     }
 }

@@ -6,18 +6,18 @@
 //
 
 #if MACH_NOTCH_SOUNDSCAPE
-import machNotchWithSoundscape
+    import machNotchWithSoundscape
 #else
-import machNotch
+    import machNotch
 #endif
 
 @main
 enum DynamicNotchApp {
     static func main() {
         #if MACH_NOTCH_SOUNDSCAPE
-        machNotchWithSoundscape.MachNotchAppRoot.main()
+            machNotchWithSoundscape.MachNotchAppRoot.main()
         #else
-        machNotch.MachNotchAppRoot.main()
+            machNotch.MachNotchAppRoot.main()
         #endif
     }
 }

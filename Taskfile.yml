@@ -14,7 +14,14 @@ vars:
   DEST: "platform=macOS"
 
   # Override on the command line, e.g. `task build CONFIG=Release`.
+  # Debug keeps the inner build loop fast.
   CONFIG: Debug
+
+  # What actually lands in ~/Applications. Kept separate from CONFIG because an
+  # unoptimized build is what you then run all day: no cross-module inlining and
+  # no ARC elision, which shows up as CPU and battery, not just slower builds.
+  # Override for a debuggable install, e.g. `task install INSTALL_CONFIG=Debug`.
+  INSTALL_CONFIG: Release
   VERSION: "0.0.0"
   BUILD: "0"
 
@@ -68,27 +75,29 @@ tasks:
 
   install:
     desc: "notch: build, sign and install the default app to ~/Applications"
-    deps: [build]
     cmds:
+      - task: build
+        vars: { CONFIG: "{{.INSTALL_CONFIG}}" }
       - task: kill
       - mkdir -p "{{.HOME}}/Applications"
       - rm -rf "{{.NOTCH_DEST}}"
-      - cp -R "{{.PRODUCTS}}/{{.CONFIG}}/machNotch.app" "{{.NOTCH_DEST}}"
+      - cp -R "{{.PRODUCTS}}/{{.INSTALL_CONFIG}}/machNotch.app" "{{.NOTCH_DEST}}"
       # Built unsigned on purpose (see Tuist/ProjectDescriptionHelpers/Mach.swift);
       # sign here so TCC grants stick to a stable identity.
       - codesign --force --deep --sign "{{.CERT}}" "{{.NOTCH_DEST}}"
-      - echo "✓ Installed and signed at {{.NOTCH_DEST}}"
+      - echo "✓ Installed {{.INSTALL_CONFIG}} build, signed at {{.NOTCH_DEST}}"
 
   install:soundscape:
     desc: "notch: build, sign and install the Soundscape app to ~/Applications"
-    deps: [build:soundscape]
     cmds:
+      - task: build:soundscape
+        vars: { CONFIG: "{{.INSTALL_CONFIG}}" }
       - task: kill:soundscape
       - mkdir -p "{{.HOME}}/Applications"
       - rm -rf "{{.NOTCH_SOUNDSCAPE_DEST}}"
-      - cp -R "{{.PRODUCTS}}/{{.CONFIG}}/machNotchWithSoundscape.app" "{{.NOTCH_SOUNDSCAPE_DEST}}"
+      - cp -R "{{.PRODUCTS}}/{{.INSTALL_CONFIG}}/machNotchWithSoundscape.app" "{{.NOTCH_SOUNDSCAPE_DEST}}"
       - codesign --force --deep --sign "{{.CERT}}" "{{.NOTCH_SOUNDSCAPE_DEST}}"
-      - echo "✓ Installed and signed at {{.NOTCH_SOUNDSCAPE_DEST}}"
+      - echo "✓ Installed {{.INSTALL_CONFIG}} build, signed at {{.NOTCH_SOUNDSCAPE_DEST}}"
 
   run:
     desc: "notch: build, install and launch the default app"
@@ -139,14 +148,15 @@ tasks:
 
   brief:install:
     desc: "brief: build, sign and install to ~/Applications"
-    deps: [brief:build]
     cmds:
+      - task: brief:build
+        vars: { CONFIG: "{{.INSTALL_CONFIG}}" }
       - task: brief:kill
       - mkdir -p "{{.HOME}}/Applications"
       - rm -rf "{{.BRIEF_DEST}}"
-      - cp -R "{{.PRODUCTS}}/{{.CONFIG}}/machBrief.app" "{{.BRIEF_DEST}}"
+      - cp -R "{{.PRODUCTS}}/{{.INSTALL_CONFIG}}/machBrief.app" "{{.BRIEF_DEST}}"
       - codesign --force --deep --sign "{{.CERT}}" "{{.BRIEF_DEST}}"
-      - echo "✓ Installed and signed at {{.BRIEF_DEST}}"
+      - echo "✓ Installed {{.INSTALL_CONFIG}} build, signed at {{.BRIEF_DEST}}"
 
   brief:run:
     desc: "brief: build, install and launch"

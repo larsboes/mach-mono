@@ -37,7 +37,7 @@ The app focuses on:
 Cherry-picked and adapted the best community contributions that were pending on upstream:
 
 | Feature | Original PR |
-|---------|-------------|
+| --------- | ------------- |
 | Sneak peek duration customization | #897 |
 | Auto-disable HUD on disconnected displays | #895 |
 | Screen recording live activity | #804 |
@@ -87,18 +87,18 @@ Cherry-picked and adapted the best community contributions that were pending on 
 ## Building from Source
 
 ```bash
-brew install bazelisk
+brew install tuist go-task
 git clone https://github.com/larsboes/mach-mono.git && cd mach-mono
-bazelisk build //Apps/machNotch:machNotch
-open bazel-bin/Apps/machNotch/machNotch.app
+task gen    # generate the Xcode workspace from the Project.swift manifests
+task run    # build, sign, install to ~/Applications, launch
 ```
 
-Bazel uses the Xcode toolchain to compile Swift — Xcode 26 or later must be installed (free from the App Store; no paid developer account needed).
+Tuist generates the Xcode projects and the build uses the Xcode toolchain, so Xcode 26 or later must be installed (free from the App Store; no paid developer account needed).
 
 <details>
 <summary>Also want to run in Xcode?</summary>
 
-1. `open Apps/machNotch/machNotch.xcodeproj` — Xcode resolves SPM dependencies automatically.
+1. `task edit` — generates the workspace, then opens it. The `.xcodeproj` is build output and is gitignored, so `task gen` must run first.
 2. Fix code signing for each target (`machNotch`, `MachNotchXPCHelper`, `machNotchTests`): **Signing & Capabilities → Automatically manage signing → set Team to your personal team → change Bundle Identifier** to something unique (e.g. `com.yourname.machnotch`).
 3. Press `Cmd + R`.
 
@@ -109,7 +109,8 @@ Bazel uses the Xcode toolchain to compile Swift — Xcode 26 or later must be in
 ### Tests
 
 ```bash
-bazelisk test //Apps/machNotch:machNotchTests //Packages/MachBriefKit:MachBriefKitTests
+task notch:test    # machNotch only
+task test          # every test target
 ```
 
 ---
@@ -130,7 +131,7 @@ The extension connects directly to machNotch via a local WebSocket to transmit m
 
 ## Architecture
 
-```
+```text
 SwiftUI Views -> PluginManager -> NotchPlugin instances -> Service Protocols -> System APIs
 ```
 

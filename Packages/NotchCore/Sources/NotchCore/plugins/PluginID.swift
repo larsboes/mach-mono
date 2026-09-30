@@ -18,6 +18,7 @@ public enum PluginID {
     public static let systemStats = "com.machnotch.system-stats"
     public static let brief = "com.machnotch.brief"
     public static let soundscape = "com.machnotch.soundscape"
+    public static let axon = "com.machnotch.axon"
 
     // System-level source IDs for events (not registered plugins)
     public enum System {

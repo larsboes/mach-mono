@@ -96,7 +96,9 @@ final class WeatherService: NSObject, WeatherServiceProtocol, CLLocationManagerD
         updateTask?.cancel()
         updateTask = Task { [weak self] in
             while !Task.isCancelled {
-                try? await Task.sleep(nanoseconds: 1800 * 1_000_000_000)
+                // Half-hourly weather tolerates a wide window, so the sleep
+                // can be coalesced with any other pending wake-up.
+                try? await Task.sleep(for: .seconds(1800), tolerance: .seconds(120))
                 if Task.isCancelled { break }
                 self?.refreshWeather()
             }

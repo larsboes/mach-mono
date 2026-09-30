@@ -5,8 +5,8 @@
 //  Environment keys for sharing layout and animation state.
 //
 
-import SwiftUI
 import NotchCore
+import SwiftUI
 
 public struct DisplayClosedNotchHeightKey: EnvironmentKey {
     public static let defaultValue: CGFloat = 32.0
@@ -20,6 +20,12 @@ public struct ContentProgressKey: EnvironmentKey {
 public struct IsNotchClosingKey: EnvironmentKey {
     /// Whether the notch is currently in its closing transition.
     public static let defaultValue: Bool = false
+}
+
+public struct IsDisplayActiveKey: EnvironmentKey {
+    /// Whether the screen is awake and unlocked. Always-on animations read this
+    /// and stop when nobody can see them. See `DisplayActivityMonitor`.
+    public static let defaultValue: Bool = true
 }
 
 public struct CornerRadiusScaleFactorKey: EnvironmentKey {
@@ -47,6 +53,11 @@ public extension EnvironmentValues {
     var isNotchClosing: Bool {
         get { self[IsNotchClosingKey.self] }
         set { self[IsNotchClosingKey.self] = newValue }
+    }
+
+    var isDisplayActive: Bool {
+        get { self[IsDisplayActiveKey.self] }
+        set { self[IsDisplayActiveKey.self] = newValue }
     }
 
     var cornerRadiusScaleFactor: CGFloat? {
@@ -79,4 +90,3 @@ public struct BindableNotchSettingsKey: EnvironmentKey {
         MainActor.assumeIsolated { DefaultsNotchSettings.shared }
     }
 }
-

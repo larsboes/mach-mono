@@ -30,9 +30,13 @@ public final class BluetoothManager: NSObject, BackgroundServiceRestartable, Blu
 
     public func startMonitoring() {
         updateConnectedDevices()
-        timer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { [weak self] _ in
+        let timer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.updateConnectedDevices() }
         }
+        // Paired-device changes are not time-critical; let the system coalesce
+        // this wake-up with others.
+        timer.tolerance = 5.0
+        self.timer = timer
     }
 
     public func stopMonitoring() {

@@ -214,8 +214,8 @@ function sortKeys(o: Record<string, string>): Record<string, string> {
 }
 
 function resolveRepoRoot(): string {
-  // resources/tools/sync-skills.ts → repo root is one level up.
-  return dirname(import.meta.dir);
+  // resources/tools/sync-skills.ts → repo root is two levels up.
+  return dirname(dirname(import.meta.dir));
 }
 
 // ── main sync ─────────────────────────────────────────────────────────────────
@@ -299,6 +299,8 @@ function main() {
   } else {
     log(`skill-sync: ${changes} skill file(s) ${DRY_RUN ? "would be " : ""}updated`);
     for (const line of summary) log(line);
+    // --dry-run is the `task skills:check` gate, so pending drift must fail.
+    if (DRY_RUN) process.exitCode = 1;
   }
 }
 

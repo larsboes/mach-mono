@@ -36,6 +36,7 @@ public struct NotchViews: Sendable, Hashable, Equatable {
     public static let systemStats = NotchViews(id: PluginID.systemStats)
     public static let brief = NotchViews(id: PluginID.brief)
     public static let soundscape = NotchViews(id: PluginID.soundscape)
+    public static let axon = NotchViews(id: PluginID.axon)
 
     public static func plugin(_ id: String) -> NotchViews {
         return NotchViews(id: id)

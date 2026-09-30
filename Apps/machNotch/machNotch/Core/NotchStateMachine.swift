@@ -9,8 +9,6 @@
 import Foundation
 import Observation
 
-
-
 // MARK: - State Machine
 
 /// Centralizes state determination logic.

@@ -26,4 +26,3 @@ Please include:
 - Keep Apple signing certificates and macOS automation permissions to the minimum set required.
 - Review plugin/feature permissions against runtime needs.
 - When sharing logs, remove machine identifiers and local paths.
-

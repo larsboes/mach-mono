@@ -9,7 +9,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun \"$CLAUDE_PROJECT_DIR/scripts/hooks/command-gate.ts\""
+            "command": "bun \"$CLAUDE_PROJECT_DIR/resources/tools/hooks/command-gate.ts\""
           }
         ]
       }
@@ -20,11 +20,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun \"$CLAUDE_PROJECT_DIR/scripts/sync-skills.ts\" --quiet"
+            "command": "bun \"$CLAUDE_PROJECT_DIR/resources/tools/sync-skills.ts\" --quiet"
           },
           {
             "type": "command",
-            "command": "bun \"$CLAUDE_PROJECT_DIR/scripts/hooks/swift-archcheck.ts\""
+            "command": "bun \"$CLAUDE_PROJECT_DIR/resources/tools/hooks/swift-archcheck.ts\""
           }
         ]
       }
@@ -34,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun \"$CLAUDE_PROJECT_DIR/scripts/hooks/stop-gate.ts\""
+            "command": "bun \"$CLAUDE_PROJECT_DIR/resources/tools/hooks/stop-gate.ts\""
           }
         ]
       }

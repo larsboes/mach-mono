@@ -5,9 +5,13 @@
 `sync-skills.ts` keeps agent skills mirrored between the two platforms:
 
 | Side | Path | Frontmatter |
-|------|------|-------------|
-| Claude Code | `.claude/skills/<name>/SKILL.md` | superset (`name`, `description`, `paths`, `user-invocable`, `argument-hint`, `disable-model-invocation`, comments) |
-| Antigravity | `.agents/skills/<name>/SKILL.md` | projection (`name` + `description` only) |
+| --- | --- | --- |
+| Claude Code | `.claude/skills/<name>/SKILL.md` | superset |
+| Antigravity | `.agents/skills/<name>/SKILL.md` | projection |
+
+The Claude Code superset carries `name`, `description`, `paths`, `user-invocable`,
+`argument-hint`, `disable-model-invocation` and comments. The Antigravity projection
+carries `name` and `description` only.
 
 **Edit either side.** On the next commit the change is mirrored to the other side:
 
@@ -44,7 +48,7 @@ platform from the stdin payload). Config lives in two files: `.agents/hooks.json
 (Antigravity) and the `hooks` block of `.claude/settings.json` (Claude Code).
 
 | # | Hook | Event | Does | Platforms |
-|---|------|-------|------|-----------|
+| --- | ------ | ------- | ------ | ----------- |
 | 1 | skill mirror | `PostToolUse` (file writes) | runs `sync-skills.ts` so skill edits mirror live mid-session, not just at commit | both |
 | 2 | command gate | `PreToolUse` (commands) | `command-gate.ts` denies `xcodebuild` / `npm`/`npx`/`yarn`/`pnpm` with a reason; everything else allowed | both |
 | 3 | swift arch-check | `PostToolUse` (`*.swift` write) | `swift-archcheck.ts` runs `arch-check.sh`, feeds violations back | Claude only¹ |

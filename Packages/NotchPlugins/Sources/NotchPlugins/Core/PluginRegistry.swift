@@ -21,6 +21,7 @@ import NotchSystemStatsPlugin
 import NotchTeleprompterPlugin
 import NotchWeatherPlugin
 import NotchWebcamPlugin
+import NotchAxonPlugin
 
 @MainActor
 public enum PluginRegistry {
@@ -52,6 +53,7 @@ public enum PluginRegistry {
             displaySurfaceDescriptor,
             systemStatsDescriptor,
             briefDescriptor,
+            axonDescriptor,
         ]
     }
 
@@ -262,6 +264,21 @@ public enum PluginRegistry {
             capabilities: [.closedNotchContent, .expandedPanelContent, .settingsContent, .positioned],
             closedNotchPosition: .right,
             factory: { BriefPlugin() }
+        )
+    }
+
+    private static var axonDescriptor: PluginDescriptor {
+        PluginDescriptor(
+            id: PluginID.axon,
+            metadata: PluginMetadata(
+                name: "Axon",
+                description: "Ambient Horizon and Decision Triage for Axon OS",
+                icon: "circle.hexagongrid.fill",
+                category: .productivity
+            ),
+            capabilities: [.closedNotchContent, .expandedPanelContent, .settingsContent, .positioned],
+            closedNotchPosition: .right,
+            factory: { AxonPlugin() }
         )
     }
 }

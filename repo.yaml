@@ -68,6 +68,20 @@ products:
     license:
       target: MIT
 
+  machHealth:
+    display_name: mach.health
+    kind: iOS app
+    status: stub
+    path: Apps/machHealth
+    # Standalone SwiftPM package, not a Tuist project. Excluded from
+    # Workspace.swift on purpose; see the comment at the top of that file.
+    swift_package: Apps/machHealth/Package.swift
+    package: Packages/HealthExportKit
+    commands:
+      test: task health:test
+    license:
+      target: MIT
+
 packages:
   root: Packages
   existing:

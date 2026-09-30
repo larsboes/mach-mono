@@ -27,6 +27,7 @@ final class PluginManagerLazyLoadingTests: XCTestCase {
                 PluginID.displaySurface,
                 PluginID.systemStats,
                 PluginID.brief,
+                PluginID.axon,
             ]
         )
     }

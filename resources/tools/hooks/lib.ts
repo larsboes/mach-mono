@@ -18,7 +18,7 @@ import { dirname, join } from "node:path";
 export type Platform = "antigravity" | "claude" | "unknown";
 
 /** Repo root: this file lives at <root>/resources/tools/hooks/lib.ts. */
-export const REPO_ROOT = dirname(dirname(import.meta.dir));
+export const REPO_ROOT = dirname(dirname(dirname(import.meta.dir)));
 
 /** Read the full stdin payload and JSON-parse it; {} when empty/unparseable. */
 export async function readInput(): Promise<any> {

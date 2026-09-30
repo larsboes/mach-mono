@@ -5,7 +5,7 @@
 Agent skills live in **`.claude/skills/`** and are mirrored to `.agents/skills/`; adapter links for `.cursor/skills/` and `.gemini/skills/` are managed by `resources/tools/sync-skills.sh`.
 
 | Skill | Invocation | Scope |
-|---|---|---|
+| --- | --- | --- |
 | `plugin-architecture` | auto (Claude) | `**/Plugins/**/*.swift` |
 | `swift-code-quality` | auto (Claude) | `**/*.swift` |
 | `swift` | auto (Claude) | `**/*.swift` |

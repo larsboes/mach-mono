@@ -30,6 +30,9 @@ final class WindowCoordinator {
     let pluginManager: PluginManager
     let detector: FullscreenMediaDetector
     let spaceManager: NotchSpaceManager
+    /// Shared by every notch window so always-on animations can stand down when
+    /// the display sleeps or locks.
+    let displayActivity = DisplayActivityMonitor()
     var isScreenLocked: Bool = false
     var onDragDetectorsNeedSetup: (() -> Void)?
     var showSettingsWindow: (() -> Void)?
@@ -98,6 +101,7 @@ final class WindowCoordinator {
                 .environment(viewModel.uiContext)
                 .environment(coordinator)
                 .environment(stateMachine)
+                .environment(displayActivity)
                 .environment(\.pluginManager, pluginManager as PluginManager?)
                 .environment(\.settings, settings)
                 .environment(\.bindableSettings, (settings as? DefaultsNotchSettings) ?? DefaultsNotchSettings.shared)

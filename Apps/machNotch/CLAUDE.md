@@ -8,13 +8,14 @@ macOS SwiftUI app that replaces the MacBook notch with an interactive widget sys
 
 ## Build & Test
 
-- **Build:** `bazelisk build //Apps/machNotch:machNotch` from repo root
-- **Test:** `bazelisk test //Apps/machNotch:machNotchTests //Packages/MachBriefKit:MachBriefKitTests` from repo root
+- **Generate:** `task gen` from repo root, after cloning and after adding or removing a file
+- **Build:** `task build` from repo root
+- **Test:** `task notch:test` from repo root, or `task test` for every target
 - Always build after changes. Don't commit without a green build
 
 ## Directory Structure
 
-```
+```text
 machNotch/
 ├── Core/                    # Application layer / coordinators / app bootstrapping
 ├── AppObjectGraph.swift     # DI root — constructs all services and coordinators
@@ -36,7 +37,7 @@ Packages/
 ## DDD Layer Boundaries
 
 | Layer | Where | Imports | Forbidden |
-|-------|-------|---------|-----------|
+| ------- | ------- | --------- | ----------- |
 | **Domain** | `Packages/NotchCore/` | Foundation, Observation, Combine, Defaults | SwiftUI, AppKit |
 | **Application** | `machNotch/Core/` coordinators + `Packages/NotchPlugins/Core/` | Domain + SwiftUI/AppKit | Concrete infra types |
 | **Infrastructure** | `Packages/NotchServices/` | Anything | — |
@@ -60,11 +61,10 @@ Packages/
 - Allowed `.shared` exceptions: `NSWorkspace`, `NSApplication`, `URLSession`, `URLCache`, `XPCHelperClient`, `FullScreenMonitor`, `QLThumbnailGenerator`, `QLPreviewPanel`, `NSScreenUUIDCache`, `SkyLightOperator`, `DefaultsNotchSettings` (injection root only), `ScreenDisplayRegistry` (system-level screen cache), `BrowserExtensionServer`, `DictionaryEntryCache`.
 - **File splits & visibility:** when splitting large files into extensions across separate files, change `private` properties to `internal` (omit `private` keyword) so they can be accessed from the extension files.
 
-
 ## Key Responsibilities
 
 | Component | Owns | Does NOT own |
-|-----------|------|-------------|
+| ----------- | ------ | ------------- |
 | **NotchViewModel** | Per-screen state, notch open/close, sizing delegation | Shared UI state |
 | **NotchViewCoordinator** | Shared cross-screen state (sneakPeek, expandingView, helloAnimation) | Per-screen state |
 | **WindowCoordinator** | Multi-display window lifecycle and app activation (use `updateNotchSize()` on app switch) | Direct `notchSize` overwrites |

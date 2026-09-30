@@ -108,7 +108,10 @@ public final class SystemStatsService: SystemStatsServiceProtocol {
         pollingTask = Task { [weak self] in
             while !Task.isCancelled {
                 guard let self else { return }
-                try? await Task.sleep(for: .seconds(self.refreshInterval))
+                // A gauge tick landing slightly late is invisible, so allow
+                // the system to coalesce this wake-up.
+                try? await Task.sleep(
+                    for: .seconds(self.refreshInterval), tolerance: .seconds(self.refreshInterval / 4))
                 guard !Task.isCancelled else { return }
                 self.refresh()
             }

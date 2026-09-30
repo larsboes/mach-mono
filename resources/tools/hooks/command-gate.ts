@@ -15,7 +15,7 @@ import { allowAndExit, denyAndExit, getCommand, platformOf, readInput } from "./
 const BLOCKLIST: { re: RegExp; reason: string }[] = [
   {
     re: /\bxcodebuild\b/,
-    reason: "Blocked: don't build from Xcode. Use Bazel — `bazelisk build //Apps/...`. (repo.yaml)",
+    reason: "Blocked: do not call xcodebuild directly. Use `task build`, `task run` or `task test`. (repo.yaml)",
   },
   {
     re: /(^|\s)(npm|npx|yarn|pnpm)(\s|$)/,

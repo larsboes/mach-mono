@@ -22,6 +22,7 @@ let builtInPlugins: [Target] = [
     Mach.notchPlugin(name: "NotchTeleprompterPlugin", path: "TeleprompterPlugin"),
     Mach.notchPlugin(name: "NotchWeatherPlugin", path: "WeatherPlugin"),
     Mach.notchPlugin(name: "NotchWebcamPlugin", path: "WebcamPlugin"),
+    Mach.notchPlugin(name: "NotchAxonPlugin", path: "AxonPlugin"),
     // Opt-in only: pulls in MachSoundKit, which the default app never links.
     Mach.notchPlugin(
         name: "NotchSoundscapePlugin",

@@ -19,6 +19,10 @@ public struct AmbientGlowVisualizer: View {
     public let height: CGFloat
     public var frequencyBands: [Float] = []
 
+    /// The visualizer runs for as long as music plays, so it is the one
+    /// animation that would otherwise redraw all night against a dark screen.
+    @Environment(\.isDisplayActive) private var isDisplayActive
+
     public init(albumColor: Color, isPlaying: Bool, height: CGFloat, frequencyBands: [Float] = []) {
         self.albumColor = albumColor
         self.isPlaying = isPlaying
@@ -28,13 +32,27 @@ public struct AmbientGlowVisualizer: View {
 
     public var body: some View {
         if isPlaying {
-            TimelineView(.animation(minimumInterval: 1.0 / 8)) { timeline in
-                Canvas { context, size in
-                    draw(in: &context, size: size, time: timeline.date.timeIntervalSinceReferenceDate)
+            Group {
+                if isDisplayActive {
+                    TimelineView(.animation(minimumInterval: 1.0 / 8)) { timeline in
+                        canvas(at: timeline.date.timeIntervalSinceReferenceDate)
+                    }
+                } else {
+                    // Keep the layer mounted so waking the display resumes the
+                    // animation in place. Which frame this is does not matter —
+                    // the screen is off or locked, and TimelineView renders the
+                    // live time again on the first frame after wake.
+                    canvas(at: 0)
                 }
             }
             .frame(height: height)
             .clipped()
+        }
+    }
+
+    private func canvas(at time: Double) -> some View {
+        Canvas { context, size in
+            draw(in: &context, size: size, time: time)
         }
     }
 

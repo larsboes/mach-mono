@@ -205,7 +205,7 @@ the app.
 
 ### Layer Diagram
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                              SwiftUI Views                                   │
 │  ContentView, NotchHomeView, SettingsView                                   │
@@ -285,19 +285,22 @@ tree, so switching branches does not pollute the working copy.
 
 Because any change inside a target invalidates that target's incremental build, we keep app modules small.
 
-The machNotch app target is split into:
+The machNotch app is one target (`machNotch`) plus an embedded XPC helper
+(`MachNotchXPCHelper`) and a test target, declared in
+[`Apps/machNotch/Project.swift`](Apps/machNotch/Project.swift). Reusable code
+lives in the `Packages/` modules rather than in a second app-level module, so a
+change inside one package invalidates only that package.
 
-- `machNotch_Lib`: all reusable app code except the `@main` launcher.
-- `machNotch_App`: one-file `@main` launcher module that depends on
-  `machNotch_Lib` and embeds `MediaRemoteAdapter`.
-
-This avoids compiling the app source set twice in clean builds.
+Bazel additionally split the app into `machNotch_Lib` and `machNotch_App` to
+avoid compiling the app source set twice in clean builds. Tuist does not need
+that split. The two diagrams below illustrate the principle, which the
+package boundaries still carry.
 
 #### Scenario A: Monolithic Target (Recompiles All Files on Single Change)
 
 ```mermaid
 graph TD
-    subgraph AppTarget ["Target: //Apps/machNotch:machNotch_App"]
+    subgraph AppTarget ["Target: machNotch"]
         F1["App.swift"]
         F2["MainView.swift"]
         F3["NotchPlugin.swift"]
@@ -312,13 +315,13 @@ graph TD
 
 ```mermaid
 graph TD
-    subgraph AppTarget ["Target: //Apps/machNotch:machNotch_App"]
+    subgraph AppTarget ["Target: machNotch"]
         F1["App.swift"]
         F2["MainView.swift"]
         F3["NotchPlugin.swift"]
     end
 
-    subgraph SoundTarget ["Target: //Packages/MachSoundKit:MachSoundKit"]
+    subgraph SoundTarget ["Target: MachSoundKit"]
         F4["SoundEngine.swift (MODIFIED)"]
         F5["SoundContext.swift"]
     end
@@ -341,7 +344,7 @@ This section maps out the exact DSP behavior of the Fluid Symphony sound engine,
 ### Master Chain
 
 | Item | Value |
-|---|---|
+| --- | --- |
 | Grid | 16th notes; `stepDur = spb/4`, `spb = 60/bpm` |
 | Master gain | `volume²` (volume slider 0–1, default 0.65) |
 | Compressor | Master dynamics: threshold −14 dB, ratio 4:1 |
@@ -370,7 +373,7 @@ This section maps out the exact DSP behavior of the Fluid Symphony sound engine,
 The visualizer responds to beat triggers and continuous amplitude (`audioLevel`) by drawing particles on a normalized coordinate space.
 
 | Event | Coord (X, Y) | Target Splat Parameters |
-|---|---|---|
+| --- | --- | --- |
 | **kick** | `0.5`, `0.42` | Radial burst of 5 splats, vel 260, k 0.16, radius 0.0035 |
 | **note** | `0.18 + (midi%12)/11 * 0.64`, `0.5 ± 0.15` | Single splat, vel 210, k 0.30, radius 0.0011 |
 | **bass** | `0.3 + rand * 0.4`, `0.16` | Vertical impulse, vel 240, k 0.18, radius 0.0022 |

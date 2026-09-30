@@ -22,5 +22,3 @@ let temporaryDirectory =
 let spacing: CGFloat = 16
 
 // Removed duplicate BluetoothDeviceIconMapping (now defined in NotchCore)
-
-

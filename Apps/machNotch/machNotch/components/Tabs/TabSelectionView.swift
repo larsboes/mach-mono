@@ -26,6 +26,7 @@ private let weatherTab = TabModel(label: "Weather", icon: "cloud.sun.fill", view
 private let systemStatsTab = TabModel(label: "Stats", icon: "gauge.with.dots.needle.50percent", view: .systemStats)
 private let briefTab = TabModel(label: "Brief", icon: "text.book.closed.fill", view: .brief)
 private let soundscapeTab = TabModel(label: "Soundscape", icon: "waveform.path", view: .soundscape)
+private let axonTab = TabModel(label: "Axon", icon: "circle.hexagongrid.fill", view: .axon)
 
 struct TabSelectionView: View {
     @Environment(NotchViewModel.self) var vm
@@ -40,6 +41,9 @@ struct TabSelectionView: View {
         }
         if pluginManager?.hasPlugin(id: PluginID.brief) == true {
             tabs.append(briefTab)
+        }
+        if pluginManager?.hasPlugin(id: PluginID.axon) == true {
+            tabs.append(axonTab)
         }
         if pluginManager?.hasPlugin(id: PluginID.soundscape) == true {
             tabs.append(soundscapeTab)

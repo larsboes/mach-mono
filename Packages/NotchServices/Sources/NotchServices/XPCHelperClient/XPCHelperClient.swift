@@ -107,7 +107,9 @@ public final class XPCHelperClient: NSObject {
             while !Task.isCancelled {
                 _ = await self.isAccessibilityAuthorized()
                 do {
-                    try await Task.sleep(for: .seconds(interval))
+                    // A permission change noticed a few seconds late costs
+                    // nothing; let the system coalesce this wake-up.
+                    try await Task.sleep(for: .seconds(interval), tolerance: .seconds(interval / 4))
                 } catch { break }
             }
         }

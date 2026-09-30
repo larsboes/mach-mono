@@ -22,6 +22,13 @@ struct MeasureSizeModifier: ViewModifier {
 }
 
 public struct MarqueeText: View {
+    /// Gap between the text and its trailing copy. Also the distance the copy
+    /// sits ahead of the original, so it doubles as part of the scroll length.
+    private static let gap: CGFloat = 20
+    /// Scroll speed. Constant regardless of title length, so a long track name
+    /// does not race past.
+    private static let pointsPerSecond: CGFloat = 30
+
     let text: String
     let font: Font
     let nsFont: NSFont.TextStyle
@@ -29,9 +36,10 @@ public struct MarqueeText: View {
     let delayDuration: Double
     let frameWidth: CGFloat
 
+    @Environment(\.isDisplayActive) private var isDisplayActive
+
     @State private var animate = false
-    @State private var textSize: CGSize = .zero
-    @State private var offset: CGFloat = 0
+    @State private var textWidth: CGFloat = 0
 
     public init(
         _ text: String, font: Font = .body, nsFont: NSFont.TextStyle = .body, color: Color = .primary,
@@ -46,13 +54,29 @@ public struct MarqueeText: View {
     }
 
     private var needsScrolling: Bool {
-        textSize.width > frameWidth
+        textWidth > frameWidth
+    }
+
+    /// One full cycle moves the original off the left edge and lands its copy
+    /// exactly where the original started.
+    private var scrollDistance: CGFloat {
+        textWidth + Self.gap
+    }
+
+    private var lineHeight: CGFloat {
+        NSFont.preferredFont(forTextStyle: nsFont).pointSize
+    }
+
+    /// A scrolling title is a perpetual animation, so it stands down with the
+    /// display rather than running against a dark screen.
+    private var isScrolling: Bool {
+        animate && isDisplayActive
     }
 
     public var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
             ZStack(alignment: .leading) {
-                HStack(spacing: 20) {
+                HStack(spacing: Self.gap) {
                     Text(text)
                     Text(text)
                         .opacity(needsScrolling ? 1 : 0)
@@ -61,34 +85,38 @@ public struct MarqueeText: View {
                 .font(font)
                 .foregroundColor(color)
                 .fixedSize(horizontal: true, vertical: false)
-                .offset(x: self.animate ? offset : 0)
+                .offset(x: isScrolling ? -scrollDistance : 0)
                 .animation(
-                    self.animate
-                        ? .linear(duration: Double(textSize.width / 30))
+                    isScrolling
+                        ? .linear(duration: Double(scrollDistance / Self.pointsPerSecond))
                             .delay(delayDuration)
-                            .repeatForever(autoreverses: false) : .none,
-                    value: self.animate
+                            .repeatForever(autoreverses: false) : nil,
+                    value: isScrolling
                 )
                 .modifier(MeasureSizeModifier())
                 .onPreferenceChange(SizePreferenceKey.self) { size in
-                    self.textSize = CGSize(
-                        width: size.width / 2, height: NSFont.preferredFont(forTextStyle: nsFont).pointSize)
-                    self.animate = false
-                    self.offset = 0
-                    Task { @MainActor in
-                        try? await Task.sleep(nanoseconds: 10000000)
-                        if needsScrolling {
-                            self.animate = true
-                            self.offset = -(textSize.width + 10)
-
-                        }
-                    }
+                    // The HStack measures both copies plus the gap.
+                    textWidth = max(0, (size.width - Self.gap) / 2)
                 }
             }
             .frame(width: frameWidth, alignment: .leading)
             .clipped()
         }
-        .frame(height: textSize.height * 1.3)
+        .frame(height: lineHeight * 1.3)
+        // Restarting through `task(id:)` rather than from the preference
+        // callback means a title change cancels the in-flight restart instead of
+        // racing it. The yield still has to be a real frame: SwiftUI must commit
+        // the reset to offset 0 before the repeating animation is attached.
+        .task(id: restartKey) {
+            animate = false
+            guard needsScrolling, isDisplayActive else { return }
+            try? await Task.sleep(for: .milliseconds(16))
+            guard !Task.isCancelled else { return }
+            animate = true
+        }
+    }
 
+    private var restartKey: [String] {
+        [text, "\(frameWidth)", "\(needsScrolling)", "\(isDisplayActive)"]
     }
 }

@@ -20,7 +20,6 @@ excluded:
   - .build
   - .agent
   - .claude
-  - bazel-*
 
 # Active thresholds — these rules are NOT disabled, so thresholds apply.
 file_length: 400
